@@ -1,0 +1,1130 @@
+<div id="catalog-page"
+     style="font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; padding:40px 16px; max-width:1200px; margin:0 auto; color:#111827;">
+
+ 
+
+  <!-- RADIO UNTUK TAB (JANGAN DIUBAH) -->
+  <input type="radio" name="gallery-tab" id="tab-all" checked>
+  <input type="radio" name="gallery-tab" id="tab-fasad">
+  <input type="radio" name="gallery-tab" id="tab-pagar">
+  <input type="radio" name="gallery-tab" id="tab-interior">
+
+  <style>
+    #catalog-page input[type="radio"] {
+      display: none;
+    }
+
+    /* TAB NAV */
+    #catalog-page .tabs-container {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 24px;
+      font-size: 17px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+    #catalog-page .tab-label {
+      cursor: pointer;
+      color: #6b7280;
+      position: relative;
+      padding: 4px 0;
+    }
+    #catalog-page .tab-label::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: -6px;
+      width: 0;
+      height: 2px;
+      background: #5B82F9;
+      transition: width 0.2s ease;
+    }
+
+    /* TAB AKTIF */
+    #tab-all:checked      ~ .tabs-container label[for="tab-all"],
+    #tab-fasad:checked    ~ .tabs-container label[for="tab-fasad"],
+    #tab-pagar:checked    ~ .tabs-container label[for="tab-pagar"],
+    #tab-interior:checked ~ .tabs-container label[for="tab-interior"] {
+      color: #111827;
+      font-weight: 600;
+    }
+    #tab-all:checked      ~ .tabs-container label[for="tab-all"]::after,
+    #tab-fasad:checked    ~ .tabs-container label[for="tab-fasad"]::after,
+    #tab-pagar:checked    ~ .tabs-container label[for="tab-pagar"]::after,
+    #tab-interior:checked ~ .tabs-container label[for="tab-interior"]::after {
+      width: 100%;
+    }
+
+    /* GRID GALERI */
+    #catalog-page .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 24px;
+    }
+    @media (max-width: 1024px) {
+      #catalog-page .gallery-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+    @media (max-width: 640px) {
+      #catalog-page .gallery-grid {
+        grid-template-columns: repeat(1, minmax(0, 1fr));
+      }
+    }
+
+    /* TILE FOTO – FRAME 1:1 */
+    #catalog-page .gallery-item {
+      position: relative;
+      overflow: hidden;
+      background: #e5e7eb;
+      cursor: pointer;
+    }
+    #catalog-page .gallery-item::before {
+      content: "";
+      display: block;
+      padding-top: 100%; /* kotak 1:1 */
+    }
+    #catalog-page .gallery-item img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s ease;
+    }
+    #catalog-page .gallery-item:hover img {
+      transform: scale(1.03);
+    }
+
+    /* FILTER KATEGORI – 1 KATEGORI PER FOTO */
+    #catalog-page .gallery-item { display: none; }
+
+    /* TAB SEMUA: tampilkan semua kategori */
+    #tab-all:checked      ~ .gallery-grid .gallery-item {
+      display: block;
+    }
+
+    /* TAB FASAD: cuma yang data-cat="fasad" */
+    #tab-fasad:checked    ~ .gallery-grid .gallery-item[data-cat="fasad"] {
+      display: block;
+    }
+
+    /* TAB PAGAR: cuma yang data-cat="pagar" */
+    #tab-pagar:checked    ~ .gallery-grid .gallery-item[data-cat="pagar"] {
+      display: block;
+    }
+
+    /* TAB INTERIOR: cuma yang data-cat="interior" */
+    #tab-interior:checked ~ .gallery-grid .gallery-item[data-cat="interior"] {
+      display: block;
+    }
+
+    /* LIGHTBOX */
+    #catalog-page .gallery-lightbox {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+    #catalog-page .gallery-lightbox.is-open {
+      display: flex;
+    }
+    #catalog-page .glb-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.8);
+    }
+    #catalog-page .glb-content {
+      position: relative;
+      max-width: 90vw;
+      max-height: 90vh;
+      z-index: 1;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.55);
+    }
+    #catalog-page .glb-content img {
+      display: block;
+      max-width: 90vw;
+      max-height: 90vh;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+      background: #000;
+    }
+    #catalog-page .glb-close {
+      position: absolute;
+      top: -40px;
+      right: 0;
+      background: transparent;
+      border: none;
+      color: #ffffff;
+      font-size: 28px;
+      cursor: pointer;
+      padding: 4px 8px;
+      line-height: 1;
+    }
+    @media (max-width: 640px) {
+      #catalog-page .glb-close {
+        top: -36px;
+        right: -6px;
+      }
+    }
+  </style>
+
+  <!-- LABEL TAB -->
+  <div class="tabs-container">
+    <label for="tab-all" class="tab-label">SEMUA</label>
+    <label for="tab-fasad" class="tab-label">facade</label>
+    <label for="tab-pagar" class="tab-label">fence</label>
+    <label for="tab-interior" class="tab-label">INTERIOR</label>
+  </div>
+
+  <!-- GRID GALERI -->
+  <div class="gallery-grid">
+
+    <!-- ==============================
+         KATEGORI: FASAD
+         (TAB: SEMUA & FASAD)
+    =============================== -->
+   <div class="gallery-item" data-cat="fasad">
+      <!-- TEMPAT TEMPEL LINK GAMBAR FASAD 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260958/Gemini_Generated_Image_scffjrscffjrscff_zgka5x.png" alt="minimalist brizze block or roster beton minimalisinstallation on facade">
+    </div>
+<div class="gallery-item" data-cat="fasad">
+      <!-- TEMPAT TEMPEL LINK GAMBAR FASAD 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260952/Gemini_Generated_Image_9tf66h9tf66h9tf6_zp5q7p.png" alt="minimalist brizze block or roster beton minimalisinstallation on facade">
+    </div>
+
+<div class="gallery-item" data-cat="fasad">
+      <!-- TEMPAT TEMPEL LINK GAMBAR FASAD 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260943/9_en9zuw.png" alt="minimalist brizze block or roster beton minimalisinstallation on facade">
+    </div>
+
+<div class="gallery-item" data-cat="fasad">
+      <!-- TEMPAT TEMPEL LINK GAMBAR FASAD 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260931/133196344_937769036757535_4820358211859688330_n_dcaffa.jpg" alt="minimalist brizze block or roster beton minimalisinstallation on facade">
+    </div>
+<div class="gallery-item" data-cat="fasad">
+      <!-- TEMPAT TEMPEL LINK GAMBAR FASAD 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260897/188527762_1023552628179175_7691205482553478505_n_mvbhk5.jpg" alt="minimalist brizze block or roster beton minimalisinstallation on facade">
+    </div>
+
+
+<div class="gallery-item" data-cat="fasad">
+      <!-- TEMPAT TEMPEL LINK GAMBAR FASAD 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260895/188844906_1023552598179178_311302296526885618_n_ubc0gy.jpg" alt="minimalist brizze block or roster beton minimalisinstallation on facade">
+    </div>
+
+<div class="gallery-item" data-cat="fasad">
+      <!-- TEMPAT TEMPEL LINK GAMBAR FASAD 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260875/133354723_937769033424202_2596874250810007969_n_pjojt5.jpg" alt="minimalist brizze block or roster beton minimalisinstallation on facade">
+    </div>
+
+<div class="gallery-item" data-cat="fasad">
+      <!-- TEMPAT TEMPEL LINK GAMBAR FASAD 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260873/485643661_1285589873000073_1999910848004026487_n_mlhjvt.jpg" alt="minimalist brizze block or roster beton minimalisinstallation on facade">
+    </div>
+
+<div class="gallery-item" data-cat="fasad">
+      <!-- TEMPAT TEMPEL LINK GAMBAR FASAD 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260871/473007202_1852267325307697_1808786264571460818_n_d9afdq.jpg" alt="minimalist brizze block or roster beton minimalisinstallation on facade">
+    </div>
+
+<div class="gallery-item" data-cat="fasad">
+      <!-- TEMPAT TEMPEL LINK GAMBAR FASAD 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260857/162301330_988931014974670_4453781190506425580_n_iu9gd2.jpg" alt="minimalist brizze block or roster beton minimalisinstallation on facade">
+    </div>
+
+<div class="gallery-item" data-cat="fasad">
+      <!-- TEMPAT TEMPEL LINK GAMBAR FASAD 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260853/162067858_988931008308004_8757323712171815873_n_kpbq7h.jpg" alt="minimalist brizze block or roster beton minimalisinstallation on facade">
+    </div>
+
+<div class="gallery-item" data-cat="fasad">
+      <!-- TEMPAT TEMPEL LINK GAMBAR FASAD 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260127/158931557_979631302571308_4865400668875444753_n_z7ssik.jpg" alt="minimalist brizze block or roster beton minimalisinstallation on facade">
+    </div>
+
+<div class="gallery-item" data-cat="fasad">
+      <!-- TEMPAT TEMPEL LINK GAMBAR FASAD 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260100/472983227_1852267331974363_5522050566832758969_n_y346hh.jpg" alt="minimalist brizze block or roster beton minimalisinstallation on facade">
+    </div>
+
+<div class="gallery-item" data-cat="fasad">
+      <!-- TEMPAT TEMPEL LINK GAMBAR FASAD 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260098/468899096_1823731458161284_4270695135136071182_n_ppb8ta.jpg" alt="minimalist brizze block or roster beton minimalisinstallation on facade">
+    </div>
+
+<div class="gallery-item" data-cat="fasad">
+      <!-- TEMPAT TEMPEL LINK GAMBAR FASAD 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260096/3_hlineh.jpg" alt="minimalist brizze block or roster beton minimalisinstallation on facade">
+    </div>
+
+<div class="gallery-item" data-cat="fasad">
+      <!-- TEMPAT TEMPEL LINK GAMBAR FASAD 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260090/25_i0qcio.jpg" alt="minimalist brizze block or roster beton minimalisinstallation on facade">
+    </div>
+
+<div class="gallery-item" data-cat="fasad">
+      <!-- TEMPAT TEMPEL LINK GAMBAR FASAD 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260089/22_brto2q.jpg" alt="minimalist brizze block or roster beton minimalisinstallation on facade">
+    </div>
+
+<div class="gallery-item" data-cat="fasad">
+      <!-- TEMPAT TEMPEL LINK GAMBAR FASAD 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260086/23_max5ag.jpg" alt="minimalist brizze block or roster beton minimalisinstallation on facade">
+    </div>
+
+ <div class="gallery-item" data-cat="fasad">
+      <!-- TEMPAT TEMPEL LINK GAMBAR FASAD 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260072/20_qpxzuc.jpg" alt="minimalist brizze block or roster beton minimalisinstallation on facade">
+    </div>
+    <div class="gallery-item" data-cat="fasad">
+      <!-- TEMPAT TEMPEL LINK GAMBAR FASAD 2 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260074/21_f8vgiu.jpg" alt="zminimalist brizze block or roster beton minimalisinstallation on facade">
+    </div>
+
+<div class="gallery-item" data-cat="fasad">
+      <!-- TEMPAT TEMPEL LINK GAMBAR FASAD 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260071/19_aaa6uf.jpg" alt="minimalist brizze block or roster beton minimalisinstallation on facade">
+    </div><div class="gallery-item" data-cat="fasad">
+      <!-- TEMPAT TEMPEL LINK GAMBAR FASAD 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260063/188348285_1023552578179180_9214058933593018655_n_xwyykh.jpg" alt="minimalist brizze block or roster beton minimalisinstallation on facade">
+    </div><div class="gallery-item" data-cat="fasad">
+      <!-- TEMPAT TEMPEL LINK GAMBAR FASAD 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260041/175037512_1004387103429061_7363020511703151357_n_hekkgc.jpg" alt="minimalist brizze block or roster beton minimalisinstallation on facade">
+    </div><div class="gallery-item" data-cat="fasad">
+      <!-- TEMPAT TEMPEL LINK GAMBAR FASAD 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260037/174353597_1004387106762394_3496667401177001280_n_wycew9.jpg" alt="minimalist brizze block or roster beton minimalisinstallation on facade">
+    </div><div class="gallery-item" data-cat="fasad">
+      <!-- TEMPAT TEMPEL LINK GAMBAR FASAD 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260029/17_ifv8eh.jpg" alt="minimalist brizze block or roster beton minimalisinstallation on facade">
+    </div><div class="gallery-item" data-cat="fasad">
+      <!-- TEMPAT TEMPEL LINK GAMBAR FASAD 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260004/158125410_979631275904644_9026985782858722014_n_nfzovs.jpg" alt="minimalist brizze block or roster beton minimalisinstallation on facade">
+    </div><div class="gallery-item" data-cat="fasad">
+      <!-- TEMPAT TEMPEL LINK GAMBAR FASAD 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259996/158079148_979631255904646_4237084568663663726_n_jwdrqg.jpg" alt="minimalist brizze block or roster beton minimalisinstallation on facade">
+    </div><div class="gallery-item" data-cat="fasad">
+      <!-- TEMPAT TEMPEL LINK GAMBAR FASAD 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259994/158002858_979631265904645_4658351307329961280_n_jexmdh.jpg" alt="minimalist brizze block or roster beton minimalisinstallation on facade">
+    </div><div class="gallery-item" data-cat="fasad">
+      <!-- TEMPAT TEMPEL LINK GAMBAR FASAD 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259986/154780224_975130459688059_4823683252240735902_n_gsiw0a.jpg" alt="minimalist brizze block or roster beton minimalisinstallation on facade">
+    </div><div class="gallery-item" data-cat="fasad">
+      <!-- TEMPAT TEMPEL LINK GAMBAR FASAD 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259970/7_blkgfx.jpg" alt="minimalist brizze block or roster beton minimalisinstallation on facade">
+    </div><div class="gallery-item" data-cat="fasad">
+      <!-- TEMPAT TEMPEL LINK GAMBAR FASAD 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259968/5_prvv5d.jpg" alt="minimalist brizze block or roster beton minimalisinstallation on facade">
+    </div><div class="gallery-item" data-cat="fasad">
+      <!-- TEMPAT TEMPEL LINK GAMBAR FASAD 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259962/24_wlhep8.jpg" alt="minimalist brizze block or roster beton minimalisinstallation on facade">
+    </div><div class="gallery-item" data-cat="fasad">
+      <!-- TEMPAT TEMPEL LINK GAMBAR FASAD 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259909/16_f37rqh.webp" alt="minimalist brizze block or roster beton minimalisinstallation on facade">
+    </div><div class="gallery-item" data-cat="fasad">
+      <!-- TEMPAT TEMPEL LINK GAMBAR FASAD 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259890/156501911_978326169368488_1977463506253927933_n_vjmjwq.jpg" alt="minimalist brizze block or roster beton minimalisinstallation on facade">
+    </div><div class="gallery-item" data-cat="fasad">
+      <!-- TEMPAT TEMPEL LINK GAMBAR FASAD 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259888/156274764_978326179368487_8391518805070425905_n_ajcjyo.jpg" alt="minimalist brizze block or roster beton minimalisinstallation on facade">
+    </div><div class="gallery-item" data-cat="fasad">
+      <!-- TEMPAT TEMPEL LINK GAMBAR FASAD 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259882/15_o0opvo.webp" alt="minimalist brizze block or roster beton minimalisinstallation on facade">
+    </div><div class="gallery-item" data-cat="fasad">
+      <!-- TEMPAT TEMPEL LINK GAMBAR FASAD 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259862/13_w0zz3l.jpg" alt="minimalist brizze block or roster beton minimalisinstallation on facade">
+    </div><div class="gallery-item" data-cat="fasad">
+      <!-- TEMPAT TEMPEL LINK GAMBAR FASAD 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259859/8_kzoatq.jpg" alt="minimalist brizze block or roster beton minimalisinstallation on facade">
+    </div><div class="gallery-item" data-cat="fasad">
+      <!-- TEMPAT TEMPEL LINK GAMBAR FASAD 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259856/6_ptlggi.jpg" alt="minimalist brizze block or roster beton minimalisinstallation on facade">
+    </div><div class="gallery-item" data-cat="fasad">
+      <!-- TEMPAT TEMPEL LINK GAMBAR FASAD 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259854/471251964_1838050043396092_8094401837160765970_n_svdtzl.jpg" alt="minimalist brizze block or roster beton minimalisinstallation on facade">
+    </div><div class="gallery-item" data-cat="fasad">
+      <!-- TEMPAT TEMPEL LINK GAMBAR FASAD 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259852/4_yvxl2v.jpg" alt="minimalist brizze block or roster beton minimalisinstallation on facade">
+    </div><div class="gallery-item" data-cat="fasad">
+      <!-- TEMPAT TEMPEL LINK GAMBAR FASAD 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259844/213048807_1050942475440190_5372290381098591228_n_fxr0t9.jpg" alt="minimalist brizze block or roster beton minimalisinstallation on facade">
+    </div><div class="gallery-item" data-cat="fasad">
+      <!-- TEMPAT TEMPEL LINK GAMBAR FASAD 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259828/163089447_988931004974671_2940901122833164572_n_osmaiq.jpg" alt="minimalist brizze block or roster beton minimalisinstallation on facade">
+    </div><div class="gallery-item" data-cat="fasad">
+      <!-- TEMPAT TEMPEL LINK GAMBAR FASAD 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259810/156592650_978326182701820_4577287598013693241_n_eokatk.jpg" alt="minimalist brizze block or roster beton minimalisinstallation on facade">
+    </div><div class="gallery-item" data-cat="fasad">
+      <!-- TEMPAT TEMPEL LINK GAMBAR FASAD 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259808/12_j4necc.webp" alt="minimalist brizze block or roster beton minimalisinstallation on facade">
+    </div><div class="gallery-item" data-cat="fasad">
+      <!-- TEMPAT TEMPEL LINK GAMBAR FASAD 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259806/11_bvz4sd.jpg" alt="minimalist brizze block or roster beton minimalisinstallation on facade">
+    </div>
+	<div class="gallery-item" data-cat="fasad">
+      <!-- TEMPAT TEMPEL LINK GAMBAR FASAD 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259805/10_zow6cq.jpg" alt="minimalist brizze block or roster beton minimalisinstallation on facade">
+    </div>
+	
+	
+	
+    
+    <!-- ==============================
+         KATEGORI: PAGAR
+         (TAB: SEMUA & PAGAR)
+    =============================== -->
+    <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260956/79_dq720m.png" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260948/78_woqdoy.png" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260940/68_xusaw5.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260939/488973539_1301020338123693_2691169049757276952_n_bdqtum.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260937/489568118_1301020404790353_3038717971467215792_n_j0bzv5.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260933/156570836_976891822845256_7141228350282702676_n_jmyyed.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260929/82_djj48m.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260927/468962685_1825163514684745_5564337552016311837_n_t01fjh.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260925/188833285_1022704748263963_6197803141849037189_n_giny3p.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260923/187937164_1022704718263966_4972773471846998798_n_c6ppgl.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260911/83_bhvudw.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260909/81_l4qtxb.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260907/66_f7jkxl.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260903/489851385_1301020298123697_6058067043345046512_n_cugplm.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260905/58_iesto9.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260903/489851385_1301020298123697_6058067043345046512_n_cugplm.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260901/485727672_1285780436314350_5203188644536851020_n_knfpia.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260893/471263693_1838867366647693_2665411927319215117_n_shcjh3.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260891/191758267_1030631614137943_8354053435368242847_n_xyqgnz.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260889/196548430_1040836199784151_8543618445719510539_n_mgvgdk.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260887/189455095_1022704724930632_513651801140836255_n_vqs06y.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260885/189153683_1030631617471276_2071152964924271585_n_wbq1kg.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260883/173466825_1003800900154348_7349811174033997791_n_juld2e.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260869/60_kc1f0c.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260865/54_dth2tb.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260867/59_lpvra2.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260863/51_abwrpt.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260861/486513571_1285780296314364_2974625330511807451_n_ot1m8t.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260859/201792551_1040836206450817_4285938289931553144_n_z8utup.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260855/28_mh5p3s.webp" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260851/200573537_1040836203117484_5952853626536680761_n_zg1xni.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260850/188028135_1022704698263968_4515888651856631672_n_ghmtvy.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260849/186501749_1019613011906470_8247899526586122244_n_bhlube.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260160/156775312_976315599569545_7290448219853929647_n_w4m3sp.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260124/155795623_975130446354727_5123670889213381761_n_skhrp1.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260123/1_bbhsmb.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260094/%E6%8C%BF%E3%81%97%E8%BE%BC%E3%82%80%E5%85%89%E3%81%A8%E5%BD%B1%E3%82%92%E6%8C%81%E3%81%A4%E3%83%96%E3%83%AD%E3%83%83%E3%82%AFPorous_Block200_%E3%82%AA%E3%83%B3%E3%83%AA%E3%83%BC%E3%83%AF%E3%83%B3%E3%82%AF%E3%83%A9%E3%83%96_%E5%95%86%E5%93%81%E4%BA%8B%E4%BE%8B_uh7lap.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260092/84_yq11uy.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260084/73_rgdgnn.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260082/72_kzotio.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260081/71_lrgltg.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260078/70_uv0j53.webp" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260076/69_wpvhoh.webp" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260068/52_dpnkvc.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260067/49_gfopwn.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260065/50_je6yfb.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260061/48_b4rlyb.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260059/477127145_935487138780264_8156628137020905763_n_koes6o.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260055/42_k2fi3l.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260053/46_s75nly.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260049/40_kt08ee.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260051/44_gie7tr.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260047/33_whoeb6.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260045/41_y71yr9.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260043/39_bwlkv4.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260039/38_bbsiga.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260035/32_vt50xo.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260033/31_emmddo.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260031/29_v3adno.webp" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260026/207535016_1049103882290716_754897187327283386_n_orcttl.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260025/210781640_1049103868957384_7584920712298347840_n_jhvxju.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260023/207018633_1049103895624048_3591598481968862293_n_a9lxtk.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260021/191721014_1026802784520826_1706369999540415641_n_qu3v3y.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260019/188771272_1025326461335125_5225660464515692436_n_yfndah.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260017/183585245_1016745185526586_585834397255579712_n_khbcdy.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259966/%E5%A5%BD%E3%81%8D%E3%82%92%E8%A9%B0%E3%82%81%E8%BE%BC%E3%82%93%E3%81%A0_%E8%A5%BF%E6%B5%B7%E5%B2%B8%E9%A2%A8%E3%83%89%E3%83%A9%E3%82%A4%E3%82%AC%E3%83%BC%E3%83%87%E3%83%B3%E3%81%A7%E5%8F%B6%E3%81%88%E3%82%8B%E3%81%8A%E6%89%8B%E5%85%A5%E3%82%8C%E3%81%AE%E3%81%84%E3%82%89%E3%81%AA%E3%81%84%E5%BA%AD%E3%81%A5%E3%81%8F%E3%82%8A_q6drhh.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259964/sevc22_xc4212.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259960/ROSTER_BETO__ROSTER_MINIMALIS_tipe_MNC_sudut_merah_daracotta_ggy5rl.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259958/Roster_minimalis_motif_L_garis_xg3qyc.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259956/Roster_beton_minimalis_loster_beton_minimalis_roster_kombinasi_roster_minimalis_loster_minimalis_mmfep8.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259954/ROSTER_BETON_MINIMALIS_LOSTER_NAKO_SIPIT_LOSTER_BETON_ANTI_TAMPIAS_LOSTER_PALING_BEST_SELLER_sna396.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259952/Daik_s_Home_Design_hltzu6.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259950/76_wwfgyw.webp" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259948/75_buhlhv.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259946/74_fqeknn.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259944/67_gp2m8u.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259942/65_j4ewso.webp" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259940/64_c64o5x.webp" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259938/63_phd3f7.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259936/62_e0jphd.webp" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259934/57_wwn9tk.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259932/485143489_1285618966330497_9176800851825221772_n_hnquau.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259930/47_dmjh8d.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259929/43_rcoort.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259927/37_jev7gc.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259924/35_puprxh.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259923/34_li9387.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259920/30_pm5trt.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259918/26_xls2sk.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259916/209187451_1046282662572838_5890324566738820442_n_ib81yz.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259914/2_wi9pdk.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259912/191721014_1026802764520828_4690573169115944573_n_drdxe3.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259910/186508584_1020207155180389_5506752990847516248_n_1_l4zzls.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259906/186466697_1019613008573137_115666334393809378_n_wwoktx.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259905/156063427_976891826178589_6327333854730222573_n_g4nskq.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259850/STAR_Roster_Beton_Motif_MMC_Share_It_Petir_Anti_Tampias_Minimalis_SINAR_ROSTER_ASD_wpad7c.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259848/sg-11134201-7ra3x-mbga48q8qh9x40_resize_w450_nl_f9jbbk.webp" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>
+
+
+  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259846/id-11134207-7rasa-m2gdw2oktea2eb_resize_w450_nl_yv2qjs.webp" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259842/77_xufvlk.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259841/61_m8laws.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259838/56_phvylb.webp" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259836/55_nfyzkp.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259832/45_gidg4q.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div>  <div class="gallery-item" data-cat="pagar">
+      <!-- TEMPAT TEMPEL LINK GAMBAR PAGAR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259830/36_vaxh6k.jpg" alt="use minimalist brizze block you get good ventilation your house or aritecture look aesthetic on fence">
+    </div> 
+    <!-- ==============================
+         KATEGORI: INTERIOR
+         (TAB: SEMUA & INTERIOR)
+    =============================== -->
+    <div class="gallery-item" data-cat="interior">
+      <!-- TEMPAT TEMPEL LINK GAMBAR INTERIOR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260919/189718648_1023552604845844_206410073311875005_n_lhrmnq.jpg" alt="The implementation of minimalist $breeze$ $block$ on the facade of modern house architecture provides optimal ventilation and creates an aesthetically pleasing decorative roster.">
+    </div>
+     <div class="gallery-item" data-cat="interior">
+      <!-- TEMPAT TEMPEL LINK GAMBAR INTERIOR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260917/132144086_937769046757534_3019179508734811306_n_svmwux.jpg" alt="The implementation of minimalist $breeze$ $block$ on the facade of modern house architecture provides optimal ventilation and creates an aesthetically pleasing decorative roster.">
+    </div>
+    <div class="gallery-item" data-cat="interior">
+      <!-- TEMPAT TEMPEL LINK GAMBAR INTERIOR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260950/106_uro8az.png" alt="The implementation of minimalist $breeze$ $block$ on the facade of modern house architecture provides optimal ventilation and creates an aesthetically pleasing decorative roster.">
+    </div>
+    <div class="gallery-item" data-cat="interior">
+      <!-- TEMPAT TEMPEL LINK GAMBAR INTERIOR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260921/471166454_1838049863396110_783834602350838962_n_meu8p9.jpg" alt="The implementation of minimalist $breeze$ $block$ on the facade of modern house architecture provides optimal ventilation and creates an aesthetically pleasing decorative roster.">
+    </div>
+    <div class="gallery-item" data-cat="interior">
+      <!-- TEMPAT TEMPEL LINK GAMBAR INTERIOR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260915/189708027_1023552618179176_6729747502783875854_n_rvug3o.jpg" alt="The implementation of minimalist $breeze$ $block$ on the facade of modern house architecture provides optimal ventilation and creates an aesthetically pleasing decorative roster.">
+    </div>
+    <div class="gallery-item" data-cat="interior">
+      <!-- TEMPAT TEMPEL LINK GAMBAR INTERIOR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260954/109_pwzb1i.png" alt="The implementation of minimalist $breeze$ $block$ on the facade of modern house architecture provides optimal ventilation and creates an aesthetically pleasing decorative roster.">
+    </div>
+    <div class="gallery-item" data-cat="interior">
+      <!-- TEMPAT TEMPEL LINK GAMBAR INTERIOR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260913/188815835_1023552611512510_2665146973244010284_n_kwyhxi.jpg" alt="The implementation of minimalist $breeze$ $block$ on the facade of modern house architecture provides optimal ventilation and creates an aesthetically pleasing decorative roster.">
+    </div>
+    <div class="gallery-item" data-cat="interior">
+      <!-- TEMPAT TEMPEL LINK GAMBAR INTERIOR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260881/471250549_1838041766730253_4669135115253313424_n_suu3rd.jpg" alt="The implementation of minimalist $breeze$ $block$ on the facade of modern house architecture provides optimal ventilation and creates an aesthetically pleasing decorative roster.">
+    </div>
+    <div class="gallery-item" data-cat="interior">
+      <!-- TEMPAT TEMPEL LINK GAMBAR INTERIOR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260879/471304289_1838041756730254_8198538970182421341_n_ifxfpi.jpg" alt="The implementation of minimalist $breeze$ $block$ on the facade of modern house architecture provides optimal ventilation and creates an aesthetically pleasing decorative roster.">
+    </div>
+    <div class="gallery-item" data-cat="interior">
+      <!-- TEMPAT TEMPEL LINK GAMBAR INTERIOR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260877/182127792_1016745192193252_4045938441049013572_n_fomqon.jpg" alt="The implementation of minimalist $breeze$ $block$ on the facade of modern house architecture provides optimal ventilation and creates an aesthetically pleasing decorative roster.">
+    </div>
+    <div class="gallery-item" data-cat="interior">
+      <!-- TEMPAT TEMPEL LINK GAMBAR INTERIOR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260121/95_xlc76z.jpg" alt="The implementation of minimalist $breeze$ $block$ on the facade of modern house architecture provides optimal ventilation and creates an aesthetically pleasing decorative roster.">
+    </div>
+    <div class="gallery-item" data-cat="interior">
+      <!-- TEMPAT TEMPEL LINK GAMBAR INTERIOR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260118/94_moe8h7.jpg" alt="The implementation of minimalist $breeze$ $block$ on the facade of modern house architecture provides optimal ventilation and creates an aesthetically pleasing decorative roster.">
+    </div>
+    <div class="gallery-item" data-cat="interior">
+      <!-- TEMPAT TEMPEL LINK GAMBAR INTERIOR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260116/486323699_1285589456333448_8945336213154056447_n_imh2uh.jpg" alt="The implementation of minimalist $breeze$ $block$ on the facade of modern house architecture provides optimal ventilation and creates an aesthetically pleasing decorative roster.">
+    </div>
+    <div class="gallery-item" data-cat="interior">
+      <!-- TEMPAT TEMPEL LINK GAMBAR INTERIOR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260116/486323699_1285589456333448_8945336213154056447_n_imh2uh.jpg" alt="The implementation of minimalist $breeze$ $block$ on the facade of modern house architecture provides optimal ventilation and creates an aesthetically pleasing decorative roster.">
+    </div>
+    <div class="gallery-item" data-cat="interior">
+      <!-- TEMPAT TEMPEL LINK GAMBAR INTERIOR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260115/473078304_1852267718640991_2062959268261062806_n_miub2t.jpg" alt="The implementation of minimalist $breeze$ $block$ on the facade of modern house architecture provides optimal ventilation and creates an aesthetically pleasing decorative roster.">
+    </div>
+    <div class="gallery-item" data-cat="interior">
+      <!-- TEMPAT TEMPEL LINK GAMBAR INTERIOR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260113/471273315_1838171100050653_7450228107334932970_n_n9eakr.jpg" alt="The implementation of minimalist $breeze$ $block$ on the facade of modern house architecture provides optimal ventilation and creates an aesthetically pleasing decorative roster.">
+    </div>
+    <div class="gallery-item" data-cat="interior">
+      <!-- TEMPAT TEMPEL LINK GAMBAR INTERIOR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260111/469313654_1825168784684218_6379202024110145562_n_yuwmos.jpg" alt="The implementation of minimalist $breeze$ $block$ on the facade of modern house architecture provides optimal ventilation and creates an aesthetically pleasing decorative roster.">
+    </div>
+    <div class="gallery-item" data-cat="interior">
+      <!-- TEMPAT TEMPEL LINK GAMBAR INTERIOR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260109/196676487_1035641640303607_9044112968876785700_n_iwqhe8.jpg" alt="The implementation of minimalist $breeze$ $block$ on the facade of modern house architecture provides optimal ventilation and creates an aesthetically pleasing decorative roster.">
+    </div>
+    <div class="gallery-item" data-cat="interior">
+      <!-- TEMPAT TEMPEL LINK GAMBAR INTERIOR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260106/188656732_1023552554845849_2118771938227130288_n_gqw4sc.jpg" alt="The implementation of minimalist $breeze$ $block$ on the facade of modern house architecture provides optimal ventilation and creates an aesthetically pleasing decorative roster.">
+    </div>
+    <div class="gallery-item" data-cat="interior">
+      <!-- TEMPAT TEMPEL LINK GAMBAR INTERIOR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260105/168824277_996021714265600_3538761419049615113_n_br9vdi.jpg" alt="The implementation of minimalist $breeze$ $block$ on the facade of modern house architecture provides optimal ventilation and creates an aesthetically pleasing decorative roster.">
+    </div>
+    <div class="gallery-item" data-cat="interior">
+      <!-- TEMPAT TEMPEL LINK GAMBAR INTERIOR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260103/164628171_991272298073875_7366456730794579264_n_lmndbm.jpg" alt="The implementation of minimalist $breeze$ $block$ on the facade of modern house architecture provides optimal ventilation and creates an aesthetically pleasing decorative roster.">
+    </div>
+    <div class="gallery-item" data-cat="interior">
+      <!-- TEMPAT TEMPEL LINK GAMBAR INTERIOR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260015/98_ygnv36.jpg" alt="The implementation of minimalist $breeze$ $block$ on the facade of modern house architecture provides optimal ventilation and creates an aesthetically pleasing decorative roster.">
+    </div>
+    <div class="gallery-item" data-cat="interior">
+      <!-- TEMPAT TEMPEL LINK GAMBAR INTERIOR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260013/download_3_xf0xvg.jpg" alt="The implementation of minimalist $breeze$ $block$ on the facade of modern house architecture provides optimal ventilation and creates an aesthetically pleasing decorative roster.">
+    </div>
+    <div class="gallery-item" data-cat="interior">
+      <!-- TEMPAT TEMPEL LINK GAMBAR INTERIOR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260011/97_vx2esn.jpg" alt="The implementation of minimalist $breeze$ $block$ on the facade of modern house architecture provides optimal ventilation and creates an aesthetically pleasing decorative roster.">
+    </div>
+    <div class="gallery-item" data-cat="interior">
+      <!-- TEMPAT TEMPEL LINK GAMBAR INTERIOR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260009/93_fz7xnf.jpg" alt="The implementation of minimalist $breeze$ $block$ on the facade of modern house architecture provides optimal ventilation and creates an aesthetically pleasing decorative roster.">
+    </div>
+    <div class="gallery-item" data-cat="interior">
+      <!-- TEMPAT TEMPEL LINK GAMBAR INTERIOR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260008/92_sjoym9.jpg" alt="The implementation of minimalist $breeze$ $block$ on the facade of modern house architecture provides optimal ventilation and creates an aesthetically pleasing decorative roster.">
+    </div>
+    <div class="gallery-item" data-cat="interior">
+      <!-- TEMPAT TEMPEL LINK GAMBAR INTERIOR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260006/91_ey1igr.jpg" alt="The implementation of minimalist $breeze$ $block$ on the facade of modern house architecture provides optimal ventilation and creates an aesthetically pleasing decorative roster.">
+    </div>
+    <div class="gallery-item" data-cat="interior">
+      <!-- TEMPAT TEMPEL LINK GAMBAR INTERIOR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260002/90_uomese.jpg" alt="The implementation of minimalist $breeze$ $block$ on the facade of modern house architecture provides optimal ventilation and creates an aesthetically pleasing decorative roster.">
+    </div>
+    <div class="gallery-item" data-cat="interior">
+      <!-- TEMPAT TEMPEL LINK GAMBAR INTERIOR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765260000/88_anc0dw.jpg" alt="The implementation of minimalist $breeze$ $block$ on the facade of modern house architecture provides optimal ventilation and creates an aesthetically pleasing decorative roster.">
+    </div>
+    <div class="gallery-item" data-cat="interior">
+      <!-- TEMPAT TEMPEL LINK GAMBAR INTERIOR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259998/86_wjaxo4.jpg" alt="The implementation of minimalist $breeze$ $block$ on the facade of modern house architecture provides optimal ventilation and creates an aesthetically pleasing decorative roster.">
+    </div>
+    <div class="gallery-item" data-cat="interior">
+      <!-- TEMPAT TEMPEL LINK GAMBAR INTERIOR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259992/487297015_1289238672635193_4622034501040585464_n_z3nxoa.jpg" alt="The implementation of minimalist $breeze$ $block$ on the facade of modern house architecture provides optimal ventilation and creates an aesthetically pleasing decorative roster.">
+    </div>
+    <div class="gallery-item" data-cat="interior">
+      <!-- TEMPAT TEMPEL LINK GAMBAR INTERIOR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259990/473238729_1852249398642823_5308058531582865610_n_1_j3ywrh.jpg" alt="The implementation of minimalist $breeze$ $block$ on the facade of modern house architecture provides optimal ventilation and creates an aesthetically pleasing decorative roster.">
+    </div>
+    <div class="gallery-item" data-cat="interior">
+      <!-- TEMPAT TEMPEL LINK GAMBAR INTERIOR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259988/472986371_1852249455309484_6871314381905213985_n_qbjkzy.jpg" alt="The implementation of minimalist $breeze$ $block$ on the facade of modern house architecture provides optimal ventilation and creates an aesthetically pleasing decorative roster.">
+    </div>
+    <div class="gallery-item" data-cat="interior">
+      <!-- TEMPAT TEMPEL LINK GAMBAR INTERIOR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259984/193306917_1029418477592590_3566496924697365386_n_jl0qkf.jpg" alt="The implementation of minimalist $breeze$ $block$ on the facade of modern house architecture provides optimal ventilation and creates an aesthetically pleasing decorative roster.">
+    </div>
+    <div class="gallery-item" data-cat="interior">
+      <!-- TEMPAT TEMPEL LINK GAMBAR INTERIOR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259982/167247555_996021710932267_8211901893326261952_n_umyhnw.jpg" alt="The implementation of minimalist $breeze$ $block$ on the facade of modern house architecture provides optimal ventilation and creates an aesthetically pleasing decorative roster.">
+    </div>
+    <div class="gallery-item" data-cat="interior">
+      <!-- TEMPAT TEMPEL LINK GAMBAR INTERIOR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259980/167499347_996021720932266_8570357813927884437_n_lxrse8.jpg" alt="The implementation of minimalist $breeze$ $block$ on the facade of modern house architecture provides optimal ventilation and creates an aesthetically pleasing decorative roster.">
+    </div>
+    <div class="gallery-item" data-cat="interior">
+      <!-- TEMPAT TEMPEL LINK GAMBAR INTERIOR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259978/107_cs0von.jpg" alt="The implementation of minimalist $breeze$ $block$ on the facade of modern house architecture provides optimal ventilation and creates an aesthetically pleasing decorative roster.">
+    </div>
+    <div class="gallery-item" data-cat="interior">
+      <!-- TEMPAT TEMPEL LINK GAMBAR INTERIOR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259976/105_t4eozz.jpg" alt="The implementation of minimalist $breeze$ $block$ on the facade of modern house architecture provides optimal ventilation and creates an aesthetically pleasing decorative roster.">
+    </div>
+    <div class="gallery-item" data-cat="interior">
+      <!-- TEMPAT TEMPEL LINK GAMBAR INTERIOR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259974/103_xgir0v.jpg" alt="The implementation of minimalist $breeze$ $block$ on the facade of modern house architecture provides optimal ventilation and creates an aesthetically pleasing decorative roster.">
+    </div>
+    <div class="gallery-item" data-cat="interior">
+      <!-- TEMPAT TEMPEL LINK GAMBAR INTERIOR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259972/102_mk3o90.jpg" alt="The implementation of minimalist $breeze$ $block$ on the facade of modern house architecture provides optimal ventilation and creates an aesthetically pleasing decorative roster.">
+    </div>
+    <div class="gallery-item" data-cat="interior">
+      <!-- TEMPAT TEMPEL LINK GAMBAR INTERIOR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259902/99_ns7ehr.jpg" alt="The implementation of minimalist $breeze$ $block$ on the facade of modern house architecture provides optimal ventilation and creates an aesthetically pleasing decorative roster.">
+    </div>
+    <div class="gallery-item" data-cat="interior">
+      <!-- TEMPAT TEMPEL LINK GAMBAR INTERIOR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259900/96_slsquy.jpg" alt="The implementation of minimalist $breeze$ $block$ on the facade of modern house architecture provides optimal ventilation and creates an aesthetically pleasing decorative roster.">
+    </div>
+    <div class="gallery-item" data-cat="interior">
+      <!-- TEMPAT TEMPEL LINK GAMBAR INTERIOR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259898/89_vm5nfr.jpg" alt="The implementation of minimalist $breeze$ $block$ on the facade of modern house architecture provides optimal ventilation and creates an aesthetically pleasing decorative roster.">
+    </div>
+    <div class="gallery-item" data-cat="interior">
+      <!-- TEMPAT TEMPEL LINK GAMBAR INTERIOR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259896/87_pikio2.jpg" alt="The implementation of minimalist $breeze$ $block$ on the facade of modern house architecture provides optimal ventilation and creates an aesthetically pleasing decorative roster.">
+    </div>
+    <div class="gallery-item" data-cat="interior">
+      <!-- TEMPAT TEMPEL LINK GAMBAR INTERIOR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259894/85_mo63or.jpg" alt="The implementation of minimalist $breeze$ $block$ on the facade of modern house architecture provides optimal ventilation and creates an aesthetically pleasing decorative roster.">
+    </div>
+    <div class="gallery-item" data-cat="interior">
+      <!-- TEMPAT TEMPEL LINK GAMBAR INTERIOR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259892/473079970_1852249625309467_4069160399987149402_n_pklpds.jpg" alt="The implementation of minimalist $breeze$ $block$ on the facade of modern house architecture provides optimal ventilation and creates an aesthetically pleasing decorative roster.">
+    </div>
+    <div class="gallery-item" data-cat="interior">
+      <!-- TEMPAT TEMPEL LINK GAMBAR INTERIOR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259886/194518788_1029418447592593_3679167196222196712_n_rnhyqb.jpg" alt="The implementation of minimalist $breeze$ $block$ on the facade of modern house architecture provides optimal ventilation and creates an aesthetically pleasing decorative roster.">
+    </div>
+    <div class="gallery-item" data-cat="interior">
+      <!-- TEMPAT TEMPEL LINK GAMBAR INTERIOR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259884/192092426_1029418440925927_5414516792039795632_n_gpfmto.jpg" alt="The implementation of minimalist $breeze$ $block$ on the facade of modern house architecture provides optimal ventilation and creates an aesthetically pleasing decorative roster.">
+    </div>
+    <div class="gallery-item" data-cat="interior">
+      <!-- TEMPAT TEMPEL LINK GAMBAR INTERIOR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259880/169931681_996021717598933_7065621094971798465_n_zfnri0.jpg" alt="The implementation of minimalist $breeze$ $block$ on the facade of modern house architecture provides optimal ventilation and creates an aesthetically pleasing decorative roster.">
+    </div>
+    <div class="gallery-item" data-cat="interior">
+      <!-- TEMPAT TEMPEL LINK GAMBAR INTERIOR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259878/167079370_996021707598934_655237461937237203_n_zk88bn.jpg" alt="The implementation of minimalist $breeze$ $block$ on the facade of modern house architecture provides optimal ventilation and creates an aesthetically pleasing decorative roster.">
+    </div>
+    <div class="gallery-item" data-cat="interior">
+      <!-- TEMPAT TEMPEL LINK GAMBAR INTERIOR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259876/164690121_991272304740541_4254304824905638060_n_jogrvw.jpg" alt="The implementation of minimalist $breeze$ $block$ on the facade of modern house architecture provides optimal ventilation and creates an aesthetically pleasing decorative roster.">
+    </div>
+    <div class="gallery-item" data-cat="interior">
+      <!-- TEMPAT TEMPEL LINK GAMBAR INTERIOR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259874/164136392_991272301407208_4436668194722872110_n_mkm6ur.jpg" alt="The implementation of minimalist $breeze$ $block$ on the facade of modern house architecture provides optimal ventilation and creates an aesthetically pleasing decorative roster.">
+    </div>
+    <div class="gallery-item" data-cat="interior">
+      <!-- TEMPAT TEMPEL LINK GAMBAR INTERIOR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259872/146727463_962561354278303_4188024435722336477_n_nmszz3.jpg" alt="The implementation of minimalist $breeze$ $block$ on the facade of modern house architecture provides optimal ventilation and creates an aesthetically pleasing decorative roster.">
+    </div>
+    <div class="gallery-item" data-cat="interior">
+      <!-- TEMPAT TEMPEL LINK GAMBAR INTERIOR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259870/146480918_962561287611643_2630009701372432663_n_gugfhr.jpg" alt="The implementation of minimalist $breeze$ $block$ on the facade of modern house architecture provides optimal ventilation and creates an aesthetically pleasing decorative roster.">
+    </div>
+    <div class="gallery-item" data-cat="interior">
+      <!-- TEMPAT TEMPEL LINK GAMBAR INTERIOR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259868/128173357_1029418460925925_5285318526751851096_n_herpuu.jpg" alt="The implementation of minimalist $breeze$ $block$ on the facade of modern house architecture provides optimal ventilation and creates an aesthetically pleasing decorative roster.">
+    </div>
+    <div class="gallery-item" data-cat="interior">
+      <!-- TEMPAT TEMPEL LINK GAMBAR INTERIOR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259866/108_ivqpqo.jpg" alt="The implementation of minimalist $breeze$ $block$ on the facade of modern house architecture provides optimal ventilation and creates an aesthetically pleasing decorative roster.">
+    </div>
+    <div class="gallery-item" data-cat="interior">
+      <!-- TEMPAT TEMPEL LINK GAMBAR INTERIOR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259864/104_c2ncsu.jpg" alt="The implementation of minimalist $breeze$ $block$ on the facade of modern house architecture provides optimal ventilation and creates an aesthetically pleasing decorative roster.">
+    </div>
+    <div class="gallery-item" data-cat="interior">
+      <!-- TEMPAT TEMPEL LINK GAMBAR INTERIOR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259860/100_g3idgd.jpg" alt="The implementation of minimalist $breeze$ $block$ on the facade of modern house architecture provides optimal ventilation and creates an aesthetically pleasing decorative roster.">
+    </div>
+    <div class="gallery-item" data-cat="interior">
+      <!-- TEMPAT TEMPEL LINK GAMBAR INTERIOR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259864/104_c2ncsu.jpg" alt="The implementation of minimalist $breeze$ $block$ on the facade of modern house architecture provides optimal ventilation and creates an aesthetically pleasing decorative roster.">
+    </div>
+    <div class="gallery-item" data-cat="interior">
+      <!-- TEMPAT TEMPEL LINK GAMBAR INTERIOR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259860/100_g3idgd.jpg" alt="The implementation of minimalist $breeze$ $block$ on the facade of modern house architecture provides optimal ventilation and creates an aesthetically pleasing decorative roster.">
+    </div>
+  
+    <div class="gallery-item" data-cat="interior">
+      <!-- TEMPAT TEMPEL LINK GAMBAR INTERIOR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259824/486242037_1285619232997137_748164267118809244_n_jootqx.jpg" alt="The implementation of minimalist $breeze$ $block$ on the facade of modern house architecture provides optimal ventilation and creates an aesthetically pleasing decorative roster.">
+    </div>
+    <div class="gallery-item" data-cat="interior">
+      <!-- TEMPAT TEMPEL LINK GAMBAR INTERIOR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259822/469209740_1825168834684213_7463143257193343054_n_l4pum3.jpg" alt="The implementation of minimalist $breeze$ $block$ on the facade of modern house architecture provides optimal ventilation and creates an aesthetically pleasing decorative roster.">
+    </div>
+    <div class="gallery-item" data-cat="interior">
+      <!-- TEMPAT TEMPEL LINK GAMBAR INTERIOR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259820/186494994_1020207168513721_3044745757217456874_n_eoxev1.jpg" alt="The implementation of minimalist $breeze$ $block$ on the facade of modern house architecture provides optimal ventilation and creates an aesthetically pleasing decorative roster.">
+    </div>
+    <div class="gallery-item" data-cat="interior">
+      <!-- TEMPAT TEMPEL LINK GAMBAR INTERIOR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259818/185108421_1020207161847055_7762739676860226735_n_oe9nl7.jpg" alt="The implementation of minimalist $breeze$ $block$ on the facade of modern house architecture provides optimal ventilation and creates an aesthetically pleasing decorative roster.">
+    </div>
+    <div class="gallery-item" data-cat="interior">
+      <!-- TEMPAT TEMPEL LINK GAMBAR INTERIOR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259814/185025329_1020207158513722_1781787269732233179_n_q035pd.jpg" alt="The implementation of minimalist $breeze$ $block$ on the facade of modern house architecture provides optimal ventilation and creates an aesthetically pleasing decorative roster.">
+    </div>
+
+    <div class="gallery-item" data-cat="interior">
+      <!-- TEMPAT TEMPEL LINK GAMBAR INTERIOR 1 -->
+      <img src="https://res.cloudinary.com/indoroster/image/upload/v1765259812/101_jvn5tx.jpg" alt="The implementation of minimalist $breeze$ $block$ on the facade of modern house architecture provides optimal ventilation and creates an aesthetically pleasing decorative roster.">
+    </div> 
+ 
+    <!-- Tambah foto lagi? Copy salah satu blok di atas
+         dan tetep pakai data-cat tunggal:
+         data-cat="fasad" ATAU "pagar" ATAU "interior"
+    -->
+  </div>
+
+  <!-- LIGHTBOX -->
+  <div class="gallery-lightbox" id="gallery-lightbox">
+    <div class="glb-backdrop"></div>
+    <div class="glb-content">
+      <button class="glb-close" type="button" aria-label="Tutup">&times;</button>
+      <img src="" alt="Preview" id="gallery-lightbox-img">
+    </div>
+  </div>
+</div>
+
+<script>
+  (function () {
+    function initGalleryLightbox() {
+      var root = document.querySelector("#catalog-page");
+      if (!root) return;
+
+      var items = root.querySelectorAll(".gallery-item img");
+      var lightbox = root.querySelector("#gallery-lightbox");
+      var lightboxImg = root.querySelector("#gallery-lightbox-img");
+      var backdrop = root.querySelector(".glb-backdrop");
+      var btnClose = root.querySelector(".glb-close");
+
+      if (!lightbox || !lightboxImg) return;
+
+      function openLightbox(src) {
+        lightboxImg.src = src;   // pakai link yang sama dengan thumbnail
+        lightbox.classList.add("is-open");
+      }
+
+      function closeLightbox() {
+        lightbox.classList.remove("is-open");
+        lightboxImg.src = "";
+      }
+
+      items.forEach(function (img) {
+        img.addEventListener("click", function () {
+          openLightbox(img.src);
+        });
+      });
+
+      backdrop.addEventListener("click", closeLightbox);
+      btnClose.addEventListener("click", closeLightbox);
+
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape" && lightbox.classList.contains("is-open")) {
+          closeLightbox();
+        }
+      });
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", initGalleryLightbox);
+    } else {
+      initGalleryLightbox();
+    }
+  })();
+</script>

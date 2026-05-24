@@ -1,0 +1,123 @@
+https://res.cloudinary.com/indoroster/video/upload/v1765259348/15_lhowif.mp4
+
+https://res.cloudinary.com/indoroster/video/upload/v1765259277/7_upqkhz.mp4
+
+https://res.cloudinary.com/indoroster/video/upload/v1765259283/23_qf45ye.mp4
+
+
+https://res.cloudinary.com/indoroster/video/upload/v1765259264/5_hbnhl9.mp4
+
+https://res.cloudinary.com/indoroster/video/upload/v1765259267/16_xuadsw.mp4
+
+https://res.cloudinary.com/indoroster/video/upload/v1765259371/4_hcrl9h.mp4
+
+https://res.cloudinary.com/indoroster/video/upload/v1765259271/1_c1h2gc.mp4
+
+https://res.cloudinary.com/indoroster/video/upload/v1765259255/6_iwbb62.mp4
+
+https://res.cloudinary.com/indoroster/video/upload/v1765259310/9_szfwkc.mp4
+
+https://res.cloudinary.com/indoroster/video/upload/v1765259309/19_vsncyp.mp4
+
+https://res.cloudinary.com/indoroster/video/upload/v1765259369/10_bwjvgj.mov
+
+https://res.cloudinary.com/indoroster/video/upload/v1765259309/2_bbdyha.mp4
+
+https://res.cloudinary.com/indoroster/video/upload/v1765259271/21_pvd03v.mp4
+
+https://res.cloudinary.com/indoroster/video/upload/v1765259252/26_shmagn.mp4
+
+https://res.cloudinary.com/indoroster/video/upload/v1765259257/13_rlwatr.mp4
+
+https://res.cloudinary.com/indoroster/video/upload/v1765259253/8_fxpmwc.mp4
+
+https://res.cloudinary.com/indoroster/video/upload/v1765259284/22_bscvje.mp4
+
+https://res.cloudinary.com/indoroster/video/upload/v1765259295/17_okxkad.mp4
+
+https://res.cloudinary.com/indoroster/video/upload/v1765259309/19_vsncyp.mp4
+
+https://res.cloudinary.com/indoroster/video/upload/v1765259329/25_wvbyjp.mp4
+
+https://res.cloudinary.com/indoroster/video/upload/v1765259353/14_x7vxr8.mp4
+
+<style>
+.video-container {
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto 20px;
+    background: #fff;
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+/* Wrapper default */
+.video-wrapper {
+    width: 100%;
+    background: black;
+    position: relative;
+}
+
+/* Default video */
+.video-wrapper video {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* Portrait mode (9:16 style) */
+.video-wrapper.portrait {
+    aspect-ratio: 9/16;
+}
+
+.video-wrapper.portrait video {
+    height: 100%;
+    object-fit: cover; /* biar penuh */
+}
+
+/* Landscape mode */
+.video-wrapper.landscape video {
+    object-fit: contain; /* no crop */
+}
+
+/* Fullscreen fix */
+video:fullscreen,
+video:-webkit-full-screen {
+    width: 100vw;
+    height: 100vh;
+    object-fit: contain;
+    background: black;
+}
+</style>
+
+<div class="video-container">
+    <div class="video-wrapper" id="videoWrapper">
+        <video 
+            id="myVideo"
+            src="https://res.cloudinary.com/indoroster/video/upload/v1765259264/5_hbnhl9.mp4"
+    autoplay
+    muted
+    playsinline
+    controls
+    loop>
+</video>
+    </div>
+</div>
+
+<script>
+const video = document.getElementById('myVideo');
+const wrapper = document.getElementById('videoWrapper');
+
+video.addEventListener('loadedmetadata', () => {
+    const width = video.videoWidth;
+    const height = video.videoHeight;
+
+    if (height > width) {
+        // Portrait
+        wrapper.classList.add('portrait');
+    } else {
+        // Landscape
+        wrapper.classList.add('landscape');
+    }
+});
+</script>
