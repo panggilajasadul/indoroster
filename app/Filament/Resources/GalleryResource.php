@@ -97,7 +97,7 @@ class GalleryResource extends Resource
                                     ->default('upload')
                                     ->live()
                                     ->afterStateHydrated(function (Forms\Components\Select $component, $state, $record) {
-                                        if ($record && str_starts_with($record->media_url, 'http')) {
+                                        if ($record && str_starts_with($record->media_url ?? '', 'http')) {
                                             $component->state('url');
                                         } else {
                                             $component->state('upload');
@@ -112,8 +112,8 @@ class GalleryResource extends Resource
                                     ->required(fn(Forms\Get $get) => $get('media_source') === 'upload' && $get('media_type') === 'image')
                                     ->hidden(fn(Forms\Get $get) => $get('media_source') !== 'upload' || $get('media_type') !== 'image')
                                     ->afterStateHydrated(function (Forms\Components\FileUpload $component, $state, $record) {
-                                        if ($record && !str_starts_with($record->media_url, 'http') && $record->media_type === 'image') {
-                                            $component->state($record->media_url);
+                                        if ($record && !str_starts_with($record->media_url ?? '', 'http') && $record->media_type === 'image') {
+                                            $component->state([$record->media_url]);
                                         }
                                     }),
                                 Forms\Components\FileUpload::make('media_video_upload')
@@ -125,8 +125,8 @@ class GalleryResource extends Resource
                                     ->required(fn(Forms\Get $get) => $get('media_source') === 'upload' && $get('media_type') === 'video')
                                     ->hidden(fn(Forms\Get $get) => $get('media_source') !== 'upload' || $get('media_type') !== 'video')
                                     ->afterStateHydrated(function (Forms\Components\FileUpload $component, $state, $record) {
-                                        if ($record && !str_starts_with($record->media_url, 'http') && $record->media_type === 'video') {
-                                            $component->state($record->media_url);
+                                        if ($record && !str_starts_with($record->media_url ?? '', 'http') && $record->media_type === 'video') {
+                                            $component->state([$record->media_url]);
                                         }
                                     }),
                                 Forms\Components\TextInput::make('media_url_link')
@@ -136,7 +136,7 @@ class GalleryResource extends Resource
                                     ->required(fn(Forms\Get $get) => $get('media_source') === 'url')
                                     ->hidden(fn(Forms\Get $get) => $get('media_source') !== 'url')
                                     ->afterStateHydrated(function (Forms\Components\TextInput $component, $state, $record) {
-                                        if ($record && str_starts_with($record->media_url, 'http')) {
+                                        if ($record && str_starts_with($record->media_url ?? '', 'http')) {
                                             $component->state($record->media_url);
                                         }
                                     }),
@@ -161,11 +161,12 @@ class GalleryResource extends Resource
                                             $url = '';
                                             if ($source === 'upload') {
                                                 $url = $type === 'image' ? $get('media_image_upload') : $get('media_video_upload');
+                                                $url = is_array($url) ? (array_values($url)[0] ?? '') : $url;
                                             } else {
                                                 $url = $get('media_url_link');
                                             }
 
-                                            if (!$url) return 'Belum ada media dipilih';
+                                            if (!$url || !is_string($url)) return 'Belum ada media dipilih';
 
                                             $displayUrl = $source === 'upload' 
                                                 ? (str_starts_with($url, 'gallery') ? asset('storage/' . $url) : $url)
@@ -198,7 +199,8 @@ class GalleryResource extends Resource
                             $source = $data['media_source'] ?? 'upload';
                             $type = $data['media_type'] ?? 'image';
                             if ($source === 'upload') {
-                                $data['media_url'] = $type === 'image' ? ($data['media_image_upload'] ?? '') : ($data['media_video_upload'] ?? '');
+                                $uploadValue = $type === 'image' ? ($data['media_image_upload'] ?? '') : ($data['media_video_upload'] ?? '');
+                                $data['media_url'] = is_array($uploadValue) ? (array_values($uploadValue)[0] ?? '') : $uploadValue;
                             } else {
                                 $data['media_url'] = $data['media_url_link'] ?? '';
                             }
@@ -209,7 +211,8 @@ class GalleryResource extends Resource
                             $source = $data['media_source'] ?? 'upload';
                             $type = $data['media_type'] ?? 'image';
                             if ($source === 'upload') {
-                                $data['media_url'] = $type === 'image' ? ($data['media_image_upload'] ?? '') : ($data['media_video_upload'] ?? '');
+                                $uploadValue = $type === 'image' ? ($data['media_image_upload'] ?? '') : ($data['media_video_upload'] ?? '');
+                                $data['media_url'] = is_array($uploadValue) ? (array_values($uploadValue)[0] ?? '') : $uploadValue;
                             } else {
                                 $data['media_url'] = $data['media_url_link'] ?? '';
                             }

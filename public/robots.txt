@@ -1,0 +1,19 @@
+User-agent: *
+Allow: /
+
+# Blokir halaman transaksi & akun pribadi
+Disallow: /keranjang
+Disallow: /checkout
+Disallow: /lacak-pesanan
+Disallow: /login
+Disallow: /register
+Disallow: /member/
+Disallow: /print/
+Disallow: /preview-email
+
+# Blokir asset internal
+Disallow: /build/
+Disallow: /vendor/
+
+# Sitemap
+Sitemap: https://indoroster.com/sitemap.xml

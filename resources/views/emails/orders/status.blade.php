@@ -30,6 +30,13 @@ Kabar gembira! Pesanan Anda dengan nomor **{{ $order->order_number }}** telah se
 
 @elseif($statusType === 'completed')
 Terima kasih telah berbelanja kebutuhan material bangunan di Indoroster! Pesanan Anda dengan nomor **{{ $order->order_number }}** telah ditandai selesai. Kami harap Anda puas dengan produk dan layanan kami.
+
+@if($order->delivery_photo_path)
+<x-mail::panel>
+### 📸 Bukti Pengiriman  
+<img src="{{ $message->embed(storage_path('app/public/' . $order->delivery_photo_path)) }}" alt="Bukti Pengiriman" style="max-width: 100%; border-radius: 8px;">
+</x-mail::panel>
+@endif
 @endif
 
 ---

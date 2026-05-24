@@ -98,7 +98,7 @@ class ProductResource extends Resource
                                                 ->hidden(fn(Forms\Get $get) => $get('media_source') !== 'upload' || $get('media_type') !== 'image')
                                                 ->afterStateHydrated(function (Forms\Components\FileUpload $component, $state, $record) {
                                                     if ($record && !str_starts_with($record->media_url, 'http') && $record->media_type === 'image') {
-                                                        $component->state($record->media_url);
+                                                        $component->state([$record->media_url]);
                                                     }
                                                 }),
                                             Forms\Components\FileUpload::make('media_video_upload')
@@ -111,7 +111,7 @@ class ProductResource extends Resource
                                                 ->hidden(fn(Forms\Get $get) => $get('media_source') !== 'upload' || $get('media_type') !== 'video')
                                                 ->afterStateHydrated(function (Forms\Components\FileUpload $component, $state, $record) {
                                                     if ($record && !str_starts_with($record->media_url, 'http') && $record->media_type === 'video') {
-                                                        $component->state($record->media_url);
+                                                        $component->state([$record->media_url]);
                                                     }
                                                 }),
                                             Forms\Components\TextInput::make('media_url_link')
@@ -143,18 +143,13 @@ class ProductResource extends Resource
                                                     ->content(function (Forms\Get $get) {
                                                         $source = $get('media_source');
                                                         $type = $get('media_type');
-                                                        $url = '';
                                                         if ($source === 'upload') {
-                                                            $url = $type === 'image' ? $get('media_image_upload') : $get('media_video_upload');
+                                                            return new HtmlString('<div class="text-sm text-gray-500 italic">Pratinjau (preview) untuk file upload otomatis tampil di dalam kotak upload di atas.</div>');
                                                         } else {
                                                             $url = $get('media_url_link');
+                                                            if (empty($url) || !is_string($url)) return 'Belum ada link URL yang diisi';
+                                                            $displayUrl = $url;
                                                         }
-
-                                                        if (!$url) return 'Belum ada media dipilih';
-
-                                                        $displayUrl = $source === 'upload' 
-                                                            ? (str_starts_with($url, 'product-media') ? asset('storage/' . $url) : $url)
-                                                            : $url;
 
                                                         if ($type === 'image') {
                                                             return new HtmlString('<div class="flex justify-center bg-gray-100 rounded-lg p-2"><img src="'.$displayUrl.'" style="max-height: 150px; width: auto;" class="rounded shadow-sm"></div>');
@@ -186,7 +181,8 @@ class ProductResource extends Resource
                                         $source = $data['media_source'] ?? 'upload';
                                         $type = $data['media_type'] ?? 'image';
                                         if ($source === 'upload') {
-                                            $data['media_url'] = $type === 'image' ? ($data['media_image_upload'] ?? '') : ($data['media_video_upload'] ?? '');
+                                            $uploadValue = $type === 'image' ? ($data['media_image_upload'] ?? '') : ($data['media_video_upload'] ?? '');
+                                            $data['media_url'] = is_array($uploadValue) ? (array_values($uploadValue)[0] ?? '') : $uploadValue;
                                         } else {
                                             $data['media_url'] = $data['media_url_link'] ?? '';
                                         }
@@ -197,7 +193,8 @@ class ProductResource extends Resource
                                         $source = $data['media_source'] ?? 'upload';
                                         $type = $data['media_type'] ?? 'image';
                                         if ($source === 'upload') {
-                                            $data['media_url'] = $type === 'image' ? ($data['media_image_upload'] ?? '') : ($data['media_video_upload'] ?? '');
+                                            $uploadValue = $type === 'image' ? ($data['media_image_upload'] ?? '') : ($data['media_video_upload'] ?? '');
+                                            $data['media_url'] = is_array($uploadValue) ? (array_values($uploadValue)[0] ?? '') : $uploadValue;
                                         } else {
                                             $data['media_url'] = $data['media_url_link'] ?? '';
                                         }
@@ -401,29 +398,26 @@ class ProductResource extends Resource
                     ->label('Clone')
                     ->modalHeading('Clone Produk')
                     ->modalButton('Clone Sekarang')
-                    ->using(function (Product $record, array $data): Product {
-                        $newRecord = $record->replicate();
-                        $newRecord->name = '[Salinan] ' . $record->name;
-                        $newRecord->slug = Str::slug($newRecord->name) . '-' . uniqid();
-                        $newRecord->is_active = false;
-                        $newRecord->sku = $record->sku ? $record->sku . '-CLONE' : null;
-                        $newRecord->save();
-
+                    ->beforeReplicaSaved(function (Product $replica, Product $record): void {
+                        $replica->name = '[Salinan] ' . $record->name;
+                        $replica->slug = Str::slug($replica->name) . '-' . uniqid();
+                        $replica->is_active = false;
+                        $replica->sku = $record->sku ? $record->sku . '-CLONE' : null;
+                    })
+                    ->after(function (Product $replica, Product $record): void {
                         // Replicate media
                         foreach ($record->media as $media) {
                             $newMedia = $media->replicate();
-                            $newMedia->product_id = $newRecord->id;
+                            $newMedia->product_id = $replica->id;
                             $newMedia->save();
                         }
 
                         // Replicate variants
                         foreach ($record->variants as $variant) {
                             $newVariant = $variant->replicate();
-                            $newVariant->product_id = $newRecord->id;
+                            $newVariant->product_id = $replica->id;
                             $newVariant->save();
                         }
-
-                        return $newRecord;
                     })
                     ->successNotificationTitle('Produk berhasil dikloning sebagai salinan!'),
                 Tables\Actions\DeleteAction::make(),

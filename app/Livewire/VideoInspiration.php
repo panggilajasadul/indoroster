@@ -101,13 +101,13 @@ class VideoInspiration extends Component
                     'comments' => $gallery->comments->map(function($c) {
                         return [
                             'id' => $c->id,
-                            'user_name' => $c->user->name,
+                            'user_name' => $c->user?->name ?? 'Pengguna',
                             'body' => $c->body,
                             'created_at_human' => $c->created_at->diffForHumans(),
                             'replies' => $c->replies->map(function($r) {
                                 return [
                                     'id' => $r->id,
-                                    'user_name' => $r->user->name,
+                                    'user_name' => $r->user?->name ?? 'Pengguna',
                                     'body' => $r->body,
                                     'created_at_human' => $r->created_at->diffForHumans()
                                 ];
@@ -159,13 +159,13 @@ class VideoInspiration extends Component
                             'comments' => $review->comments->map(function($c) {
                                 return [
                                     'id' => $c->id,
-                                    'user_name' => $c->user->name,
+                                    'user_name' => $c->user?->name ?? 'Pengguna',
                                     'body' => $c->body,
                                     'created_at_human' => $c->created_at->diffForHumans(),
                                     'replies' => $c->replies->map(function($r) {
                                         return [
                                             'id' => $r->id,
-                                            'user_name' => $r->user->name,
+                                            'user_name' => $r->user?->name ?? 'Pengguna',
                                             'body' => $r->body,
                                             'created_at_human' => $r->created_at->diffForHumans()
                                         ];

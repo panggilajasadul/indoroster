@@ -284,7 +284,8 @@
                                         </div>
                                         <p class="text-xs text-slate-500 mt-1 leading-relaxed">
                                             @if($step3_done)
-                                                Barang sudah diantarkan dan diterima di lokasi tujuan dengan aman.
+                                                Pesanan telah dibawa dan dikirim menuju lokasi Anda oleh driver/kurir: <strong>{{ $order->courier ?? 'Armada Pabrik' }}</strong>.
+
                                             @elseif($step3_active)
                                                 Pesanan telah dimuat ke truk armada pabrik. Driver sedang di perjalanan menuju alamat pengantaran Anda.
                                             @else
@@ -321,6 +322,15 @@
                                                 Driver akan menyerahkan roster dan bukti serah terima kepada Anda setibanya di lokasi tujuan.
                                             @endif
                                         </p>
+                                        @if($step4_done && $order->delivery_photo_path)
+                                            <div class="mt-4 p-2.5 bg-slate-50 border border-slate-100 rounded-xl inline-block max-w-sm">
+                                                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                                                    <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                                                    Bukti Pengiriman Kurir
+                                                </p>
+                                                <img src="{{ url('storage/' . $order->delivery_photo_path) }}" alt="Bukti Pengiriman" class="rounded-lg w-full h-auto object-cover shadow-sm">
+                                            </div>
+                                        @endif
                                     </div>
                                 </div>
 

@@ -27,6 +27,7 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
         'password',
         'role',
         'phone',
+        'license_plate',
         'avatar_url',
         'is_active',
     ];
@@ -55,12 +56,17 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
         ];
     }
 
-    /**
-     * Determine if the user can access the Filament admin panel.
-     */
     public function canAccessPanel(Panel $panel): bool
     {
-        return $this->role === 'admin' && $this->is_active;
+        if ($panel->getId() === 'admin') {
+            return $this->role === 'admin' && $this->is_active;
+        }
+
+        if ($panel->getId() === 'courier') {
+            return $this->role === 'courier' && $this->is_active;
+        }
+
+        return false;
     }
 
     /**
@@ -79,6 +85,11 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
     public function orders(): HasMany
     {
         return $this->hasMany(Order::class);
+    }
+
+    public function assignedOrders(): HasMany
+    {
+        return $this->hasMany(Order::class, 'courier_id');
     }
 
     public function carts(): HasMany

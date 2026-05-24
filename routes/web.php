@@ -19,31 +19,6 @@ use App\Livewire\VideoInspiration;
 // Sitemap
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 
-// Dynamic Robots.txt
-Route::get('/robots.txt', function () {
-    $sitemapUrl = route('sitemap');
-    $content = "User-agent: *\n";
-    $content .= "Allow: /\n\n";
-    $content .= "# Blokir halaman transaksi & akun pribadi\n";
-    $content .= "Disallow: /keranjang\n";
-    $content .= "Disallow: /checkout\n";
-    $content .= "Disallow: /lacak-pesanan\n";
-    $content .= "Disallow: /login\n";
-    $content .= "Disallow: /register\n";
-    $content .= "Disallow: /member/\n";
-    $content .= "Disallow: /print/\n";
-    $content .= "Disallow: /preview-email\n\n";
-    $content .= "# Blokir asset internal\n";
-    $content .= "Disallow: /build/\n";
-    $content .= "Disallow: /vendor/\n\n";
-    $content .= "# Sitemap\n";
-    $content .= "Sitemap: " . $sitemapUrl . "\n";
-
-    return response($content, 200, [
-        'Content-Type' => 'text/plain',
-    ]);
-});
-
 // Frontend Routes (publik, bisa diakses siapa saja)
 Route::get('/', Home::class)->name('home');
 Route::get('/katalog', ProductCatalog::class)->name('catalog');

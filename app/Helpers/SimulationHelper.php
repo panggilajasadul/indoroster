@@ -531,7 +531,7 @@ class SimulationHelper
                 'content' => $content,
                 'is_approved' => true,
                 'is_seeded' => true,
-                'created_at' => $now->copy()->subDays(rand(1, 180))->subMinutes(rand(1, 1440)),
+                'created_at' => $now->copy()->subMinutes(rand(1, 1440)), // Scattered within the last 24 hours
                 'updated_at' => $now,
             ];
         }
@@ -569,7 +569,7 @@ class SimulationHelper
                 'commentable_id' => $commentableId,
                 'body' => $body,
                 'is_seeded' => true,
-                'created_at' => $now->copy()->subDays(rand(1, 60))->subMinutes(rand(1, 1440)),
+                'created_at' => $now->copy()->subMinutes(rand(1, 1440)), // Scattered within the last 24 hours
                 'updated_at' => $now,
             ];
         }
@@ -607,7 +607,7 @@ class SimulationHelper
                 'commentable_id' => $commentableId,
                 'body' => $body,
                 'is_seeded' => true,
-                'created_at' => $now->copy()->subDays(rand(1, 90))->subMinutes(rand(1, 1440)),
+                'created_at' => $now->copy()->subMinutes(rand(1, 1440)), // Scattered within the last 24 hours
                 'updated_at' => $now,
             ];
         }
@@ -630,28 +630,68 @@ class SimulationHelper
         $item = $likeableType::find($likeableId);
         if (!$item) return 0;
 
-        // Seed dummy users up to required count
-        $userIds = self::seedDummyUsers(max(200, $count));
-        if (empty($userIds)) return 0;
-
-        // Fetch existing likes on this item to avoid duplicates
+        // Get all user IDs that have ALREADY liked this item
         $existingLikes = \App\Models\Like::where('likeable_type', $likeableType)
             ->where('likeable_id', $likeableId)
-            ->whereIn('user_id', $userIds)
             ->pluck('user_id')
             ->toArray();
 
-        // Filter out users who already liked
-        $availableUserIds = array_diff($userIds, $existingLikes);
+        // Get dummy users who haven't liked it yet, limited to what we need
+        $query = User::where('email', 'like', 'dummy_user_%@indoroster.com');
+        if (!empty($existingLikes)) {
+            // chunk the existing likes if it's too large, but typically an item has < 10k likes
+            // However, to be perfectly safe against placeholders:
+            if (count($existingLikes) > 50000) {
+                // Highly unlikely for a single item, but just in case
+                $existingLikes = array_slice($existingLikes, 0, 50000);
+            }
+            $query->whereNotIn('id', $existingLikes);
+        }
+        $availableUserIds = $query->limit($count)->pluck('id')->toArray();
 
-        // We can only assign as many as available
-        $toAssign = min($count, count($availableUserIds));
-        if ($toAssign <= 0) {
-            return 0;
+        // If we don't have enough available users, create more!
+        if (count($availableUserIds) < $count) {
+            $neededNewUsers = $count - count($availableUserIds);
+            
+            // Bypass seedDummyUsers because it only ensures total DB count.
+            // We need GUARANTEED NEW users.
+            $insertData = [];
+            $now = Carbon::now();
+            $hashedPassword = Hash::make('password123');
+            
+            for ($i = 0; $i < $neededNewUsers; $i++) {
+                $nameIdx = rand(0, count(self::$indonesianNames) - 1);
+                $name = self::$indonesianNames[$nameIdx];
+                $email = 'dummy_user_' . Str::random(8) . '_' . uniqid() . '@indoroster.com';
+                $phone = '08' . rand(111111111, 999999999);
+
+                $insertData[] = [
+                    'name' => $name,
+                    'email' => $email,
+                    'password' => $hashedPassword,
+                    'role' => 'customer',
+                    'phone' => $phone,
+                    'is_active' => true,
+                    'created_at' => $now,
+                    'updated_at' => $now,
+                ];
+            }
+            
+            User::insert($insertData);
+            
+            // Fetch the newly created users
+            $newDummyIds = User::where('email', 'like', 'dummy_user_%@indoroster.com')
+                ->whereNotIn('id', $existingLikes)
+                ->orderBy('id', 'desc')
+                ->limit($neededNewUsers)
+                ->pluck('id')
+                ->toArray();
+                
+            $availableUserIds = array_merge($availableUserIds, $newDummyIds);
         }
 
-        // Pick random users
-        $selectedUsers = Arr::random($availableUserIds, $toAssign);
+        // Pick random users (or just use them since we limited to $count)
+        $selectedUsers = array_slice($availableUserIds, 0, $count);
         if (!is_array($selectedUsers)) {
             $selectedUsers = [$selectedUsers];
         }
@@ -663,7 +703,7 @@ class SimulationHelper
                 'user_id' => $userId,
                 'likeable_type' => $likeableType,
                 'likeable_id' => $likeableId,
-                'created_at' => $now->copy()->subDays(rand(1, 60))->subMinutes(rand(1, 1440)),
+                'created_at' => $now->copy()->subMinutes(rand(1, 1440)), // Scattered within the last 24 hours
                 'updated_at' => $now,
             ];
         }

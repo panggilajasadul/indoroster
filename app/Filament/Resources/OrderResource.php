@@ -11,7 +11,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Infolists;
 use Filament\Infolists\Infolist;
-
+use Illuminate\Database\Eloquent\Builder;
 class OrderResource extends Resource
 {
     protected static ?string $model = Order::class;
@@ -180,6 +180,12 @@ class OrderResource extends Resource
                                     ->placeholder('SiCepat, JNE, Truck'),
                                 Forms\Components\TextInput::make('tracking_number')
                                     ->label('No. Resi'),
+                                Forms\Components\FileUpload::make('delivery_photo_path')
+                                    ->label('Bukti Pengiriman (Oleh Kurir)')
+                                    ->image()
+                                    ->disabled()
+                                    ->columnSpanFull()
+                                    ->visible(fn ($record) => $record && $record->delivery_photo_path),
                             ]),
 
                         Forms\Components\Section::make('Waktu')
@@ -356,13 +362,32 @@ class OrderResource extends Resource
                     ->color('warning')
                     ->visible(fn (Order $record) => $record->status === 'paid')
                     ->form([
+                        Forms\Components\Select::make('courier_id')
+                            ->label('Pilih Kurir Internal (Opsional)')
+                            ->relationship('courierUser', 'name', fn (Builder $query) => $query->where('role', 'courier'))
+                            ->searchable()
+                            ->preload()
+                            ->live()
+                            ->afterStateUpdated(function ($state, Forms\Set $set) {
+                                if ($state) {
+                                    $courier = \App\Models\User::find($state);
+                                    if ($courier) {
+                                        $set('courier', $courier->name);
+                                        $set('courier_phone', $courier->phone);
+                                        $set('tracking_number', $courier->license_plate);
+                                    }
+                                }
+                            }),
                         Forms\Components\TextInput::make('courier')
-                            ->label('Nama Kurir (Opsional)')
-                            ->placeholder('Contoh: GoSend, Kurir Internal'),
+                            ->label('Atau Ekspedisi Luar')
+                            ->placeholder('Contoh: GoSend, Ekspedisi Luar'),
                         Forms\Components\TextInput::make('courier_phone')
                             ->label('Nomor WA Kurir (Opsional)')
                             ->placeholder('Contoh: 08123456789')
                             ->tel(),
+                        Forms\Components\TextInput::make('tracking_number')
+                            ->label('No. Resi / Plat Truk (Opsional)')
+                            ->placeholder('Contoh: B 1234 CD'),
                     ])
                     ->modalHeading('Siapkan Pesanan')
                     ->modalDescription('Pesanan akan dipindahkan ke tab "Diproses". Anda bisa mengisi data kurir sekarang atau nanti saat pesanan dikirim.')
@@ -370,8 +395,10 @@ class OrderResource extends Resource
                     ->action(function (Order $record, array $data) {
                         $record->update([
                             'status' => 'processing',
+                            'courier_id' => $data['courier_id'] ?? null,
                             'courier' => $data['courier'] ?? null,
                             'courier_phone' => $data['courier_phone'] ?? null,
+                            'tracking_number' => $data['tracking_number'] ?? null,
                         ]);
                         
                         if ($record->user_id && $record->user) {
@@ -418,10 +445,26 @@ class OrderResource extends Resource
                     ->color('info')
                     ->visible(fn (Order $record) => $record->status === 'processing')
                     ->form(fn (Order $record) => [
+                        Forms\Components\Select::make('courier_id')
+                            ->label('Kurir Internal')
+                            ->relationship('courierUser', 'name', fn (Builder $query) => $query->where('role', 'courier'))
+                            ->default($record->courier_id)
+                            ->searchable()
+                            ->preload()
+                            ->live()
+                            ->afterStateUpdated(function ($state, Forms\Set $set) {
+                                if ($state) {
+                                    $courier = \App\Models\User::find($state);
+                                    if ($courier) {
+                                        $set('courier', $courier->name);
+                                        $set('courier_phone', $courier->phone);
+                                        $set('tracking_number', $courier->license_plate);
+                                    }
+                                }
+                            }),
                         Forms\Components\TextInput::make('courier')
-                            ->label('Nama Kurir')
-                            ->default($record->courier)
-                            ->required(),
+                            ->label('Atau Ekspedisi Luar')
+                            ->default($record->courier),
                         Forms\Components\TextInput::make('courier_phone')
                             ->label('Nomor WA Kurir (Opsional)')
                             ->default($record->courier_phone)
@@ -437,7 +480,8 @@ class OrderResource extends Resource
                         $record->update([
                             'status' => 'shipped',
                             'shipped_at' => now(),
-                            'courier' => $data['courier'],
+                            'courier_id' => $data['courier_id'] ?? null,
+                            'courier' => $data['courier'] ?? null,
                             'courier_phone' => $data['courier_phone'] ?? null,
                             'tracking_number' => $data['tracking_number'] ?? null,
                         ]);

@@ -34,6 +34,8 @@ class Order extends Model
         'paid_at',
         'shipped_at',
         'completed_at',
+        'courier_id',
+        'delivery_photo_path',
     ];
 
     protected function casts(): array
@@ -55,8 +57,8 @@ class Order extends Model
     public static function generateOrderNumber(): string
     {
         $date = now()->format('Ymd');
-        $lastOrder = static::whereDate('created_at', today())
-            ->orderByDesc('id')
+        $lastOrder = static::where('order_number', 'like', 'INV-' . $date . '-%')
+            ->orderBy('order_number', 'desc')
             ->first();
 
         $sequence = $lastOrder
@@ -69,6 +71,11 @@ class Order extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function courierUser(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'courier_id');
     }
 
     public function items(): HasMany

@@ -94,8 +94,8 @@ class VideoInspirationResource extends Resource
                                     ->required(fn(Forms\Get $get) => $get('media_source') === 'upload')
                                     ->hidden(fn(Forms\Get $get) => $get('media_source') !== 'upload')
                                     ->afterStateHydrated(function (Forms\Components\FileUpload $component, $state, $record) {
-                                        if ($record && !str_starts_with($record->media_url, 'http')) {
-                                            $component->state($record->media_url);
+                                        if ($record && !str_starts_with($record->media_url ?? '', 'http')) {
+                                            $component->state([$record->media_url]);
                                         }
                                     }),
                                 Forms\Components\TextInput::make('media_url_link')
@@ -105,7 +105,7 @@ class VideoInspirationResource extends Resource
                                     ->required(fn(Forms\Get $get) => $get('media_source') === 'url')
                                     ->hidden(fn(Forms\Get $get) => $get('media_source') !== 'url')
                                     ->afterStateHydrated(function (Forms\Components\TextInput $component, $state, $record) {
-                                        if ($record && str_starts_with($record->media_url, 'http')) {
+                                        if ($record && str_starts_with($record->media_url ?? '', 'http')) {
                                             $component->state($record->media_url);
                                         }
                                     }),
@@ -118,8 +118,12 @@ class VideoInspirationResource extends Resource
                                         ->content(function (Forms\Get $get) {
                                             $source = $get('media_source');
                                             $url = $source === 'upload' ? $get('media_url_upload') : $get('media_url_link');
+                                            
+                                            if ($source === 'upload') {
+                                                $url = is_array($url) ? (array_values($url)[0] ?? '') : $url;
+                                            }
 
-                                            if (!$url) return 'Belum ada media dipilih';
+                                            if (!$url || !is_string($url)) return 'Belum ada media dipilih';
 
                                             $displayUrl = $source === 'upload' 
                                                 ? (str_starts_with($url, 'video-inspirasi') ? asset('storage/' . $url) : $url)
@@ -139,13 +143,17 @@ class VideoInspirationResource extends Resource
                         ])
                         ->mutateRelationshipDataBeforeCreateUsing(function (array $data): array {
                             $source = $data['media_source'] ?? 'upload';
-                            $data['media_url'] = $source === 'upload' ? ($data['media_url_upload'] ?? '') : ($data['media_url_link'] ?? '');
+                            $uploadValue = $data['media_url_upload'] ?? '';
+                            $uploadValue = is_array($uploadValue) ? (array_values($uploadValue)[0] ?? '') : $uploadValue;
+                            $data['media_url'] = $source === 'upload' ? $uploadValue : ($data['media_url_link'] ?? '');
                             unset($data['media_source'], $data['media_url_upload'], $data['media_url_link']);
                             return $data;
                         })
                         ->mutateRelationshipDataBeforeSaveUsing(function (array $data): array {
                             $source = $data['media_source'] ?? 'upload';
-                            $data['media_url'] = $source === 'upload' ? ($data['media_url_upload'] ?? '') : ($data['media_url_link'] ?? '');
+                            $uploadValue = $data['media_url_upload'] ?? '';
+                            $uploadValue = is_array($uploadValue) ? (array_values($uploadValue)[0] ?? '') : $uploadValue;
+                            $data['media_url'] = $source === 'upload' ? $uploadValue : ($data['media_url_link'] ?? '');
                             unset($data['media_source'], $data['media_url_upload'], $data['media_url_link']);
                             return $data;
                         })
