@@ -81,7 +81,10 @@
                             @php
                                 $mediaUrl = str_starts_with($media->media_url, 'http') ? $media->media_url : asset('storage/' . $media->media_url);
                             @endphp
-                            <button wire:click="setActiveImage('{{ $mediaUrl }}', '{{ $media->media_type }}')" class="relative flex-shrink-0 w-20 h-20 md:w-24 md:h-24 rounded-lg overflow-hidden border-2 transition-all {{ $activeImage === $mediaUrl ? 'border-terra-500' : 'border-transparent hover:border-gray-300' }}">
+                            <button 
+                                wire:click="setActiveImage('{{ $mediaUrl }}', '{{ $media->media_type }}')"
+                                wire:mouseenter.debounce.100ms="setActiveImage('{{ $mediaUrl }}', '{{ $media->media_type }}')"
+                                class="relative flex-shrink-0 w-20 h-20 md:w-24 md:h-24 rounded-lg overflow-hidden border-2 transition-all {{ $activeImage === $mediaUrl ? 'border-terra-500' : 'border-transparent hover:border-gray-300' }}">
                                 @if($media->media_type === 'image')
                                     <img src="{{ $mediaUrl }}" alt="Thumbnail" class="w-full h-full object-cover">
                                 @elseif($media->media_type === 'video')
