@@ -48,70 +48,30 @@
             <!-- Left Column -->
             <div class="flex flex-col w-full">
                 <!-- Gallery -->
-                @php
-                    $initialYtId = '';
-                    if ($activeMediaType === 'video') {
-                        preg_match('/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i', $activeImage, $matches);
-                        $initialYtId = $matches[1] ?? '';
-                    }
-                @endphp
-                <div x-data="{ 
-                    activeImage: '{{ $activeImage }}', 
-                    activeMediaType: '{{ $activeMediaType }}',
-                    activeYtId: '{{ $initialYtId }}',
-                    setActive(url, type) {
-                        this.activeImage = url;
-                        this.activeMediaType = type;
-                        if (type === 'video') {
-                            let match = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^&?/\s]{11})/i);
-                            this.activeYtId = match ? match[1] : '';
-                        } else {
-                            this.activeYtId = '';
-                        }
-                    }
-                }" 
-                x-init="$watch('$wire.activeImage', (value) => { 
-                    setActive(value, $wire.activeMediaType);
-                })"
-                class="flex flex-col gap-3">
+                <div class="flex flex-col gap-3">
                     <!-- Main Image -->
                     <div class="w-full relative bg-gray-50 rounded-2xl overflow-hidden border border-gray-100 aspect-square">
-                        <!-- Image Element -->
-                        <img 
-                            x-show="activeMediaType === 'image' && activeImage" 
-                            :src="activeImage" 
-                            alt="{{ $product->name }}" 
-                            class="absolute inset-0 w-full h-full object-cover"
-                        >
-
-                        <!-- Local Video Element -->
-                        <template x-if="activeMediaType === 'video' && !activeYtId && activeImage">
-                            <video 
-                                :src="activeImage" 
-                                class="absolute inset-0 w-full h-full object-cover" 
-                                controls 
-                                autoplay 
-                                muted 
-                                loop 
-                                playsinline
-                            ></video>
-                        </template>
-
-                        <!-- YouTube Iframe Element -->
-                        <template x-if="activeMediaType === 'video' && activeYtId">
-                            <iframe 
-                                class="absolute inset-0 w-full h-full" 
-                                :src="'https://www.youtube.com/embed/' + activeYtId + '?autoplay=1&mute=1'" 
-                                frameborder="0" 
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                                allowfullscreen
-                            ></iframe>
-                        </template>
-
-                        <!-- Empty State -->
-                        <div x-show="!activeImage" class="absolute inset-0 w-full h-full flex items-center justify-center text-slate-400">
-                            No Image
-                        </div>
+                        @if($activeImage)
+                            @if($activeMediaType === 'video')
+                                @if(str_contains($activeImage, 'youtube.com') || str_contains($activeImage, 'youtu.be'))
+                                    @php
+                                        preg_match('/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i', $activeImage, $matches);
+                                        $ytId = $matches[1] ?? '';
+                                    @endphp
+                                    @if($ytId)
+                                        <iframe class="absolute inset-0 w-full h-full" src="https://www.youtube.com/embed/{{ $ytId }}?autoplay=1&mute=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                                    @else
+                                        <div class="absolute inset-0 w-full h-full flex items-center justify-center bg-slate-100 text-slate-500">Invalid YouTube URL</div>
+                                    @endif
+                                @else
+                                    <video src="{{ $activeImage }}" class="absolute inset-0 w-full h-full object-cover" controls autoplay muted loop playsinline></video>
+                                @endif
+                            @else
+                                <img src="{{ $activeImage }}" alt="{{ $product->name }}" class="absolute inset-0 w-full h-full object-cover">
+                            @endif
+                        @else
+                            <div class="absolute inset-0 w-full h-full flex items-center justify-center text-slate-400">No Image</div>
+                        @endif
                     </div>
 
                     <!-- Thumbnails -->
@@ -122,10 +82,9 @@
                                 $mediaUrl = str_starts_with($media->media_url, 'http') ? $media->media_url : asset('storage/' . $media->media_url);
                             @endphp
                             <button 
-                                @click="setActive('{{ $mediaUrl }}', '{{ $media->media_type }}'); $wire.setActiveImage('{{ $mediaUrl }}', '{{ $media->media_type }}')"
-                                @mouseenter="setActive('{{ $mediaUrl }}', '{{ $media->media_type }}')"
-                                :class="activeImage === '{{ $mediaUrl }}' ? 'border-terra-500' : 'border-transparent hover:border-gray-300'"
-                                class="relative flex-shrink-0 w-20 h-20 md:w-24 md:h-24 rounded-lg overflow-hidden border-2 transition-all">
+                                wire:click="setActiveImage('{{ $mediaUrl }}', '{{ $media->media_type }}')"
+                                wire:mouseenter.debounce.100ms="setActiveImage('{{ $mediaUrl }}', '{{ $media->media_type }}')"
+                                class="relative flex-shrink-0 w-20 h-20 md:w-24 md:h-24 rounded-lg overflow-hidden border-2 transition-all {{ $activeImage === $mediaUrl ? 'border-terra-500' : 'border-transparent hover:border-gray-300' }}">
                                 @if($media->media_type === 'image')
                                     <img src="{{ $mediaUrl }}" alt="Thumbnail" class="w-full h-full object-cover">
                                 @elseif($media->media_type === 'video')

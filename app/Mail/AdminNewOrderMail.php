@@ -29,7 +29,7 @@ class AdminNewOrderMail extends Mailable
      */
     public function envelope(): Envelope
     {
-        $formattedTotal = 'Rp ' . number_format($this->order->grand_total, 0, ',', '.');
+        $formattedTotal = 'Rp ' . number_format((float) ($this->order->grand_total ?? 0), 0, ',', '.');
         return new Envelope(
             subject: '🔔 ORDER BARU MASUK! ' . $formattedTotal . ' (' . $this->order->shipping_name . ')',
         );

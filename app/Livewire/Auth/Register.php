@@ -56,6 +56,7 @@ class Register extends Component
         $sessionId = Cookie::get('cart_session_id');
         if ($sessionId) {
             $userId = Auth::id();
+            /** @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\Cart> $sessionCartItems */
             $sessionCartItems = Cart::where('session_id', $sessionId)->get();
             
             foreach ($sessionCartItems as $item) {
