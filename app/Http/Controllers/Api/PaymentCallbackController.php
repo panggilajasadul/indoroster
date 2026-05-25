@@ -23,6 +23,13 @@ class PaymentCallbackController extends Controller
         }
 
         $orderId = $notification->order_id;
+
+        // Handle Midtrans dashboard test notification immediately
+        if ($orderId && str_contains($orderId, 'payment_notif_test')) {
+            Log::info('Midtrans Test Notification received successfully', ['order_id' => $orderId]);
+            return response()->json(['message' => 'Test notification received successfully'], 200);
+        }
+
         $statusCode = $notification->status_code;
         $grossAmount = $notification->gross_amount;
         $signatureKey = $notification->signature_key;
@@ -40,8 +47,8 @@ class PaymentCallbackController extends Controller
         $order = Order::where('order_number', $orderId)->first();
 
         if (!$order) {
-            Log::error('Midtrans Callback: Order Not Found', ['order_id' => $orderId]);
-            return response()->json(['message' => 'Order not found'], 404);
+            Log::warning('Midtrans Callback: Order Not Found', ['order_id' => $orderId]);
+            return response()->json(['message' => 'Order not found, callback acknowledged'], 200);
         }
 
         $transactionStatus = $notification->transaction_status;
