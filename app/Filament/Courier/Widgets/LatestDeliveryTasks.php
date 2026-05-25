@@ -19,37 +19,26 @@ class LatestDeliveryTasks extends BaseWidget
     {
         return $table
             ->query(
-                Order::where('courier_id', auth()->id())
+                Order::query()
+                    ->where('courier_id', auth()->id())
                     ->whereIn('status', ['processing', 'shipped'])
                     ->latest()
                     ->limit(5)
             )
             ->columns([
-                Tables\Columns\TextColumn::make('order_number')
-                    ->label('No. Pesanan'),
-                Tables\Columns\TextColumn::make('shipping_name')
-                    ->label('Penerima'),
-                Tables\Columns\TextColumn::make('shipping_address')
-                    ->label('Alamat Lengkap')
-                    ->limit(50),
-                Tables\Columns\TextColumn::make('status')
-                    ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'processing' => 'warning',
-                        'shipped' => 'primary',
-                        default => 'gray',
-                    })
-                    ->formatStateUsing(fn (string $state): string => match ($state) {
-                        'processing' => 'Diproses',
-                        'shipped' => 'Dikirim',
-                        default => $state,
-                    }),
+                Tables\Columns\ViewColumn::make('id')
+                    ->view('filament.courier.order-card')
+            ])
+            ->contentGrid([
+                'default' => 1,
+                'md' => 2,
+                'xl' => 3,
             ])
             ->actions([
                 Tables\Actions\Action::make('complete_delivery')
                     ->label('Selesaikan')
                     ->icon('heroicon-o-check-circle')
-                    ->color('success')
+                    ->color('primary')
                     ->form([
                         Forms\Components\FileUpload::make('delivery_photo_path')
                             ->label('Foto Bukti Kirim (Gunakan Kamera)')

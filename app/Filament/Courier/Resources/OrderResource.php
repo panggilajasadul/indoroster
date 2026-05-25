@@ -21,11 +21,15 @@ class OrderResource extends Resource
     protected static ?string $navigationLabel = 'Tugas Pengiriman';
     protected static ?string $pluralModelLabel = 'Tugas Pengiriman';
     protected static ?string $modelLabel = 'Pesanan';
+    protected static ?int $navigationSort = 1;
+
 
     public static function getEloquentQuery(): Builder
     {
+        // Hanya tampilkan pesanan yang PERLU diantarkan (processing & shipped)
         return parent::getEloquentQuery()
-            ->where('courier_id', auth()->id());
+            ->where('courier_id', auth()->id())
+            ->whereIn('status', ['processing', 'shipped']);
     }
 
     public static function canCreate(): bool
@@ -45,48 +49,29 @@ class OrderResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('order_number')
-                    ->label('No. Pesanan')
-                    ->searchable()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('shipping_name')
-                    ->label('Penerima')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('shipping_address')
-                    ->label('Alamat Lengkap')
-                    ->limit(50),
-                Tables\Columns\TextColumn::make('shipping_phone')
-                    ->label('No. HP'),
-                Tables\Columns\TextColumn::make('status')
-                    ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'processing' => 'warning',
-                        'shipped' => 'primary',
-                        'completed' => 'success',
-                        default => 'gray',
-                    })
-                    ->formatStateUsing(fn (string $state): string => match ($state) {
-                        'processing' => 'Diproses',
-                        'shipped' => 'Dikirim (Dalam Perjalanan)',
-                        'completed' => 'Selesai Dikirim',
-                        default => $state,
-                    }),
+                Tables\Columns\ViewColumn::make('id')
+                    ->view('filament.courier.order-card')
             ])
-            ->defaultSort('created_at', 'desc')
+            ->contentGrid([
+                'default' => 1,
+                'md' => 2,
+                'xl' => 3,
+            ])
+            ->defaultSort('created_at', 'asc')
             ->filters([
                 Tables\Filters\SelectFilter::make('status')
+                    ->label('Filter Status')
                     ->options([
-                        'processing' => 'Belum Diambil',
-                        'shipped' => 'Dalam Perjalanan',
-                        'completed' => 'Selesai',
+                        'processing' => '🟡 Belum Diambil',
+                        'shipped'    => '🚚 Sedang Dikirim',
                     ])
-                    ->default('shipped'),
+                    ->placeholder('Semua Tugas Aktif'),
             ])
             ->actions([
                 Tables\Actions\Action::make('complete_delivery')
                     ->label('Selesaikan Pesanan')
                     ->icon('heroicon-o-check-circle')
-                    ->color('success')
+                    ->color('primary')
                     ->visible(fn (Order $record) => in_array($record->status, ['processing', 'shipped']))
                     ->form([
                         Forms\Components\FileUpload::make('delivery_photo_path')
@@ -126,18 +111,7 @@ class OrderResource extends Resource
                             ->success()
                             ->send();
                     }),
-                Tables\Actions\Action::make('wa_customer')
-                    ->label('WA Pelanggan')
-                    ->icon('heroicon-o-chat-bubble-left-ellipsis')
-                    ->color('info')
-                    ->url(function (Order $record) {
-                        $phone = preg_replace('/[^0-9]/', '', $record->shipping_phone);
-                        if (str_starts_with($phone, '0')) {
-                            $phone = '62' . substr($phone, 1);
-                        }
-                        return 'https://wa.me/' . $phone . '?text=Halo%20' . urlencode($record->shipping_name) . ',%20saya%20kurir%20Indoroster%20ingin%20mengirimkan%20pesanan%20Anda.';
-                    })
-                    ->openUrlInNewTab(),
+// Call Customer & Navigate are now embedded in order-card.blade.php
             ])
             ->bulkActions([]);
     }
