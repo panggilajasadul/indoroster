@@ -96,6 +96,25 @@
             <!-- Right: Feature Cards -->
             <div class="lg:col-span-5 space-y-12">
                 
+                <!-- Card 0: Production Place -->
+                <div class="about-card rounded-2xl overflow-hidden shadow-sm border border-slate-100">
+                    <div class="h-64 bg-slate-200 overflow-hidden relative group">
+                        <img src="{{ asset('assets/indoroster-production-place.png') }}" alt="Tempat Produksi IndoRoster" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 opacity-90">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                    </div>
+                    <div class="p-8 md:p-10">
+                        <h3 class="font-display text-2xl font-bold text-black mb-4 leading-tight">Pabrik & Sentra Produksi IndoRoster</h3>
+                        <p class="text-slate-700 text-sm leading-relaxed mb-6">
+                            Pabrik kami berpusat di Plered, Purwakarta. Kami memiliki kapasitas produksi besar dan proses kendali mutu yang ketat untuk menghasilkan roster beton berkualitas tinggi secara konsisten.
+                        </p>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="text-[10px] font-black uppercase tracking-widest bg-orange-100 text-[#f75c20] px-3 py-1 rounded-full">#PabrikRoster</span>
+                            <span class="text-[10px] font-black uppercase tracking-widest bg-orange-100 text-[#f75c20] px-3 py-1 rounded-full">#Purwakarta</span>
+                            <span class="text-[10px] font-black uppercase tracking-widest bg-orange-100 text-[#f75c20] px-3 py-1 rounded-full">#ProduksiLokal</span>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Card 1: Consistency -->
                 <div class="about-card rounded-2xl overflow-hidden shadow-sm border border-slate-100">
                     <div class="h-64 bg-slate-200 overflow-hidden relative group">
