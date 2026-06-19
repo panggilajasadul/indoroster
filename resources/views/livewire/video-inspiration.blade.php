@@ -152,6 +152,7 @@
                     
                     {{-- Video Element --}}
                     <video 
+                        wire:ignore
                         x-ref="videoElement"
                         @timeupdate="updateProgress"
                         src="{{ $video['url'] }}" 
@@ -293,6 +294,7 @@
                         :class="commentDrawerOpen ? 'md:-translate-x-[200px]' : ''">
                         
                         <video 
+                            wire:ignore
                             id="video-element-{{ $index }}"
                             class="modal-video-player w-full h-full object-cover"
                             src="{{ $video['url'] }}" 
