@@ -310,12 +310,12 @@
                                 </div>
                             </div>
                                                      <div class="flex flex-col sm:flex-row gap-2.5 w-full lg:flex-1">
-                                <button @click="openOrderWa($wire.quantity, $wire.selectedVariant, $wire.activePrice)" type="button" class="w-full sm:flex-1 h-10 bg-white border-2 border-terra-500 text-terra-600 hover:bg-terra-50 text-sm font-bold rounded-md transition-all flex items-center justify-center gap-2 cursor-pointer">
+                                <button @click="openOrderWa($wire.quantity, $wire.selectedVariant)" type="button" class="w-full sm:flex-1 h-10 bg-white border-2 border-terra-500 text-terra-600 hover:bg-terra-50 text-sm font-bold rounded-md transition-all flex items-center justify-center gap-2 cursor-pointer">
                                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
                                     <span>Keranjang</span>
                                 </button>
  
-                                <button @click="openOrderWa($wire.quantity, $wire.selectedVariant, $wire.activePrice)" type="button" class="w-full sm:flex-1 h-10 bg-terra-500 hover:bg-terra-600 text-white text-sm font-bold rounded-md shadow-md shadow-terra-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer">
+                                <button @click="openOrderWa($wire.quantity, $wire.selectedVariant)" type="button" class="w-full sm:flex-1 h-10 bg-terra-500 hover:bg-terra-600 text-white text-sm font-bold rounded-md shadow-md shadow-terra-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer">
                                     <span>Beli Sekarang</span>
                                 </button>
                             </div>
@@ -835,7 +835,7 @@
     const productVariants = @json($product->variants);
 
     // Open order WA helper with validation
-    function openOrderWa(qty, selectedVariantId, activePrice) {
+    function openOrderWa(qty, selectedVariantId) {
         let hasVariants = {{ $product->variants->count() > 0 ? 'true' : 'false' }};
         if (hasVariants && !selectedVariantId) {
             window.dispatchEvent(new CustomEvent('open-warning-modal', {
@@ -847,7 +847,7 @@
             return;
         }
 
-        let price = parseFloat(activePrice) || {{ (float)$product->price }};
+        let price = {{ (float)$product->price }};
         let variantName = '';
         let imageUrl = {!! json_encode($product->primary_image) !!};
 
@@ -855,6 +855,7 @@
             let variant = productVariants.find(v => v.id == selectedVariantId);
             if (variant) {
                 variantName = variant.name;
+                price += parseFloat(variant.price_adjustment || 0);
                 if (variant.image_url) {
                     imageUrl = variant.image_url.startsWith('http') 
                         ? variant.image_url 
