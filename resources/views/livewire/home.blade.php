@@ -2,6 +2,13 @@
 @push('seo')
     <x-seo-schemas />
 @endpush
+@php
+    $rawWa = \App\Models\SiteSetting::getValue('whatsapp_number', '0813-8970-9847');
+    $waNumber = preg_replace('/[^0-9]/', '', $rawWa);
+    if (str_starts_with($waNumber, '0')) {
+        $waNumber = '62' . substr($waNumber, 1);
+    }
+@endphp
     @if($page && is_array($page->content) && count($page->content) > 0)
         <x-block-renderer :blocks="$page->content" />
     @else
@@ -531,7 +538,7 @@
                     <p class="text-lg text-slate-600 mb-8 leading-relaxed">
                         Sebagai pusat produksi tangan pertama di <strong>Plered, Purwakarta</strong>, armada truk kami siap mengirimkan pesanan partai kecil maupun besar langsung ke lokasi proyek Anda di <strong>Jakarta, Bogor, Depok, Tangerang, Bekasi (Jabodetabek)</strong>, Bandung, Cirebon, hingga pengiriman via ekspedisi khusus ke seluruh wilayah Indonesia dengan garansi aman sampai tujuan.
                     </p>
-                    <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', \App\Models\SiteSetting::getValue('whatsapp_number', '081234567890')) }}" target="_blank" class="inline-flex items-center gap-2 bg-accent hover:bg-accent/90 text-black px-6 py-3 rounded-md font-bold transition-colors">
+                    <a href="https://wa.me/{{ $waNumber }}" target="_blank" class="inline-flex items-center gap-2 bg-accent hover:bg-accent/90 text-black px-6 py-3 rounded-md font-bold transition-colors">
                         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
                         Cek Ongkir ke Lokasi Saya
                     </a>
@@ -751,7 +758,7 @@
                 Wujudkan Hunian <br>Impian Anda <span class="font-display italic">Sekarang</span>
             </h2>
             <div class="flex flex-col sm:flex-row items-center justify-center gap-6">
-                <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', \App\Models\SiteSetting::getValue('whatsapp_number', '081234567890')) }}" target="_blank" class="group relative px-12 py-6 bg-black text-white font-black text-sm uppercase tracking-[0.2em] rounded-full hover:scale-105 transition-all shadow-2xl">
+                <a href="https://wa.me/{{ $waNumber }}" target="_blank" class="group relative px-12 py-6 bg-black text-white font-black text-sm uppercase tracking-[0.2em] rounded-full hover:scale-105 transition-all shadow-2xl">
                     <span class="relative z-10 flex items-center gap-3">
                         <svg class="w-6 h-6 fill-accent" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.246 2.248 3.484 5.232 3.484 8.412-.003 6.557-5.338 11.892-11.893 11.892-1.997-.001-3.951-.5-5.688-1.448l-6.309 1.656zm6.224-3.82l.446.265c1.404.835 2.99 1.276 4.6 1.277 5.252 0 9.527-4.275 9.529-9.528.002-2.546-.988-4.941-2.79-6.742s-4.195-2.791-6.741-2.792c-5.253 0-9.527 4.275-9.529 9.528 0 1.685.442 3.325 1.279 4.766l.291.503-1.11 4.053 4.146-1.088zm10.732-6.52c-.3-.15-1.774-.875-2.048-.974-.275-.1-.475-.15-.675.15-.2.3-.775.974-.95 1.174-.175.2-.35.225-.65.075-.3-.15-1.265-.467-2.41-1.485-.89-.794-1.49-1.775-1.665-2.075-.175-.3-.019-.462.13-.611.134-.134.3-.35.45-.525.15-.175.2-.3.3-.5.1-.2.05-.375-.025-.525-.075-.15-.675-1.625-.925-2.225-.244-.589-.491-.51-.675-.519l-.575-.01c-.2 0-.525.075-.8.375-.275.3-1.05 1.025-1.05 2.5 0 1.475 1.075 2.9 1.225 3.1.15.2 2.115 3.23 5.125 4.53.716.31 1.274.494 1.708.632.72.23 1.374.197 1.89.12.575-.085 1.774-.725 2.024-1.425.25-.7.25-1.3 0-1.425-.075-.125-.275-.2-.575-.35z"/></svg>
                         Hubungi WhatsApp Sekarang

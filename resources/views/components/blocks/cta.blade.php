@@ -9,8 +9,12 @@
     $bgClasses = match($bgTheme) { 'dark' => 'bg-slate-900 text-white', 'accent' => 'bg-accent text-white', 'slate' => 'bg-slate-50 text-slate-900', 'gradient' => 'bg-gradient-to-br from-slate-900 via-slate-800 to-terra-900 text-white', default => 'bg-white text-slate-900' };
     
     if (empty($buttonUrl)) {
-        $whatsappNumber = \App\Models\SiteSetting::getValue('whatsapp_number', '081234567890');
-        $buttonUrl = 'https://wa.me/' . preg_replace('/[^0-9]/', '', $whatsappNumber);
+        $whatsappNumber = \App\Models\SiteSetting::getValue('whatsapp_number', '081389709847');
+        $formattedNum = preg_replace('/[^0-9]/', '', $whatsappNumber);
+        if (str_starts_with($formattedNum, '0')) {
+            $formattedNum = '62' . substr($formattedNum, 1);
+        }
+        $buttonUrl = 'https://wa.me/' . $formattedNum;
     }
 @endphp
 
