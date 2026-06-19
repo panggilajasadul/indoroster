@@ -902,6 +902,7 @@
     <div x-data="{
         open: false,
         name: '',
+        phone: '',
         address: '',
         qty: 1,
         productName: '',
@@ -917,6 +918,10 @@
         sendWaOrder() {
             if (!this.name.trim()) {
                 alert('Silakan isi Nama Lengkap Anda.');
+                return;
+            }
+            if (!this.phone.trim()) {
+                alert('Silakan isi Nomor WhatsApp Anda.');
                 return;
             }
             if (!this.address.trim()) {
@@ -938,6 +943,7 @@
                 '*Total Harga:* ' + this.totalPriceFormatted + '\n\n' +
                 '*Data Pengiriman:*\n' +
                 '*Nama:* ' + this.name + '\n' +
+                '*No. WhatsApp:* ' + this.phone + '\n' +
                 '*Alamat:* ' + this.address + '\n\n' +
                 'Terima kasih.';
  
@@ -1024,6 +1030,12 @@
                         <div>
                             <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Nama Lengkap Penerima</label>
                             <input type="text" x-model="name" placeholder="Masukkan nama lengkap Anda" class="w-full h-10 px-3 bg-white border border-gray-200 rounded-lg text-sm focus:border-terra-500 focus:ring-terra-500">
+                        </div>
+
+                        <!-- Nomor WhatsApp -->
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Nomor WhatsApp Pembeli</label>
+                            <input type="tel" x-model="phone" placeholder="Masukkan nomor WhatsApp aktif Anda (contoh: 0812xxxxxxxx)" class="w-full h-10 px-3 bg-white border border-gray-200 rounded-lg text-sm focus:border-terra-500 focus:ring-terra-500">
                         </div>
  
                         <!-- Jumlah Pesanan -->
