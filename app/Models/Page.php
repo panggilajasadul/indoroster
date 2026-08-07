@@ -29,6 +29,14 @@ class Page extends Model
         static::creating(function (Page $page) {
             if (empty($page->slug)) {
                 $page->slug = Str::slug($page->title);
+            } else {
+                $page->slug = Str::slug($page->slug);
+            }
+        });
+
+        static::updating(function (Page $page) {
+            if (!empty($page->slug)) {
+                $page->slug = Str::slug($page->slug);
             }
         });
     }

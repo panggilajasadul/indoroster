@@ -69,6 +69,14 @@ class Product extends Model
         static::creating(function (Product $product) {
             if (empty($product->slug)) {
                 $product->slug = Str::slug($product->name);
+            } else {
+                $product->slug = Str::slug($product->slug);
+            }
+        });
+
+        static::updating(function (Product $product) {
+            if (!empty($product->slug)) {
+                $product->slug = Str::slug($product->slug);
             }
         });
     }

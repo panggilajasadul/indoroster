@@ -48,7 +48,7 @@ class SitemapController extends Controller
         $categories = Category::where('is_active', true)->get();
         foreach ($categories as $category) {
             $sitemap->add(
-                Url::create('/katalog?category=' . $category->slug)
+                Url::create('/katalog?category=' . trim($category->slug))
                     ->setLastModificationDate($category->updated_at ?? Carbon::now())
                     ->setChangeFrequency(Url::CHANGE_FREQUENCY_WEEKLY)
                     ->setPriority(0.8)
@@ -62,7 +62,7 @@ class SitemapController extends Controller
 
         foreach ($products as $product) {
             $sitemap->add(
-                Url::create('/produk/' . $product->slug)
+                Url::create('/produk/' . trim($product->slug))
                     ->setLastModificationDate($product->updated_at ?? Carbon::now())
                     ->setChangeFrequency(Url::CHANGE_FREQUENCY_WEEKLY)
                     ->setPriority(0.85)
@@ -95,7 +95,7 @@ class SitemapController extends Controller
 
         foreach ($pages as $page) {
             $sitemap->add(
-                Url::create('/halaman/' . $page->slug)
+                Url::create('/halaman/' . trim($page->slug))
                     ->setLastModificationDate($page->updated_at ?? Carbon::now())
                     ->setChangeFrequency(Url::CHANGE_FREQUENCY_MONTHLY)
                     ->setPriority(0.6)

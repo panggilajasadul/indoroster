@@ -29,6 +29,14 @@ class Category extends Model
         static::creating(function (Category $category) {
             if (empty($category->slug)) {
                 $category->slug = Str::slug($category->name);
+            } else {
+                $category->slug = Str::slug($category->slug);
+            }
+        });
+
+        static::updating(function (Category $category) {
+            if (!empty($category->slug)) {
+                $category->slug = Str::slug($category->slug);
             }
         });
     }
