@@ -10,8 +10,12 @@
     $bg = $data['bg_theme'] ?? 'accent';
     
     if (empty($buttonUrl)) {
-        $whatsappNumber = \App\Models\SiteSetting::getValue('whatsapp_number', '081234567890');
-        $buttonUrl = 'https://wa.me/' . preg_replace('/[^0-9]/', '', $whatsappNumber);
+        $whatsappNumber = \App\Models\SiteSetting::getValue('whatsapp_number', '081389709847');
+        $formattedNum = preg_replace('/[^0-9]/', '', $whatsappNumber);
+        if (str_starts_with($formattedNum, '0')) {
+            $formattedNum = '62' . substr($formattedNum, 1);
+        }
+        $buttonUrl = 'https://wa.me/' . $formattedNum;
     }
     
     $bgClasses = match($bg) {

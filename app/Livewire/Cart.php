@@ -17,7 +17,7 @@ class Cart extends Component
 
     public function mount()
     {
-        $this->loadCart();
+        return redirect()->route('home')->with('error', 'Transaksi online sedang dinonaktifkan sementara. Silakan lakukan pemesanan langsung melalui WhatsApp pada halaman detail produk.');
     }
 
     public function loadCart()

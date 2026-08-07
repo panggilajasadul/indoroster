@@ -9,6 +9,15 @@
     $buttonUrl = $data['button_url'] ?? '';
     $bgTheme = $data['bg_theme'] ?? 'white';
     $bgClasses = match($bgTheme) { 'dark' => 'bg-slate-900 text-white', 'accent' => 'bg-accent text-white', 'slate' => 'bg-slate-50 text-slate-900', 'gradient' => 'bg-gradient-to-br from-slate-900 via-slate-800 to-terra-900 text-white', default => 'bg-white text-slate-900' };
+
+    if (empty($buttonUrl)) {
+        $whatsappNumber = \App\Models\SiteSetting::getValue('whatsapp_number', '081389709847');
+        $formattedNum = preg_replace('/[^0-9]/', '', $whatsappNumber);
+        if (str_starts_with($formattedNum, '0')) {
+            $formattedNum = '62' . substr($formattedNum, 1);
+        }
+        $buttonUrl = 'https://wa.me/' . $formattedNum;
+    }
 @endphp
 
 <section class="py-20 {{ $bgClasses }}">
@@ -25,7 +34,7 @@
                 <p class="text-lg text-slate-600 mb-8 leading-relaxed">
                     {!! $content !!}
                 </p>
-                <a href="{{ $buttonUrl ?: 'https://wa.me/' . preg_replace('/[^0-9]/', '', \App\Models\SiteSetting::getValue('whatsapp_number', '081234567890')) }}" target="_blank" class="inline-flex items-center gap-2 bg-accent hover:bg-accent/90 text-black px-6 py-3 rounded-md font-bold transition-colors">
+                <a href="{{ $buttonUrl }}" target="_blank" class="inline-flex items-center gap-2 bg-accent hover:bg-accent/90 text-black px-6 py-3 rounded-md font-bold transition-colors">
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
                     {{ $buttonText ?: 'Hubungi Kami' }}
                 </a>

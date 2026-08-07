@@ -98,32 +98,7 @@ class Checkout extends Component
 
     public function mount()
     {
-        $this->mode = request()->query('mode', '');
-        
-        $this->loadCart();
-        
-        if (count($this->cartItems) === 0) {
-            return redirect('/keranjang');
-        }
-
-        $this->provinces = \Laravolt\Indonesia\Models\Province::orderBy('name')->get();
-
-        if (auth()->check()) {
-            $user = auth()->user();
-            $this->name = $user->name;
-            $this->email = $user->email;
-            $this->phone = $user->phone;
-            
-            // Pemuatan Alamat Tersimpan
-            $this->savedAddresses = $user->addresses()->orderByDesc('is_default')->get();
-            $defaultAddress = $this->savedAddresses->where('is_default', true)->first() ?? $this->savedAddresses->first();
-            if ($defaultAddress) {
-                $this->selectedAddressId = $defaultAddress->id;
-                $this->selectAddress($defaultAddress->id);
-            }
-        } else {
-            $this->savedAddresses = collect([]);
-        }
+        return redirect()->route('home')->with('error', 'Transaksi online sedang dinonaktifkan sementara. Silakan lakukan pemesanan langsung melalui WhatsApp pada halaman detail produk.');
     }
 
     public function selectAddress($addressId)
