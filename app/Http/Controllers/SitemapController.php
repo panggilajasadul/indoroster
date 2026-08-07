@@ -14,6 +14,18 @@ class SitemapController extends Controller
 {
     public function index(): Response
     {
+        self::generate();
+        
+        $sitemapPath = public_path('sitemap.xml');
+        $xmlContent = file_exists($sitemapPath) ? file_get_contents($sitemapPath) : '';
+        
+        return response($xmlContent, 200, [
+            'Content-Type' => 'application/xml',
+        ]);
+    }
+
+    public static function generate(): void
+    {
         $sitemap = Sitemap::create();
 
         // 1. Homepage
@@ -90,8 +102,11 @@ class SitemapController extends Controller
             );
         }
 
-        return response($sitemap->render(), 200, [
-            'Content-Type' => 'application/xml',
-        ]);
+        $xmlContent = $sitemap->render();
+        
+        // Clean up script name prefix if generated via browser direct scripts
+        $xmlContent = str_replace(['/generate_sitemap.php', '/test_sitemap.php'], '', $xmlContent);
+        
+        file_put_contents(public_path('sitemap.xml'), $xmlContent);
     }
 }

@@ -56,6 +56,24 @@ class AppServiceProvider extends ServiceProvider
         // Register Observers
         Order::observe(OrderObserver::class);
 
+        // Auto-generate sitemap on product, category, gallery, and page changes
+        $sitemapGenerator = function () {
+            try {
+                \App\Http\Controllers\SitemapController::generate();
+            } catch (\Exception $e) {
+                // Silently fail to not block admin save/delete operations
+            }
+        };
+
+        \App\Models\Product::saved($sitemapGenerator);
+        \App\Models\Product::deleted($sitemapGenerator);
+        \App\Models\Category::saved($sitemapGenerator);
+        \App\Models\Category::deleted($sitemapGenerator);
+        \App\Models\Page::saved($sitemapGenerator);
+        \App\Models\Page::deleted($sitemapGenerator);
+        \App\Models\Gallery::saved($sitemapGenerator);
+        \App\Models\Gallery::deleted($sitemapGenerator);
+
         // Custom professional verification email narrative
         VerifyEmail::toMailUsing(function (object $notifiable, string $url) {
             return (new MailMessage)
