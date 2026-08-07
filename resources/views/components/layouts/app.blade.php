@@ -33,6 +33,7 @@
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet" media="print" onload="this.media='all'">
 
     <!-- Primary SEO Meta -->
+    <meta name="google-site-verification" content="5T-7RFSLMEwCNdq2lx93GU5S5BckFBgjFPf5B-HlT1Y" />
     <meta name="description" content="{{ $pageDesc }}">
     <meta name="keywords" content="jual roster beton minimalis plered, pabrik roster beton purwakarta, harga roster beton plered, supplier roster beton jabodetabek, jual loster beton jakarta, roster minimalis, loster beton, roster beton murah">
     <meta name="author" content="Indoroster">
