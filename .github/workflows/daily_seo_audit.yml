@@ -1,0 +1,37 @@
+name: Daily SEO Audit
+
+on:
+  schedule:
+    - cron: '0 2 * * *'  # Setiap hari pukul 09:00 WIB (02:00 UTC)
+  workflow_dispatch:
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          pip install -r seo-engine/requirements.txt
+
+      - name: Run technical SEO audit
+        env:
+          LARAVEL_API_URL: ${{ secrets.LARAVEL_API_URL }}
+          SEO_API_TOKEN: ${{ secrets.SEO_API_TOKEN }}
+        run: |
+          # Perintah audit seluruh produk secara bulk
+          python -c "
+          from api.client import LaravelApiClient
+          import subprocess
+          client = LaravelApiClient()
+          # Ambil semua produk dan jalankan analisis
+          # Dalam implementasi nyata, Python engine bisa fetch list ID dari Laravel
+          "
