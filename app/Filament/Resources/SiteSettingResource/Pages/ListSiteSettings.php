@@ -4,6 +4,7 @@ namespace App\Filament\Resources\SiteSettingResource\Pages;
 
 use App\Filament\Resources\SiteSettingResource;
 use Filament\Actions;
+use Filament\Resources\Components\Tab;
 use Filament\Resources\Pages\ListRecords;
 
 class ListSiteSettings extends ListRecords
@@ -20,16 +21,16 @@ class ListSiteSettings extends ListRecords
     public function getTabs(): array
     {
         return [
-            'all' => \Filament\Resources\Components\Tab::make('Semua'),
-            'general' => \Filament\Resources\Components\Tab::make('Umum')
+            'all' => Tab::make('Semua'),
+            'general' => Tab::make('Umum')
                 ->modifyQueryUsing(fn ($query) => $query->where('group', 'general')),
-            'contact' => \Filament\Resources\Components\Tab::make('Kontak')
+            'contact' => Tab::make('Kontak')
                 ->modifyQueryUsing(fn ($query) => $query->where('group', 'contact')),
-            'payment' => \Filament\Resources\Components\Tab::make('Pembayaran')
+            'payment' => Tab::make('Pembayaran')
                 ->modifyQueryUsing(fn ($query) => $query->where('group', 'payment')),
-            'shipping' => \Filament\Resources\Components\Tab::make('Pengiriman')
+            'shipping' => Tab::make('Pengiriman')
                 ->modifyQueryUsing(fn ($query) => $query->where('group', 'shipping')),
-            'seo' => \Filament\Resources\Components\Tab::make('SEO')
+            'seo' => Tab::make('SEO')
                 ->modifyQueryUsing(fn ($query) => $query->where('group', 'seo')),
         ];
     }

@@ -3,23 +3,40 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\OrderResource\Pages;
+use App\Mail\InvoiceMail;
+use App\Mail\OrderStatusMail;
 use App\Models\Order;
+use App\Models\OrderBatch;
+use App\Models\User;
+use App\Notifications\OrderStatusUpdated;
 use Filament\Forms;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
+use Filament\Infolists;
+use Filament\Infolists\Infolist;
+use Filament\Notifications\Actions\Action;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Filament\Infolists;
-use Filament\Infolists\Infolist;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+
 class OrderResource extends Resource
 {
     protected static ?string $model = Order::class;
+
     protected static ?string $navigationIcon = 'heroicon-o-shopping-cart';
+
     protected static ?string $navigationGroup = 'Transaksi';
+
     protected static ?string $navigationLabel = 'Pesanan';
+
     protected static ?string $modelLabel = 'Pesanan';
+
     protected static ?string $pluralModelLabel = 'Pesanan';
+
     protected static ?int $navigationSort = 1;
 
     public static function getNavigationBadge(): ?string
@@ -40,7 +57,7 @@ class OrderResource extends Resource
                     ->schema([
                         Forms\Components\Section::make('Detail Pesanan')
                             ->schema([
-                                Forms\Components\TextInput::make('order_number')
+                                TextInput::make('order_number')
                                     ->label('No. Pesanan')
                                     ->disabled(),
                                 Forms\Components\Select::make('user_id')
@@ -75,14 +92,14 @@ class OrderResource extends Resource
 
                         Forms\Components\Section::make('Alamat Pengiriman')
                             ->schema([
-                                Forms\Components\TextInput::make('shipping_name')
+                                TextInput::make('shipping_name')
                                     ->label('Nama Penerima')
                                     ->required(),
-                                Forms\Components\TextInput::make('shipping_email')
+                                TextInput::make('shipping_email')
                                     ->label('Email Penerima')
                                     ->email()
                                     ->required(),
-                                Forms\Components\TextInput::make('shipping_phone')
+                                TextInput::make('shipping_phone')
                                     ->label('No. HP Penerima')
                                     ->tel()
                                     ->required(),
@@ -91,24 +108,81 @@ class OrderResource extends Resource
                                     ->required()
                                     ->rows(3)
                                     ->columnSpanFull(),
-                                Forms\Components\TextInput::make('shipping_city')
+                                TextInput::make('shipping_city')
                                     ->label('Kota'),
-                                Forms\Components\TextInput::make('shipping_province')
+                                TextInput::make('shipping_province')
                                     ->label('Provinsi'),
-                                Forms\Components\TextInput::make('shipping_postal_code')
+                                TextInput::make('shipping_postal_code')
                                     ->label('Kode Pos'),
                             ])->columns(3),
 
-                        Forms\Components\Section::make('Catatan')
+                        Forms\Components\Section::make('Catatan & Instruksi Surat Jalan')
                             ->schema([
                                 Forms\Components\Textarea::make('notes')
-                                    ->label('Catatan Pembeli')
+                                    ->label('Catatan Pembeli saat Checkout')
+                                    ->helperText('Otomatis tercetak di Surat Jalan untuk dibaca supir/pembongkar.')
+                                    ->rows(2),
+                                Forms\Components\Textarea::make('requested_batch_notes')
+                                    ->label('Permintaan Jadwal Bertahap Pembeli')
                                     ->disabled()
                                     ->rows(2),
+                                Forms\Components\Textarea::make('fulfillment_notes')
+                                    ->label('Instruksi Tambahan dari Admin / Pabrik untuk Surat Jalan')
+                                    ->helperText('Contoh: Hubungi mandor Pak Budi 0812xxx sebelum tiba, bongkar di samping gudang utama.')
+                                    ->placeholder('Tulis instruksi khusus supir/pengiriman yang ingin dicetak di Surat Jalan...')
+                                    ->rows(2)
+                                    ->columnSpanFull(),
                                 Forms\Components\Textarea::make('admin_notes')
-                                    ->label('Catatan Admin (Internal)')
-                                    ->rows(2),
+                                    ->label('Catatan Internal Admin (Rahasia / Tidak Dicetak di Surat Jalan)')
+                                    ->rows(2)
+                                    ->columnSpanFull(),
                             ])->columns(2),
+
+                        Forms\Components\Section::make('Penjadwalan & Pemenuhan Pesanan')
+                            ->schema([
+                                Forms\Components\Select::make('fulfillment_type')
+                                    ->label('Tipe Pemenuhan')
+                                    ->options([
+                                        'ready_stock' => '📦 Ready Stock (Pabrik)',
+                                        'po_single' => '🔨 Pre-Order (PO Tunggal)',
+                                        'po_batch' => '🚚 PO Batch (Pengiriman Bertahap)',
+                                    ]),
+                                Forms\Components\DatePicker::make('production_start_date')
+                                    ->label('Tgl Mulai Produksi'),
+                                Forms\Components\DatePicker::make('ready_shipping_date')
+                                    ->label('Est. Siap Kirim'),
+                                Forms\Components\DatePicker::make('estimated_delivery_date')
+                                    ->label('Est. Tiba di Lokasi'),
+                                TextInput::make('batch_count')
+                                    ->label('Jumlah Batch')
+                                    ->numeric(),
+                            ])->columns(3),
+
+                        Forms\Components\Section::make('Daftar Batch Pengiriman (PO Batch)')
+                            ->visible(fn ($record) => $record && $record->fulfillment_type === 'po_batch')
+                            ->schema([
+                                Forms\Components\Repeater::make('batches')
+                                    ->relationship()
+                                    ->schema([
+                                        TextInput::make('batch_name')->label('Batch')->required(),
+                                        TextInput::make('quantity')->label('Kuantitas (pcs)')->numeric()->required(),
+                                        Forms\Components\Select::make('status')
+                                            ->label('Status')
+                                            ->options([
+                                                'pending_production' => 'Menunggu Produksi',
+                                                'producing' => 'Sedang Diproduksi',
+                                                'ready_to_ship' => 'Siap Kirim',
+                                                'shipped' => 'Sedang Dikirim',
+                                                'delivered' => 'Diterima di Proyek',
+                                            ]),
+                                        Forms\Components\DatePicker::make('estimated_dispatch_date')->label('Est. Berangkat'),
+                                        Forms\Components\DatePicker::make('estimated_delivery_date')->label('Est. Tiba'),
+                                        TextInput::make('courier_name')->label('Supir / Armada'),
+                                        TextInput::make('tracking_number')->label('No. Plat Truk'),
+                                    ])
+                                    ->columns(4)
+                                    ->columnSpanFull(),
+                            ]),
 
                         Forms\Components\Section::make('Produk yang Dipesan')
                             ->schema([
@@ -124,18 +198,18 @@ class OrderResource extends Resource
                                             ->label('Varian')
                                             ->content(fn ($record) => $record?->variant?->name ?? '-')
                                             ->columnSpan(2),
-                                        Forms\Components\TextInput::make('quantity')
+                                        TextInput::make('quantity')
                                             ->label('Jumlah')
                                             ->numeric()
                                             ->disabled()
                                             ->columnSpan(1),
-                                        Forms\Components\TextInput::make('product_price')
+                                        TextInput::make('product_price')
                                             ->label('Harga')
                                             ->numeric()
                                             ->prefix('Rp')
                                             ->disabled()
                                             ->columnSpan(2),
-                                        Forms\Components\TextInput::make('total_price')
+                                        TextInput::make('total_price')
                                             ->label('Total')
                                             ->numeric()
                                             ->prefix('Rp')
@@ -153,20 +227,20 @@ class OrderResource extends Resource
                     ->schema([
                         Forms\Components\Section::make('Ringkasan Biaya')
                             ->schema([
-                                Forms\Components\TextInput::make('subtotal')
+                                TextInput::make('subtotal')
                                     ->label('Subtotal')
                                     ->numeric()
                                     ->prefix('Rp')
                                     ->disabled(),
-                                Forms\Components\TextInput::make('shipping_cost')
+                                TextInput::make('shipping_cost')
                                     ->label('Ongkos Kirim')
                                     ->numeric()
                                     ->prefix('Rp'),
-                                Forms\Components\TextInput::make('discount_amount')
+                                TextInput::make('discount_amount')
                                     ->label('Diskon')
                                     ->numeric()
                                     ->prefix('Rp'),
-                                Forms\Components\TextInput::make('grand_total')
+                                TextInput::make('grand_total')
                                     ->label('Total Bayar')
                                     ->numeric()
                                     ->prefix('Rp')
@@ -175,10 +249,10 @@ class OrderResource extends Resource
 
                         Forms\Components\Section::make('Pengiriman')
                             ->schema([
-                                Forms\Components\TextInput::make('courier')
+                                TextInput::make('courier')
                                     ->label('Kurir/Ekspedisi')
                                     ->placeholder('SiCepat, JNE, Truck'),
-                                Forms\Components\TextInput::make('tracking_number')
+                                TextInput::make('tracking_number')
                                     ->label('No. Resi'),
                                 Forms\Components\FileUpload::make('delivery_photo_path')
                                     ->label('Bukti Pengiriman (Oleh Kurir)')
@@ -210,7 +284,9 @@ class OrderResource extends Resource
             ->recordUrl(fn (Order $record): string => Pages\ViewOrder::getUrl([$record->id]))
             ->filters(static::getTableFilters())
             ->actions(static::getTableActions())
-            ->bulkActions(static::getTableBulkActions());
+            ->bulkActions(static::getTableBulkActions())
+            ->searchable()
+            ->searchDebounce(500);
     }
 
     protected static function getTableColumns(): array
@@ -219,13 +295,14 @@ class OrderResource extends Resource
             Tables\Columns\TextColumn::make('order_number')
                 ->label('No. Pesanan')
                 ->description(fn (Order $record): string => $record->shipping_name)
-                ->searchable()
+                ->searchable(['order_number', 'shipping_name', 'shipping_email', 'shipping_phone'])
                 ->sortable()
                 ->copyable(),
             Tables\Columns\TextColumn::make('items_count')
                 ->label('Produk')
                 ->counts('items')
-                ->suffix(' item'),
+                ->suffix(' item')
+                ->searchable(false),
             Tables\Columns\TextColumn::make('grand_total')
                 ->label('Total')
                 ->money('IDR')
@@ -235,6 +312,13 @@ class OrderResource extends Resource
             Tables\Columns\TextColumn::make('status')
                 ->label('Status')
                 ->badge()
+                ->description(fn (Order $record): ?string => $record->fulfillment_type === 'po_batch'
+                        ? ($record->batches()->count() > 0
+                            ? $record->batches()->whereIn('status', ['shipped', 'delivered'])->count()
+                              .'/'.$record->batches()->count().' batch terkirim'
+                            : null)
+                        : null
+                )
                 ->color(fn (string $state): string => match ($state) {
                     'pending_payment' => 'warning',
                     'paid' => 'info',
@@ -254,6 +338,32 @@ class OrderResource extends Resource
                     'completed' => 'Selesai',
                     'cancelled' => 'Dibatalkan',
                     default => $state,
+                }),
+            Tables\Columns\TextColumn::make('fulfillment_type')
+                ->label('Pemenuhan')
+                ->badge()
+                ->color(fn ($state): string => match ($state) {
+                    'ready_stock' => 'success',
+                    'po_single' => 'info',
+                    'po_batch' => 'warning',
+                    default => 'gray',
+                })
+                ->formatStateUsing(function ($state, Order $record): string {
+                    if (is_null($state)) {
+                        return '—';
+                    }
+                    if ($state === 'po_batch') {
+                        $total = $record->batches()->count() ?: ($record->batch_count ?: 1);
+                        $shipped = $record->batches()->whereIn('status', ['shipped', 'delivered'])->count();
+
+                        return "🚚 PO Batch ({$shipped}/{$total} Terkirim)";
+                    }
+
+                    return match ($state) {
+                        'ready_stock' => '📦 Ready Stock',
+                        'po_single' => '🔨 PO Tunggal',
+                        default => $state,
+                    };
                 }),
             Tables\Columns\TextColumn::make('payment_status')
                 ->label('Bayar')
@@ -287,6 +397,24 @@ class OrderResource extends Resource
     protected static function getTableFilters(): array
     {
         return [
+            Tables\Filters\SelectFilter::make('urutan')
+                ->label('Urutkan')
+                ->options([
+                    'newest' => '🔽 Terbaru (Pesanan)',
+                    'processed' => '⚡ Prosesan Terbaru',
+                    'oldest' => '🔼 Terlama',
+                ])
+                ->default('newest')
+                ->query(function (Builder $query, array $data): Builder {
+                    if (($data['value'] ?? null) === 'oldest') {
+                        return $query->orderBy('created_at', 'asc');
+                    }
+                    if (($data['value'] ?? null) === 'processed') {
+                        return $query->orderBy('updated_at', 'desc');
+                    }
+
+                    return $query->orderBy('created_at', 'desc');
+                }),
             Tables\Filters\SelectFilter::make('status')
                 ->label('Status')
                 ->options([
@@ -298,6 +426,14 @@ class OrderResource extends Resource
                     'completed' => 'Selesai',
                     'cancelled' => 'Dibatalkan',
                 ]),
+            Tables\Filters\SelectFilter::make('fulfillment_type')
+                ->label('Tipe Pemenuhan')
+                ->options([
+                    'ready_stock' => '📦 Ready Stock',
+                    'po_single' => '🔨 PO Tunggal',
+                    'po_batch' => '🚚 PO Batch',
+                ])
+                ->placeholder('Semua Tipe Pemenuhan'),
             Tables\Filters\SelectFilter::make('payment_status')
                 ->label('Pembayaran')
                 ->options([
@@ -307,6 +443,22 @@ class OrderResource extends Resource
                     'failed' => 'Gagal',
                     'refunded' => 'Refund',
                 ]),
+            Tables\Filters\Filter::make('product_name')
+                ->label('Nama Produk')
+                ->form([
+                    TextInput::make('product_name')
+                        ->label('Nama Produk')
+                        ->placeholder('Cari nama produk...'),
+                ])
+                ->query(function (Builder $query, array $data): Builder {
+                    return $query->when(
+                        $data['product_name'] ?? null,
+                        fn (Builder $q, string $name) => $q->whereHas(
+                            'items.product',
+                            fn (Builder $pq) => $pq->where('name', 'like', "%{$name}%")
+                        )
+                    );
+                }),
         ];
     }
 
@@ -328,24 +480,24 @@ class OrderResource extends Resource
                     ->requiresConfirmation()
                     ->action(function (Order $record) {
                         $record->update(['status' => 'paid', 'payment_status' => 'paid', 'paid_at' => now()]);
-                        
+
                         if ($record->user_id && $record->user) {
-                            $record->user->notify(new \App\Notifications\OrderStatusUpdated($record, 'Dibayar'));
+                            $record->user->notify(new OrderStatusUpdated($record, 'Dibayar'));
                         }
-                        
-                        \Filament\Notifications\Notification::make()
+
+                        Notification::make()
                             ->title('Pembayaran Berhasil Dikonfirmasi')
                             ->body('Log pembayaran dan invoice telah dibuat otomatis oleh sistem. Silakan cetak invoice jika diperlukan.')
                             ->success()
                             ->persistent()
                             ->actions([
-                                \Filament\Notifications\Actions\Action::make('print_order')
+                                Action::make('print_order')
                                     ->label('Cetak Detail Pesanan')
                                     ->icon('heroicon-o-printer')
                                     ->color('info')
                                     ->button()
                                     ->url(route('print.order', $record), shouldOpenInNewTab: true),
-                                \Filament\Notifications\Actions\Action::make('print_invoice')
+                                Action::make('print_invoice')
                                     ->label('Cetak Invoice')
                                     ->icon('heroicon-o-document-text')
                                     ->color('success')
@@ -361,89 +513,248 @@ class OrderResource extends Resource
                     ->icon('heroicon-o-cog')
                     ->color('warning')
                     ->visible(fn (Order $record) => $record->status === 'paid')
-                    ->form([
-                        Forms\Components\Select::make('courier_id')
-                            ->label('Pilih Kurir Internal (Opsional)')
-                            ->relationship('courierUser', 'name', fn (Builder $query) => $query->where('role', 'courier'))
-                            ->searchable()
-                            ->preload()
-                            ->live()
-                            ->afterStateUpdated(function ($state, Forms\Set $set) {
-                                if ($state) {
-                                    $courier = \App\Models\User::find($state);
-                                    if ($courier) {
-                                        $set('courier', $courier->name);
-                                        $set('courier_phone', $courier->phone);
-                                        $set('tracking_number', $courier->license_plate);
-                                    }
-                                }
-                            }),
-                        Forms\Components\TextInput::make('courier')
-                            ->label('Atau Ekspedisi Luar')
-                            ->placeholder('Contoh: GoSend, Ekspedisi Luar'),
-                        Forms\Components\TextInput::make('courier_phone')
-                            ->label('Nomor WA Kurir (Opsional)')
-                            ->placeholder('Contoh: 08123456789')
-                            ->tel(),
-                        Forms\Components\TextInput::make('tracking_number')
-                            ->label('No. Resi / Plat Truk (Opsional)')
-                            ->placeholder('Contoh: B 1234 CD'),
-                    ])
-                    ->modalHeading('Siapkan Pesanan')
-                    ->modalDescription('Pesanan akan dipindahkan ke tab "Diproses". Anda bisa mengisi data kurir sekarang atau nanti saat pesanan dikirim.')
-                    ->modalSubmitActionLabel('Proses & Opsi Cetak')
+                    ->modalHeading('Proses & Jadwalkan Pemenuhan Pesanan')
+                    ->modalDescription(fn (Order $record) => 'Total Pesanan: '.number_format($record->total_ordered_quantity, 0, ',', '.').' pcs. Silakan tentukan mode pemenuhan.')
+                    ->modalSubmitActionLabel('Mulai Proses Pesanan')
+                    ->form(function (Order $record) {
+                        $totalQty = $record->total_ordered_quantity;
+
+                        return [
+                            Forms\Components\Radio::make('fulfillment_type')
+                                ->label('Pilih Tipe Pemenuhan Pesanan')
+                                ->options([
+                                    'ready_stock' => '📦 Ready Stock (Stok Tersedia di Pabrik)',
+                                    'po_single' => '🔨 Pre-Order / PO Tunggal (Produksi Sekaligus 1x Kirim)',
+                                    'po_batch' => '🚚 Pre-Order / PO Batch (Kirim Bertahap Skala Besar)',
+                                ])
+                                ->default($record->requested_batch_delivery ? 'po_batch' : ($totalQty >= 2000 ? 'po_batch' : 'ready_stock'))
+                                ->live()
+                                ->required(),
+
+                            // Ready Stock
+                            Forms\Components\Section::make('Penjadwalan Ready Stock')
+                                ->visible(fn (Forms\Get $get) => $get('fulfillment_type') === 'ready_stock')
+                                ->schema([
+                                    Forms\Components\DatePicker::make('ready_shipping_date')
+                                        ->label('Estimasi Tanggal Siap Kirim')
+                                        ->default(now()->addDays(1)->format('Y-m-d'))
+                                        ->required(fn (Forms\Get $get) => $get('fulfillment_type') === 'ready_stock'),
+                                    Forms\Components\DatePicker::make('estimated_delivery_date')
+                                        ->label('Estimasi Tanggal Tiba di Lokasi')
+                                        ->default(now()->addDays(3)->format('Y-m-d'))
+                                        ->required(fn (Forms\Get $get) => $get('fulfillment_type') === 'ready_stock'),
+                                    Forms\Components\Textarea::make('fulfillment_notes_ready')
+                                        ->label('Catatan Penyiapan Gudang (Opsional)')
+                                        ->placeholder('Contoh: Barang sudah dipacking di palet A-12.')
+                                        ->columnSpanFull(),
+                                ])->columns(2),
+
+                            // PO Single
+                            Forms\Components\Section::make('Penjadwalan Pre-Order (PO Tunggal)')
+                                ->visible(fn (Forms\Get $get) => $get('fulfillment_type') === 'po_single')
+                                ->schema([
+                                    Forms\Components\DatePicker::make('production_start_date')
+                                        ->label('Tanggal Mulai Produksi/Cetak')
+                                        ->default(now()->format('Y-m-d'))
+                                        ->required(fn (Forms\Get $get) => $get('fulfillment_type') === 'po_single'),
+                                    Forms\Components\DatePicker::make('ready_shipping_date_po')
+                                        ->label('Estimasi Selesai Produksi & Siap Kirim')
+                                        ->default(now()->addDays(7)->format('Y-m-d'))
+                                        ->required(fn (Forms\Get $get) => $get('fulfillment_type') === 'po_single'),
+                                    Forms\Components\DatePicker::make('estimated_delivery_date_po')
+                                        ->label('Estimasi Tanggal Tiba di Lokasi')
+                                        ->default(now()->addDays(9)->format('Y-m-d'))
+                                        ->required(fn (Forms\Get $get) => $get('fulfillment_type') === 'po_single'),
+                                    Forms\Components\Textarea::make('fulfillment_notes_po')
+                                        ->label('Catatan Produksi (Opsional)')
+                                        ->placeholder('Contoh: Masuk antrean cetak mesin 2.')
+                                        ->columnSpanFull(),
+                                ])->columns(3),
+
+                            // PO Batch
+                            Forms\Components\Section::make('Penjadwalan Pre-Order Batch (Pengiriman Bertahap)')
+                                ->visible(fn (Forms\Get $get) => $get('fulfillment_type') === 'po_batch')
+                                ->schema([
+                                    Forms\Components\Placeholder::make('batch_info')
+                                        ->label('Informasi Pesanan Pelanggan')
+                                        ->content(function () use ($record, $totalQty) {
+                                            $text = 'Total Kuantitas Pesanan: '.number_format($totalQty, 0, ',', '.').' pcs.';
+                                            if ($record->requested_batch_notes) {
+                                                $text .= " (Catatan Permintaan Pembeli: {$record->requested_batch_notes})";
+                                            }
+
+                                            return $text;
+                                        }),
+                                    Forms\Components\Repeater::make('batches')
+                                        ->label('Rincian Kuantitas & Estimasi Jadwal Tiap Batch')
+                                        ->schema([
+                                            TextInput::make('batch_name')
+                                                ->label('Nama Batch')
+                                                ->required(),
+                                            TextInput::make('quantity')
+                                                ->label('Muatan Truk (pcs)')
+                                                ->numeric()
+                                                ->required(),
+                                            Forms\Components\DatePicker::make('production_start_date')
+                                                ->label('Mulai Produksi'),
+                                            Forms\Components\DatePicker::make('estimated_dispatch_date')
+                                                ->label('Est. Berangkat')
+                                                ->required(),
+                                            Forms\Components\DatePicker::make('estimated_delivery_date')
+                                                ->label('Est. Tiba')
+                                                ->required(),
+                                        ])
+                                        ->columns(5)
+                                        ->default(function () use ($totalQty) {
+                                            $batchNum = $totalQty >= 8000 ? 8 : ($totalQty >= 4000 ? 4 : 2);
+                                            $perBatch = (int) floor($totalQty / $batchNum);
+                                            $remainder = $totalQty - ($perBatch * $batchNum);
+                                            $items = [];
+                                            for ($i = 1; $i <= $batchNum; $i++) {
+                                                $qty = $perBatch + ($i === $batchNum ? $remainder : 0);
+                                                // Setiap batch: produksi mulai 5 hari sebelum kirim
+                                                $dispatch = now()->addDays(5 + ($i - 1) * 7);
+                                                $prodStart = (clone $dispatch)->subDays(5);
+                                                $delivery = (clone $dispatch)->addDays(1);
+                                                $items[] = [
+                                                    'batch_name' => "Batch #{$i}",
+                                                    'quantity' => $qty,
+                                                    'production_start_date' => $prodStart->format('Y-m-d'),
+                                                    'estimated_dispatch_date' => $dispatch->format('Y-m-d'),
+                                                    'estimated_delivery_date' => $delivery->format('Y-m-d'),
+                                                ];
+                                            }
+
+                                            return $items;
+                                        })
+                                        ->columnSpanFull(),
+                                    Forms\Components\Textarea::make('fulfillment_notes_batch')
+                                        ->label('Catatan Operasional Pabrik')
+                                        ->placeholder('Contoh: Jadwal pengiriman mengikuti kesiapan jalan proyek dan cuaca.')
+                                        ->columnSpanFull(),
+                                ]),
+                        ];
+                    })
                     ->action(function (Order $record, array $data) {
-                        $record->update([
+                        $type = $data['fulfillment_type'] ?? 'ready_stock';
+
+                        $updateData = [
                             'status' => 'processing',
-                            'courier_id' => $data['courier_id'] ?? null,
-                            'courier' => $data['courier'] ?? null,
-                            'courier_phone' => $data['courier_phone'] ?? null,
-                            'tracking_number' => $data['tracking_number'] ?? null,
-                        ]);
-                        
+                            'fulfillment_type' => $type,
+                        ];
+
+                        if ($type === 'ready_stock') {
+                            $updateData['ready_shipping_date'] = $data['ready_shipping_date'] ?? null;
+                            $updateData['estimated_delivery_date'] = $data['estimated_delivery_date'] ?? null;
+                            $updateData['fulfillment_notes'] = $data['fulfillment_notes_ready'] ?? null;
+                            $updateData['batch_count'] = 1;
+                            $updateData['production_status'] = 'ready_to_ship';
+                        } elseif ($type === 'po_single') {
+                            $updateData['production_start_date'] = $data['production_start_date'] ?? null;
+                            $updateData['ready_shipping_date'] = $data['ready_shipping_date_po'] ?? null;
+                            $updateData['estimated_delivery_date'] = $data['estimated_delivery_date_po'] ?? null;
+                            $updateData['fulfillment_notes'] = $data['fulfillment_notes_po'] ?? null;
+                            $updateData['batch_count'] = 1;
+                            $updateData['production_status'] = 'pending';
+                        } elseif ($type === 'po_batch') {
+                            $batches = $data['batches'] ?? [];
+                            $updateData['batch_count'] = count($batches) ?: 1;
+                            $updateData['fulfillment_notes'] = $data['fulfillment_notes_batch'] ?? null;
+                            $updateData['production_status'] = 'pending';
+
+                            $record->batches()->delete();
+
+                            $bNum = 1;
+                            foreach ($batches as $b) {
+                                $record->batches()->create([
+                                    'batch_number' => $bNum,
+                                    'batch_name' => $b['batch_name'] ?? "Batch #{$bNum}",
+                                    'quantity' => (int) ($b['quantity'] ?? 0),
+                                    'production_start_date' => $b['production_start_date'] ?? null,
+                                    'estimated_dispatch_date' => $b['estimated_dispatch_date'] ?? null,
+                                    'estimated_delivery_date' => $b['estimated_delivery_date'] ?? null,
+                                    'status' => 'pending_production',
+                                ]);
+                                $bNum++;
+                            }
+                        }
+
+                        $record->update($updateData);
+
+                        // Reload fresh record dengan batches (penting untuk email PO Batch)
+                        $record->refresh();
+                        $record->load('batches');
+
                         if ($record->user_id && $record->user) {
-                            $record->user->notify(new \App\Notifications\OrderStatusUpdated($record, 'Diproses'));
+                            $record->user->notify(new OrderStatusUpdated($record, 'Diproses'));
                         }
 
                         try {
                             $email = $record->shipping_email ?? $record->user?->email;
                             if ($email) {
+                                $freshRecord = $record; // batches sudah ter-load
                                 if (function_exists('defer')) {
-                                    defer(fn () => \Illuminate\Support\Facades\Mail::to($email)->send(new \App\Mail\OrderStatusMail($record, 'processing')));
+                                    defer(fn () => Mail::to($email)->send(new OrderStatusMail($freshRecord, 'processing')));
                                 } else {
-                                    \Illuminate\Support\Facades\Mail::to($email)->send(new \App\Mail\OrderStatusMail($record, 'processing'));
+                                    Mail::to($email)->send(new OrderStatusMail($freshRecord, 'processing'));
                                 }
                             }
                         } catch (\Exception $e) {
-                            \Illuminate\Support\Facades\Log::error('Failed to send status email: ' . $e->getMessage());
+                            Log::error('Failed to send status email: '.$e->getMessage());
                         }
-                        
-                        \Filament\Notifications\Notification::make()
-                            ->title('Pesanan Berhasil Disiapkan')
-                            ->body('Silakan cetak resi dan beri tahu pembeli via WA.')
-                            ->success()
-                            ->persistent()
-                            ->actions([
-                                \Filament\Notifications\Actions\Action::make('print_label')
-                                    ->label('Cetak Resi')
-                                    ->url(fn () => ($label = $record->refresh()->shippingLabel) ? route('print.shipping-label', $label) : '#', shouldOpenInNewTab: true)
-                                    ->button()
-                                    ->icon('heroicon-o-printer'),
-                                \Filament\Notifications\Actions\Action::make('send_wa')
-                                    ->label('Kirim WA Pembeli')
-                                    ->url(fn() => method_exists($record, 'getWaProcessingLink') ? $record->getWaProcessingLink() : '#', shouldOpenInNewTab: true)
+
+                        // Bangun notifikasi sesuai tipe pemenuhan
+                        $notifActions = [];
+                        if ($type === 'po_batch') {
+                            // Tombol khusus PO Batch: WA pembeli (info jadwal batch)
+                            $waPhone = preg_replace('/[^0-9]/', '', $record->shipping_phone ?? '');
+                            if ($waPhone) {
+                                if (str_starts_with($waPhone, '0')) {
+                                    $waPhone = '62'.substr($waPhone, 1);
+                                }
+                                $batchCount = $record->batch_count;
+                                $waText = urlencode("Halo {$record->shipping_name}, pesanan Anda ({$record->order_number}) sejumlah *".number_format($record->total_ordered_quantity, 0, ',', '.')." pcs* telah kami jadwalkan untuk pengiriman bertahap ({$batchCount} batch). Cek email Anda untuk detail jadwal estimasi tiap batch. Lacak: ".route('order.tracking')."?order_number={$record->order_number}");
+                                $notifActions[] = Action::make('wa_buyer_batch')
+                                    ->label('WA Info Jadwal Batch ke Pembeli')
+                                    ->url("https://wa.me/{$waPhone}?text={$waText}", shouldOpenInNewTab: true)
                                     ->button()
                                     ->color('success')
-                                    ->icon('heroicon-o-chat-bubble-left-ellipsis'),
-                            ])
+                                    ->icon('heroicon-o-chat-bubble-left-ellipsis');
+                            }
+                        } else {
+                            // Tombol untuk ready_stock dan po_single: WA pembeli info estimasi
+                            $waPhone = preg_replace('/[^0-9]/', '', $record->shipping_phone ?? '');
+                            if ($waPhone) {
+                                if (str_starts_with($waPhone, '0')) {
+                                    $waPhone = '62'.substr($waPhone, 1);
+                                }
+                                $estShip = $record->ready_shipping_date?->format('d M Y') ?? '-';
+                                $estArr = $record->estimated_delivery_date?->format('d M Y') ?? '-';
+                                $mode = $type === 'ready_stock' ? 'Ready Stock (stok langsung tersedia)' : 'Pre-Order (masuk antrian produksi)';
+                                $waText = urlencode("Halo {$record->shipping_name}, pesanan Anda ({$record->order_number}) sedang diproses dengan tipe *{$mode}*. Estimasi siap kirim: {$estShip}, estimasi tiba: {$estArr}. Lacak: ".route('order.tracking')."?order_number={$record->order_number}");
+                                $notifActions[] = Action::make('wa_buyer')
+                                    ->label('WA Info Estimasi ke Pembeli')
+                                    ->url("https://wa.me/{$waPhone}?text={$waText}", shouldOpenInNewTab: true)
+                                    ->button()
+                                    ->color('success')
+                                    ->icon('heroicon-o-chat-bubble-left-ellipsis');
+                            }
+                        }
+
+                        Notification::make()
+                            ->title('Pesanan Berhasil Diproses ('.$record->fulfillment_label.')')
+                            ->body('Email konfirmasi telah dikirim ke pembeli.'.($type === 'po_batch' ? ' Jadwal '.$record->batch_count.' batch sudah tercantum di email.' : ''))
+                            ->success()
+                            ->persistent()
+                            ->actions($notifActions)
                             ->send();
                     }),
 
                 Tables\Actions\Action::make('dispatch_order')
-                    ->label('Siapkan Pengiriman')
+                    ->label('Kirim Pesanan')
                     ->icon('heroicon-o-truck')
                     ->color('info')
-                    ->visible(fn (Order $record) => $record->status === 'processing')
+                    ->visible(fn (Order $record) => $record->status === 'processing' && $record->fulfillment_type !== 'po_batch')
                     ->form(fn (Order $record) => [
                         Forms\Components\Select::make('courier_id')
                             ->label('Kurir Internal')
@@ -454,7 +765,7 @@ class OrderResource extends Resource
                             ->live()
                             ->afterStateUpdated(function ($state, Forms\Set $set) {
                                 if ($state) {
-                                    $courier = \App\Models\User::find($state);
+                                    $courier = User::find($state);
                                     if ($courier) {
                                         $set('courier', $courier->name);
                                         $set('courier_phone', $courier->phone);
@@ -462,20 +773,20 @@ class OrderResource extends Resource
                                     }
                                 }
                             }),
-                        Forms\Components\TextInput::make('courier')
+                        TextInput::make('courier')
                             ->label('Atau Ekspedisi Luar')
                             ->default($record->courier),
-                        Forms\Components\TextInput::make('courier_phone')
-                            ->label('Nomor WA Kurir (Opsional)')
+                        TextInput::make('courier_phone')
+                            ->label('Nomor WA Kurir / Supir (Opsional)')
                             ->default($record->courier_phone)
                             ->tel(),
-                        Forms\Components\TextInput::make('tracking_number')
-                            ->label('No. Resi / Plat Nomor Kendaraan (Opsional)')
+                        TextInput::make('tracking_number')
+                            ->label('No. Resi / Plat Nomor Truk (Opsional)')
                             ->default($record->tracking_number),
                     ])
-                    ->modalHeading('Penyiapan untuk Dikirim')
-                    ->modalDescription('Lengkapi data kurir untuk dicetak di Surat Jalan. Pesanan akan diubah menjadi status "Dikirim".')
-                    ->modalSubmitActionLabel('Kirim & Opsi Cetak')
+                    ->modalHeading('Penyiapan Pengiriman Armada')
+                    ->modalDescription('Lengkapi data supir/ekspedisi untuk dicetak di Surat Jalan. Pesanan akan diubah menjadi status "Dikirim".')
+                    ->modalSubmitActionLabel('Kirim & Cetak Surat Jalan')
                     ->action(function (Order $record, array $data) {
                         $record->update([
                             'status' => 'shipped',
@@ -487,36 +798,156 @@ class OrderResource extends Resource
                         ]);
 
                         if ($record->user_id && $record->user) {
-                            $record->user->notify(new \App\Notifications\OrderStatusUpdated($record, 'Dikirim'));
+                            $record->user->notify(new OrderStatusUpdated($record, 'Dikirim'));
                         }
 
                         try {
                             $email = $record->shipping_email ?? $record->user?->email;
                             if ($email) {
                                 if (function_exists('defer')) {
-                                    defer(fn () => \Illuminate\Support\Facades\Mail::to($email)->send(new \App\Mail\OrderStatusMail($record, 'shipped')));
+                                    defer(fn () => Mail::to($email)->send(new OrderStatusMail($record, 'shipped')));
                                 } else {
-                                    \Illuminate\Support\Facades\Mail::to($email)->send(new \App\Mail\OrderStatusMail($record, 'shipped'));
+                                    Mail::to($email)->send(new OrderStatusMail($record, 'shipped'));
                                 }
                             }
                         } catch (\Exception $e) {
-                            \Illuminate\Support\Facades\Log::error('Failed to send status email: ' . $e->getMessage());
+                            Log::error('Failed to send status email: '.$e->getMessage());
                         }
 
-                        \Filament\Notifications\Notification::make()
-                            ->title('Pesanan Siap Dikirim')
-                            ->body('Silakan cetak Surat Jalan dan kirim update ke pembeli via WA.')
+                        Notification::make()
+                            ->title('Pesanan Sedang Dikirim')
+                            ->body('Surat Jalan siap dicetak dan email notifikasi telah dikirim ke pembeli.')
                             ->success()
                             ->persistent()
                             ->actions([
-                                \Filament\Notifications\Actions\Action::make('print_order')
+                                Action::make('print_order')
                                     ->label('Cetak Surat Jalan')
-                                    ->url(fn() => route('print.order', $record), shouldOpenInNewTab: true)
+                                    ->url(fn () => route('print.order', $record), shouldOpenInNewTab: true)
                                     ->button()
                                     ->icon('heroicon-o-printer'),
-                                \Filament\Notifications\Actions\Action::make('send_wa')
+                                Action::make('send_wa')
                                     ->label('Kirim WA Pembeli')
-                                    ->url(fn() => method_exists($record, 'getWaShippedLink') ? $record->getWaShippedLink() : '#', shouldOpenInNewTab: true)
+                                    ->url(fn () => method_exists($record, 'getWaShippedLink') ? $record->getWaShippedLink() : '#', shouldOpenInNewTab: true)
+                                    ->button()
+                                    ->color('success')
+                                    ->icon('heroicon-o-chat-bubble-left-ellipsis'),
+                            ])
+                            ->send();
+                    }),
+
+                Tables\Actions\Action::make('manage_batches')
+                    ->label('Kelola & Kirim Batch')
+                    ->icon('heroicon-o-queue-list')
+                    ->color('info')
+                    ->visible(fn (Order $record) => $record->status === 'processing' && $record->fulfillment_type === 'po_batch')
+                    ->modalHeading('Kelola & Pengiriman Bertahap (PO Batch)')
+                    ->modalDescription(fn (Order $record) => 'Total: '.number_format($record->total_ordered_quantity, 0, ',', '.').' pcs | Terkirim: '.number_format($record->total_shipped_quantity, 0, ',', '.').' pcs ('.$record->batch_progress_percentage.'%) | Sisa: '.number_format($record->remaining_quantity, 0, ',', '.').' pcs.')
+                    ->form(function (Order $record) {
+                        $availableBatches = $record->batches()->whereIn('status', ['pending_production', 'producing', 'ready_to_ship'])->get();
+                        $options = [];
+                        foreach ($availableBatches as $b) {
+                            $options[$b->id] = "{$b->batch_name} — ".number_format($b->quantity, 0, ',', '.').' pcs (Jadwal: '.($b->estimated_dispatch_date ? $b->estimated_dispatch_date->format('d M Y') : '-').')';
+                        }
+
+                        return [
+                            Forms\Components\Select::make('batch_id')
+                                ->label('Pilih Batch yang Akan Diberangkatkan')
+                                ->options($options)
+                                ->required()
+                                ->helperText('Pilih batch yang siap dikirimkan menggunakan armada truk.'),
+                            Forms\Components\Select::make('courier_id')
+                                ->label('Pilih Kurir Internal')
+                                ->relationship('courierUser', 'name', fn (Builder $query) => $query->where('role', 'courier'))
+                                ->searchable()
+                                ->preload()
+                                ->live()
+                                ->afterStateUpdated(function ($state, Forms\Set $set) {
+                                    if ($state) {
+                                        $courier = User::find($state);
+                                        if ($courier) {
+                                            $set('courier_name', $courier->name);
+                                            $set('courier_phone', $courier->phone);
+                                            $set('tracking_number', $courier->license_plate);
+                                        }
+                                    }
+                                }),
+                            TextInput::make('courier_name')
+                                ->label('Nama Supir / Ekspedisi')
+                                ->placeholder('Contoh: Pak Joko (Armada Pabrik)'),
+                            TextInput::make('courier_phone')
+                                ->label('Nomor HP/WA Supir')
+                                ->placeholder('Contoh: 08123456789')
+                                ->tel(),
+                            TextInput::make('tracking_number')
+                                ->label('No. Plat Nomor Truk')
+                                ->placeholder('Contoh: B 9845 KLP')
+                                ->required(),
+                            Forms\Components\Textarea::make('notes')
+                                ->label('Catatan Muatan Batch Ini')
+                                ->placeholder('Contoh: Muatan 850 pcs roster terpal aman.')
+                                ->columnSpanFull(),
+                        ];
+                    })
+                    ->modalSubmitActionLabel('Berangkatkan Truk Batch Ini')
+                    ->action(function (Order $record, array $data) {
+                        $batch = OrderBatch::find($data['batch_id']);
+                        if (! $batch) {
+                            return;
+                        }
+
+                        $batch->update([
+                            'status' => 'shipped',
+                            'actual_dispatch_date' => now(),
+                            'courier_id' => $data['courier_id'] ?? null,
+                            'courier_name' => $data['courier_name'] ?? ($record->courier ?: 'Armada Pabrik'),
+                            'courier_phone' => $data['courier_phone'] ?? null,
+                            'tracking_number' => $data['tracking_number'] ?? null,
+                            'notes' => $data['notes'] ?? null,
+                        ]);
+
+                        // Pesanan PO Batch TETAP di status 'processing' sampai semua batch selesai.
+                        // Status 'shipped' hanya diset jika SEMUA batch sudah dikirim.
+                        $record->refresh();
+                        $allShipped = $record->isAllBatchesShipped();
+                        if ($allShipped) {
+                            $record->update([
+                                'status' => 'shipped',
+                                'shipped_at' => now(),
+                            ]);
+                        }
+                        // Jika belum semua, pastikan status tetap 'processing'
+                        if (! $allShipped && $record->status !== 'processing') {
+                            $record->update(['status' => 'processing']);
+                        }
+
+                        // Send email per-batch
+                        try {
+                            $email = $record->shipping_email ?? $record->user?->email;
+                            if ($email) {
+                                if (function_exists('defer')) {
+                                    defer(fn () => Mail::to($email)->send(new OrderStatusMail($record, 'batch_shipped', $batch)));
+                                } else {
+                                    Mail::to($email)->send(new OrderStatusMail($record, 'batch_shipped', $batch));
+                                }
+                            }
+                        } catch (\Exception $e) {
+                            Log::error('Failed to send batch status email: '.$e->getMessage());
+                        }
+
+                        Notification::make()
+                            ->title("{$batch->batch_name} Berhasil Diberangkatkan!")
+                            ->body('Muatan: '.number_format($batch->quantity, 0, ',', '.').' pcs. Sisa: '.number_format($batch->remaining_quantity_after_this_batch, 0, ',', '.').' pcs.')
+                            ->success()
+                            ->persistent()
+                            ->actions([
+                                Action::make('print_batch_label')
+                                    ->label('Cetak Surat Jalan '.$batch->batch_name)
+                                    ->url(route('print.order', ['order' => $record->id, 'batch_id' => $batch->id]), shouldOpenInNewTab: true)
+                                    ->button()
+                                    ->icon('heroicon-o-printer'),
+                                Action::make('send_batch_wa')
+                                    ->label('Kirim WA Info Supir')
+                                    ->url($record->getWaBatchShippedLink($batch), shouldOpenInNewTab: true)
                                     ->button()
                                     ->color('success')
                                     ->icon('heroicon-o-chat-bubble-left-ellipsis'),
@@ -539,29 +970,29 @@ class OrderResource extends Resource
                         ]);
 
                         if ($record->user_id && $record->user) {
-                            $record->user->notify(new \App\Notifications\OrderStatusUpdated($record, 'Diterima'));
+                            $record->user->notify(new OrderStatusUpdated($record, 'Diterima'));
                         }
 
                         try {
                             $email = $record->shipping_email ?? $record->user?->email;
                             if ($email) {
                                 if (function_exists('defer')) {
-                                    defer(fn () => \Illuminate\Support\Facades\Mail::to($email)->send(new \App\Mail\OrderStatusMail($record, 'completed')));
+                                    defer(fn () => Mail::to($email)->send(new OrderStatusMail($record, 'completed')));
                                 } else {
-                                    \Illuminate\Support\Facades\Mail::to($email)->send(new \App\Mail\OrderStatusMail($record, 'completed'));
+                                    Mail::to($email)->send(new OrderStatusMail($record, 'completed'));
                                 }
                             }
                         } catch (\Exception $e) {
-                            \Illuminate\Support\Facades\Log::error('Failed to send status email: ' . $e->getMessage());
+                            Log::error('Failed to send status email: '.$e->getMessage());
                         }
 
-                        \Filament\Notifications\Notification::make()
+                        Notification::make()
                             ->title('Pesanan Selesai')
                             ->body('Pesanan telah ditandai sebagai diterima dan selesai.')
                             ->success()
                             ->send();
                     })
-                    ->visible(fn (Order $record) => $record->status === 'shipped'),
+                    ->visible(fn (Order $record) => in_array($record->status, ['shipped', 'delivered'])),
             ])->label('Proses')->icon('heroicon-m-chevron-right')->color('primary')->button(),
 
             // Kelompok Aksi Cetak
@@ -581,7 +1012,7 @@ class OrderResource extends Resource
                             ->url(fn (Order $record) => route('print.order', ['order' => $record, 'ship' => 1]))
                             ->openUrlInNewTab()
                             ->button()
-                            ->visible(fn (Order $record) => $record->status === 'processing'),
+                            ->visible(fn (Order $record) => $record->status === 'processing' && $record->fulfillment_type !== 'po_batch'),
                     ]),
 
                 Tables\Actions\Action::make('print_invoice')
@@ -608,7 +1039,7 @@ class OrderResource extends Resource
                     ->url(fn (Order $record) => route('print.shipping-label', $record->shippingLabel))
                     ->openUrlInNewTab()
                     ->visible(fn (Order $record) => $record->shippingLabel !== null && $record->status === 'processing'),
-            ])->label('Cetak')->icon('heroicon-o-printer')->color('gray')->button()->visible(fn (Order $record) => !in_array($record->status, ['pending_payment', 'paid'])),
+            ])->label('Cetak')->icon('heroicon-o-printer')->color('gray')->button()->visible(fn (Order $record) => ! in_array($record->status, ['pending_payment', 'paid'])),
 
             // Kelompok Aksi Email
             Tables\Actions\ActionGroup::make([
@@ -619,17 +1050,17 @@ class OrderResource extends Resource
                     ->requiresConfirmation()
                     ->action(function (Order $record) {
                         try {
-                            \Illuminate\Support\Facades\Mail::to($record->shipping_email ?? $record->user->email)
-                                ->send(new \App\Mail\InvoiceMail($record));
-                            
-                            \Filament\Notifications\Notification::make()
+                            Mail::to($record->shipping_email ?? $record->user->email)
+                                ->send(new InvoiceMail($record));
+
+                            Notification::make()
                                 ->title('Email Invoice Berhasil Dikirim')
                                 ->success()
                                 ->send();
                         } catch (\Exception $e) {
-                            \Filament\Notifications\Notification::make()
+                            Notification::make()
                                 ->title('Gagal Mengirim Email')
-                                ->body('Pastikan pengaturan SMTP sudah benar di menu Pengaturan Website. Error: ' . $e->getMessage())
+                                ->body('Pastikan pengaturan SMTP sudah benar di menu Pengaturan Website. Error: '.$e->getMessage())
                                 ->danger()
                                 ->persistent()
                                 ->send();
@@ -653,6 +1084,25 @@ class OrderResource extends Resource
     {
         return $infolist
             ->schema([
+                Infolists\Components\Section::make('📦 Manajemen Pengiriman Bertahap')
+                    ->description('Kelola status dan pengiriman setiap batch untuk pesanan proyek ini.')
+                    ->visible(fn ($record) => $record && $record->fulfillment_type === 'po_batch')
+                    ->schema([
+                        Infolists\Components\ViewEntry::make('batches_panel')
+                            ->view('filament.order-batches-panel')
+                            ->columnSpanFull(),
+                    ])
+                    ->collapsible(false),
+
+                Infolists\Components\Section::make('🚚 Progres Pengiriman & Status')
+                    ->visible(fn ($record) => $record && (in_array($record->fulfillment_type, ['ready_stock', 'po_single']) || is_null($record->fulfillment_type)))
+                    ->schema([
+                        Infolists\Components\ViewEntry::make('single_progress_panel')
+                            ->view('filament.order-single-progress-panel')
+                            ->columnSpanFull(),
+                    ])
+                    ->collapsible(false),
+
                 Infolists\Components\Grid::make(3)
                     ->schema([
                         Infolists\Components\Group::make([
@@ -695,9 +1145,8 @@ class OrderResource extends Resource
                                         ->placeholder('-'),
                                     Infolists\Components\TextEntry::make('latestPayment.payment_type')
                                         ->label('Metode Pembayaran')
-                                        ->formatStateUsing(fn ($state, Order $record) => 
-                                            $record->latestPayment 
-                                                ? ($record->latestPayment->payment_type_label . ($record->latestPayment->va_number ? " (VA: " . $record->latestPayment->va_number . ")" : ""))
+                                        ->formatStateUsing(fn ($state, Order $record) => $record->latestPayment
+                                                ? ($record->latestPayment->payment_type_label.($record->latestPayment->va_number ? ' (VA: '.$record->latestPayment->va_number.')' : ''))
                                                 : '-'
                                         )
                                         ->placeholder('-'),
@@ -718,7 +1167,7 @@ class OrderResource extends Resource
                                         ->icon('heroicon-m-phone'),
                                 ])->columns(2),
 
-                            Infolists\Components\Section::make('Alamat Pengiriman')
+                            Infolists\Components\Section::make('Alamat Pengiriman & Titik GPS')
                                 ->schema([
                                     Infolists\Components\TextEntry::make('shipping_address')
                                         ->label('Alamat Lengkap')
@@ -729,6 +1178,24 @@ class OrderResource extends Resource
                                         ->label('Provinsi'),
                                     Infolists\Components\TextEntry::make('shipping_postal_code')
                                         ->label('Kode Pos'),
+                                    Infolists\Components\TextEntry::make('shipping_latitude')
+                                        ->label('Latitude GPS')
+                                        ->placeholder('-'),
+                                    Infolists\Components\TextEntry::make('shipping_longitude')
+                                        ->label('Longitude GPS')
+                                        ->placeholder('-'),
+                                    Infolists\Components\TextEntry::make('google_maps_link')
+                                        ->label('Navigasi Titik Lokasi')
+                                        ->icon('heroicon-m-map-pin')
+                                        ->color('primary')
+                                        ->weight('bold')
+                                        ->state(fn ($record) => $record->shipping_latitude && $record->shipping_longitude
+                                            ? "🗺️ Buka di Google Maps ({$record->shipping_latitude}, {$record->shipping_longitude})"
+                                            : '-'
+                                        )
+                                        ->url(fn ($record) => $record->shipping_latitude && $record->shipping_longitude
+                                            ? "https://www.google.com/maps/dir/?api=1&destination={$record->shipping_latitude},{$record->shipping_longitude}"
+                                            : null, true),
                                 ])->columns(3),
                         ])->columnSpan(2),
 
@@ -766,8 +1233,14 @@ class OrderResource extends Resource
                                         ->label('Waktu Kirim')
                                         ->dateTime()
                                         ->placeholder('-'),
+                                    Infolists\Components\ImageEntry::make('delivery_photo_path')
+                                        ->label('📸 Foto Bukti Pengiriman')
+                                        ->disk('public')
+                                        ->width(250)
+                                        ->height(180)
+                                        ->visible(fn ($record) => $record && $record->delivery_photo_path),
                                 ]),
-                            
+
                             Infolists\Components\Section::make('Catatan')
                                 ->schema([
                                     Infolists\Components\TextEntry::make('notes')

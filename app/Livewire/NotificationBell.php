@@ -7,7 +7,9 @@ use Livewire\Component;
 class NotificationBell extends Component
 {
     public $notifications = [];
+
     public $unreadCount = 0;
+
     public $isOpen = false;
 
     public function mount()
@@ -26,7 +28,7 @@ class NotificationBell extends Component
 
     public function toggleDropdown()
     {
-        $this->isOpen = !$this->isOpen;
+        $this->isOpen = ! $this->isOpen;
         if ($this->isOpen) {
             $this->loadNotifications(); // Refresh when opening
         }

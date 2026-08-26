@@ -28,6 +28,16 @@ class Product extends Model
         'best_for',
         'meta_title',
         'meta_description',
+        // SEO Growth Engine fields
+        'focus_keyword',
+        'secondary_keywords',
+        'seo_h1',
+        'og_title',
+        'og_description',
+        'seo_score',
+        'opportunity_score',
+        'seo_issues',
+        'seo_last_analyzed',
         'view_count',
         'total_sold',
     ];
@@ -41,6 +51,12 @@ class Product extends Model
             'is_featured' => 'boolean',
             'is_active' => 'boolean',
             'total_sold' => 'integer',
+            // SEO Growth Engine casts
+            'secondary_keywords' => 'array',
+            'seo_issues' => 'array',
+            'seo_score' => 'integer',
+            'opportunity_score' => 'integer',
+            'seo_last_analyzed' => 'datetime',
         ];
     }
 
@@ -75,7 +91,7 @@ class Product extends Model
         });
 
         static::updating(function (Product $product) {
-            if (!empty($product->slug)) {
+            if (! empty($product->slug)) {
                 $product->slug = Str::slug($product->slug);
             }
         });
@@ -122,19 +138,20 @@ class Product extends Model
     {
         // First try: primary image media
         $imageMedia = $this->media()->where('is_primary', true)->where('media_type', 'image')->first();
-        
+
         // Second try: any image media
-        if (!$imageMedia) {
+        if (! $imageMedia) {
             $imageMedia = $this->media()->where('media_type', 'image')->first();
         }
-        
+
         // Third try: primary media (could be video — use its formatted_url as fallback)
         if ($imageMedia) {
             return $imageMedia->formatted_url;
         }
-        
+
         // Last resort: return formatted_url of whatever primary media is
         $media = $this->primary_media;
+
         return $media ? $media->formatted_url : null;
     }
 
@@ -151,7 +168,10 @@ class Product extends Model
      */
     public function getDiscountPercentageAttribute(): int
     {
-        if (!$this->has_discount) return 0;
+        if (! $this->has_discount) {
+            return 0;
+        }
+
         return (int) round((($this->original_price - $this->min_price) / $this->original_price) * 100);
     }
 
@@ -169,45 +189,56 @@ class Product extends Model
     }
 
     /**
-     * Get total stock from variants or base stock.
+     * Get total stock from active variants or base stock.
      */
     public function getTotalStockAttribute(): int
     {
-        if ($this->variants()->exists()) {
-            return (int) $this->variants()->sum('stock');
+        $activeVariants = $this->relationLoaded('variants')
+            ? $this->variants->where('is_active', true)
+            : $this->variants()->where('is_active', true)->get();
+
+        if ($activeVariants->count() > 0) {
+            return (int) $activeVariants->sum('stock');
         }
+
         return (int) ($this->stock ?? 0);
     }
 
     /**
-     * Get minimum price across variants or base price.
+     * Get minimum price across active variants or base price.
      */
     public function getMinPriceAttribute(): float
     {
         $basePrice = (float) ($this->price ?? 0);
-        $variants = $this->relationLoaded('variants') ? $this->variants : $this->variants()->where('is_active', true)->get();
-        
+        $variants = $this->relationLoaded('variants')
+            ? $this->variants->where('is_active', true)
+            : $this->variants()->where('is_active', true)->get();
+
         if ($variants->count() > 0) {
             $minAdjustment = $variants->min('price_adjustment') ?? 0;
+
             return $basePrice + (float) $minAdjustment;
         }
-        
+
         return $basePrice;
     }
 
     /**
-     * Get maximum price across variants or base price.
+     * Get maximum price across active variants or base price.
      */
     public function getMaxPriceAttribute(): float
     {
         $basePrice = (float) ($this->price ?? 0);
-        $variants = $this->relationLoaded('variants') ? $this->variants : $this->variants()->where('is_active', true)->get();
-        
+        $variants = $this->relationLoaded('variants')
+            ? $this->variants->where('is_active', true)
+            : $this->variants()->where('is_active', true)->get();
+
         if ($variants->count() > 0) {
             $maxAdjustment = $variants->max('price_adjustment') ?? 0;
+
             return $basePrice + (float) $maxAdjustment;
         }
-        
+
         return $basePrice;
     }
 
@@ -220,10 +251,10 @@ class Product extends Model
         $max = $this->max_price;
 
         if ($min === $max) {
-            return 'Rp' . number_format($min, 0, ',', '.');
+            return 'Rp'.number_format($min, 0, ',', '.');
         }
 
-        return 'Rp' . number_format($min, 0, ',', '.') . ' - Rp' . number_format($max, 0, ',', '.');
+        return 'Rp'.number_format($min, 0, ',', '.').' - Rp'.number_format($max, 0, ',', '.');
     }
 
     /**
@@ -239,8 +270,10 @@ class Product extends Model
             if (str_ends_with($formatted, ',0')) {
                 $formatted = substr($formatted, 0, -2);
             }
-            return $formatted . 'rb';
+
+            return $formatted.'rb';
         }
+
         return number_format($sold, 0, ',', '.');
     }
 
@@ -274,13 +307,13 @@ class Product extends Model
         $dims = $this->dimensions ?? '20 x 20';
         // Match numbers using regex
         preg_match_all('/\d+/', $dims, $matches);
-        
+
         $numbers = $matches[0] ?? [];
-        
+
         return [
-            'width' => isset($numbers[0]) ? (int)$numbers[0] : 20,
-            'height' => isset($numbers[1]) ? (int)$numbers[1] : 20,
-            'depth' => isset($numbers[2]) ? (int)$numbers[2] : 10,
+            'width' => isset($numbers[0]) ? (int) $numbers[0] : 20,
+            'height' => isset($numbers[1]) ? (int) $numbers[1] : 20,
+            'depth' => isset($numbers[2]) ? (int) $numbers[2] : 10,
         ];
     }
 }

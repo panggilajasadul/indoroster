@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Invoice;
 use App\Models\Order;
+use App\Models\ShippingLabel;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\URL;
@@ -14,11 +15,16 @@ class InvoicePrintTest extends TestCase
     use RefreshDatabase;
 
     private User $admin;
+
     private User $customer;
+
     private User $otherUser;
+
     private Order $order;
+
     private Invoice $invoice;
-    private \App\Models\ShippingLabel $shippingLabel;
+
+    private ShippingLabel $shippingLabel;
 
     protected function setUp(): void
     {
@@ -72,7 +78,7 @@ class InvoicePrintTest extends TestCase
         ]);
 
         // 4. Create Shipping Label
-        $this->shippingLabel = \App\Models\ShippingLabel::create([
+        $this->shippingLabel = ShippingLabel::create([
             'order_id' => $this->order->id,
             'label_number' => 'SL-20260521-0001',
             'courier' => 'JNE',

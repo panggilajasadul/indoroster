@@ -2,11 +2,13 @@
 
 namespace Tests\Feature;
 
+use App\Livewire\Gallery;
+use App\Livewire\VideoInspiration;
+use App\Models\Category;
 use App\Models\Comment;
 use App\Models\Gallery as GalleryModel;
 use App\Models\GalleryMedia;
 use App\Models\Product;
-use App\Models\Category;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
@@ -17,6 +19,7 @@ class CommentReplyTest extends TestCase
     use RefreshDatabase;
 
     private User $user;
+
     private GalleryModel $galleryItem;
 
     protected function setUp(): void
@@ -67,8 +70,8 @@ class CommentReplyTest extends TestCase
         $this->actingAs($this->user);
 
         // Test Livewire component
-        Livewire::test(\App\Livewire\VideoInspiration::class)
-            ->set('activeVideoId', 'gallery-' . $this->galleryItem->id)
+        Livewire::test(VideoInspiration::class)
+            ->set('activeVideoId', 'gallery-'.$this->galleryItem->id)
             ->set('newCommentText', 'Keren sekali!')
             ->call('submitComment');
 
@@ -78,8 +81,8 @@ class CommentReplyTest extends TestCase
         $this->assertNull($parentComment->parent_id);
 
         // Test replying
-        Livewire::test(\App\Livewire\VideoInspiration::class)
-            ->set('activeVideoId', 'gallery-' . $this->galleryItem->id)
+        Livewire::test(VideoInspiration::class)
+            ->set('activeVideoId', 'gallery-'.$this->galleryItem->id)
             ->call('setReplyTo', $parentComment->id, $this->user->name)
             ->set('newCommentText', 'Setuju, keren banget!')
             ->call('submitComment');
@@ -90,15 +93,15 @@ class CommentReplyTest extends TestCase
         $this->assertEquals($parentComment->id, $replyComment->parent_id);
 
         // Verify counts and loading in component
-        $component = Livewire::test(\App\Livewire\VideoInspiration::class);
+        $component = Livewire::test(VideoInspiration::class);
         $videos = $component->get('videos');
-        
+
         $this->assertNotEmpty($videos);
         $videoData = $videos[0];
-        
+
         // Check comment count (should be 2, parent + reply)
         $this->assertEquals(2, $videoData['comments_count']);
-        
+
         // Check nesting structure
         $comments = $videoData['comments'];
         $this->assertCount(1, $comments); // Only root comment at the top level of array
@@ -121,10 +124,10 @@ class CommentReplyTest extends TestCase
 
         $this->actingAs($this->user);
 
-        $photoId = 'gallery-' . $this->galleryItem->id . '-' . $media->id;
+        $photoId = 'gallery-'.$this->galleryItem->id.'-'.$media->id;
 
         // Test Livewire component
-        Livewire::test(\App\Livewire\Gallery::class)
+        Livewire::test(Gallery::class)
             ->set('activePhotoId', $photoId)
             ->set('newCommentText', 'Foto teras yang indah.')
             ->call('submitComment');
@@ -135,7 +138,7 @@ class CommentReplyTest extends TestCase
         $this->assertNull($parentComment->parent_id);
 
         // Test replying
-        Livewire::test(\App\Livewire\Gallery::class)
+        Livewire::test(Gallery::class)
             ->set('activePhotoId', $photoId)
             ->call('setReplyTo', $parentComment->id, $this->user->name)
             ->set('newCommentText', 'Lokasinya di mana ya?')
@@ -147,15 +150,15 @@ class CommentReplyTest extends TestCase
         $this->assertEquals($parentComment->id, $replyComment->parent_id);
 
         // Verify structure in component
-        $component = Livewire::test(\App\Livewire\Gallery::class);
+        $component = Livewire::test(Gallery::class);
         $photos = $component->get('photos');
-        
+
         $this->assertNotEmpty($photos);
         $photoData = $photos[0];
-        
+
         // Comments count should be 2 (parent + reply)
         $this->assertEquals(2, $photoData['comments_count']);
-        
+
         // Check nested comments array
         $comments = $photoData['comments'];
         $this->assertCount(1, $comments); // Only parent comment

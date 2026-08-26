@@ -15,10 +15,15 @@ class NavigationMenuResource extends Resource
     protected static ?string $model = NavigationMenu::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-bars-3';
+
     protected static ?string $navigationLabel = 'Menu Navigasi';
+
     protected static ?string $modelLabel = 'Menu Navigasi';
+
     protected static ?string $pluralModelLabel = 'Menu Navigasi';
+
     protected static ?string $navigationGroup = 'Pengaturan';
+
     protected static ?int $navigationSort = 3;
 
     public static function form(Form $form): Form
@@ -32,14 +37,14 @@ class NavigationMenuResource extends Resource
                             ->placeholder('Contoh: Beranda, Hubungi Kami')
                             ->required()
                             ->maxLength(255),
-                            
+
                         Forms\Components\TextInput::make('url')
                             ->label('URL / Path')
                             ->placeholder('Contoh: / , /katalog , /gallery , atau https://google.com')
                             ->helperText("Gunakan '/' untuk beranda, '/katalog' untuk produk, '/gallery' untuk galeri, atau masukkan URL eksternal penuh.")
                             ->required()
                             ->maxLength(255),
-                            
+
                         Forms\Components\Select::make('target')
                             ->label('Target Link')
                             ->options([
@@ -48,13 +53,13 @@ class NavigationMenuResource extends Resource
                             ])
                             ->default('_self')
                             ->required(),
-                            
+
                         Forms\Components\TextInput::make('order')
                             ->label('Urutan')
                             ->numeric()
                             ->default(0)
                             ->required(),
-                            
+
                         Forms\Components\Toggle::make('is_active')
                             ->label('Aktif')
                             ->default(true),
@@ -70,12 +75,12 @@ class NavigationMenuResource extends Resource
                     ->label('Nama Menu')
                     ->searchable()
                     ->sortable(),
-                    
+
                 Tables\Columns\TextColumn::make('url')
                     ->label('URL / Path')
                     ->searchable()
                     ->sortable(),
-                    
+
                 Tables\Columns\TextColumn::make('target')
                     ->label('Target')
                     ->badge()
@@ -84,11 +89,11 @@ class NavigationMenuResource extends Resource
                         '_blank' => 'info',
                         default => 'gray',
                     }),
-                    
+
                 Tables\Columns\TextColumn::make('order')
                     ->label('Urutan')
                     ->sortable(),
-                    
+
                 Tables\Columns\ToggleColumn::make('is_active')
                     ->label('Aktif'),
             ])

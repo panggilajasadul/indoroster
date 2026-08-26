@@ -3,23 +3,27 @@
 namespace App\Filament\Pages;
 
 use App\Models\SiteSetting;
+use Filament\Actions\Action;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
-use Filament\Pages\Page;
-use Filament\Notifications\Notification;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-use Filament\Actions\Action;
+use Filament\Forms\Form;
+use Filament\Notifications\Notification;
+use Filament\Pages\Page;
 
 class SmtpSettings extends Page implements HasForms
 {
     use InteractsWithForms;
 
     protected static ?string $navigationIcon = 'heroicon-o-envelope';
+
     protected static ?string $navigationGroup = 'Pengaturan';
+
     protected static ?string $navigationLabel = 'SMTP Email';
+
     protected static ?string $title = 'Pengaturan SMTP Email';
+
     protected static ?int $navigationSort = 2;
 
     protected static string $view = 'filament.pages.smtp-settings';

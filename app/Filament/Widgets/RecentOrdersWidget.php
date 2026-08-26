@@ -10,6 +10,7 @@ use Filament\Widgets\TableWidget as BaseWidget;
 class RecentOrdersWidget extends BaseWidget
 {
     protected static ?int $sort = 5;
+
     protected static ?string $heading = '🛒 5 Pesanan Terbaru';
 
     public function table(Table $table): Table

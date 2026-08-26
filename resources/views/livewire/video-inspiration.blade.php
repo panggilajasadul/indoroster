@@ -1,4 +1,4 @@
-<div class="py-12 bg-slate-50 min-h-screen" x-data="{ 
+<div class="bg-slate-50 dark:bg-slate-950 min-h-screen py-6 sm:py-10" x-data="{ 
     fullSizeModal: {{ $initialActiveIndex !== null ? 'true' : 'false' }}, 
     activeIndex: {{ $initialActiveIndex !== null ? $initialActiveIndex : 0 }}, 
     isMuted: true, 
@@ -71,6 +71,20 @@
             }, 150);
         });
     }
+    $watch('fullSizeModal', isOpen => {
+        if (isOpen && videos && videos[activeIndex]) {
+            const slug = videos[activeIndex].slug || videos[activeIndex].id;
+            history.replaceState(null, '', '{{ url('/video-inspirasi') }}/' + slug);
+        } else {
+            history.replaceState(null, '', '{{ url('/video-inspirasi') }}');
+        }
+    });
+    $watch('activeIndex', idx => {
+        if (fullSizeModal && videos && videos[idx]) {
+            const slug = videos[idx].slug || videos[idx].id;
+            history.replaceState(null, '', '{{ url('/video-inspirasi') }}/' + slug);
+        }
+    });
     $watch('activeVideoId', id => {
         if (id && videos) {
             const idx = videos.findIndex(v => v.id === id);
@@ -105,22 +119,52 @@
 ">
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <!-- Header -->
-        <div class="text-center mb-16">
-            <h1 class="font-display text-fluid-h1 font-black text-slate-900 mb-4 tracking-tight">
-                Indoroster <span class="text-terra-600">Video</span>
-            </h1>
-            <div class="w-24 h-1.5 bg-terra-500 mx-auto rounded-full mb-6"></div>
-            <p class="text-xl text-slate-800 max-w-3xl mx-auto leading-relaxed px-4">
-                Inspirasi pemasangan roster beton langsung dari lokasi proyek. Klik video untuk melihat layar penuh. Anda juga dapat langsung membeli produk serupa yang ditampilkan dalam video.
-            </p>
+        <!-- Breadcrumb & Header (Adaptive Light/Dark Theme) -->
+        <div class="mb-6 sm:mb-8">
+            <x-breadcrumb :items="[['label' => 'Video Inspirasi']]" class="!px-0 !py-0 mb-3" />
+
+            <div class="max-w-3xl">
+                <h1 class="font-display text-2xl sm:text-3xl md:text-4xl font-black tracking-tight text-slate-900 dark:text-white mb-2">
+                    Inspirasi Video Roster Beton & Proyek Arsitektur
+                </h1>
+                <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed font-normal">
+                    Koleksi video nyata pemasangan roster beton, pagar minimalis, partisi angin, dan fasad bangunan dari lokasi proyek. Klik video untuk melihat layar penuh dan beli produk terkait.
+                </p>
+            </div>
         </div>
 
+        <!-- Filters & Sorting -->
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8 pb-6 border-b border-slate-200 dark:border-slate-800">
+            <div class="flex items-center gap-2">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-terra-50 dark:bg-terra-500/10 text-terra-600 dark:text-terra-400 rounded-full text-xs font-bold uppercase tracking-wider">
+                    🎬 {{ count($videos) }} Video Inspirasi
+                </span>
+            </div>
 
+            <!-- Sorting Filter -->
+            <div class="flex items-center gap-2.5 self-start sm:self-center">
+                <div class="relative inline-flex items-center">
+                    <span class="text-xs font-bold text-slate-500 dark:text-slate-400 mr-2 flex items-center gap-1.5">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 text-terra-500">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 4.5h14.25M3 9h9.75M3 13.5h5.25m5.25-.75L17.25 9m0 0L21 12.75M17.25 9v12" />
+                        </svg>
+                        Urutkan:
+                    </span>
+                    <select 
+                        wire:change="setSortBy($event.target.value)"
+                        class="text-xs font-semibold bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 pr-8 shadow-sm hover:border-terra-400 focus:ring-2 focus:ring-terra-500/20 focus:border-terra-500 cursor-pointer transition-all">
+                        <option value="latest" @selected($sortBy === 'latest')>⚡ Terbaru (Upload Terbaru)</option>
+                        <option value="oldest" @selected($sortBy === 'oldest')>⏳ Terlama</option>
+                        <option value="viral" @selected($sortBy === 'viral')>🔥 Terpopuler / Viral</option>
+                        <option value="views" @selected($sortBy === 'views')>👁️ Paling Banyak Dilihat</option>
+                    </select>
+                </div>
+            </div>
+        </div>
 
         <!-- Video Grid (Reels Style) -->
-        <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-8" wire:loading.class="opacity-50 transition-opacity">
-            @foreach($videos as $index => $video)
+        <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-8">
+            @foreach($displayedVideos as $index => $video)
                 <div 
                     x-data="{ 
                         playing: false,
@@ -173,41 +217,31 @@
                                     <path fill-rule="evenodd" d="M6 5v1h8V5a4 4 0 0 0-8 0ZM4 8.5a.75.75 0 0 1 .75-.75h10.5a.75.75 0 0 1 .75.75v6.75a2.25 2.25 0 0 1-2.25 2.25H6.25a2.25 2.25 0 0 1-2.25-2.25V8.5Zm3 1.5a.75.75 0 1 0-1.5 0v1.5a.75.75 0 1 0 1.5 0v-1.5Zm6.5-.75a.75.75 0 0 1 .75.75v1.5a.75.75 0 1 1-1.5 0v-1.5a.75.75 0 0 1 .75-.75Z" clip-rule="evenodd" />
                                 </svg>
                                 <div class="flex flex-col leading-tight">
-                                    <span class="truncate max-w-[100px] text-[9px] text-slate-500 group-hover/badge:text-white/80 font-medium transition-colors">{{ $video['product']['name'] }}</span>
-                                    <span class="text-[10px] font-black text-terra-600 group-hover/badge:text-white transition-colors">Beli Sekarang →</span>
+                                    <span class="truncate max-w-[90px] md:max-w-[120px]">{{ $video['product']['name'] }}</span>
+                                    <span class="text-terra-600 group-hover/badge:text-white text-[9px] font-black">{{ $video['product']['formatted_price'] }}</span>
                                 </div>
                             </div>
                         </div>
                     @endif
 
-                    {{-- Overlay Gradient --}}
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent pointer-events-none"></div>
-
-                    {{-- Info Overlay --}}
-                    <div class="absolute bottom-0 left-0 right-0 p-4 md:p-6 pointer-events-none">
-                        <div class="flex items-center gap-2 mb-2">
-                            <div class="flex-shrink-0 w-6 h-6 md:w-8 md:h-8 rounded-full bg-terra-500 flex items-center justify-center border border-white/40 shadow-lg">
-                                <span class="text-[7px] md:text-[10px] font-black text-white">INDO</span>
-                            </div>
-                            <span class="text-white text-[10px] md:text-xs font-bold tracking-widest uppercase drop-shadow-md">INDOROSTER OFFICIAL</span>
-                        </div>
-                        <h3 class="font-display text-white font-bold text-[12px] md:text-base leading-snug drop-shadow-lg line-clamp-2">
-                            {{ $video['title'] }}
-                        </h3>
-
-                        {{-- Stats Overlay --}}
-                        <div class="flex items-center gap-2.5 mt-2 text-white/90 text-[10px] font-semibold drop-shadow-md">
+                    {{-- Overlay Details --}}
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-4 md:p-6 text-white pointer-events-none">
+                        <span class="text-terra-400 text-[10px] md:text-xs font-bold uppercase tracking-widest mb-1">{{ $video['category'] ?? 'Video Inspirasi' }}</span>
+                        <h3 class="font-display text-sm md:text-base font-bold leading-tight mb-2 line-clamp-2">{{ $video['title'] }}</h3>
+                        
+                        <div class="flex items-center justify-between text-xs text-slate-300 pt-2 border-t border-white/10">
                             <span class="flex items-center gap-1">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" class="w-3 h-3 text-rose-500">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                </svg>
+                                <span x-text="videos[{{ $index }}]?.views_count || 0">{{ $video['views_count'] }}</span>
+                            </span>
+                            <span class="flex items-center gap-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-3.5 h-3.5 text-red-500">
                                     <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
                                 </svg>
                                 <span x-text="videos[{{ $index }}]?.likes_count || 0">{{ $video['likes_count'] }}</span>
-                            </span>
-                            <span class="flex items-center gap-1">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" class="w-3 h-3 text-blue-400">
-                                    <path fill-rule="evenodd" d="M4.804 21.644A6.707 6.707 0 0 0 6 21.75a6.721 6.721 0 0 0 3.583-1.022 7.478 7.478 0 0 0 2.417.422c4.142 0 7.5-3.134 7.5-7s-3.358-7-7.5-7-7.5 3.134-7.5 7c0 1.86.787 3.55 2.054 4.804-.15.42-.393.812-.716 1.156a.75.75 0 0 0 .584 1.254c.783-.02 1.543-.2 2.254-.53a6.719 6.719 0 0 0 .633-.298ZM12.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM9 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm6.75.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Z" clip-rule="evenodd" />
-                                </svg>
-                                <span x-text="videos[{{ $index }}]?.comments_count || 0">{{ $video['comments_count'] }}</span>
                             </span>
                         </div>
                     </div>
@@ -229,6 +263,47 @@
                 </div>
             @endforeach
         </div>
+
+        <!-- Infinite Scroll Native Sensor (100% Otomatis saat Scroll) -->
+        @if($hasMore)
+            <div 
+                x-data="{
+                    observer: null,
+                    isLoading: false,
+                    init() {
+                        this.observer = new IntersectionObserver((entries) => {
+                            entries.forEach(entry => {
+                                if (entry.isIntersecting && !this.isLoading) {
+                                    this.isLoading = true;
+                                    $wire.loadMore().then(() => {
+                                        this.isLoading = false;
+                                    });
+                                }
+                            });
+                        }, { rootMargin: '350px' });
+                        this.observer.observe(this.$el);
+                    },
+                    destroy() {
+                        if (this.observer) this.observer.disconnect();
+                    }
+                }"
+                class="w-full flex flex-col items-center justify-center py-10"
+            >
+                <div class="inline-flex items-center gap-2.5 px-6 py-3 rounded-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-soft-xs text-slate-700 dark:text-slate-300 text-xs font-semibold">
+                    <svg class="animate-spin h-4 w-4 text-terra-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                    </svg>
+                    <span>Memuat video inspirasi berikutnya...</span>
+                </div>
+            </div>
+        @elseif($totalVideos > 0)
+            <div class="w-full text-center py-10">
+                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 text-xs font-medium">
+                    <span>✓ Semua video inspirasi telah ditampilkan (Total {{ $totalVideos }} Video)</span>
+                </div>
+            </div>
+        @endif
     </div>
 
     <!-- Truly Immersive Full-Size Modal (TikTok/Reels Experience with Vertical Snap Scroll) -->
@@ -435,7 +510,8 @@
                             <!-- Share Button -->
                             <button 
                                 @click.stop="
-                                    const shareUrl = `${window.location.origin}${window.location.pathname}?video=${videos[{{ $index }}].id}`;
+                                    const slug = videos[{{ $index }}].slug || videos[{{ $index }}].id;
+                                    const shareUrl = `${window.location.origin}/video-inspirasi/${slug}`;
                                     if (navigator.share) {
                                         navigator.share({
                                             title: videos[{{ $index }}].title,
@@ -623,4 +699,57 @@
         </svg>
         <span class="text-xs md:text-sm font-bold tracking-wide" x-text="toastMessage"></span>
     </div>
+    </div>
 </div>
+
+@push('seo')
+@php
+    $siteUrl = config('app.url');
+@endphp
+@foreach($videos as $video)
+    @php
+        $isYoutube = str_contains($video['url'], 'youtube.com') || str_contains($video['url'], 'youtu.be');
+        $embedUrl = null;
+        $contentUrl = null;
+
+        if ($isYoutube) {
+            preg_match('/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i', $video['url'], $matches);
+            $ytId = $matches[1] ?? '';
+            if ($ytId) {
+                $embedUrl = "https://www.youtube.com/embed/{$ytId}";
+            }
+        } else {
+            $contentUrl = $video['url'];
+        }
+
+        $thumbnail = $video['product']['image'] ?? asset('assets/logo_indoroster_no_text.PNG');
+        $description = 'Video inspirasi roster beton minimalis ' . ($video['product']['name'] ?? '') . ' dari INDOROSTER Pabrik Plered Purwakarta. Kategori ' . ($video['type'] === 'gallery' ? 'Galeri Proyek' : 'Ulasan Pelanggan') . '.';
+    @endphp
+    <script type="application/ld+json">
+    {
+        "@@context": "https://schema.org",
+        "@@type": "VideoObject",
+        "name": "{{ e($video['title']) }}",
+        "description": "{{ e($description) }}",
+        "thumbnailUrl": "{{ $thumbnail }}",
+        "uploadDate": "{{ $video['created_at'] }}",
+        @if($embedUrl)
+        "embedUrl": "{{ $embedUrl }}",
+        @endif
+        @if($contentUrl)
+        "contentUrl": "{{ $contentUrl }}",
+        @endif
+        "publisher": {
+            "@@type": "Organization",
+            "name": "Indoroster",
+            "logo": {
+                "@@type": "ImageObject",
+                "url": "{{ asset('assets/logo_indoroster_no_text.PNG') }}",
+                "width": 600,
+                "height": 600
+            }
+        }
+    }
+    </script>
+@endforeach
+@endpush

@@ -2,15 +2,21 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
-
-use Illuminate\Support\Facades\Schema;
-use App\Models\SiteSetting;
+use App\Http\Controllers\SitemapController;
+use App\Models\Article;
+use App\Models\Category;
+use App\Models\Gallery;
 use App\Models\Order;
+use App\Models\Page;
+use App\Models\Product;
+use App\Models\SiteSetting;
 use App\Observers\OrderObserver;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\HtmlString;
+use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -29,14 +35,20 @@ class AppServiceProvider extends ServiceProvider
     {
         // Enforce HTTPS scheme in production environment
         if (config('app.env') === 'production') {
-            \Illuminate\Support\Facades\URL::forceScheme('https');
+            URL::forceScheme('https');
+        }
+
+        // Dynamically override public storage URL based on the current request host/port
+        // to prevent Filepond / file upload preview hangs on mismatched dev ports (e.g. 8000 vs 8001).
+        if (! app()->runningInConsole() && request()) {
+            config(['filesystems.disks.public.url' => request()->getSchemeAndHttpHost().'/storage']);
         }
 
         // Load SMTP settings from database if table exists
         try {
             if (Schema::hasTable('site_settings')) {
                 $mailSettings = SiteSetting::where('group', 'mail')->pluck('value', 'key');
-                
+
                 if ($mailSettings->isNotEmpty()) {
                     config([
                         'mail.mailers.smtp.host' => $mailSettings->get('mail_host', config('mail.mailers.smtp.host')),
@@ -59,31 +71,33 @@ class AppServiceProvider extends ServiceProvider
         // Auto-generate sitemap on product, category, gallery, and page changes
         $sitemapGenerator = function () {
             try {
-                \App\Http\Controllers\SitemapController::generate();
+                SitemapController::generate();
             } catch (\Exception $e) {
                 // Silently fail to not block admin save/delete operations
             }
         };
 
-        \App\Models\Product::saved($sitemapGenerator);
-        \App\Models\Product::deleted($sitemapGenerator);
-        \App\Models\Category::saved($sitemapGenerator);
-        \App\Models\Category::deleted($sitemapGenerator);
-        \App\Models\Page::saved($sitemapGenerator);
-        \App\Models\Page::deleted($sitemapGenerator);
-        \App\Models\Gallery::saved($sitemapGenerator);
-        \App\Models\Gallery::deleted($sitemapGenerator);
+        Product::saved($sitemapGenerator);
+        Product::deleted($sitemapGenerator);
+        Category::saved($sitemapGenerator);
+        Category::deleted($sitemapGenerator);
+        Page::saved($sitemapGenerator);
+        Page::deleted($sitemapGenerator);
+        Gallery::saved($sitemapGenerator);
+        Gallery::deleted($sitemapGenerator);
+        Article::saved($sitemapGenerator);
+        Article::deleted($sitemapGenerator);
 
         // Custom professional verification email narrative
         VerifyEmail::toMailUsing(function (object $notifiable, string $url) {
             return (new MailMessage)
                 ->subject('Verifikasi Alamat Email Anda - Indoroster')
-                ->greeting('Halo, ' . $notifiable->name . '!')
+                ->greeting('Halo, '.$notifiable->name.'!')
                 ->line('Terima kasih telah bergabung dengan Indoroster. Untuk memastikan keamanan akun Anda dan mengaktifkan seluruh layanan kami, kami mohon agar Anda memverifikasi alamat email Anda.')
                 ->action('Verifikasi Email Saya', $url)
                 ->line('Tautan verifikasi ini akan kedaluwarsa dalam waktu 60 menit.')
                 ->line('Apabila Anda tidak merasa mendaftar di akun Indoroster, Anda tidak perlu melakukan tindakan apa pun dan dapat mengabaikan email ini.')
-                ->salutation(new HtmlString("Salam hangat,<br><strong>Tim Indoroster</strong>"));
+                ->salutation(new HtmlString('Salam hangat,<br><strong>Tim Indoroster</strong>'));
         });
     }
 }

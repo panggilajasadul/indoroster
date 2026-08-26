@@ -17,6 +17,7 @@ class ProductReview extends Model
     {
         return $this->morphMany(Comment::class, 'commentable')->latest();
     }
+
     protected $fillable = [
         'product_id',
         'reviewer_name',
@@ -50,10 +51,13 @@ class ProductReview extends Model
     public function getMaskedNameAttribute(): string
     {
         $name = $this->reviewer_name;
-        if (strlen($name) <= 2) return $name;
-        
+        if (strlen($name) <= 2) {
+            return $name;
+        }
+
         $first = substr($name, 0, 1);
         $last = substr($name, -1);
-        return $first . '***' . $last;
+
+        return $first.'***'.$last;
     }
 }

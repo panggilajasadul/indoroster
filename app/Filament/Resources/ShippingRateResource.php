@@ -6,21 +6,27 @@ use App\Filament\Resources\ShippingRateResource\Pages;
 use App\Models\ShippingRate;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Laravolt\Indonesia\Models\Province;
-use Laravolt\Indonesia\Models\City;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
+use Laravolt\Indonesia\Models\City;
+use Laravolt\Indonesia\Models\Province;
 
 class ShippingRateResource extends Resource
 {
     protected static ?string $model = ShippingRate::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-truck';
+
     protected static ?string $navigationGroup = 'Pengaturan';
+
     protected static ?string $navigationLabel = 'Tarif Pengiriman';
+
     protected static ?string $pluralModelLabel = 'Tarif Pengiriman';
+
     protected static ?string $modelLabel = 'Tarif Pengiriman';
 
     public static function form(Form $form): Form
@@ -40,6 +46,7 @@ class ShippingRateResource extends Resource
                                 if ($record && $record->city) {
                                     return $record->city->province_code;
                                 }
+
                                 return null;
                             }),
                         Forms\Components\Select::make('city_code')
@@ -51,6 +58,7 @@ class ShippingRateResource extends Resource
                                 if (! $provinceCode) {
                                     return [];
                                 }
+
                                 return City::where('province_code', $provinceCode)->pluck('name', 'code');
                             })
                             ->disabled(fn (Forms\Get $get) => ! $get('province_code')),
@@ -116,6 +124,7 @@ class ShippingRateResource extends Resource
                         if (! $data['value']) {
                             return $query;
                         }
+
                         return $query->whereHas('city', function (Builder $query) use ($data) {
                             $query->where('province_code', $data['value']);
                         });
@@ -147,13 +156,13 @@ class ShippingRateResource extends Resource
                     ])
                     ->action(function (array $data) {
                         $cityCodes = City::where('province_code', $data['province_code'])->pluck('code');
-                        
+
                         $count = ShippingRate::whereIn('city_code', $cityCodes)->update([
                             'shipping_cost' => $data['shipping_cost'],
                             'min_order_qty' => $data['min_order_qty'],
                         ]);
 
-                        \Filament\Notifications\Notification::make()
+                        Notification::make()
                             ->title('Update Berhasil')
                             ->body("Berhasil memperbarui {$count} kota di provinsi tersebut.")
                             ->success()
@@ -172,18 +181,16 @@ class ShippingRateResource extends Resource
                             ->label('Pilih Kota/Kabupaten')
                             ->multiple()
                             ->searchable()
-                            ->getSearchResultsUsing(fn (string $search): array => 
-                                City::where('name', 'like', "%{$search}%")
-                                    ->limit(50)
-                                    ->get()
-                                    ->mapWithKeys(fn ($city) => [$city->code => $city->name . ' (' . $city->province?->name . ')'])
-                                    ->toArray()
+                            ->getSearchResultsUsing(fn (string $search): array => City::where('name', 'like', "%{$search}%")
+                                ->limit(50)
+                                ->get()
+                                ->mapWithKeys(fn ($city) => [$city->code => $city->name.' ('.$city->province?->name.')'])
+                                ->toArray()
                             )
-                            ->getOptionLabelsUsing(fn (array $values): array => 
-                                City::whereIn('code', $values)
-                                    ->get()
-                                    ->mapWithKeys(fn ($city) => [$city->code => $city->name . ' (' . $city->province?->name . ')'])
-                                    ->toArray()
+                            ->getOptionLabelsUsing(fn (array $values): array => City::whereIn('code', $values)
+                                ->get()
+                                ->mapWithKeys(fn ($city) => [$city->code => $city->name.' ('.$city->province?->name.')'])
+                                ->toArray()
                             )
                             ->required(),
                         Forms\Components\TextInput::make('shipping_cost')
@@ -210,7 +217,7 @@ class ShippingRateResource extends Resource
                             $count++;
                         }
 
-                        \Filament\Notifications\Notification::make()
+                        Notification::make()
                             ->title('Update Berhasil')
                             ->body("Berhasil memperbarui/membuat tarif untuk {$count} kota/daerah.")
                             ->success()
@@ -242,7 +249,7 @@ class ShippingRateResource extends Resource
                                 ->required()
                                 ->default(0),
                         ])
-                        ->action(function (\Illuminate\Database\Eloquent\Collection $records, array $data) {
+                        ->action(function (Collection $records, array $data) {
                             $records->each(function (ShippingRate $record) use ($data) {
                                 $record->update([
                                     'shipping_cost' => $data['shipping_cost'],
@@ -250,9 +257,9 @@ class ShippingRateResource extends Resource
                                 ]);
                             });
 
-                            \Filament\Notifications\Notification::make()
+                            Notification::make()
                                 ->title('Update Massal Berhasil')
-                                ->body("Berhasil memperbarui " . $records->count() . " daerah/kota yang dipilih.")
+                                ->body('Berhasil memperbarui '.$records->count().' daerah/kota yang dipilih.')
                                 ->success()
                                 ->send();
                         }),

@@ -13,8 +13,9 @@ class EditUser extends EditRecord
     protected function mutateFormDataBeforeSave(array $data): array
     {
         if ($data['role'] === 'courier' && empty($data['email'])) {
-            $data['email'] = $data['phone'] . '@kurir.indoroster.local';
+            $data['email'] = $data['phone'].'@kurir.indoroster.local';
         }
+
         return $data;
     }
 

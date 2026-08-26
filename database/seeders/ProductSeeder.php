@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-use App\Models\Product;
 use App\Models\Category;
+use App\Models\Product;
+use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
 class ProductSeeder extends Seeder
@@ -18,7 +18,7 @@ class ProductSeeder extends Seeder
                 'description' => 'Koleksi roster beton minimalis dengan berbagai motif modern.',
                 'image_url' => 'https://indoroster.com/wp-content/uploads/2025/12/decorative-vntilation-block-roster-minimalis-motif-petir.png',
                 'is_active' => true,
-                'sort_order' => 1
+                'sort_order' => 1,
             ]
         );
 
@@ -129,7 +129,7 @@ class ProductSeeder extends Seeder
                 [
                     'media_type' => 'image',
                     'is_primary' => true,
-                    'sort_order' => 1
+                    'sort_order' => 1,
                 ]
             );
         }

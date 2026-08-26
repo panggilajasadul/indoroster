@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Middleware\EnsureEmailIsVerifiedIfAuthenticated;
+use App\Http\Middleware\SeoApiToken;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -17,7 +19,8 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         $middleware->alias([
-            'verified.if.auth' => \App\Http\Middleware\EnsureEmailIsVerifiedIfAuthenticated::class,
+            'verified.if.auth' => EnsureEmailIsVerifiedIfAuthenticated::class,
+            'seo.api.token' => SeoApiToken::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

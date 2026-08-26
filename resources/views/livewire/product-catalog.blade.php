@@ -1,277 +1,263 @@
-<div class="bg-slate-50 min-h-screen py-8">
+<div class="bg-slate-50 dark:bg-slate-950 min-h-screen py-6 sm:py-10">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        <!-- Header -->
-        <div class="mb-6 text-center hidden md:block">
-            <h1 class="font-display text-fluid-h2 font-black text-slate-900 tracking-tight mb-2">Katalog Roster & Bata</h1>
-            <p class="text-base text-slate-500 max-w-2xl mx-auto">Temukan berbagai koleksi roster beton, bata expose, dan ornamen dinding dengan kualitas pabrik terbaik.</p>
-        </div>
-
-        <!-- Horizontal Filter Bar (Sticky) -->
-        <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-3 md:p-5 mb-6 relative z-30">
-            <div class="flex flex-col lg:flex-row gap-4 lg:gap-5 items-start lg:items-center w-full">
-                
-                <!-- Search Section (Expanded) -->
-                <div class="w-full lg:flex-grow">
-                    <div class="flex flex-col gap-1.5">
-                        <label class="font-display text-[10px] md:text-[11px] font-bold text-terra-600 uppercase tracking-wider ml-1">Cari Produk Roster, Bata & Ornamen</label>
-                        <div class="relative">
-                            <input wire:model.live.debounce.300ms="search" type="text" placeholder="Masukkan nama produk atau deskripsi..." style="padding-left: 2.5rem;" class="w-full h-10 md:h-12 pr-3 md:pr-4 py-2 border border-gray-200 rounded-lg md:rounded-xl focus:ring-2 focus:ring-terra-500 focus:border-terra-500 text-xs md:text-sm bg-slate-50 transition-all">
-                            <svg class="w-4 md:w-5 h-4 md:h-5 text-gray-400 absolute left-3 md:left-3.5 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Filters Section (Compact) -->
-                <div class="flex flex-row gap-2 md:gap-3 w-full lg:w-auto shrink-0">
-                    <!-- Category Dropdown -->
-                    <div class="w-1/2 lg:w-48">
-                        <div class="flex flex-col gap-1.5">
-                            <label class="font-display text-[10px] md:text-[11px] font-bold text-slate-400 uppercase tracking-wider ml-1">Kategori</label>
-                            <select wire:model.live="categorySlug" class="w-full h-10 md:h-12 border border-gray-200 rounded-lg md:rounded-xl px-2 md:px-4 py-2 text-xs md:text-sm focus:ring-2 focus:ring-terra-500 focus:border-terra-500 bg-slate-50 text-slate-600 cursor-pointer">
-                                <option value="">Semua Kategori</option>
-                                @foreach($categories as $cat)
-                                    <option value="{{ $cat->slug }}">{{ $cat->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <!-- Sort -->
-                    <div class="w-1/2 lg:w-40">
-                        <div class="flex flex-col gap-1.5">
-                            <label class="font-display text-[10px] md:text-[11px] font-bold text-slate-400 uppercase tracking-wider ml-1">Urutan</label>
-                            <select wire:model.live="sortBy" class="w-full h-10 md:h-12 border border-gray-200 rounded-lg md:rounded-xl px-2 md:px-4 py-2 text-xs md:text-sm focus:ring-2 focus:ring-terra-500 focus:border-terra-500 bg-slate-50 text-slate-600 cursor-pointer">
-                                <option value="newest">Terbaru</option>
-                                <option value="price_asc">Termurah</option>
-                                <option value="price_desc">Termahal</option>
-                            </select>
-                        </div>
-                    </div>
+        <!-- Breadcrumb & Header -->
+        <div class="mb-6 sm:mb-8">
+            @php
+                $catalogBreadcrumbs = $activeCategory 
+                    ? [['label' => 'Katalog Roster & Ornamen', 'url' => route('catalog')], ['label' => $activeCategory->name]]
+                    : [['label' => 'Katalog Roster & Ornamen']];
+            @endphp
+            <x-breadcrumb :items="$catalogBreadcrumbs" class="!px-0 !py-0 mb-3" />
+            <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+                <div>
+                    @if($activeCategory)
+                        <h1 class="font-display text-2xl sm:text-3xl md:text-4xl font-black text-slate-900 dark:text-white tracking-tight">Katalog {{ $activeCategory->name }} — Pabrik Roster Purwakarta</h1>
+                        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1 max-w-3xl">{{ $activeCategory->description ?? 'Pilihan terlengkap '.$activeCategory->name.' langsung dari produsen tangan pertama IndoRoster Plered Purwakarta. Hasil cetak tumbuk padat khusus yang keras dan rapi, harga pabrik, siap kirim ke Jabodetabek dan seluruh Indonesia.' }}</p>
+                    @elseif($search)
+                        <h1 class="font-display text-2xl sm:text-3xl md:text-4xl font-black text-slate-900 dark:text-white tracking-tight">Hasil Pencarian: "{{ $search }}"</h1>
+                        <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">Menampilkan katalog produk roster beton dan material terkait.</p>
+                    @else
+                        <h1 class="font-display text-2xl sm:text-3xl md:text-4xl font-black text-slate-900 dark:text-white tracking-tight">
+                            {{ $page?->meta_title ?: ($page?->title ?: 'Katalog Roster Beton & Bata Expose — Pabrik & Produsen Terpercaya') }}
+                        </h1>
+                        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1 max-w-3xl">
+                            {{ $page?->meta_description ?: 'Pusat katalog roster beton minimalis, bata expose, dan ornamen dinding langsung dari pabrik tangan pertama IndoRoster Plered Purwakarta. Hasil cetak tumbuk padat pengrajin ahli, keras, kokoh, dan rapi dengan harga grosir pabrik.' }}
+                        </p>
+                    @endif
                 </div>
             </div>
         </div>
 
-        <!-- Recommendations for Viral Products (Placed below Search/Filters) -->
-        @if(!$search && !$categorySlug && isset($viralProducts) && $viralProducts->count() > 0)
-            <div class="mb-10 bg-gradient-to-br from-amber-50/40 via-white to-rose-50/40 rounded-2xl border border-amber-100/60 shadow-sm p-4 sm:p-6 relative overflow-hidden">
-                <!-- Decorative Elements -->
-                <div class="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-amber-100/40 to-transparent rounded-full opacity-50 blur-3xl pointer-events-none"></div>
-                <div class="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-rose-100/40 to-transparent rounded-full opacity-50 blur-3xl pointer-events-none"></div>
+        <!-- Filter & Search Bar Panel -->
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-soft-xs p-3.5 sm:p-5 mb-8">
+            <div class="flex flex-col lg:flex-row gap-3.5 sm:gap-4 items-stretch lg:items-center">
                 
-                <div class="relative z-10">
-                    <!-- Header -->
-                    <div class="mb-5">
-                        <h2 class="font-display text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
-                            Rekomendasi Produk Viral <span class="inline-block animate-bounce text-2xl">🔥</span>
-                        </h2>
-                        <p class="text-slate-500 text-sm mt-1">Pilihan roster beton minimalis terpopuler yang paling banyak dibeli pelanggan.</p>
+                <!-- Search Input -->
+                <div class="flex-grow relative">
+                    <input wire:model.live.debounce.300ms="search" type="text" placeholder="Cari nama motif roster, ukuran, bata..." class="w-full h-11 sm:h-12 pl-10 pr-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/70 dark:bg-slate-800/80 focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-terra-500 focus:border-terra-500 text-xs sm:text-sm text-slate-800 dark:text-white transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500">
+                    <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    @if($search)
+                    <button wire:click="$set('search', '')" class="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                    </button>
+                    @endif
+                </div>
+
+                <!-- Dropdown Filters -->
+                <div class="flex items-center gap-2.5 shrink-0">
+                    <!-- Category Dropdown -->
+                    <div class="w-1/2 lg:w-48">
+                        <select wire:model.live="categorySlug" class="w-full h-11 sm:h-12 border border-slate-200 dark:border-slate-700 rounded-xl px-3 text-xs sm:text-sm font-medium focus:ring-2 focus:ring-terra-500 focus:border-terra-500 bg-slate-50/70 dark:bg-slate-800/80 text-slate-700 dark:text-slate-200 cursor-pointer">
+                            <option value="">Semua Kategori</option>
+                            @foreach($categories as $cat)
+                                <option value="{{ $cat->slug }}">{{ $cat->name }}</option>
+                            @endforeach
+                        </select>
                     </div>
+                    
+                    <!-- Sorting Dropdown -->
+                    <div class="w-1/2 lg:w-44">
+                        <select wire:model.live="sortBy" class="w-full h-11 sm:h-12 border border-slate-200 dark:border-slate-700 rounded-xl px-3 text-xs sm:text-sm font-medium focus:ring-2 focus:ring-terra-500 focus:border-terra-500 bg-slate-50/70 dark:bg-slate-800/80 text-slate-700 dark:text-slate-200 cursor-pointer">
+                            <option value="newest">Terbaru</option>
+                            <option value="price_asc">Harga: Termurah</option>
+                            <option value="price_desc">Harga: Termahal</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
 
-                    <!-- 6 Columns Grid like main products -->
-                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3 lg:gap-4">
+            <!-- Horizontal Quick Filter Chips -->
+            <div class="mt-4 pt-3.5 border-t border-slate-100 dark:border-slate-800 flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
+                <button wire:click="$set('categorySlug', '')" class="px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all {{ empty($categorySlug) ? 'bg-slate-900 dark:bg-terra-500 text-white shadow-xs' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700' }}">
+                    Semua
+                </button>
+                @foreach($categories as $cat)
+                <button wire:click="$set('categorySlug', '{{ $cat->slug }}')" class="px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all {{ $categorySlug === $cat->slug ? 'bg-terra-500 text-white shadow-xs' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700' }}">
+                    {{ $cat->name }}
+                </button>
+                @endforeach
+            </div>
+        </div>
+
+        <!-- Viral Products Section (When not searching) -->
+        @if(!$search && !$categorySlug && isset($viralProducts) && $viralProducts->count() > 0)
+            <div class="mb-10 bg-gradient-to-br from-amber-50/50 dark:from-amber-950/20 via-white dark:via-slate-900 to-orange-50/30 dark:to-orange-950/20 rounded-3xl border border-amber-200/60 dark:border-amber-900/40 shadow-soft-xs p-5 sm:p-7 relative overflow-hidden">
+                <div class="flex items-center justify-between mb-5">
+                    <div class="flex items-center gap-2.5">
+                        <span class="w-8 h-8 rounded-xl bg-amber-500/15 dark:bg-amber-500/25 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold text-sm">🔥</span>
+                        <div>
+                            <h2 class="font-display text-lg sm:text-xl font-black text-slate-900 dark:text-white tracking-tight">Motif Roster Terpopuler & Viral</h2>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">Pilihan roster beton terfavorit arsitek dan kontraktor.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
                     @foreach($viralProducts as $product)
-                        <a href="/produk/{{ $product->slug }}" class="bg-white rounded-md border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 group flex flex-col overflow-hidden relative hover:border-terra-400">
-                            
-                            <!-- Bagian Gambar / Media -->
-                            <div class="relative aspect-square overflow-hidden bg-gray-100">
-                                @php
-                                    $displayMedia = $product->primary_media;
-                                @endphp
-
-                                @if($displayMedia)
-                                    @if($displayMedia->media_type === 'video' && !str_contains($displayMedia->media_url, 'youtube.com') && !str_contains($displayMedia->media_url, 'youtu.be'))
-                                        <video src="{{ $displayMedia->formatted_url }}" 
-                                            class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                                            autoplay muted loop playsinline></video>
-                                    @else
-                                        <img src="{{ $displayMedia->media_type === 'image' ? $displayMedia->formatted_url : $product->primary_image }}" alt="{{ $product->name }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
-                                    @endif
-                                @else
-                                    <div class="w-full h-full flex items-center justify-center text-slate-400 text-xs">No Image</div>
-                                @endif
-                                
-                                <!-- Badge Diskon (Kanan Atas) -->
-                                @if($product->discount_percentage > 0)
-                                    <div class="absolute top-0 right-0 bg-[#ffeee8] text-[#ee4d2d] border border-[#ffc9b8] text-[10px] font-bold px-1.5 py-0.5 rounded-bl z-10">
-                                        {{ $product->discount_percentage }}% OFF
-                                    </div>
-                                @endif
-
-                                <!-- VIRAL Badge (Kiri Atas) -->
-                                <div class="absolute top-1 left-1 z-10">
-                                    <span class="bg-black/75 backdrop-blur-sm text-terra-400 text-[8px] font-black px-1.5 py-0.5 rounded-sm tracking-wider uppercase flex items-center gap-1 shadow-sm">
-                                        <span class="w-1 h-1 bg-terra-500 rounded-full animate-ping"></span>
-                                        Viral
-                                    </span>
-                                </div>
-
-                                <!-- Indikator Video (Kanan Bawah Gambar) -->
-                                @if($product->has_video) 
-                                    <div class="absolute bottom-1 right-1 bg-black/40 text-white rounded-full p-1 backdrop-blur-sm z-10 shadow-sm">
-                                        <svg class="w-4 h-4 ml-0.5" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4l12 6-12 6z"></path></svg>
-                                    </div>
-                                @endif
-
-                                @if($product->stock_status === 'out_of_stock')
-                                    <div class="absolute inset-0 bg-white/60 backdrop-blur-sm flex items-center justify-center z-20">
-                                        <span class="bg-slate-900 text-white text-xs font-bold px-2 py-1 rounded shadow-lg transform -rotate-12">HABIS</span>
-                                    </div>
-                                @endif
-                            </div>
-
-                            <!-- Bagian Detail Teks -->
-                            <div class="p-2 flex flex-col flex-grow">
-                                <div class="text-[9px] text-slate-400 mb-0.5 font-semibold uppercase tracking-wider">{{ $product->category->name ?? 'Roster' }}</div>
-                                <!-- Nama Produk -->
-                                <div class="font-display text-xs text-slate-800 leading-snug mb-1 line-clamp-2 font-normal group-hover:text-terra-600 transition-colors">
-                                    {{ $product->name }}
-                                </div>
-                                
-                                <div class="mt-auto">
-                                    <!-- Rating -->
-                                    <div class="flex items-center gap-0.5 mb-1">
-                                        <svg class="w-2.5 h-2.5 text-amber-400 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                                        <span class="text-[9px] font-bold text-slate-700">{{ $product->average_rating }}</span>
-                                    </div>
-                                    <!-- Harga -->
-                                    <div class="flex items-center justify-between gap-1 mb-0.5">
-                                        <span class="text-sm font-bold text-[#ee4d2d] leading-none">{{ $product->formatted_price_range }}</span>
-                                    </div>
-
-                                    <!-- Terjual & Rating Coretan (Opsional) -->
-                                    <div class="flex items-center justify-between">
-                                        @if($product->has_discount)
-                                            <span class="text-[9px] text-slate-400 line-through leading-none">Rp{{ number_format($product->original_price, 0, ',', '.') }}</span>
-                                        @else
-                                            <span></span>
-                                        @endif
-                                        <span class="text-[9px] text-slate-500 whitespace-nowrap">
-                                            {{ $product->total_sold > 0 ? $product->formatted_total_sold . ' terjual' : '' }}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        </a>
+                        <x-product-card :product="$product" :badgeText="'#' . $loop->iteration . ' Hot'" />
                     @endforeach
                 </div>
-                </div> <!-- End relative z-10 -->
             </div>
         @endif
 
-        <!-- Product Grid Section -->
-        <div class="w-full">
-            <div wire:loading class="w-full text-center py-12">
-                <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-terra-500"></div>
-                <p class="mt-2 text-slate-500 text-sm">Memuat produk...</p>
-            </div>
+        <!-- Main Product Grid -->
+        <div>
+            @if($products->count() > 0)
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 lg:gap-5">
+                    @foreach($products as $product)
+                        <x-product-card :product="$product" wire:key="product-{{ $product->id }}" />
 
-            <div wire:loading.remove>
-                @if($products->count() > 0)
-                    <!-- 6 Columns on Extra Large Desktop, 2 on Mobile -->
-                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3 lg:gap-4">
-                        @foreach($products as $product)
-                        <a href="/produk/{{ $product->slug }}" class="bg-white rounded-md border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 group flex flex-col overflow-hidden relative hover:border-terra-400">
-                            
-                            <!-- Bagian Gambar / Media -->
-                            <div class="relative aspect-square overflow-hidden bg-gray-100">
-                                @php
-                                    $displayMedia = $product->primary_media;
-                                @endphp
-
-                                @if($displayMedia)
-                                    @if($displayMedia->media_type === 'video' && !str_contains($displayMedia->media_url, 'youtube.com') && !str_contains($displayMedia->media_url, 'youtu.be'))
-                                        <video src="{{ $displayMedia->formatted_url }}" 
-                                            class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                                            autoplay muted loop playsinline></video>
-                                    @else
-                                        <img src="{{ $displayMedia->media_type === 'image' ? $displayMedia->formatted_url : $product->primary_image }}" alt="{{ $product->name }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
-                                    @endif
-                                @else
-                                    <div class="w-full h-full flex items-center justify-center text-slate-400 text-xs">No Image</div>
-                                @endif
-                                
-                                <!-- Badge Diskon (Kanan Atas) -->
-                                @if($product->discount_percentage > 0)
-                                    <div class="absolute top-0 right-0 bg-[#ffeee8] text-[#ee4d2d] border border-[#ffc9b8] text-[10px] font-bold px-1.5 py-0.5 rounded-bl z-10">
-                                        {{ $product->discount_percentage }}% OFF
+                        <!-- In-Feed Promotional & Regional Voucher Banner (Diselipkan di sela grid produk) -->
+                        @if($loop->iteration == 6 && isset($vouchers) && $vouchers->count() > 0)
+                            <div class="col-span-full my-4 bg-gradient-to-br from-amber-500/10 via-terra-500/5 to-amber-500/15 dark:from-slate-900/90 dark:via-slate-900 dark:to-slate-900/90 rounded-3xl border border-amber-300/60 dark:border-slate-800 p-5 sm:p-7 shadow-soft-xs relative overflow-hidden" x-data="{ copiedCode: null }">
+                                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-5">
+                                    <div>
+                                        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/20 text-amber-900 dark:text-amber-300 text-[11px] font-black uppercase tracking-wider mb-1.5 border border-amber-500/30">
+                                            <span>🏷️</span>
+                                            <span>Voucher Pengiriman & Promo Wilayah</span>
+                                        </div>
+                                        <h3 class="font-display text-lg sm:text-xl font-black text-slate-900 dark:text-white tracking-tight">
+                                            Klaim Promo Armada Pabrik Sesuai Wilayah Proyek Anda
+                                        </h3>
+                                        <p class="text-xs text-slate-600 dark:text-slate-400">Gunakan kode voucher saat checkout atau sebutkan kode saat konsultasi ke Admin WhatsApp:</p>
                                     </div>
-                                @endif
-
-                                <!-- Indikator Video (Kanan Bawah Gambar) -->
-                                @if($product->has_video) 
-                                    <div class="absolute bottom-1 right-1 bg-black/40 text-white rounded-full p-1 backdrop-blur-sm z-10 shadow-sm">
-                                        <svg class="w-4 h-4 ml-0.5" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4l12 6-12 6z"></path></svg>
-                                    </div>
-                                @endif
-
-                                @if($product->stock_status === 'out_of_stock')
-                                    <div class="absolute inset-0 bg-white/60 backdrop-blur-sm flex items-center justify-center z-20">
-                                        <span class="bg-slate-900 text-white text-xs font-bold px-2 py-1 rounded shadow-lg transform -rotate-12">HABIS</span>
-                                    </div>
-                                @endif
-                            </div>
-
-                            <!-- Bagian Detail Teks -->
-                            <div class="p-2 flex flex-col flex-grow">
-                                <!-- Nama Produk -->
-                                <div class="font-display text-xs text-slate-800 leading-snug mb-1 line-clamp-2 font-normal group-hover:text-terra-600 transition-colors">
-                                    {{ $product->name }}
+                                    <a href="https://wa.me/6281389709847?text=Halo%20Admin%20IndoRoster,%20saya%20ingin%20tanya%20klaim%20promo%20ongkir%20pabrik" target="_blank" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-terra-500 hover:bg-terra-600 text-white font-bold text-xs shadow-xs transition-all shrink-0">
+                                        <span>💬 Konsultasi Admin Pabrik</span>
+                                    </a>
                                 </div>
-                                
-                                <div class="mt-auto">
-                                    <!-- Harga -->
-                                    <div class="flex items-center justify-between gap-1 mb-0.5">
-                                        <span class="text-sm font-bold text-[#ee4d2d] leading-none">{{ $product->formatted_price_range }}</span>
-                                    </div>
 
-                                    <!-- Terjual & Rating Coretan (Opsional) -->
-                                    <div class="flex items-center justify-between">
-                                        @if($product->has_discount)
-                                            <span class="text-[9px] text-slate-400 line-through leading-none">Rp{{ number_format($product->original_price, 0, ',', '.') }}</span>
-                                        @else
-                                            <span></span>
-                                        @endif
-                                        <span class="text-[9px] text-slate-500 whitespace-nowrap">
-                                            {{ $product->total_sold > 0 ? $product->formatted_total_sold . ' terjual' : '' }}
-                                        </span>
-                                    </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4">
+                                    @foreach($vouchers as $voucher)
+                                        <div class="bg-white dark:bg-slate-800/90 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 flex flex-col justify-between shadow-2xs group hover:border-terra-400 dark:hover:border-terra-500 transition-all">
+                                            <div>
+                                                <div class="flex items-center justify-between gap-2 mb-3">
+                                                    <span class="px-2.5 py-1 rounded-md bg-amber-50 dark:bg-amber-500/15 text-amber-900 dark:text-amber-300 text-[10px] sm:text-[11px] font-black uppercase tracking-wider border border-amber-300/80 dark:border-amber-500/30">
+                                                        {{ $voucher->badge_text ?: 'Promo Spesial' }}
+                                                    </span>
+                                                    <span class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded-md border border-emerald-200/60 dark:border-emerald-900/30">
+                                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                                        Aktif
+                                                    </span>
+                                                </div>
+                                                <h4 class="font-bold text-xs sm:text-sm text-slate-900 dark:text-white mb-1.5 group-hover:text-terra-600 dark:group-hover:text-terra-400 transition-colors">
+                                                    {{ $voucher->name }}
+                                                </h4>
+                                                <p class="text-[11px] text-slate-600 dark:text-slate-300 leading-snug mb-3">
+                                                    {{ $voucher->description }}
+                                                </p>
+                                            </div>
+
+                                            <div class="pt-3 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between gap-2">
+                                                <div class="font-mono text-xs font-black tracking-wider text-slate-900 dark:text-amber-300 bg-slate-100 dark:bg-slate-950 px-2.5 py-1.5 rounded-lg border border-dashed border-slate-300 dark:border-slate-700">
+                                                    {{ $voucher->code }}
+                                                </div>
+                                                <button 
+                                                    type="button" 
+                                                    @click="navigator.clipboard.writeText('{{ $voucher->code }}'); copiedCode = '{{ $voucher->code }}'; setTimeout(() => copiedCode = null, 2500)"
+                                                    class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold text-terra-600 dark:text-white bg-terra-50 dark:bg-terra-600 hover:bg-terra-500 hover:text-white dark:hover:bg-terra-500 transition-all cursor-pointer border border-terra-200/60 dark:border-transparent"
+                                                >
+                                                    <span x-text="copiedCode === '{{ $voucher->code }}' ? '✓ Tersalin!' : 'Salin Kode'"></span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    @endforeach
                                 </div>
                             </div>
-                        </a>
-                        @endforeach
-                    </div>
-                    
-                    <div class="mt-8 mb-4">
-                        {{ $products->links() }}
+                        @endif
+                    @endforeach
+                </div>
+                
+                <!-- Infinite Scroll Native Sensor (100% Otomatis saat Scroll) -->
+                @if($products->hasMorePages())
+                    <div 
+                        x-data="{
+                            observer: null,
+                            isLoading: false,
+                            init() {
+                                this.observer = new IntersectionObserver((entries) => {
+                                    entries.forEach(entry => {
+                                        if (entry.isIntersecting && !this.isLoading) {
+                                            this.isLoading = true;
+                                            $wire.loadMore().then(() => {
+                                                this.isLoading = false;
+                                            });
+                                        }
+                                    });
+                                }, { rootMargin: '350px' });
+                                this.observer.observe(this.$el);
+                            },
+                            destroy() {
+                                if (this.observer) this.observer.disconnect();
+                            }
+                        }"
+                        class="w-full flex flex-col items-center justify-center py-10"
+                    >
+                        <div class="inline-flex items-center gap-2.5 px-6 py-3 rounded-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-soft-xs text-slate-700 dark:text-slate-300 text-xs font-semibold">
+                            <svg class="animate-spin h-4 w-4 text-terra-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                            </svg>
+                            <span>Memuat produk secara otomatis...</span>
+                        </div>
                     </div>
                 @else
-                    <div class="bg-white rounded-xl border border-gray-100 p-12 text-center shadow-sm">
-                        <div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-400">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 15.75l-2.489-2.489m0 0a3.375 3.375 0 10-4.773-4.773 3.375 3.375 0 004.774 4.774zM21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
+                    <div class="w-full text-center py-10">
+                        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 text-xs font-medium">
+                            <span>✓ Semua produk telah ditampilkan (Total {{ $products->total() }} Produk)</span>
                         </div>
-                        <h3 class="text-lg font-bold text-slate-900 mb-2">Produk Tidak Ditemukan</h3>
-                        <p class="text-slate-500 mb-4 text-sm">Maaf, kami tidak dapat menemukan produk yang sesuai dengan pencarian Anda.</p>
-                        <button wire:click="$set('search', '')" class="bg-terra-500 text-white px-5 py-2 rounded font-medium hover:bg-terra-600 transition-colors text-sm">
-                            Hapus Pencarian
-                        </button>
                     </div>
                 @endif
-            </div>
+            @else
+                <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 p-12 text-center shadow-soft-xs">
+                    <div class="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-2xl flex items-center justify-center mx-auto mb-4 text-slate-400 dark:text-slate-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1">Produk Tidak Ditemukan</h3>
+                    <p class="text-slate-500 dark:text-slate-400 mb-6 text-sm">Tidak ada produk yang cocok dengan kata kunci atau filter yang Anda pilih.</p>
+                    <button wire:click="$set('search', ''); $set('categorySlug', '');" class="bg-terra-500 hover:bg-terra-600 text-white font-bold px-6 py-2.5 rounded-xl transition-colors text-sm shadow-xs cursor-pointer">
+                        Reset Filter & Tampilkan Semua
+                    </button>
+                </div>
+            @endif
         </div>
+
+        <!-- Custom Page Builder Blocks (Jika Admin menambahkan blok di /admin/pages untuk katalog) -->
+        @if($page && is_array($page->content) && count($page->content) > 0)
+            <div class="mt-12">
+                <x-block-renderer :blocks="$page->content" />
+            </div>
+        @endif
+
+        <!-- Section: Metode Pembayaran & Jasa Pengiriman Resmi (seperti Toco) -->
+        <x-trust-payment-shipping />
         
     </div>
-    <style>
-    /* Sembunyikan scrollbar untuk filter kategori tapi tetap bisa discroll */
-    .hide-scroll-bar {
-      -ms-overflow-style: none;  /* IE and Edge */
-      scrollbar-width: none;  /* Firefox */
-    }
-    .hide-scroll-bar::-webkit-scrollbar {
-      display: none;
-    }
-    </style>
 </div>
 
+@push('seo')
+@php
+    $itemListElements = [];
+    foreach ($products as $idx => $p) {
+        $itemListElements[] = [
+            '@type' => 'ListItem',
+            'position' => $idx + 1,
+            'name' => $p->name,
+            'url' => route('product.detail', $p->slug),
+            'image' => $p->featured_image ?? asset('assets/logo_indoroster_no_text.PNG'),
+        ];
+    }
+
+    $schemaData = [
+        '@context' => 'https://schema.org',
+        '@type' => 'ItemList',
+        'name' => $activeCategory ? 'Katalog ' . $activeCategory->name : 'Katalog Roster Beton IndoRoster',
+        'itemListElement' => $itemListElements,
+    ];
+@endphp
+<script type="application/ld+json">
+{!! json_encode($schemaData, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
+</script>
+@endpush

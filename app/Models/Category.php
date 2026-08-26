@@ -15,6 +15,9 @@ class Category extends Model
         'image_url',
         'sort_order',
         'is_active',
+        // SEO fields
+        'meta_title',
+        'meta_description',
     ];
 
     protected function casts(): array
@@ -35,7 +38,7 @@ class Category extends Model
         });
 
         static::updating(function (Category $category) {
-            if (!empty($category->slug)) {
+            if (! empty($category->slug)) {
                 $category->slug = Str::slug($category->slug);
             }
         });

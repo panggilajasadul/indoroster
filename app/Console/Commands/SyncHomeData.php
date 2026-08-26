@@ -2,16 +2,16 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-use App\Models\Page;
 use App\Models\Banner;
-use Illuminate\Support\Facades\Http;
+use App\Models\Page;
+use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class SyncHomeData extends Command
 {
     protected $signature = 'home:sync';
+
     protected $description = 'Synchronize homepage data from models and hardcoded content to Page Builder';
 
     public function handle()
@@ -35,7 +35,7 @@ class SyncHomeData extends Command
 
         // 2. Define Blocks with actual content from original home.blade.php
         // We will also try to download images for blocks to make them work in Filament Editor
-        
+
         $showcaseImages = [
             'https://res.cloudinary.com/indoroster/image/upload/v1765260885/189153683_1030631617471276_2071152964924271585_n_wbq1kg.jpg',
             'https://res.cloudinary.com/indoroster/image/upload/v1765260025/210781640_1049103868957384_7584920712298347840_n_jhvxju.jpg',
@@ -49,9 +49,9 @@ class SyncHomeData extends Command
             'https://res.cloudinary.com/indoroster/image/upload/v1765260086/23_max5ag.jpg',
             'https://res.cloudinary.com/indoroster/image/upload/v1765260071/19_aaa6uf.jpg',
             'https://res.cloudinary.com/indoroster/image/upload/v1765260029/17_ifv8eh.jpg',
-            'https://res.cloudinary.com/indoroster/image/upload/v1765260857/162301330_988931014974670_4453781190506425580_n_iu9gd2.jpg'
+            'https://res.cloudinary.com/indoroster/image/upload/v1765260857/162301330_988931014974670_4453781190506425580_n_iu9gd2.jpg',
         ];
-        
+
         $localShowcase = [];
         foreach ($showcaseImages as $url) {
             $localShowcase[] = $this->downloadImage($url, 'pages/showcase') ?: $url;
@@ -73,7 +73,7 @@ class SyncHomeData extends Command
                 'data' => [
                     'banners' => $heroBanners,
                     'slider_duration' => 5000,
-                ]
+                ],
             ],
             [
                 'type' => 'ticker',
@@ -84,15 +84,15 @@ class SyncHomeData extends Command
                         ['text' => 'Garansi Pecah Ganti Baru'],
                         ['text' => 'Pengiriman Seluruh Indonesia'],
                         ['text' => 'Kualitas Beton K-200'],
-                    ]
-                ]
+                    ],
+                ],
             ],
             [
                 'type' => 'visual_showcase',
                 'data' => [
                     'title' => 'Tampilan rumah jadi <span class="text-accent">3x lebih mewah</span><br> hanya dengan sentuhan Roster Minimalis.',
-                    'images' => $localShowcase
-                ]
+                    'images' => $localShowcase,
+                ],
             ],
             [
                 'type' => 'strength_test',
@@ -103,15 +103,15 @@ class SyncHomeData extends Command
                     'features' => [
                         ['title' => 'Anti Pecah', 'desc' => 'Beton padat tanpa rongga udara.'],
                         ['title' => 'Kuat Tekan', 'desc' => 'Lulus uji beban berat konstruksi.'],
-                    ]
-                ]
+                    ],
+                ],
             ],
             [
                 'type' => 'featured_products',
                 'data' => [
                     'title' => 'Motif <span class="text-accent">Best Seller</span> <br>Bulan Ini',
-                    'limit' => 4
-                ]
+                    'limit' => 4,
+                ],
             ],
             [
                 'type' => 'why_us',
@@ -126,8 +126,8 @@ class SyncHomeData extends Command
                     'videos' => [
                         ['url' => 'https://res.cloudinary.com/indoroster/video/upload/v1765640938/1213_5_frvqcr.mp4'],
                         ['url' => 'https://res.cloudinary.com/indoroster/video/upload/v1765642314/432_nej3an.mp4'],
-                    ]
-                ]
+                    ],
+                ],
             ],
             [
                 'type' => 'shipping_info',
@@ -137,8 +137,8 @@ class SyncHomeData extends Command
                     'content' => 'Sebagai pusat produksi tangan pertama di <strong>Plered, Purwakarta</strong>, armada truk kami siap mengirimkan pesanan partai kecil maupun besar langsung ke lokasi proyek Anda di <strong>Jakarta, Bogor, Depok, Tangerang, Bekasi (Jabodetabek)</strong>, Bandung, Cirebon, hingga pengiriman via ekspedisi khusus ke seluruh wilayah Indonesia dengan garansi aman sampai tujuan.',
                     'video_url' => 'https://res.cloudinary.com/indoroster/video/upload/v1765263080/1_beaclb.mp4',
                     'button_text' => 'Cek Ongkir ke Lokasi Saya',
-                    'button_url' => ''
-                ]
+                    'button_url' => '',
+                ],
             ],
             [
                 'type' => 'social_review',
@@ -147,15 +147,15 @@ class SyncHomeData extends Command
                     'title' => 'Lihat Langsung <br><span class="text-accent italic text-5xl md:text-7xl">Review Kreator</span>',
                     'description' => 'Dengarkan pengalaman langsung dari para ahli dekorasi dan kreator rumah tentang kualitas roster beton kami. Real testimony, real quality.',
                     'video_url' => 'https://res.cloudinary.com/indoroster/video/upload/v1765259110/review_ttddr5.mp4',
-                    'creators_count' => '100+'
-                ]
+                    'creators_count' => '100+',
+                ],
             ],
             [
                 'type' => 'testimonials',
                 'data' => [
                     'title' => 'Kata Pelanggan Kami',
-                    'mode' => 'latest'
-                ]
+                    'mode' => 'latest',
+                ],
             ],
             [
                 'type' => 'gallery_grid',
@@ -163,8 +163,8 @@ class SyncHomeData extends Command
                     'badge' => 'Transformation Stories',
                     'title' => 'Proyek yang <span class="text-accent italic">Berbicara</span>',
                     'description' => 'Inspirasi pemasangan roster dari proyek nyata pelanggan kami di seluruh Indonesia.',
-                    'items' => $galleryItems
-                ]
+                    'items' => $galleryItems,
+                ],
             ],
             [
                 'type' => 'ugc_videos',
@@ -175,8 +175,8 @@ class SyncHomeData extends Command
                     'videos' => [
                         ['url' => 'https://res.cloudinary.com/indoroster/video/upload/v1765259348/15_lhowif.mp4'],
                         ['url' => 'https://res.cloudinary.com/indoroster/video/upload/v1765259277/7_upqkhz.mp4'],
-                    ]
-                ]
+                    ],
+                ],
             ],
             [
                 'type' => 'cta',
@@ -184,8 +184,8 @@ class SyncHomeData extends Command
                     'badge' => 'Ready to start?',
                     'title' => 'Wujudkan Hunian <br>Impian Anda <span class="italic">Sekarang</span>',
                     'button_text' => 'Hubungi WhatsApp Sekarang',
-                    'button_url' => ''
-                ]
+                    'button_url' => '',
+                ],
             ],
         ];
 
@@ -204,23 +204,28 @@ class SyncHomeData extends Command
 
     private function downloadImage($url, $directory)
     {
-        if (empty($url) || !str_starts_with($url, 'http')) {
+        if (empty($url) || ! str_starts_with($url, 'http')) {
             return $url;
         }
 
         try {
             $contents = file_get_contents($url);
-            if ($contents === false) return null;
+            if ($contents === false) {
+                return null;
+            }
 
             $filename = basename(parse_url($url, PHP_URL_PATH));
-            if (empty($filename)) $filename = Str::random(10) . '.jpg';
+            if (empty($filename)) {
+                $filename = Str::random(10).'.jpg';
+            }
 
-            $path = $directory . '/' . $filename;
+            $path = $directory.'/'.$filename;
             Storage::disk('public')->put($path, $contents);
 
             return $path;
         } catch (\Exception $e) {
-            $this->error("Failed to download image: $url - " . $e->getMessage());
+            $this->error("Failed to download image: $url - ".$e->getMessage());
+
             return null;
         }
     }

@@ -13,11 +13,17 @@ use Filament\Tables\Table;
 class InvoiceResource extends Resource
 {
     protected static ?string $model = Invoice::class;
+
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
+
     protected static ?string $navigationGroup = 'Transaksi';
-    protected static ?string $navigationLabel = 'Invoice Faktur';
-    protected static ?string $modelLabel = 'Invoice Faktur';
-    protected static ?string $pluralModelLabel = 'Invoice Faktur';
+
+    protected static ?string $navigationLabel = 'Invoice';
+
+    protected static ?string $modelLabel = 'Invoice';
+
+    protected static ?string $pluralModelLabel = 'Invoice';
+
     protected static ?int $navigationSort = 3;
 
     public static function form(Form $form): Form

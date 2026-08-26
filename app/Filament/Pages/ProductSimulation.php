@@ -2,15 +2,24 @@
 
 namespace App\Filament\Pages;
 
-use App\Models\Product;
 use App\Helpers\SimulationHelper;
-use Filament\Pages\Page;
-use Filament\Notifications\Notification;
+use App\Models\Product;
+use Filament\Forms\Components\Radio;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
+use Filament\Notifications\Notification;
+use Filament\Pages\Page;
+use Filament\Tables\Actions\Action;
+use Filament\Tables\Actions\BulkAction;
+use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Collection;
 
 class ProductSimulation extends Page implements HasForms, HasTable
 {
@@ -18,9 +27,13 @@ class ProductSimulation extends Page implements HasForms, HasTable
     use InteractsWithTable;
 
     protected static ?string $navigationIcon = 'heroicon-o-shopping-bag';
+
     protected static ?string $navigationGroup = 'Konten';
+
     protected static ?string $navigationLabel = 'Simulasi Terjual & Produk';
+
     protected static ?string $title = 'Simulasi Penjualan & Produk Baru';
+
     protected static ?int $navigationSort = 11;
 
     protected static string $view = 'filament.pages.product-simulation';
@@ -30,46 +43,46 @@ class ProductSimulation extends Page implements HasForms, HasTable
         return $table
             ->query(Product::query()->latest())
             ->columns([
-                \Filament\Tables\Columns\ImageColumn::make('primary_image')
+                ImageColumn::make('primary_image')
                     ->label('Foto')
                     ->square(),
-                \Filament\Tables\Columns\TextColumn::make('name')
+                TextColumn::make('name')
                     ->label('Nama Produk')
                     ->searchable()
                     ->sortable(),
-                \Filament\Tables\Columns\TextColumn::make('category.name')
+                TextColumn::make('category.name')
                     ->label('Kategori')
                     ->sortable(),
-                \Filament\Tables\Columns\TextColumn::make('price')
+                TextColumn::make('price')
                     ->label('Harga')
                     ->getStateUsing(fn (Product $record): string => $record->formatted_price_range)
                     ->sortable(),
-                \Filament\Tables\Columns\TextColumn::make('total_sold')
+                TextColumn::make('total_sold')
                     ->label('Total Terjual')
                     ->numeric()
                     ->badge()
                     ->color(fn (int $state): string => $state < 5000 ? 'warning' : 'success')
                     ->sortable(),
-                \Filament\Tables\Columns\TextColumn::make('created_at')
+                TextColumn::make('created_at')
                     ->label('Diunggah Pada')
                     ->dateTime()
                     ->sortable(),
             ])
             ->filters([
-                \Filament\Tables\Filters\Filter::make('low_sales')
+                Filter::make('low_sales')
                     ->label('Terjual < 5.000')
                     ->query(fn ($query) => $query->where('total_sold', '<', 5000)),
-                \Filament\Tables\Filters\Filter::make('created_at')
+                Filter::make('created_at')
                     ->label('Produk Baru (30 Hari Terakhir)')
                     ->query(fn ($query) => $query->where('created_at', '>=', now()->subDays(30))),
             ])
             ->actions([
-                \Filament\Tables\Actions\Action::make('suntik_terjual')
+                Action::make('suntik_terjual')
                     ->label('Suntik Terjual')
                     ->icon('heroicon-m-plus-circle')
                     ->color('success')
                     ->form([
-                        \Filament\Forms\Components\Radio::make('mode')
+                        Radio::make('mode')
                             ->label('Metode Suntik')
                             ->options([
                                 'set' => 'Setel total baru',
@@ -77,7 +90,7 @@ class ProductSimulation extends Page implements HasForms, HasTable
                             ])
                             ->default('set')
                             ->required(),
-                        \Filament\Forms\Components\TextInput::make('amount')
+                        TextInput::make('amount')
                             ->label('Jumlah Terjual')
                             ->numeric()
                             ->required()
@@ -85,7 +98,7 @@ class ProductSimulation extends Page implements HasForms, HasTable
                             ->default(100),
                     ])
                     ->action(function (Product $record, array $data): void {
-                        $amount = (int)$data['amount'];
+                        $amount = (int) $data['amount'];
                         if ($data['mode'] === 'set') {
                             $record->total_sold = $amount;
                         } else {
@@ -99,12 +112,12 @@ class ProductSimulation extends Page implements HasForms, HasTable
                             ->success()
                             ->send();
                     }),
-                \Filament\Tables\Actions\Action::make('simulasi_ulasan')
+                Action::make('simulasi_ulasan')
                     ->label('Ulasan Baru')
                     ->icon('heroicon-m-sparkles')
                     ->color('warning')
                     ->form([
-                        \Filament\Forms\Components\Select::make('rating')
+                        Select::make('rating')
                             ->label('Rating Bintang')
                             ->options([
                                 0 => 'Acak (Random)',
@@ -116,7 +129,7 @@ class ProductSimulation extends Page implements HasForms, HasTable
                             ])
                             ->default(0)
                             ->required(),
-                        \Filament\Forms\Components\TextInput::make('quantity')
+                        TextInput::make('quantity')
                             ->label('Jumlah Ulasan')
                             ->numeric()
                             ->default(5)
@@ -125,7 +138,7 @@ class ProductSimulation extends Page implements HasForms, HasTable
                     ])
                     ->action(function (Product $record, array $data): void {
                         $rating = $data['rating'] == 0 ? null : $data['rating'];
-                        $quantity = (int)$data['quantity'];
+                        $quantity = (int) $data['quantity'];
                         $created = SimulationHelper::generateProductReviewsForProduct($record->id, $rating, $quantity);
 
                         Notification::make()
@@ -133,15 +146,15 @@ class ProductSimulation extends Page implements HasForms, HasTable
                             ->body("Berhasil membuat {$created} ulasan simulasi untuk produk {$record->name}.")
                             ->success()
                             ->send();
-                    })
+                    }),
             ])
             ->bulkActions([
-                \Filament\Tables\Actions\BulkAction::make('suntik_terjual_massal')
+                BulkAction::make('suntik_terjual_massal')
                     ->label('Suntik Terjual Massal')
                     ->icon('heroicon-m-plus-circle')
                     ->color('success')
                     ->form([
-                        \Filament\Forms\Components\Radio::make('mode')
+                        Radio::make('mode')
                             ->label('Metode Suntik')
                             ->options([
                                 'set' => 'Setel total baru',
@@ -149,15 +162,15 @@ class ProductSimulation extends Page implements HasForms, HasTable
                             ])
                             ->default('add')
                             ->required(),
-                        \Filament\Forms\Components\TextInput::make('amount')
+                        TextInput::make('amount')
                             ->label('Jumlah Terjual')
                             ->numeric()
                             ->required()
                             ->minValue(1)
                             ->default(500),
                     ])
-                    ->action(function (\Illuminate\Database\Eloquent\Collection $records, array $data): void {
-                        $amount = (int)$data['amount'];
+                    ->action(function (Collection $records, array $data): void {
+                        $amount = (int) $data['amount'];
                         $mode = $data['mode'];
 
                         foreach ($records as $record) {
@@ -171,10 +184,10 @@ class ProductSimulation extends Page implements HasForms, HasTable
 
                         Notification::make()
                             ->title('Suntik Terjual Massal Berhasil')
-                            ->body("Berhasil memperbarui total terjual untuk " . $records->count() . " produk.")
+                            ->body('Berhasil memperbarui total terjual untuk '.$records->count().' produk.')
                             ->success()
                             ->send();
-                    })
+                    }),
             ]);
     }
 }

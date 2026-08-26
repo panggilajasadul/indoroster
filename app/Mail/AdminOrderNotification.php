@@ -4,7 +4,6 @@ namespace App\Mail;
 
 use App\Models\Order;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
@@ -30,11 +29,11 @@ class AdminOrderNotification extends Mailable
      */
     public function envelope(): Envelope
     {
-        $nominal = 'Rp ' . number_format((float) $this->order->grand_total, 0, ',', '.');
+        $nominal = 'Rp '.number_format((float) $this->order->grand_total, 0, ',', '.');
         $nama = $this->order->shipping_name ?: ($this->order->user ? $this->order->user->name : 'Pembeli');
 
         return new Envelope(
-            subject: '💰 +' . $nominal . ' LUNAS (' . $nama . ') - INDOROSTER',
+            subject: '💰 +'.$nominal.' LUNAS ('.$nama.') - INDOROSTER',
         );
     }
 
@@ -58,4 +57,3 @@ class AdminOrderNotification extends Mailable
         return [];
     }
 }
-

@@ -30,15 +30,34 @@
         }
         .watermark {
             position: absolute;
-            top: 50%;
+            top: 45%;
             left: 50%;
-            transform: translate(-50%, -50%) rotate(-45deg);
-            font-size: 85px;
-            font-weight: bold;
-            color: rgba(0, 0, 0, 0.25);
+            transform: translate(-50%, -50%) rotate(-35deg);
+            -webkit-transform: translate(-50%, -50%) rotate(-35deg);
+            font-size: 56px;
+            font-weight: 900;
+            color: #000000;
+            opacity: 0.14;
+            border: 4px solid #000000;
+            border-radius: 8px;
+            padding: 4px 14px;
+            letter-spacing: 6px;
+            text-transform: uppercase;
             z-index: 99;
             pointer-events: none;
             white-space: nowrap;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+        @media print {
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            .watermark {
+                opacity: 0.16 !important;
+                display: block !important;
+            }
         }
         .header {
             display: flex;
@@ -141,12 +160,34 @@
 
         <div class="addresses">
             <!-- Penerima -->
-            <div class="recipient">
-                <div class="label-title">PENERIMA:</div>
-                <div class="name">{{ $label->recipient_name }}</div>
-                <div class="phone">{{ $label->recipient_phone }}</div>
-                <div class="address-text">{{ $label->recipient_address }}</div>
-                <div class="city">{{ strtoupper($label->recipient_city) }} {{ $label->recipient_postal_code }}</div>
+            @php
+                $destLat = $label->recipient_latitude ?? $label->order->shipping_latitude;
+                $destLng = $label->recipient_longitude ?? $label->order->shipping_longitude;
+                if ($destLat && $destLng) {
+                    $navUrl = "https://maps.google.com/?q={$destLat},{$destLng}";
+                } else {
+                    $navUrl = "https://maps.google.com/?q=" . urlencode($label->recipient_address . ', ' . $label->recipient_city);
+                }
+            @endphp
+            <div class="recipient" style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;">
+                <div style="flex: 1;">
+                    <div class="label-title">PENERIMA:</div>
+                    <div class="name">{{ $label->recipient_name }}</div>
+                    <div class="phone">{{ $label->recipient_phone }}</div>
+                    <div class="address-text">{{ $label->recipient_address }}</div>
+                    <div class="city">{{ strtoupper($label->recipient_city) }} {{ $label->recipient_postal_code }}</div>
+                    @if($destLat && $destLng)
+                    <div style="font-size: 9px; font-family: monospace; font-weight: bold; margin-top: 3px; background: #eee; padding: 2px 4px; border-radius: 3px; display: inline-block;">
+                        GPS: {{ number_format($destLat, 6) }}, {{ number_format($destLng, 6) }}
+                    </div>
+                    @endif
+                </div>
+                <div style="width: 75px; text-align: center; shrink: 0; padding: 2px; border: 1px dashed #000; border-radius: 4px; background: #fff;">
+                    {!! \App\Helpers\QrCodeHelper::imgTag($navUrl, 70) !!}
+                    <div style="font-size: 7px; font-weight: bold; line-height: 1; margin-top: 2px; text-transform: uppercase;">
+                        SCAN GOOGLE MAPS
+                    </div>
+                </div>
             </div>
 
             <!-- Pengirim & Kurir -->

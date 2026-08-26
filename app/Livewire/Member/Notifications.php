@@ -57,7 +57,7 @@ class Notifications extends Component
             ->paginate(15);
 
         return view('livewire.member.notifications', [
-            'notifications' => $notifications
+            'notifications' => $notifications,
         ])->layout('components.layouts.app', ['title' => 'Notifikasi Saya - Indoroster']);
     }
 }

@@ -19,20 +19,21 @@ class MidtransService
         // Set 3DS transaction for credit card to true
         Config::$is3ds = config('midtrans.is_3ds');
 
-        // Local Patch: Disable SSL verification for local environment
+        // Local Patch: Disable SSL verification for local environment & fix Midtrans SDK header merging bug
         if (config('app.env') === 'local') {
             Config::$curlOptions = [
                 CURLOPT_SSL_VERIFYHOST => 0,
                 CURLOPT_SSL_VERIFYPEER => 0,
-                CURLOPT_HTTPHEADER     => [], // Tambahkan ini biar SDK Midtrans tidak error (Bug SDK)
+                CURLOPT_HTTPHEADER => [
+                    'X-Client-Name: Indoroster',
+                ],
             ];
         }
     }
 
     /**
      * Create Snap Token for an Order.
-     * 
-     * @param Order $order
+     *
      * @return string Snap Token
      */
     public function getSnapToken(Order $order): string
@@ -42,58 +43,58 @@ class MidtransService
         // Build item details from order items
         foreach ($order->items as $item) {
             $itemDetails[] = [
-                'id'       => $item->product_id . '-' . ($item->product_variant_id ?? '0'),
-                'price'    => (int) $item->product_price,
+                'id' => $item->product_id.'-'.($item->product_variant_id ?? '0'),
+                'price' => (int) $item->product_price,
                 'quantity' => $item->quantity,
-                'name'     => substr($item->product_name, 0, 50),
+                'name' => substr($item->product_name, 0, 50),
             ];
         }
 
         // Add shipping cost if exists
         if ($order->shipping_cost > 0) {
             $itemDetails[] = [
-                'id'       => 'SHIPPING',
-                'price'    => (int) $order->shipping_cost,
+                'id' => 'SHIPPING',
+                'price' => (int) $order->shipping_cost,
                 'quantity' => 1,
-                'name'     => 'Ongkos Kirim',
+                'name' => 'Ongkos Kirim',
             ];
         }
 
         // Add discount if exists (as negative price)
         if ($order->discount_amount > 0) {
             $itemDetails[] = [
-                'id'       => 'DISCOUNT',
-                'price'    => -(int) $order->discount_amount,
+                'id' => 'DISCOUNT',
+                'price' => -(int) $order->discount_amount,
                 'quantity' => 1,
-                'name'     => 'Diskon',
+                'name' => 'Diskon',
             ];
         }
 
         $params = [
             'transaction_details' => [
-                'order_id'     => $order->order_number,
+                'order_id' => $order->order_number,
                 'gross_amount' => (int) $order->grand_total,
             ],
             'customer_details' => [
                 'first_name' => $order->shipping_name,
-                'email'      => $order->shipping_email,
-                'phone'      => $order->shipping_phone,
+                'email' => $order->shipping_email,
+                'phone' => $order->shipping_phone,
                 'billing_address' => [
-                    'first_name'   => $order->shipping_name,
-                    'phone'        => $order->shipping_phone,
-                    'address'      => $order->shipping_address,
-                    'city'         => $order->shipping_city,
-                    'postal_code'  => $order->shipping_postal_code,
+                    'first_name' => $order->shipping_name,
+                    'phone' => $order->shipping_phone,
+                    'address' => $order->shipping_address,
+                    'city' => $order->shipping_city,
+                    'postal_code' => $order->shipping_postal_code,
                     'country_code' => 'IDN',
                 ],
                 'shipping_address' => [
-                    'first_name'   => $order->shipping_name,
-                    'phone'        => $order->shipping_phone,
-                    'address'      => $order->shipping_address,
-                    'city'         => $order->shipping_city,
-                    'postal_code'  => $order->shipping_postal_code,
+                    'first_name' => $order->shipping_name,
+                    'phone' => $order->shipping_phone,
+                    'address' => $order->shipping_address,
+                    'city' => $order->shipping_city,
+                    'postal_code' => $order->shipping_postal_code,
                     'country_code' => 'IDN',
-                ]
+                ],
             ],
             'item_details' => $itemDetails,
             'callbacks' => [
@@ -106,7 +107,7 @@ class MidtransService
         try {
             return Snap::getSnapToken($params);
         } catch (\Exception $e) {
-            \Log::error('Midtrans Snap Error: ' . $e->getMessage());
+            \Log::error('Midtrans Snap Error: '.$e->getMessage());
             throw $e;
         }
     }

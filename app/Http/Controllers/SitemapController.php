@@ -2,23 +2,27 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Article;
+use App\Models\Category;
+use App\Models\Gallery;
+use App\Models\Page;
+use App\Models\Product;
+use Carbon\Carbon;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
 use Spatie\Sitemap\Sitemap;
 use Spatie\Sitemap\Tags\Url;
-use App\Models\Product;
-use App\Models\Category;
-use App\Models\Page;
-use Carbon\Carbon;
 
 class SitemapController extends Controller
 {
     public function index(): Response
     {
         self::generate();
-        
+
         $sitemapPath = public_path('sitemap.xml');
         $xmlContent = file_exists($sitemapPath) ? file_get_contents($sitemapPath) : '';
-        
+
         return response($xmlContent, 200, [
             'Content-Type' => 'application/xml',
         ]);
@@ -26,11 +30,18 @@ class SitemapController extends Controller
 
     public static function generate(): void
     {
+        $baseUrl = rtrim(config('app.url', 'https://indoroster.com'), '/');
+        if (request()->getHost() && request()->getHost() !== ':' && request()->getHost() !== 'localhost') {
+            $baseUrl = rtrim(url('/'), '/');
+        } elseif (app()->environment('local') && request()->getHost()) {
+            $baseUrl = rtrim(url('/'), '/');
+        }
+
         $sitemap = Sitemap::create();
 
         // 1. Homepage
         $sitemap->add(
-            Url::create('/')
+            Url::create($baseUrl.'/')
                 ->setLastModificationDate(Carbon::now())
                 ->setChangeFrequency(Url::CHANGE_FREQUENCY_DAILY)
                 ->setPriority(1.0)
@@ -38,41 +49,51 @@ class SitemapController extends Controller
 
         // 2. Halaman Katalog Produk (tanpa filter)
         $sitemap->add(
-            Url::create('/katalog')
+            Url::create($baseUrl.'/katalog')
                 ->setLastModificationDate(Carbon::now())
                 ->setChangeFrequency(Url::CHANGE_FREQUENCY_DAILY)
                 ->setPriority(0.9)
         );
 
-        // 3. Katalog per Kategori
+        // 3. Katalog per Kategori — menggunakan clean URL /katalog/{slug}
         $categories = Category::where('is_active', true)->get();
         foreach ($categories as $category) {
             $sitemap->add(
-                Url::create('/katalog?category=' . trim($category->slug))
+                Url::create($baseUrl.'/katalog/'.trim($category->slug))
                     ->setLastModificationDate($category->updated_at ?? Carbon::now())
                     ->setChangeFrequency(Url::CHANGE_FREQUENCY_WEEKLY)
                     ->setPriority(0.8)
             );
         }
 
-        // 4. Semua halaman produk aktif
+        // 4. Semua halaman produk aktif + Metadata Google Images
         $products = Product::where('is_active', true)
+            ->with(['media' => function ($q) {
+                $q->where('media_type', 'image')->orderBy('is_primary', 'desc');
+            }])
             ->orderBy('updated_at', 'desc')
-            ->get(['slug', 'updated_at']);
+            ->get(['id', 'name', 'slug', 'updated_at']);
 
         foreach ($products as $product) {
-            $sitemap->add(
-                Url::create('/produk/' . trim($product->slug))
-                    ->setLastModificationDate($product->updated_at ?? Carbon::now())
-                    ->setChangeFrequency(Url::CHANGE_FREQUENCY_WEEKLY)
-                    ->setPriority(0.85)
-            );
+            $productUrl = Url::create($baseUrl.'/produk/'.trim($product->slug))
+                ->setLastModificationDate($product->updated_at ?? Carbon::now())
+                ->setChangeFrequency(Url::CHANGE_FREQUENCY_WEEKLY)
+                ->setPriority(0.85);
+
+            foreach ($product->media as $m) {
+                if (! empty($m->media_url)) {
+                    $imgUrl = str_starts_with($m->media_url, 'http') ? $m->media_url : $baseUrl.'/storage/'.ltrim($m->media_url, '/');
+                    $productUrl->addImage($imgUrl, $m->alt_text ?: $product->name, 'Purwakarta, Jawa Barat, Indonesia', $product->name);
+                }
+            }
+
+            $sitemap->add($productUrl);
         }
 
-        // 5. Halaman Statis
+        // 5. Halaman Statis & Hub
         $staticPages = [
-            ['url' => '/gallery', 'priority' => 0.7, 'freq' => Url::CHANGE_FREQUENCY_WEEKLY],
-            ['url' => '/video-inspirasi', 'priority' => 0.7, 'freq' => Url::CHANGE_FREQUENCY_WEEKLY],
+            ['url' => '/artikel', 'priority' => 0.85, 'freq' => Url::CHANGE_FREQUENCY_DAILY],
+            ['url' => '/video-inspirasi', 'priority' => 0.8, 'freq' => Url::CHANGE_FREQUENCY_WEEKLY],
             ['url' => '/proses-produksi', 'priority' => 0.6, 'freq' => Url::CHANGE_FREQUENCY_MONTHLY],
             ['url' => '/tentang-kami', 'priority' => 0.5, 'freq' => Url::CHANGE_FREQUENCY_MONTHLY],
             ['url' => '/kontak', 'priority' => 0.5, 'freq' => Url::CHANGE_FREQUENCY_MONTHLY],
@@ -80,33 +101,102 @@ class SitemapController extends Controller
 
         foreach ($staticPages as $page) {
             $sitemap->add(
-                Url::create($page['url'])
+                Url::create($baseUrl.$page['url'])
                     ->setLastModificationDate(Carbon::now())
                     ->setChangeFrequency($page['freq'])
                     ->setPriority($page['priority'])
             );
         }
 
-        // 6. Dynamic Pages (excluding home page)
-        $pages = Page::where('is_active', true)
-            ->where('slug', '!=', 'home')
-            ->orderBy('updated_at', 'desc')
-            ->get(['slug', 'updated_at']);
+        // 6. Halaman Galeri Proyek Mandiri (/gallery/{slug}) + Metadata Foto Google Images
+        if (Schema::hasTable('galleries')) {
+            $photoGalleries = Gallery::where('is_active', true)
+                ->where('category', '!=', 'video-inspirasi')
+                ->with(['media' => function ($q) {
+                    $q->where('media_type', 'image');
+                }])
+                ->orderBy('updated_at', 'desc')
+                ->get();
 
-        foreach ($pages as $page) {
-            $sitemap->add(
-                Url::create('/halaman/' . trim($page->slug))
-                    ->setLastModificationDate($page->updated_at ?? Carbon::now())
-                    ->setChangeFrequency(Url::CHANGE_FREQUENCY_MONTHLY)
-                    ->setPriority(0.6)
-            );
+            foreach ($photoGalleries as $g) {
+                $itemSlug = $g->slug ?: Str::slug($g->title);
+                $singleGalleryUrl = Url::create($baseUrl.'/gallery/'.$itemSlug)
+                    ->setLastModificationDate($g->updated_at ?? Carbon::now())
+                    ->setChangeFrequency(Url::CHANGE_FREQUENCY_WEEKLY)
+                    ->setPriority(0.8);
+
+                foreach ($g->media as $gm) {
+                    if (! empty($gm->media_url)) {
+                        $imgUrl = str_starts_with($gm->media_url, 'http') ? $gm->media_url : $baseUrl.'/storage/'.ltrim($gm->media_url, '/');
+                        $singleGalleryUrl->addImage($imgUrl, $g->title ?: 'Inspirasi Roster Beton', $g->location ?: 'Purwakarta, Jawa Barat', $g->title ?: 'Galeri Proyek IndoRoster');
+                    }
+                }
+                $sitemap->add($singleGalleryUrl);
+            }
+
+            // 7. Video Inspirasi Mandiri (/video-inspirasi/{slug})
+            $videoGalleries = Gallery::where('is_active', true)
+                ->where('category', 'video-inspirasi')
+                ->orderBy('updated_at', 'desc')
+                ->get();
+
+            foreach ($videoGalleries as $vg) {
+                $itemSlug = $vg->slug ?: Str::slug($vg->title);
+                $singleVideoUrl = Url::create($baseUrl.'/video-inspirasi/'.$itemSlug)
+                    ->setLastModificationDate($vg->updated_at ?? Carbon::now())
+                    ->setChangeFrequency(Url::CHANGE_FREQUENCY_WEEKLY)
+                    ->setPriority(0.8);
+
+                $sitemap->add($singleVideoUrl);
+            }
+        }
+
+        // 6. Artikel & Blog Postings
+        if (Schema::hasTable('articles')) {
+            $articles = Article::where('is_published', true)
+                ->whereNotNull('published_at')
+                ->where('published_at', '<=', Carbon::now())
+                ->orderBy('updated_at', 'desc')
+                ->get(['slug', 'updated_at']);
+
+            foreach ($articles as $article) {
+                $sitemap->add(
+                    Url::create($baseUrl.'/artikel/'.trim($article->slug))
+                        ->setLastModificationDate($article->updated_at ?? Carbon::now())
+                        ->setChangeFrequency(Url::CHANGE_FREQUENCY_WEEKLY)
+                        ->setPriority(0.75)
+                );
+            }
+        }
+
+        // 7. Dynamic Pages (/page/{slug})
+        if (Schema::hasTable('pages')) {
+            $pages = Page::where('is_active', true)
+                ->where('slug', '!=', 'home')
+                ->orderBy('updated_at', 'desc')
+                ->get(['slug', 'updated_at']);
+
+            foreach ($pages as $page) {
+                $sitemap->add(
+                    Url::create($baseUrl.'/page/'.trim($page->slug))
+                        ->setLastModificationDate($page->updated_at ?? Carbon::now())
+                        ->setChangeFrequency(Url::CHANGE_FREQUENCY_MONTHLY)
+                        ->setPriority(0.6)
+                );
+            }
         }
 
         $xmlContent = $sitemap->render();
-        
+
         // Clean up script name prefix if generated via browser direct scripts
         $xmlContent = str_replace(['/generate_sitemap.php', '/test_sitemap.php'], '', $xmlContent);
-        
+
+        // Inject XSL stylesheet for modern visual browser display (seperti Rank Math / Yoast)
+        if (! str_contains($xmlContent, 'xml-stylesheet')) {
+            $xslTag = '<?xml-stylesheet type="text/xsl" href="/sitemap.xsl"?>'."\n";
+            $xmlContent = preg_replace('/(<\?xml[^>]+>\s*)/', '$1'.$xslTag, $xmlContent, 1);
+        }
+
         file_put_contents(public_path('sitemap.xml'), $xmlContent);
     }
 }

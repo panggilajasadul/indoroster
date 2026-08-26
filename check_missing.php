@@ -12,9 +12,9 @@ $capturedUrls = array_column($extracted, 'url');
 
 $missing = array_diff($allUrls, $capturedUrls);
 
-echo "Total unique Cloudinary URLs found: " . count($allUrls) . "\n";
-echo "Captured URLs: " . count($capturedUrls) . "\n";
-echo "Missing URLs: " . count($missing) . "\n";
+echo 'Total unique Cloudinary URLs found: '.count($allUrls)."\n";
+echo 'Captured URLs: '.count($capturedUrls)."\n";
+echo 'Missing URLs: '.count($missing)."\n";
 
 foreach ($missing as $url) {
     echo "- $url\n";

@@ -2,36 +2,61 @@
 
 namespace App\Filament\Courier\Resources;
 
+use App\Filament\Courier\Resources\RiwayatResource\Pages\ListRiwayat;
 use App\Models\Order;
+use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 
 class RiwayatResource extends Resource
 {
     protected static ?string $model = Order::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-clock';
+
     protected static ?string $navigationLabel = 'Riwayat Pengiriman';
+
     protected static ?string $pluralModelLabel = 'Riwayat Pengiriman';
+
     protected static ?string $modelLabel = 'Pengiriman Selesai';
+
     protected static ?int $navigationSort = 3;
+
     protected static ?string $slug = 'riwayat';
 
     public static function getEloquentQuery(): Builder
     {
-        // Hanya tampilkan pesanan yang SUDAH SELESAI diantarkan
+        $courierId = auth()->id();
+
         return parent::getEloquentQuery()
-            ->where('courier_id', auth()->id())
-            ->where('status', 'completed');
+            ->where('status', 'completed')
+            ->where(function ($query) use ($courierId) {
+                $query->where('courier_id', $courierId)
+                    ->orWhereHas('batches', fn ($q) => $q->where('courier_id', $courierId)
+                        ->where('status', 'delivered')
+                    );
+            });
     }
 
-    public static function canCreate(): bool { return false; }
-    public static function canEdit(\Illuminate\Database\Eloquent\Model $record): bool { return false; }
-    public static function canDelete(\Illuminate\Database\Eloquent\Model $record): bool { return false; }
+    public static function canCreate(): bool
+    {
+        return false;
+    }
 
-    public static function form(\Filament\Forms\Form $form): \Filament\Forms\Form
+    public static function canEdit(Model $record): bool
+    {
+        return false;
+    }
+
+    public static function canDelete(Model $record): bool
+    {
+        return false;
+    }
+
+    public static function form(Form $form): Form
     {
         return $form->schema([]);
     }
@@ -41,7 +66,7 @@ class RiwayatResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\ViewColumn::make('id')
-                    ->view('filament.courier.riwayat-card')
+                    ->view('filament.courier.riwayat-card'),
             ])
             ->contentGrid([
                 'default' => 1,
@@ -53,12 +78,15 @@ class RiwayatResource extends Resource
             ->bulkActions([]);
     }
 
-    public static function getRelations(): array { return []; }
+    public static function getRelations(): array
+    {
+        return [];
+    }
 
     public static function getPages(): array
     {
         return [
-            'index' => \App\Filament\Courier\Resources\RiwayatResource\Pages\ListRiwayat::route('/'),
+            'index' => ListRiwayat::route('/'),
         ];
     }
 }

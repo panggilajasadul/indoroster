@@ -2,11 +2,11 @@
 
 namespace App\Filament\Courier\Pages\Auth;
 
-use Filament\Forms\Form;
+use Filament\Forms\Components\Component;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Form;
 use Filament\Pages\Auth\Login as BaseLogin;
 use Illuminate\Validation\ValidationException;
-use Filament\Forms\Components\Component;
 
 class CourierLogin extends BaseLogin
 {

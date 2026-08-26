@@ -1,15 +1,18 @@
 <?php
 
 // Test formatted sold logic
-function testFormat($sold) {
+function testFormat($sold)
+{
     if ($sold >= 10000) {
         $value = $sold / 1000;
         $formatted = number_format($value, 1, ',', '');
         if (str_ends_with($formatted, ',0')) {
             $formatted = substr($formatted, 0, -2);
         }
-        return $formatted . 'rb';
+
+        return $formatted.'rb';
     }
+
     return number_format($sold, 0, ',', '.');
 }
 

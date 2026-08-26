@@ -2,32 +2,48 @@
 
 namespace App\Livewire\Member;
 
-use Livewire\Component;
 use App\Models\Address;
-use Laravolt\Indonesia\Models\Province;
 use Laravolt\Indonesia\Models\City;
 use Laravolt\Indonesia\Models\District;
+use Laravolt\Indonesia\Models\Province;
+use Livewire\Component;
 
 class AddressBook extends Component
 {
     public $addresses = [];
+
     public $isFormOpen = false;
+
     public $addressId = null;
 
     // Form fields
     public $label = 'Rumah';
+
     public $recipient_name;
+
     public $phone;
+
     public $province_id;
+
     public $city_id;
+
     public $district_id;
+
     public $postal_code;
+
     public $full_address;
+
+    public $latitude = null;
+
+    public $longitude = null;
+
     public $is_default = false;
 
     // Dropdowns data
     public $provinces = [];
+
     public $cities = [];
+
     public $districts = [];
 
     protected $rules = [
@@ -39,6 +55,8 @@ class AddressBook extends Component
         'district_id' => 'required',
         'postal_code' => 'required|string|max:10',
         'full_address' => 'required|string|min:10',
+        'latitude' => 'nullable|numeric|between:-90,90',
+        'longitude' => 'nullable|numeric|between:-180,180',
         'is_default' => 'boolean',
     ];
 
@@ -104,6 +122,8 @@ class AddressBook extends Component
         $this->phone = $address->phone;
         $this->postal_code = $address->postal_code;
         $this->full_address = $address->full_address;
+        $this->latitude = $address->latitude;
+        $this->longitude = $address->longitude;
         $this->is_default = $address->is_default;
 
         // Map names back to Laravolt IDs
@@ -135,8 +155,9 @@ class AddressBook extends Component
         $cityName = City::where('code', $this->city_id)->first()?->name;
         $districtName = District::where('code', $this->district_id)->first()?->name;
 
-        if (!$provinceName || !$cityName || !$districtName) {
+        if (! $provinceName || ! $cityName || ! $districtName) {
             session()->flash('error', 'Pilihan wilayah tidak valid.');
+
             return;
         }
 
@@ -155,6 +176,8 @@ class AddressBook extends Component
             'district' => $districtName,
             'postal_code' => $this->postal_code,
             'full_address' => $this->full_address,
+            'latitude' => $this->latitude ?: null,
+            'longitude' => $this->longitude ?: null,
             'is_default' => $this->is_default,
         ];
 
@@ -189,7 +212,7 @@ class AddressBook extends Component
     public function deleteAddress($id)
     {
         $address = Address::where('user_id', auth()->id())->findOrFail($id);
-        
+
         $wasDefault = $address->is_default;
         $address->delete();
 
@@ -216,8 +239,10 @@ class AddressBook extends Component
         $this->district_id = null;
         $this->postal_code = '';
         $this->full_address = '';
+        $this->latitude = null;
+        $this->longitude = null;
         $this->is_default = false;
-        
+
         $this->cities = [];
         $this->districts = [];
     }

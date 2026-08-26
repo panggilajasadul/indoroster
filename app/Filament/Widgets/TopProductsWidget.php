@@ -10,6 +10,7 @@ use Filament\Widgets\TableWidget as BaseWidget;
 class TopProductsWidget extends BaseWidget
 {
     protected static ?int $sort = 4;
+
     protected static ?string $heading = '🏆 Top 5 Produk Paling Laris';
 
     public function table(Table $table): Table

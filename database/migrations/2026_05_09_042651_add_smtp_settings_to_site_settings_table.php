@@ -1,8 +1,7 @@
 <?php
 
+use App\Models\SiteSetting;
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -64,7 +63,7 @@ return new class extends Migration
         ];
 
         foreach ($settings as $setting) {
-            \App\Models\SiteSetting::updateOrCreate(
+            SiteSetting::updateOrCreate(
                 ['key' => $setting['key']],
                 $setting
             );
@@ -76,6 +75,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        \App\Models\SiteSetting::where('group', 'mail')->delete();
+        SiteSetting::where('group', 'mail')->delete();
     }
 };

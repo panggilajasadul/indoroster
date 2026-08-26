@@ -2,21 +2,24 @@
 
 namespace App\Livewire;
 
-use App\Models\Gallery;
 use App\Helpers\SimulationHelper;
-use Livewire\Component;
+use App\Models\Gallery;
+use Filament\Forms\Components\Radio;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-use Filament\Tables\Concerns\InteractsWithTable;
-use Filament\Tables\Contracts\HasTable;
-use Filament\Tables\Table;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\Filter;
-use Filament\Tables\Filters\SelectFilter;
+use Filament\Notifications\Notification;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\BulkAction;
-use Filament\Notifications\Notification;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Concerns\InteractsWithTable;
+use Filament\Tables\Contracts\HasTable;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
+use Livewire\Component;
 
 class ContentSimulationTable extends Component implements HasForms, HasTable
 {
@@ -85,7 +88,7 @@ class ContentSimulationTable extends Component implements HasForms, HasTable
                     ->icon('heroicon-m-eye')
                     ->color('info')
                     ->form([
-                        \Filament\Forms\Components\Radio::make('mode')
+                        Radio::make('mode')
                             ->label('Metode Suntik')
                             ->options([
                                 'set' => 'Setel total baru',
@@ -93,7 +96,7 @@ class ContentSimulationTable extends Component implements HasForms, HasTable
                             ])
                             ->default('set')
                             ->required(),
-                        \Filament\Forms\Components\TextInput::make('amount')
+                        TextInput::make('amount')
                             ->label('Jumlah Tayangan')
                             ->numeric()
                             ->required()
@@ -101,7 +104,7 @@ class ContentSimulationTable extends Component implements HasForms, HasTable
                             ->default(100),
                     ])
                     ->action(function (Gallery $record, array $data): void {
-                        $amount = (int)$data['amount'];
+                        $amount = (int) $data['amount'];
                         if ($data['mode'] === 'set') {
                             $record->views_count = $amount;
                         } else {
@@ -125,7 +128,7 @@ class ContentSimulationTable extends Component implements HasForms, HasTable
                     ->icon('heroicon-m-heart')
                     ->color('danger')
                     ->form([
-                        \Filament\Forms\Components\TextInput::make('amount')
+                        TextInput::make('amount')
                             ->label('Jumlah Like')
                             ->numeric()
                             ->required()
@@ -133,7 +136,7 @@ class ContentSimulationTable extends Component implements HasForms, HasTable
                             ->default(50),
                     ])
                     ->action(function (Gallery $record, array $data): void {
-                        $amount = (int)$data['amount'];
+                        $amount = (int) $data['amount'];
                         $created = SimulationHelper::generateLikesForMedia(Gallery::class, $record->id, $amount);
 
                         // Refresh stats in parent page
@@ -152,7 +155,7 @@ class ContentSimulationTable extends Component implements HasForms, HasTable
                     ->icon('heroicon-m-chat-bubble-left-right')
                     ->color('warning')
                     ->form([
-                        \Filament\Forms\Components\TextInput::make('amount')
+                        TextInput::make('amount')
                             ->label('Jumlah Komentar')
                             ->numeric()
                             ->required()
@@ -160,7 +163,7 @@ class ContentSimulationTable extends Component implements HasForms, HasTable
                             ->default(10),
                     ])
                     ->action(function (Gallery $record, array $data): void {
-                        $amount = (int)$data['amount'];
+                        $amount = (int) $data['amount'];
                         if ($record->category === 'video-inspirasi') {
                             $created = SimulationHelper::generateVideoCommentsForMedia(Gallery::class, $record->id, $amount);
                         } else {
@@ -183,7 +186,7 @@ class ContentSimulationTable extends Component implements HasForms, HasTable
                     ->icon('heroicon-m-eye')
                     ->color('info')
                     ->form([
-                        \Filament\Forms\Components\Radio::make('mode')
+                        Radio::make('mode')
                             ->label('Metode Suntik')
                             ->options([
                                 'set' => 'Setel total baru',
@@ -191,15 +194,15 @@ class ContentSimulationTable extends Component implements HasForms, HasTable
                             ])
                             ->default('add')
                             ->required(),
-                        \Filament\Forms\Components\TextInput::make('amount')
+                        TextInput::make('amount')
                             ->label('Jumlah Tayangan')
                             ->numeric()
                             ->required()
                             ->minValue(1)
                             ->default(500),
                     ])
-                    ->action(function (\Illuminate\Database\Eloquent\Collection $records, array $data): void {
-                        $amount = (int)$data['amount'];
+                    ->action(function (Collection $records, array $data): void {
+                        $amount = (int) $data['amount'];
                         $mode = $data['mode'];
 
                         foreach ($records as $record) {
@@ -216,7 +219,7 @@ class ContentSimulationTable extends Component implements HasForms, HasTable
 
                         Notification::make()
                             ->title('Suntik Tayangan Massal Berhasil')
-                            ->body("Berhasil memperbarui tayangan untuk " . $records->count() . " konten.")
+                            ->body('Berhasil memperbarui tayangan untuk '.$records->count().' konten.')
                             ->success()
                             ->send();
                     }),
@@ -226,15 +229,15 @@ class ContentSimulationTable extends Component implements HasForms, HasTable
                     ->icon('heroicon-m-heart')
                     ->color('danger')
                     ->form([
-                        \Filament\Forms\Components\TextInput::make('amount')
+                        TextInput::make('amount')
                             ->label('Jumlah Like per Konten')
                             ->numeric()
                             ->required()
                             ->minValue(1)
                             ->default(100),
                     ])
-                    ->action(function (\Illuminate\Database\Eloquent\Collection $records, array $data): void {
-                        $amount = (int)$data['amount'];
+                    ->action(function (Collection $records, array $data): void {
+                        $amount = (int) $data['amount'];
                         $totalCreated = 0;
 
                         foreach ($records as $record) {
@@ -246,7 +249,7 @@ class ContentSimulationTable extends Component implements HasForms, HasTable
 
                         Notification::make()
                             ->title('Suntik Like Massal Berhasil')
-                            ->body("Berhasil menambahkan total {$totalCreated} like ke " . $records->count() . " konten.")
+                            ->body("Berhasil menambahkan total {$totalCreated} like ke ".$records->count().' konten.')
                             ->success()
                             ->send();
                     }),
@@ -256,15 +259,15 @@ class ContentSimulationTable extends Component implements HasForms, HasTable
                     ->icon('heroicon-m-chat-bubble-left-right')
                     ->color('warning')
                     ->form([
-                        \Filament\Forms\Components\TextInput::make('amount')
+                        TextInput::make('amount')
                             ->label('Jumlah Komentar per Konten')
                             ->numeric()
                             ->required()
                             ->minValue(1)
                             ->default(10),
                     ])
-                    ->action(function (\Illuminate\Database\Eloquent\Collection $records, array $data): void {
-                        $amount = (int)$data['amount'];
+                    ->action(function (Collection $records, array $data): void {
+                        $amount = (int) $data['amount'];
                         $totalCreated = 0;
 
                         foreach ($records as $record) {
@@ -280,7 +283,7 @@ class ContentSimulationTable extends Component implements HasForms, HasTable
 
                         Notification::make()
                             ->title('Suntik Komentar Massal Berhasil')
-                            ->body("Berhasil menambahkan total {$totalCreated} komentar ke " . $records->count() . " konten.")
+                            ->body("Berhasil menambahkan total {$totalCreated} komentar ke ".$records->count().' konten.')
                             ->success()
                             ->send();
                     }),

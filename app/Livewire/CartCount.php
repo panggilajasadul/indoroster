@@ -2,13 +2,15 @@
 
 namespace App\Livewire;
 
-use Livewire\Component;
 use App\Models\Cart;
+use App\Models\SiteSetting;
 use Illuminate\Support\Facades\Cookie;
+use Livewire\Component;
 
 class CartCount extends Component
 {
     public $count = 0;
+
     public $cartItems = [];
 
     protected $listeners = ['cart-updated' => 'updateCount'];
@@ -20,43 +22,56 @@ class CartCount extends Component
 
     public function updateCount()
     {
+        if (SiteSetting::getValue('order_mode', 'midtrans') !== 'midtrans') {
+            $this->count = 0;
+            $this->cartItems = [];
+
+            return;
+        }
+
         $sessionId = Cookie::get('cart_session_id');
-        
+
         $query = Cart::query();
-        
+
         if (auth()->check()) {
             $query->where('user_id', auth()->id())
-                  ->orWhere('session_id', $sessionId);
+                ->orWhere('session_id', $sessionId);
         } else {
             $query->where('session_id', $sessionId);
         }
 
         $this->count = $query->count();
-        
+
         // If items are loaded, refresh them
-        if (!empty($this->cartItems)) {
+        if (! empty($this->cartItems)) {
             $this->loadCartItems();
         }
     }
 
     public function loadCartItems()
     {
+        if (SiteSetting::getValue('order_mode', 'midtrans') !== 'midtrans') {
+            $this->cartItems = [];
+
+            return;
+        }
+
         $sessionId = Cookie::get('cart_session_id');
-        
+
         $query = Cart::with(['product.media', 'variant']);
-        
+
         if (auth()->check()) {
             $query->where('user_id', auth()->id())
-                  ->orWhere('session_id', $sessionId);
+                ->orWhere('session_id', $sessionId);
         } else {
             $query->where('session_id', $sessionId);
         }
 
         $items = $query->latest()->take(5)->get();
-        
+
         $this->cartItems = $items->map(function ($item) {
             $price = $item->variant ? $item->variant->final_price : ($item->product?->price ?? 0);
-            
+
             // Check primary media first
             $image = $item->product?->primary_image;
             if (empty($image)) {
@@ -67,9 +82,9 @@ class CartCount extends Component
                 'id' => $item->id,
                 'name' => $item->product?->name ?? 'Produk',
                 'quantity' => $item->quantity,
-                'price' => 'Rp' . number_format($price, 0, ',', '.'),
+                'price' => 'Rp'.number_format($price, 0, ',', '.'),
                 'image' => $image,
-                'url' => '/produk/' . ($item->product?->slug ?? ''),
+                'url' => '/produk/'.($item->product?->slug ?? ''),
                 'variant_name' => $item->variant?->name ?? null,
             ];
         })->toArray();
@@ -77,6 +92,12 @@ class CartCount extends Component
 
     public function render()
     {
+        if (SiteSetting::getValue('order_mode', 'midtrans') !== 'midtrans') {
+            return <<<'HTML'
+            <div></div>
+            HTML;
+        }
+
         return view('livewire.cart-count');
     }
 }

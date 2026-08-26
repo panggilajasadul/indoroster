@@ -2,10 +2,10 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\Product;
 use App\Models\ProductReview;
 use Carbon\Carbon;
+use Illuminate\Database\Seeder;
 use Illuminate\Support\Arr;
 
 class ProductReviewSeeder extends Seeder
@@ -14,7 +14,7 @@ class ProductReviewSeeder extends Seeder
     {
         ProductReview::truncate();
         $products = Product::all();
-        
+
         if ($products->isEmpty()) {
             return;
         }
@@ -25,13 +25,13 @@ class ProductReviewSeeder extends Seeder
             'Maya Indah', 'Putri Ayu', 'Ir. Bambang Wicaksono', 'Tommy Halim', 'Deni Kurniawan',
             'Yusuf Rahman', 'Ratna Sari', 'H. Ahmad Fauzi', 'Nadia Permata', 'Pak Joko',
             'Siska', 'Andi', 'Budi', 'Cici', 'Dedi', 'Euis', 'Fandi', 'Gita', 'Hadi', 'Ika',
-            'Junaidi', 'Kiki', 'Lulu', 'Maman', 'Nana', 'Oki', 'Pipit', 'Qori', 'Rendy', 'Sari'
+            'Junaidi', 'Kiki', 'Lulu', 'Maman', 'Nana', 'Oki', 'Pipit', 'Qori', 'Rendy', 'Sari',
         ];
 
         $locations = [
-            'Bekasi', 'Bandung', 'Tangerang', 'Surabaya', 'Depok', 'Semarang', 'Bogor', 'Cirebon', 
-            'Jakarta Selatan', 'Karawang', 'Tangerang Selatan', 'Jakarta Barat', 'BSD', 'Cilegon', 
-            'Malang', 'Purwakarta', 'Yogyakarta', 'Jakarta Timur', 'Solo', 'Medan'
+            'Bekasi', 'Bandung', 'Tangerang', 'Surabaya', 'Depok', 'Semarang', 'Bogor', 'Cirebon',
+            'Jakarta Selatan', 'Karawang', 'Tangerang Selatan', 'Jakarta Barat', 'BSD', 'Cilegon',
+            'Malang', 'Purwakarta', 'Yogyakarta', 'Jakarta Timur', 'Solo', 'Medan',
         ];
 
         // Gaya TikTok/FB/Casual (Bintang 4-5)
@@ -50,7 +50,7 @@ class ProductReviewSeeder extends Seeder
             'Hasilnya sesuai ekspektasi, bahkan lebih bagus aslinya. Teksturnya cakep bgt buat finishing industrial.',
             'Puas bgt belanja disini, pelayanannya oke barangnya juga oke punya. Gak rugi pokoknya mah!',
             'Roster beton dolamitnya cakep bener, natural bgt warnanya. Bikin adem sirkulasi udara juga jadi lancar 🏠',
-            'Sumpah ini bagus bgt, awalnya iseng coba eh malah ketagihan mau pasang di sisi lain juga. Racun bgt emang ginian wkwk.'
+            'Sumpah ini bagus bgt, awalnya iseng coba eh malah ketagihan mau pasang di sisi lain juga. Racun bgt emang ginian wkwk.',
         ];
 
         // Gaya Storytelling/Problem Solver (Bintang 4-5)
@@ -59,7 +59,7 @@ class ProductReviewSeeder extends Seeder
             'Saya developer perumahan, 30 unit semua pake roster dari Indoroster. Nilai jual rumah naik karena fasad-nya keliatan mewah. Buyer pada suka bgt sama look-nya.',
             'Cafe saya dulunya biasa aja, setelah renovasi pake roster di bagian depan, sekarang jadi spot foto favorit customer. Omzet naik bgt semenjak tampilannya jadi lebih aestetik 📈',
             'Memilih roster untuk pagar rumah minimalis saya adalah keputusan terbaik. Kesannya jadi modern tapi tetap homey. Beneran bikin betah liatin rumah sendiri.',
-            'Udah bandingin harga ke banyak toko, disini emang paling miring tapi kualitasnya gak main-main. Betonnya beneran kokoh dan presisi.'
+            'Udah bandingin harga ke banyak toko, disini emang paling miring tapi kualitasnya gak main-main. Betonnya beneran kokoh dan presisi.',
         ];
 
         // Gaya Review Kurang Puas (Bintang 1-3) - Masalah di pengiriman/respon, tapi kualitas barang tetap dipuji
@@ -71,13 +71,13 @@ class ProductReviewSeeder extends Seeder
             'Barangnya sih bintang 5, cakep bgt dipasang di pager. Cuma respon admin pas mau order agak lama. Kualitas roster nya top bgt padahal.',
             'Sebenernya barangnya bagus bgt, puas sama fisiknya. Cuma rada kecewa sama estimasi sampenya yang lama. Tingkatkan lagi ya pelayanannya.',
             'Betonnya solid bgt, K-200 beneran berasa. Tapi pengiriman ke rumah saya agak ribet kemarin koordinasinya. Kalo barangnya sih oke bgt.',
-            'Udah dipasang dan hasilnya bagus bgt, kualitas juara. Cuma pengirimannya aja sih yang perlu diperbaiki biar gak terlalu lama nunggunya.'
+            'Udah dipasang dan hasilnya bagus bgt, kualitas juara. Cuma pengirimannya aja sih yang perlu diperbaiki biar gak terlalu lama nunggunya.',
         ];
 
         foreach ($products as $product) {
             // Update total sold
             $product->update(['total_sold' => rand(10000, 15000)]);
-            
+
             // Generate 250 reviews per product (total 1000 for 4 products)
             for ($i = 0; $i < 250; $i++) {
                 $type = rand(1, 100);

@@ -1,24 +1,25 @@
 @php
     $record = $getRecord();
 @endphp
-<div style="padding: 4px 2px 8px 2px;">
-    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
-        <p style="color: #f97316; font-weight: 700; font-size: 0.95rem; margin: 0;">
+<div class="p-1">
+    <div class="flex justify-between items-start mb-2">
+        <p class="text-orange-600 dark:text-orange-500 font-bold text-sm sm:text-base margin-0">
             #{{ $record->order_number }}
         </p>
-        <span style="background: rgba(34,197,94,0.15); color: #22c55e; border: 1px solid rgba(34,197,94,0.3); border-radius: 999px; padding: 2px 10px; font-size: 0.72rem; font-weight: 600;">
+        <span class="bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-900/50 rounded-full px-3 py-0.5 text-[10px] font-bold">
             ✅ Selesai
         </span>
     </div>
-    <p style="color: #9ca3af; font-size: 0.88rem; margin: 0 0 4px 0;">
-        Pelanggan: <strong style="color: #ffffff; font-weight: 700;">{{ $record->shipping_name }}</strong>
+    <p class="text-slate-500 dark:text-slate-400 text-xs sm:text-sm mb-1">
+        Pelanggan: <strong class="text-slate-800 dark:text-white font-bold">{{ $record->shipping_name }}</strong>
     </p>
-    <p style="color: #6b7280; font-size: 0.82rem; margin: 0 0 8px 0; line-height: 1.5;">
+    <p class="text-slate-400 dark:text-slate-500 text-[11px] sm:text-xs leading-relaxed mb-2">
         Alamat: {{ $record->shipping_address }}
     </p>
     @if ($record->completed_at)
-        <p style="color: #22c55e; font-size: 0.78rem; margin: 0;">
-            🕐 Diantar: {{ \Carbon\Carbon::parse($record->completed_at)->timezone('Asia/Jakarta')->translatedFormat('d M Y, H:i') }}
+        <p class="text-emerald-600 dark:text-emerald-400 text-[10px] sm:text-xs font-medium mt-1 flex items-center gap-1">
+            <span>🕐 Diantar:</span>
+            <strong>{{ \Carbon\Carbon::parse($record->completed_at)->timezone('Asia/Jakarta')->translatedFormat('d M Y, H:i') }}</strong>
         </p>
     @endif
 </div>

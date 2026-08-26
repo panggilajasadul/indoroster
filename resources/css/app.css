@@ -1,4 +1,7 @@
 @import 'tailwindcss';
+@plugin '@tailwindcss/typography';
+
+@custom-variant dark (&:where(.dark, .dark *));
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
@@ -7,44 +10,190 @@
 @source '../../app/Filament/**/*.php';
 
 @theme {
-    --color-terra-50: #fff4ed;
-    --color-terra-100: #ffe6d5;
-    --color-terra-200: #feccab;
-    --color-terra-300: #fda978;
-    --color-terra-400: #fb7c41;
-    --color-terra-500: #f75c20; /* Primary Orange/Brick */
-    --color-terra-600: #e9410f;
-    --color-terra-700: #c22f0e;
-    --color-terra-800: #9a2614;
-    --color-terra-900: #7c2214;
+    /* Terracotta / Brick Signature Palette */
+    --color-terra-50: #fff5ed;
+    --color-terra-100: #ffe8d6;
+    --color-terra-200: #ffd0ab;
+    --color-terra-300: #ffb175;
+    --color-terra-400: #fd8639;
+    --color-terra-500: var(--brand-accent, #f75c20); /* Primary Architectural Orange / Dynamic */
+    --color-terra-600: #e54212;
+    --color-terra-700: #be3110;
+    --color-terra-800: #972814;
+    --color-terra-900: #7b2414;
+    --color-terra-950: #430e06;
     
-    /* Accent alias → maps to terra-500 */
-    --color-accent: #f75c20;
+    /* Concrete & Slate Architectural Palette */
+    --color-concrete-50: #f8fafc;
+    --color-concrete-100: #f1f5f9;
+    --color-concrete-200: #e2e8f0;
+    --color-concrete-300: #cbd5e1;
+    --color-concrete-400: #94a3b8;
+    --color-concrete-500: #64748b;
+    --color-concrete-600: #475569;
+    --color-concrete-700: #334155;
+    --color-concrete-800: #1e293b;
+    --color-concrete-900: #0f172a;
+    --color-concrete-950: #020617;
+
+    /* Accent alias → maps to dynamic accent */
+    --color-accent: var(--brand-accent, #f75c20);
     
     --color-slate-800: #1e293b;
     --color-slate-900: #0f172a;
     
-    --font-sans: 'Inter', system-ui, sans-serif;
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     --font-display: 'Outfit', 'Inter', system-ui, sans-serif;
+    --font-poppins: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-jost: 'Jost', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-outfit: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-urbanist: 'Urbanist', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-plus-jakarta: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+
+    /* Shadows */
+    --shadow-soft-xs: 0 1px 2px 0 rgba(15, 23, 42, 0.04);
+    --shadow-soft-sm: 0 2px 6px -1px rgba(15, 23, 42, 0.06), 0 1px 3px -1px rgba(15, 23, 42, 0.03);
+    --shadow-soft-md: 0 6px 16px -2px rgba(15, 23, 42, 0.08), 0 3px 6px -2px rgba(15, 23, 42, 0.04);
+    --shadow-soft-lg: 0 12px 28px -4px rgba(15, 23, 42, 0.10), 0 4px 10px -2px rgba(15, 23, 42, 0.05);
+    --shadow-soft-xl: 0 20px 38px -6px rgba(15, 23, 42, 0.12), 0 8px 16px -4px rgba(15, 23, 42, 0.06);
+    --shadow-luxury: 0 25px 50px -12px rgba(15, 23, 42, 0.18), 0 0 0 1px rgba(15, 23, 42, 0.04);
+    --shadow-luxury-dark: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.08);
 }
 
 /* Custom Utilities for Fluid Typography */
 @utility text-fluid-h1 {
-    font-size: clamp(2rem, 5vw, 3.5rem);
-    line-height: 1.1;
-    letter-spacing: -0.02em;
+    font-size: clamp(2.25rem, 5vw, 3.75rem);
+    line-height: 1.12;
+    letter-spacing: -0.025em;
 }
 
 @utility text-fluid-h2 {
-    font-size: clamp(1.50rem, 3.5vw, 2.25rem);
+    font-size: clamp(1.65rem, 3.8vw, 2.5rem);
     line-height: 1.2;
-    letter-spacing: -0.015em;
+    letter-spacing: -0.02em;
 }
 
 @utility text-fluid-h3 {
-    font-size: clamp(1.25rem, 2.5vw, 1.50rem);
+    font-size: clamp(1.3rem, 2.5vw, 1.75rem);
     line-height: 1.3;
-    letter-spacing: -0.01em;
+    letter-spacing: -0.015em;
+}
+
+/* Hide Scrollbar */
+@utility no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+/* Glassmorphism Classes with Dark Mode support */
+@utility glass-header {
+    background-color: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+}
+.dark .glass-header {
+    background-color: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+@utility glass-card {
+    background-color: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(226, 232, 240, 0.8);
+}
+.dark .glass-card {
+    background-color: rgba(30, 41, 59, 0.75);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+@utility glass-dark {
+    background-color: rgba(15, 23, 42, 0.82);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Smooth Theme Transitions */
+html {
+    transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+/* Framer-Motion Style Staggered Text Animations */
+@keyframes framerRevealUp {
+    0% {
+        opacity: 0;
+        transform: translateY(28px);
+        filter: blur(4px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+        filter: blur(0);
+    }
+}
+
+@keyframes framerBadgeReveal {
+    0% {
+        opacity: 0;
+        transform: scale(0.9) translateY(16px);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.hero-slide .motion-badge {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hero-slide .motion-title {
+    opacity: 0;
+    transform: translateY(32px);
+    transition: opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.15s, transform 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.15s;
+}
+
+.hero-slide .motion-subtitle {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.3s, transform 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.3s;
+}
+
+.hero-slide .motion-buttons {
+    opacity: 0;
+    transform: translateY(20px) scale(0.96);
+    transition: opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.45s, transform 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.45s;
+}
+
+/* Active State for Framer Motion Stagger */
+.hero-slide.active .motion-badge {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.hero-slide.active .motion-title {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.hero-slide.active .motion-subtitle {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.hero-slide.active .motion-buttons {
+    opacity: 1;
+    transform: translateY(0) scale(1);
 }
 
 /* Marquee Animations (used by Ticker & Visual Showcase blocks) */
@@ -53,21 +202,57 @@
     100% { transform: translateX(-50%); }
 }
 
+@keyframes marquee-reverse {
+    0% { transform: translateX(-50%); }
+    100% { transform: translateX(0); }
+}
+
+@utility animate-marquee-fast {
+    display: flex;
+    width: fit-content;
+    animation: marquee 22s linear infinite;
+}
+
 @utility animate-marquee {
     display: flex;
     width: fit-content;
-    animation: marquee 30s linear infinite;
+    animation: marquee 40s linear infinite;
 }
 
 @utility animate-marquee-slow {
     display: flex;
     width: fit-content;
-    animation: marquee 60s linear infinite;
+    animation: marquee 70s linear infinite;
 }
 
-.group:hover .animate-marquee-slow,
-.group:hover .animate-marquee {
+@utility animate-marquee-reverse {
+    display: flex;
+    width: fit-content;
+    animation: marquee-reverse 40s linear infinite;
+}
+
+.group.pause-on-hover:hover .animate-marquee-slow,
+.group.pause-on-hover:hover .animate-marquee,
+.group.pause-on-hover:hover .animate-marquee-fast,
+.group.pause-on-hover:hover .animate-marquee-reverse {
     animation-play-state: paused;
+}
+
+/* Explicit Font Family Utilities */
+.font-poppins {
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif !important;
+}
+.font-jost {
+    font-family: 'Jost', -apple-system, BlinkMacSystemFont, sans-serif !important;
+}
+.font-outfit {
+    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif !important;
+}
+.font-urbanist {
+    font-family: 'Urbanist', -apple-system, BlinkMacSystemFont, sans-serif !important;
+}
+.font-plus-jakarta {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
 }
 
 /* Ken Burns Zoom In & Out animation for Hero Slider */
@@ -76,18 +261,352 @@
         transform: scale(1);
     }
     100% {
-        transform: scale(1.1);
+        transform: scale(1.08);
     }
 }
 
 .hero-slide img,
 .hero-slide video {
-    transform: scale(1.05); /* slightly scaled as default fallback */
-    transition: opacity 1s ease-in-out;
+    transform: scale(1.03);
+    transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1), transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .hero-slide.active img,
 .hero-slide.active video {
-    animation: kenburns 20s ease-in-out infinite alternate;
+    animation: kenburns 22s ease-in-out infinite alternate;
+}
+
+/* Smooth Shimmer / Skeleton Animation */
+@keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+.skeleton-shimmer {
+    background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.8s infinite;
+}
+.dark .skeleton-shimmer {
+    background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%);
+    background-size: 200% 100%;
+}
+
+/* Subtle Interactive Transitions */
+.card-hover-effect {
+    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.28s ease;
+}
+.card-hover-effect:hover {
+    transform: translateY(-3px);
+}
+
+/* Custom Slim Scrollbar for page */
+@media (min-width: 768px) {
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+        background: #f8fafc;
+    }
+    .dark ::-webkit-scrollbar-track {
+        background: #090d16;
+    }
+    ::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 9999px;
+    }
+    .dark ::-webkit-scrollbar-thumb {
+        background: #334155;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+    }
+    .dark ::-webkit-scrollbar-thumb:hover {
+        background: #475569;
+    }
+}
+
+/* ==========================================================================
+   Article & Dynamic Page Prose Typography Styles (Light & Dark)
+   ========================================================================== */
+.prose, .article-content {
+    color: #334155;
+    line-height: 1.85;
+    font-size: 1.0625rem;
+}
+.dark .prose, .dark .article-content {
+    color: #cbd5e1;
+}
+
+.prose p, .article-content p {
+    margin-top: 1.35em !important;
+    margin-bottom: 1.35em !important;
+    line-height: 1.85 !important;
+}
+
+.prose p.lead, .article-content p.lead {
+    font-size: 1.15rem !important;
+    font-weight: 500 !important;
+    color: #1e293b !important;
+    line-height: 1.8 !important;
+}
+.dark .prose p.lead, .dark .article-content p.lead {
+    color: #f1f5f9 !important;
+}
+
+.prose h1, .article-content h1 {
+    font-family: var(--font-display, 'Outfit', sans-serif) !important;
+    font-size: 2.25rem !important;
+    font-weight: 900 !important;
+    color: #0f172a !important;
+    margin-top: 2.2em !important;
+    margin-bottom: 0.8em !important;
+    line-height: 1.25 !important;
+    letter-spacing: -0.025em !important;
+}
+.dark .prose h1, .dark .article-content h1 {
+    color: #ffffff !important;
+}
+
+.prose h2, .article-content h2 {
+    font-family: var(--font-display, 'Outfit', sans-serif) !important;
+    font-size: 1.65rem !important;
+    font-weight: 800 !important;
+    color: #0f172a !important;
+    margin-top: 2em !important;
+    margin-bottom: 0.75em !important;
+    line-height: 1.3 !important;
+    letter-spacing: -0.02em !important;
+}
+.dark .prose h2, .dark .article-content h2 {
+    color: #ffffff !important;
+}
+
+.prose h3, .article-content h3 {
+    font-family: var(--font-display, 'Outfit', sans-serif) !important;
+    font-size: 1.35rem !important;
+    font-weight: 700 !important;
+    color: #0f172a !important;
+    margin-top: 1.75em !important;
+    margin-bottom: 0.6em !important;
+    line-height: 1.4 !important;
+}
+.dark .prose h3, .dark .article-content h3 {
+    color: #f8fafc !important;
+}
+
+.prose h4, .article-content h4 {
+    font-family: var(--font-display, 'Outfit', sans-serif) !important;
+    font-size: 1.15rem !important;
+    font-weight: 700 !important;
+    color: #1e293b !important;
+    margin-top: 1.5em !important;
+    margin-bottom: 0.5em !important;
+}
+.dark .prose h4, .dark .article-content h4 {
+    color: #f1f5f9 !important;
+}
+
+.prose ul, .article-content ul {
+    list-style-type: disc !important;
+    margin-top: 1.25em !important;
+    margin-bottom: 1.25em !important;
+    padding-left: 1.75em !important;
+}
+
+.prose ol, .article-content ol {
+    list-style-type: decimal !important;
+    margin-top: 1.25em !important;
+    margin-bottom: 1.25em !important;
+    padding-left: 1.75em !important;
+}
+
+.prose li, .article-content li {
+    margin-top: 0.5em !important;
+    margin-bottom: 0.5em !important;
+    padding-left: 0.35em !important;
+    line-height: 1.75 !important;
+}
+
+.prose blockquote, .article-content blockquote {
+    font-style: italic !important;
+    border-left: 4px solid var(--brand-accent, #f75c20) !important;
+    background-color: #f8fafc !important;
+    padding: 1rem 1.25rem !important;
+    border-radius: 0 0.875rem 0.875rem 0 !important;
+    margin-top: 1.75em !important;
+    margin-bottom: 1.75em !important;
+    color: #475569 !important;
+}
+.dark .prose blockquote, .dark .article-content blockquote {
+    background-color: #1e293b !important;
+    color: #cbd5e1 !important;
+}
+
+.prose strong, .article-content strong {
+    font-weight: 700 !important;
+    color: #0f172a !important;
+}
+.dark .prose strong, .dark .article-content strong {
+    color: #ffffff !important;
+}
+
+/* ==========================================================================
+   Article & Rich Text Prose Enhancements (Typography, Media & Alignment)
+   ========================================================================== */
+
+/* Images in Articles & Rich Text */
+.prose img, .article-content img {
+    margin-top: 1.75em !important;
+    margin-bottom: 1.75em !important;
+    border-radius: 1.25rem !important;
+    box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08) !important;
+    max-width: 100% !important;
+    height: auto !important;
+    display: block !important;
+}
+.dark .prose img, .dark .article-content img {
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Trix & File Attachment Formatting (Clean Minimalist Media) */
+.prose figure.attachment, .article-content figure.attachment {
+    margin: 2rem auto !important;
+    text-align: center !important;
+    display: block !important;
+    max-width: 100% !important;
+}
+.prose figure.attachment img, .article-content figure.attachment img {
+    margin: 0 auto !important;
+    border-radius: 1.25rem !important;
+}
+.prose figure.attachment .attachment__size,
+.article-content figure.attachment .attachment__size,
+.prose .attachment__caption .attachment__size,
+.article-content .attachment__caption .attachment__size {
+    display: none !important;
+}
+.prose figure.attachment--preview .attachment__name,
+.article-content figure.attachment--preview .attachment__name {
+    display: none !important;
+}
+.prose figcaption, .article-content figcaption {
+    font-size: 0.8125rem !important;
+    color: #64748b !important;
+    margin-top: 0.625rem !important;
+    text-align: center !important;
+    font-style: italic !important;
+}
+.dark .prose figcaption, .dark .article-content figcaption {
+    color: #94a3b8 !important;
+}
+
+/* Custom Media Sizing & Alignment Utilities */
+.prose .img-small, .article-content .img-small {
+    max-width: 320px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
+.prose .img-medium, .article-content .img-medium {
+    max-width: 580px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
+.prose .img-full, .article-content .img-full {
+    width: 100% !important;
+    max-width: 100% !important;
+}
+.prose .img-left, .article-content .img-left {
+    float: left !important;
+    margin: 0.5rem 1.5rem 1rem 0 !important;
+    max-width: 45% !important;
+}
+.prose .img-right, .article-content .img-right {
+    float: right !important;
+    margin: 0.5rem 0 1rem 1.5rem !important;
+    max-width: 45% !important;
+}
+.prose .img-center, .article-content .img-center {
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
+
+/* Image Grids inside Articles & Rich Text */
+.prose .img-grid-2, .article-content .img-grid-2 {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 1rem !important;
+    margin: 2rem 0 !important;
+}
+.prose .img-grid-3, .article-content .img-grid-3 {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 1rem !important;
+    margin: 2rem 0 !important;
+}
+@media (max-width: 640px) {
+    .prose .img-grid-2, .article-content .img-grid-2,
+    .prose .img-grid-3, .article-content .img-grid-3 {
+        grid-template-columns: 1fr !important;
+    }
+    .prose .img-left, .article-content .img-left,
+    .prose .img-right, .article-content .img-right {
+        float: none !important;
+        margin: 1.5rem auto !important;
+        max-width: 100% !important;
+    }
+}
+
+/* Video & iFrame Responsive Embeds */
+.prose iframe, .article-content iframe,
+.prose video, .article-content video {
+    width: 100% !important;
+    aspect-ratio: 16 / 9 !important;
+    border-radius: 1.25rem !important;
+    box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08) !important;
+    margin: 2rem auto !important;
+    display: block !important;
+}
+.dark .prose iframe, .dark .article-content iframe,
+.dark .prose video, .dark .article-content video {
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Link & Divider Styling */
+.prose a, .article-content a {
+    color: var(--brand-accent, #e54212) !important;
+    font-weight: 600 !important;
+    text-decoration: underline !important;
+    text-underline-offset: 3px !important;
+}
+.prose a:hover, .article-content a:hover {
+    filter: brightness(1.15);
+}
+.prose hr, .article-content hr {
+    border-color: #e2e8f0 !important;
+    margin-top: 2.5em !important;
+    margin-bottom: 2.5em !important;
+}
+.dark .prose hr, .dark .article-content hr {
+    border-color: #334155 !important;
+}
+
+/* Text Alignment Utilities */
+.prose p, .article-content p {
+    line-height: 1.8 !important;
+}
+.prose .text-center, .article-content .text-center, [style*="text-align: center"], [style*="text-align:center"] {
+    text-align: center !important;
+}
+.prose .text-right, .article-content .text-right, [style*="text-align: right"], [style*="text-align:right"] {
+    text-align: right !important;
+}
+.prose .text-justify, .article-content .text-justify, [style*="text-align: justify"], [style*="text-align:justify"] {
+    text-align: justify !important;
+    text-justify: inter-word !important;
+}
+.prose .text-left, .article-content .text-left, [style*="text-align: left"], [style*="text-align:left"] {
+    text-align: left !important;
 }
 

@@ -13,11 +13,17 @@ use Filament\Tables\Table;
 class ShippingLabelResource extends Resource
 {
     protected static ?string $model = ShippingLabel::class;
+
     protected static ?string $navigationIcon = 'heroicon-o-truck';
+
     protected static ?string $navigationGroup = 'Transaksi';
+
     protected static ?string $navigationLabel = 'Label Pengiriman';
+
     protected static ?string $modelLabel = 'Label Pengiriman';
+
     protected static ?string $pluralModelLabel = 'Label Pengiriman';
+
     protected static ?int $navigationSort = 4;
 
     public static function form(Form $form): Form
@@ -77,6 +83,14 @@ class ShippingLabelResource extends Resource
                         ->required(),
                     Forms\Components\TextInput::make('recipient_postal_code')
                         ->label('Kode Pos'),
+                    Forms\Components\TextInput::make('recipient_latitude')
+                        ->label('Latitude GPS')
+                        ->numeric()
+                        ->placeholder('-6.2088'),
+                    Forms\Components\TextInput::make('recipient_longitude')
+                        ->label('Longitude GPS')
+                        ->numeric()
+                        ->placeholder('106.8456'),
                 ])->columns(2),
 
             Forms\Components\Section::make('Detail Pengiriman')

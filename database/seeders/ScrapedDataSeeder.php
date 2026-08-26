@@ -2,13 +2,13 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\Banner;
-use App\Models\Page;
-use App\Models\Testimonial;
 use App\Models\Faq;
 use App\Models\Gallery;
+use App\Models\Page;
 use App\Models\SiteSetting;
+use App\Models\Testimonial;
+use Illuminate\Database\Seeder;
 
 class ScrapedDataSeeder extends Seeder
 {
@@ -147,7 +147,7 @@ class ScrapedDataSeeder extends Seeder
             'location' => 'Berbagai Proyek',
             'is_active' => true,
         ]);
-        
+
         $gallery->media()->create([
             'media_type' => 'image',
             'media_url' => 'https://indoroster.com/wp-content/uploads/2025/12/47.jpg',

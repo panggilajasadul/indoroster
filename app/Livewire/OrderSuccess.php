@@ -2,29 +2,33 @@
 
 namespace App\Livewire;
 
-use App\Models\Order;
+use App\Mail\AdminOrderNotification;
 use App\Mail\InvoiceMail;
+use App\Models\Cart;
+use App\Models\Order;
+use App\Services\MidtransService;
+use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Mail;
 use Livewire\Component;
 use Midtrans\Transaction;
-use App\Services\MidtransService;
 
 class OrderSuccess extends Component
 {
     public $order;
+
     public $isVerifying = true;
 
     public function mount()
     {
         $orderNumber = request()->query('order_id');
-        
-        if (!$orderNumber) {
+
+        if (! $orderNumber) {
             return redirect('/');
         }
 
         $this->order = Order::where('order_number', $orderNumber)->with(['items.variant', 'user'])->first();
 
-        if (!$this->order) {
+        if (! $this->order) {
             return redirect('/');
         }
     }
@@ -32,13 +36,13 @@ class OrderSuccess extends Component
     public function processPaymentStatus()
     {
         // Initialize Midtrans Configuration
-        new MidtransService();
+        new MidtransService;
 
         try {
             // Check status manually as a fallback for localhost webhooks
             $status = (array) Transaction::status($this->order->order_number);
             $transactionStatus = $status['transaction_status'] ?? null;
-            
+
             if ($transactionStatus == 'capture' || $transactionStatus == 'settlement') {
                 if ($this->order->payment_status !== 'paid') {
                     $this->order->update([
@@ -53,9 +57,9 @@ class OrderSuccess extends Component
                     // Send Invoice Email and Admin Notification
                     try {
                         Mail::to($this->order->shipping_email ?? $this->order->user->email)->send(new InvoiceMail($this->order));
-                        Mail::to('abdulhamid66266@gmail.com')->send(new \App\Mail\AdminOrderNotification($this->order));
+                        Mail::to('abdulhamid66266@gmail.com')->send(new AdminOrderNotification($this->order));
                     } catch (\Exception $e) {
-                        \Log::error('Gagal mengirim email invoice/notifikasi admin: ' . $e->getMessage());
+                        \Log::error('Gagal mengirim email invoice/notifikasi admin: '.$e->getMessage());
                     }
                 }
             } else {
@@ -63,7 +67,7 @@ class OrderSuccess extends Component
                 $this->order->refresh()->load(['items.variant', 'user']);
             }
         } catch (\Exception $e) {
-            \Log::warning('Midtrans Status Check Error: ' . $e->getMessage());
+            \Log::warning('Midtrans Status Check Error: '.$e->getMessage());
         }
 
         // Clear cart if payment is paid
@@ -84,14 +88,14 @@ class OrderSuccess extends Component
     private function clearCart()
     {
         try {
-            $sessionId = \Illuminate\Support\Facades\Cookie::get('cart_session_id');
+            $sessionId = Cookie::get('cart_session_id');
             $userId = auth()->id() ?? $this->order->user_id;
 
-            $cartQuery = \App\Models\Cart::query();
+            $cartQuery = Cart::query();
             if ($userId && $sessionId) {
-                $cartQuery->where(function($q) use ($userId, $sessionId) {
+                $cartQuery->where(function ($q) use ($userId, $sessionId) {
                     $q->where('user_id', $userId)
-                      ->orWhere('session_id', $sessionId);
+                        ->orWhere('session_id', $sessionId);
                 });
             } elseif ($userId) {
                 $cartQuery->where('user_id', $userId);
@@ -102,7 +106,7 @@ class OrderSuccess extends Component
             $cartQuery->delete();
             $this->dispatch('cart-updated');
         } catch (\Exception $e) {
-            \Log::error('Gagal mengosongkan keranjang di Success Page: ' . $e->getMessage());
+            \Log::error('Gagal mengosongkan keranjang di Success Page: '.$e->getMessage());
         }
     }
 

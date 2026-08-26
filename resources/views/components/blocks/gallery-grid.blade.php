@@ -5,20 +5,21 @@
     $title = $data['title'] ?? '';
     $description = $data['description'] ?? '';
     $items = $data['items'] ?? [];
-    $bgTheme = $data['bg_theme'] ?? 'dark';
-    $bgClasses = match($bgTheme) { 'dark' => 'bg-slate-900 text-white', 'accent' => 'bg-accent text-white', 'slate' => 'bg-slate-50 text-slate-900', 'gradient' => 'bg-gradient-to-br from-slate-900 via-slate-800 to-terra-900 text-white', default => 'bg-white text-slate-900' };
+    $theme = \App\Helpers\BlockTheme::resolve($data['bg_theme'] ?? 'dark');
 @endphp
 
-<section class="py-24 {{ $bgClasses }} relative overflow-hidden">
-    <div class="absolute inset-0 opacity-5 pointer-events-none" style="background-image: radial-gradient(#fff 1px, transparent 1px); background-size: 40px 40px;"></div>
+<section class="py-24 {{ $theme->bgClasses }} relative overflow-hidden">
+    @include('components.blocks._bg-theme', ['theme' => $theme])
 
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div class="text-center mb-20">
             @if($badge)
-            <span class="text-accent font-black text-xs uppercase tracking-[0.3em] mb-4 block italic">{{ $badge }}</span>
+            <span class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full {{ $theme->badgeClass }} font-bold text-xs uppercase tracking-widest mb-4">
+                {{ $badge }}
+            </span>
             @endif
-            <h2 class="text-4xl md:text-6xl font-black font-display mb-6">{!! $title !!}</h2>
-            <p class="text-slate-400 max-w-2xl mx-auto text-lg">{!! $description !!}</p>
+            <h2 class="text-4xl md:text-6xl font-black font-display {{ $theme->headingColor }} mb-6">{!! $title !!}</h2>
+            <p class="{{ $theme->subColor }} max-w-2xl mx-auto text-lg leading-relaxed">{!! $description !!}</p>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">

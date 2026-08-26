@@ -3,13 +3,12 @@
 namespace App\Filament\Widgets;
 
 use App\Models\Order;
-use Filament\Widgets\ChartWidget;
-use Illuminate\Support\Carbon;
-
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
-use Filament\Forms\Components\DatePicker;
+use Filament\Widgets\ChartWidget;
+use Illuminate\Support\Carbon;
 
 class RevenueChartWidget extends ChartWidget implements HasForms
 {
@@ -18,11 +17,15 @@ class RevenueChartWidget extends ChartWidget implements HasForms
     protected static string $view = 'filament.widgets.custom-revenue-chart';
 
     protected static ?string $heading = 'Tren Pendapatan';
+
     protected static ?int $sort = 4; // Berada di bawah FinancialStats (3)
-    protected int | string | array $columnSpan = 'full';
+
+    protected int|string|array $columnSpan = 'full';
+
     protected static ?string $maxHeight = '300px';
 
     public ?string $startDate = null;
+
     public ?string $endDate = null;
 
     public function mount(): void

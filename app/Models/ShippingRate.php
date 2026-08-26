@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Laravolt\Indonesia\Models\City;
 
 class ShippingRate extends Model
 {
@@ -15,6 +16,6 @@ class ShippingRate extends Model
 
     public function city()
     {
-        return $this->belongsTo(\Laravolt\Indonesia\Models\City::class, 'city_code', 'code');
+        return $this->belongsTo(City::class, 'city_code', 'code');
     }
 }

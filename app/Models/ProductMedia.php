@@ -39,8 +39,8 @@ class ProductMedia extends Model
             return asset('images/placeholder.png');
         }
 
-        return str_starts_with($this->media_url, 'http') 
-            ? $this->media_url 
-            : asset('storage/' . $this->media_url);
+        return str_starts_with($this->media_url, 'http')
+            ? $this->media_url
+            : asset('storage/'.$this->media_url);
     }
 }

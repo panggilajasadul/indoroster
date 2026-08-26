@@ -14,4 +14,4 @@ foreach ($matches as $match) {
 }
 
 file_put_contents('c:/xampp/htdocs/indoroster/extracted_images.json', json_encode($images, JSON_PRETTY_PRINT));
-echo "Extracted " . count($images) . " images.\n";
+echo 'Extracted '.count($images)." images.\n";

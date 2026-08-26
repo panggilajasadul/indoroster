@@ -9,18 +9,17 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
 
 class ProductReviewResource extends Resource
 {
     protected static ?string $model = ProductReview::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-star';
-    
+
     protected static ?string $navigationGroup = 'Produk & Inventori';
-    
+
     protected static ?string $label = 'Ulasan Produk';
-    
+
     protected static ?string $pluralLabel = 'Ulasan Produk';
 
     public static function form(Form $form): Form
@@ -63,12 +62,19 @@ class ProductReviewResource extends Resource
                             ->disabled()
                             ->dehydrated(false),
                     ])->columns(2),
-                
+
                 Forms\Components\Section::make('Foto Review')
                     ->schema([
                         Forms\Components\FileUpload::make('images')
                             ->label('Foto dari Pembeli')
                             ->multiple()
+                            ->reorderable()
+                            ->appendFiles()
+                            ->openable()
+                            ->downloadable()
+                            ->previewable(true)
+                            ->panelLayout('grid')
+                            ->imagePreviewHeight('100')
                             ->image()
                             ->directory('reviews')
                             ->columnSpanFull(),

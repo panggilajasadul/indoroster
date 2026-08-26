@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 class ShippingLabel extends Model
 {
@@ -21,6 +22,8 @@ class ShippingLabel extends Model
         'recipient_address',
         'recipient_city',
         'recipient_postal_code',
+        'recipient_latitude',
+        'recipient_longitude',
         'total_items',
         'total_weight',
         'total_packages',
@@ -33,6 +36,8 @@ class ShippingLabel extends Model
     {
         return [
             'total_weight' => 'decimal:2',
+            'recipient_latitude' => 'float',
+            'recipient_longitude' => 'float',
             'printed_at' => 'datetime',
         ];
     }
@@ -51,7 +56,7 @@ class ShippingLabel extends Model
             ? (int) substr($lastLabel->label_number, -4) + 1
             : 1;
 
-        return 'SHP-' . $date . '-' . str_pad($sequence, 4, '0', STR_PAD_LEFT);
+        return 'SHP-'.$date.'-'.str_pad($sequence, 4, '0', STR_PAD_LEFT);
     }
 
     public function order(): BelongsTo
@@ -64,7 +69,7 @@ class ShippingLabel extends Model
      */
     public function markAsPrinted(): void
     {
-        $this->printed_at = \Illuminate\Support\Carbon::now();
+        $this->printed_at = Carbon::now();
         $this->save();
     }
 

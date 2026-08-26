@@ -18,11 +18,11 @@ class CourierResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-user-group';
 
     protected static ?string $navigationGroup = 'Settings';
-    
+
     protected static ?string $navigationLabel = 'Akun Kurir';
-    
+
     protected static ?string $modelLabel = 'Kurir';
-    
+
     protected static ?string $pluralModelLabel = 'Akun Kurir';
 
     public static function getEloquentQuery(): Builder

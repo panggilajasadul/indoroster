@@ -3,24 +3,33 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ProductResource\Pages;
+use App\Models\Material;
 use App\Models\Product;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Support\Str;
-use Illuminate\Support\HtmlString;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\HtmlString;
+use Illuminate\Support\Str;
 
 class ProductResource extends Resource
 {
     protected static ?string $model = Product::class;
+
     protected static ?string $navigationIcon = 'heroicon-o-cube';
+
     protected static ?string $navigationGroup = 'Katalog';
+
     protected static ?string $navigationLabel = 'Produk';
+
     protected static ?string $modelLabel = 'Produk';
+
     protected static ?string $pluralModelLabel = 'Produk';
+
     protected static ?int $navigationSort = 2;
 
     public static function form(Form $form): Form
@@ -51,12 +60,12 @@ class ProductResource extends Resource
                                     ->label('SKU (Kode Produk)')
                                     ->unique(ignoreRecord: true)
                                     ->maxLength(50)
-                                    ->default(fn () => 'IR-' . strtoupper(Str::random(6)))
+                                    ->default(fn () => 'IR-'.strtoupper(Str::random(6)))
                                     ->suffixAction(
                                         Forms\Components\Actions\Action::make('generateSku')
                                             ->icon('heroicon-m-arrow-path')
                                             ->action(function (Forms\Set $set) {
-                                                $set('sku', 'IR-' . strtoupper(Str::random(6)));
+                                                $set('sku', 'IR-'.strtoupper(Str::random(6)));
                                             })
                                     ),
                                 Forms\Components\RichEditor::make('description')
@@ -92,12 +101,15 @@ class ProductResource extends Resource
                                                 ->label('Upload Gambar (Auto Kompres WebP)')
                                                 ->directory('product-media')
                                                 ->image()
+                                                ->imagePreviewHeight('120')
+                                                ->openable()
+                                                ->downloadable()
                                                 ->maxSize(10240) // 10MB
                                                 ->live()
-                                                ->required(fn(Forms\Get $get) => $get('media_source') === 'upload' && $get('media_type') === 'image')
-                                                ->hidden(fn(Forms\Get $get) => $get('media_source') !== 'upload' || $get('media_type') !== 'image')
+                                                ->required(fn (Forms\Get $get) => $get('media_source') === 'upload' && $get('media_type') === 'image')
+                                                ->hidden(fn (Forms\Get $get) => $get('media_source') !== 'upload' || $get('media_type') !== 'image')
                                                 ->afterStateHydrated(function (Forms\Components\FileUpload $component, $state, $record) {
-                                                    if ($record && !str_starts_with($record->media_url, 'http') && $record->media_type === 'image') {
+                                                    if ($record && ! str_starts_with($record->media_url, 'http') && $record->media_type === 'image') {
                                                         $component->state([$record->media_url]);
                                                     }
                                                 }),
@@ -105,12 +117,15 @@ class ProductResource extends Resource
                                                 ->label('Upload Video')
                                                 ->directory('product-media')
                                                 ->acceptedFileTypes(['video/*'])
+                                                ->imagePreviewHeight('120')
+                                                ->openable()
+                                                ->downloadable()
                                                 ->maxSize(102400) // 100MB
                                                 ->live()
-                                                ->required(fn(Forms\Get $get) => $get('media_source') === 'upload' && $get('media_type') === 'video')
-                                                ->hidden(fn(Forms\Get $get) => $get('media_source') !== 'upload' || $get('media_type') !== 'video')
+                                                ->required(fn (Forms\Get $get) => $get('media_source') === 'upload' && $get('media_type') === 'video')
+                                                ->hidden(fn (Forms\Get $get) => $get('media_source') !== 'upload' || $get('media_type') !== 'video')
                                                 ->afterStateHydrated(function (Forms\Components\FileUpload $component, $state, $record) {
-                                                    if ($record && !str_starts_with($record->media_url, 'http') && $record->media_type === 'video') {
+                                                    if ($record && ! str_starts_with($record->media_url, 'http') && $record->media_type === 'video') {
                                                         $component->state([$record->media_url]);
                                                     }
                                                 }),
@@ -118,8 +133,8 @@ class ProductResource extends Resource
                                                 ->label('Link URL External / YouTube')
                                                 ->placeholder('https://contoh.com/gambar.jpg atau https://youtube.com/watch?v=...')
                                                 ->live()
-                                                ->required(fn(Forms\Get $get) => $get('media_source') === 'url')
-                                                ->hidden(fn(Forms\Get $get) => $get('media_source') !== 'url')
+                                                ->required(fn (Forms\Get $get) => $get('media_source') === 'url')
+                                                ->hidden(fn (Forms\Get $get) => $get('media_source') !== 'url')
                                                 ->afterStateHydrated(function (Forms\Components\TextInput $component, $state, $record) {
                                                     if ($record && str_starts_with($record->media_url, 'http')) {
                                                         $component->state($record->media_url);
@@ -147,7 +162,9 @@ class ProductResource extends Resource
                                                             return new HtmlString('<div class="text-sm text-gray-500 italic">Pratinjau (preview) untuk file upload otomatis tampil di dalam kotak upload di atas.</div>');
                                                         } else {
                                                             $url = $get('media_url_link');
-                                                            if (empty($url) || !is_string($url)) return 'Belum ada link URL yang diisi';
+                                                            if (empty($url) || ! is_string($url)) {
+                                                                return 'Belum ada link URL yang diisi';
+                                                            }
                                                             $displayUrl = $url;
                                                         }
 
@@ -157,11 +174,13 @@ class ProductResource extends Resource
                                                             // Check for YouTube
                                                             if (preg_match('/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/', $displayUrl, $matches)) {
                                                                 $youtubeId = $matches[1];
+
                                                                 return new HtmlString('<div class="aspect-video w-full"><iframe src="https://www.youtube.com/embed/'.$youtubeId.'" class="w-full h-full rounded shadow-sm" frameborder="0" allowfullscreen></iframe></div>');
                                                             }
+
                                                             return new HtmlString('<div class="flex justify-center bg-gray-100 rounded-lg p-2"><video src="'.$displayUrl.'" controls style="max-height: 150px; width: auto;" class="rounded shadow-sm"></video></div>');
                                                         }
-                                                    })
+                                                    }),
                                             ])->columnSpan(1),
 
                                         Forms\Components\TextInput::make('alt_text')
@@ -187,6 +206,7 @@ class ProductResource extends Resource
                                             $data['media_url'] = $data['media_url_link'] ?? '';
                                         }
                                         unset($data['media_source'], $data['media_image_upload'], $data['media_video_upload'], $data['media_url_link']);
+
                                         return $data;
                                     })
                                     ->mutateRelationshipDataBeforeSaveUsing(function (array $data): array {
@@ -199,6 +219,7 @@ class ProductResource extends Resource
                                             $data['media_url'] = $data['media_url_link'] ?? '';
                                         }
                                         unset($data['media_source'], $data['media_image_upload'], $data['media_video_upload'], $data['media_url_link']);
+
                                         return $data;
                                     })
                                     ->columns(3)
@@ -207,12 +228,12 @@ class ProductResource extends Resource
                                     ->collapsible()
                                     ->columnSpanFull(),
                             ]),
-                            
+
                         Forms\Components\Radio::make('product_type')
                             ->label('Tipe Penjualan Produk')
                             ->options([
                                 'single' => 'Produk Tunggal (Tanpa Varian)',
-                                'variant' => 'Produk Multi Varian (Banyak Pilihan)'
+                                'variant' => 'Produk Multi Varian (Banyak Pilihan)',
                             ])
                             ->default('single')
                             ->inline()
@@ -240,7 +261,7 @@ class ProductResource extends Resource
                                             ->required()
                                             ->live()
                                             ->afterStateUpdated(function ($state, Forms\Set $set) {
-                                                $material = \App\Models\Material::find($state);
+                                                $material = Material::find($state);
                                                 if ($material) {
                                                     $set('name', $material->name);
                                                 }
@@ -267,7 +288,7 @@ class ProductResource extends Resource
                                     ->columns(2)
                                     ->defaultItems(0)
                                     ->addActionLabel('+ Tambah Varian')
-                                    ->collapsible()
+                                    ->collapsible(),
                             ]),
                     ])->columnSpan(['lg' => 2]),
 
@@ -323,15 +344,90 @@ class ProductResource extends Resource
                                     ->label('Tampil di Halaman Depan'),
                             ]),
 
-                        Forms\Components\Section::make('SEO')
+                        Forms\Components\Section::make('SEO & Meta Data')
+                            ->description('Optimasi produk untuk mesin pencari Google, Google Images, dan Google Shopping.')
                             ->schema([
+                                Forms\Components\Group::make([
+                                    Forms\Components\Placeholder::make('seo_score_badge')
+                                        ->label('SEO Health Score')
+                                        ->content(function ($record) {
+                                            if (! $record || $record->seo_score === null) {
+                                                return new HtmlString('<span class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">Belum Dianalisis</span>');
+                                            }
+                                            $score = $record->seo_score;
+                                            $colorClass = $score >= 80 ? 'bg-green-50 text-green-700 ring-green-600/20' : ($score >= 50 ? 'bg-amber-50 text-amber-700 ring-amber-600/20' : 'bg-red-50 text-red-700 ring-red-600/20');
+
+                                            return new HtmlString('<span class="inline-flex items-center rounded-md '.$colorClass.' px-2 py-1 text-sm font-bold ring-1 ring-inset">'.$score.' / 100</span>');
+                                        }),
+                                    Forms\Components\Placeholder::make('opportunity_score_badge')
+                                        ->label('Opportunity Score')
+                                        ->content(function ($record) {
+                                            if (! $record || $record->opportunity_score === null) {
+                                                return new HtmlString('<span class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">Belum Dianalisis</span>');
+                                            }
+                                            $score = $record->opportunity_score;
+                                            $colorClass = $score >= 70 ? 'bg-indigo-50 text-indigo-700 ring-indigo-600/20' : 'bg-slate-50 text-slate-700 ring-slate-600/20';
+
+                                            return new HtmlString('<span class="inline-flex items-center rounded-md '.$colorClass.' px-2 py-1 text-sm font-bold ring-1 ring-inset">'.$score.' / 100</span>');
+                                        }),
+                                ])->columns(2),
+
+                                Forms\Components\TextInput::make('focus_keyword')
+                                    ->label('Focus Keyword (Kata Kunci Utama)')
+                                    ->maxLength(100)
+                                    ->placeholder('Contoh: roster beton minimalis')
+                                    ->helperText('Kata kunci utama yang ingin ditargetkan untuk produk ini.'),
+
+                                Forms\Components\TagsInput::make('secondary_keywords')
+                                    ->label('Secondary Keywords & Sinonim')
+                                    ->placeholder('Tambah kata kunci')
+                                    ->helperText('Kata kunci pendukung (contoh: loster beton, lubang angin, roster tangerang).'),
+
+                                Forms\Components\TextInput::make('seo_h1')
+                                    ->label('Saran H1 (Judul Halaman)')
+                                    ->maxLength(255)
+                                    ->placeholder('Kosongkan untuk menggunakan nama produk'),
+
                                 Forms\Components\TextInput::make('meta_title')
                                     ->label('Meta Title')
-                                    ->maxLength(255),
+                                    ->maxLength(255)
+                                    ->placeholder('Kosongkan untuk auto-generate dari nama produk'),
+
                                 Forms\Components\Textarea::make('meta_description')
                                     ->label('Meta Description')
-                                    ->rows(2)
-                                    ->maxLength(500),
+                                    ->rows(5)
+                                    ->maxLength(2500)
+                                    ->placeholder('Kosongkan untuk auto-generate dari deskripsi produk'),
+
+                                Forms\Components\TextInput::make('og_title')
+                                    ->label('OG Title (Social Media)')
+                                    ->maxLength(255)
+                                    ->placeholder('Kosongkan untuk menyamakan dengan Meta Title'),
+
+                                Forms\Components\Textarea::make('og_description')
+                                    ->label('OG Description (Social Media)')
+                                    ->rows(4)
+                                    ->maxLength(2500)
+                                    ->placeholder('Kosongkan untuk menyamakan dengan Meta Description'),
+
+                                Forms\Components\Placeholder::make('seo_issues_list')
+                                    ->label('Daftar Isu SEO')
+                                    ->content(function ($record) {
+                                        if (! $record || empty($record->seo_issues)) {
+                                            return new HtmlString('<span class="text-sm text-green-600 font-medium">✓ Tidak ada isu SEO terdeteksi. Kinerja optimal!</span>');
+                                        }
+                                        $html = '<ul class="list-disc pl-5 space-y-1 text-sm text-red-600">';
+                                        foreach ($record->seo_issues as $issue) {
+                                            $html .= '<li>'.e($issue).'</li>';
+                                        }
+                                        $html .= '</ul>';
+
+                                        return new HtmlString($html);
+                                    }),
+
+                                Forms\Components\Placeholder::make('seo_last_analyzed_date')
+                                    ->label('Analisis Terakhir')
+                                    ->content(fn ($record) => $record?->seo_last_analyzed ? $record->seo_last_analyzed->translatedFormat('d F Y H:i') : 'Belum pernah dianalisis oleh Python Engine'),
                             ])->collapsed(),
                     ])->columnSpan(['lg' => 1]),
             ])->columns(3);
@@ -377,6 +473,17 @@ class ProductResource extends Resource
                     ->label('Views')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('seo_score')
+                    ->label('SEO Health')
+                    ->sortable()
+                    ->badge()
+                    ->color(fn (?int $state): string => match (true) {
+                        $state === null => 'gray',
+                        $state >= 80 => 'success',
+                        $state >= 50 => 'warning',
+                        default => 'danger',
+                    })
+                    ->formatStateUsing(fn (?int $state) => $state === null ? 'N/A' : $state.'/100'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Dibuat')
                     ->dateTime('d M Y')
@@ -399,10 +506,10 @@ class ProductResource extends Resource
                     ->modalHeading('Clone Produk')
                     ->modalButton('Clone Sekarang')
                     ->beforeReplicaSaved(function (Product $replica, Product $record): void {
-                        $replica->name = '[Salinan] ' . $record->name;
-                        $replica->slug = Str::slug($replica->name) . '-' . uniqid();
+                        $replica->name = '[Salinan] '.$record->name;
+                        $replica->slug = Str::slug($replica->name).'-'.uniqid();
                         $replica->is_active = false;
-                        $replica->sku = $record->sku ? $record->sku . '-CLONE' : null;
+                        $replica->sku = $record->sku ? $record->sku.'-CLONE' : null;
                     })
                     ->after(function (Product $replica, Product $record): void {
                         // Replicate media
@@ -420,6 +527,60 @@ class ProductResource extends Resource
                         }
                     })
                     ->successNotificationTitle('Produk berhasil dikloning sebagai salinan!'),
+                Tables\Actions\Action::make('generate_seo')
+                    ->label('Generate SEO')
+                    ->icon('heroicon-o-sparkles')
+                    ->color('success')
+                    ->action(function (Product $record) {
+                        $ghToken = config('services.github.token');
+                        $ghOwner = config('services.github.owner');
+                        $ghRepo = config('services.github.repo');
+
+                        // Jika bukan lingkungan lokal dan token GitHub tersedia, picu GitHub Actions
+                        if (! app()->environment('local') && $ghToken && $ghOwner && $ghRepo) {
+                            $response = Http::withHeaders([
+                                'Authorization' => 'Bearer '.$ghToken,
+                                'Accept' => 'application/vnd.github+json',
+                                'X-GitHub-Api-Version' => '2022-11-28',
+                            ])->post("https://api.github.com/repos/{$ghOwner}/{$ghRepo}/actions/workflows/generate_product_seo.yml/dispatches", [
+                                'ref' => 'main',
+                                'inputs' => [
+                                    'product_id' => (string) $record->id,
+                                ],
+                            ]);
+
+                            if ($response->successful()) {
+                                Notification::make()
+                                    ->title('SEO Generation Dipicu (GitHub Actions)')
+                                    ->body('GitHub Actions sedang memproses analisis SEO di latar belakang. Silakan tunggu 1-2 menit lalu muat ulang halaman.')
+                                    ->success()
+                                    ->send();
+
+                                return;
+                            }
+                        }
+
+                        // Fallback / Lingkungan Lokal: Jalankan perintah Python lokal secara langsung
+                        $pythonPath = 'python';
+                        $scriptPath = base_path('seo-engine/main.py');
+
+                        // Set URL Laravel dinamis agar Python Engine menembak host yang benar
+                        putenv('LARAVEL_API_URL='.url('/'));
+
+                        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+                            $cmd = "start /B {$pythonPath} \"{$scriptPath}\" analyze-product {$record->id} --save > \"".storage_path('logs/seo-engine.log').'" 2>&1';
+                            pclose(popen($cmd, 'r'));
+                        } else {
+                            $cmd = "{$pythonPath} \"{$scriptPath}\" analyze-product {$record->id} --save > \"".storage_path('logs/seo-engine.log').'" 2>&1 &';
+                            shell_exec($cmd);
+                        }
+
+                        Notification::make()
+                            ->title('SEO Generation Dipicu (Lokal)')
+                            ->body('Proses analisis SEO lokal sedang berjalan. Silakan refresh halaman dalam beberapa detik.')
+                            ->success()
+                            ->send();
+                    }),
                 Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([

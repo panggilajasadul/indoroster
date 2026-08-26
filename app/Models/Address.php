@@ -17,6 +17,8 @@ class Address extends Model
         'district',
         'postal_code',
         'full_address',
+        'latitude',
+        'longitude',
         'is_default',
     ];
 
@@ -24,6 +26,8 @@ class Address extends Model
     {
         return [
             'is_default' => 'boolean',
+            'latitude' => 'float',
+            'longitude' => 'float',
         ];
     }
 
@@ -38,5 +42,17 @@ class Address extends Model
     public function getFormattedAddressAttribute(): string
     {
         return "{$this->full_address}, {$this->district}, {$this->city}, {$this->province} {$this->postal_code}";
+    }
+
+    /**
+     * Get direct Google Maps URL for this address.
+     */
+    public function getGoogleMapsUrlAttribute(): string
+    {
+        if ($this->latitude && $this->longitude) {
+            return "https://www.google.com/maps?q={$this->latitude},{$this->longitude}";
+        }
+
+        return 'https://www.google.com/maps/search/?api=1&query='.urlencode($this->formatted_address);
     }
 }

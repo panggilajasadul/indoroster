@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\UserResource\Pages;
 
 use App\Filament\Resources\UserResource;
-use Filament\Actions;
 use Filament\Resources\Pages\CreateRecord;
 
 class CreateUser extends CreateRecord
@@ -13,8 +12,9 @@ class CreateUser extends CreateRecord
     protected function mutateFormDataBeforeCreate(array $data): array
     {
         if ($data['role'] === 'courier' && empty($data['email'])) {
-            $data['email'] = $data['phone'] . '@kurir.indoroster.local';
+            $data['email'] = $data['phone'].'@kurir.indoroster.local';
         }
+
         return $data;
     }
 }

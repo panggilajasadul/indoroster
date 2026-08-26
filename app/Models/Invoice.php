@@ -52,7 +52,7 @@ class Invoice extends Model
             ? (int) substr($lastInvoice->invoice_number, -4) + 1
             : 1;
 
-        return 'INV/' . $year . '/' . $month . '/' . str_pad($sequence, 4, '0', STR_PAD_LEFT);
+        return 'INV/'.$year.'/'.$month.'/'.str_pad($sequence, 4, '0', STR_PAD_LEFT);
     }
 
     public function order(): BelongsTo

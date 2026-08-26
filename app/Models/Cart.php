@@ -36,6 +36,7 @@ class Cart extends Model
     public function getSubtotalAttribute(): float
     {
         $price = $this->variant ? $this->variant->final_price : ($this->product?->price ?? 0);
+
         return $price * $this->quantity;
     }
 }

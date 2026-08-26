@@ -2,15 +2,16 @@
 
 namespace App\Helpers;
 
-use App\Models\User;
 use App\Models\Comment;
+use App\Models\Gallery;
+use App\Models\Like;
 use App\Models\Product;
 use App\Models\ProductReview;
-use App\Models\Gallery;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Str;
+use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class SimulationHelper
 {
@@ -25,7 +26,7 @@ class SimulationHelper
         'Kiki Amelia', 'Lulu Tobing', 'Maman Suherman', 'Nana Mirdad', 'Oki Setiana',
         'Pipit Dian', 'Qori Sandioriva', 'Rendy Pandugo', 'Sari Nila', 'Taufik Hidayat',
         'Aditya Pratama', 'Bella Cantika', 'Citra Kirana', 'Dimas Anggara', 'Elina Joerg',
-        'Febby Rastanty', 'Gading Marten', 'Hesti Purwadinata', 'Indra Herlambang', 'Jessica Mila'
+        'Febby Rastanty', 'Gading Marten', 'Hesti Purwadinata', 'Indra Herlambang', 'Jessica Mila',
     ];
 
     // List username sosial media untuk Dummy Users
@@ -39,7 +40,7 @@ class SimulationHelper
         'kiki_amelia', 'lulu_t', 'maman_s', 'nana_mirdad', 'oki_setiana',
         'pipit_dian', 'qori_s', 'rendy_p', 'sari_nila', 'taufik_h',
         'adit_pratama', 'bella_cantik', 'citra_k', 'dimas_ang', 'elina_j',
-        'febby_r', 'gading_m', 'hesti_p', 'indra_h', 'jessica_mila'
+        'febby_r', 'gading_m', 'hesti_p', 'indra_h', 'jessica_mila',
     ];
 
     // Template Komentar Video (TikTok Style)
@@ -104,7 +105,7 @@ class SimulationHelper
         'Udah nyoba beli di tempat lain tapi kualitas beton indoroster emang paling juara.',
         'Desain roster ini dipaduin sama tanaman hijau estetik parah sih, aslinya cakep bgt.',
         'Harga pabrik langsung emang paling bersahabat buat renovasi budget minimalis.',
-        'Kemarin sempet kurang 15 pcs, langsung direspon cepat & dikirim susulan. Pelayanan top!'
+        'Kemarin sempet kurang 15 pcs, langsung direspon cepat & dikirim susulan. Pelayanan top!',
     ];
 
     // Template Komentar Foto (Instagram Style)
@@ -162,7 +163,7 @@ class SimulationHelper
         'Recommended seller! Barang dikirim sesuai schedule & drivernya ngebantu banget.',
         'Puas sama hasilnya, rumah jadi lebih adem karena angin bisa masuk dengan bebas.',
         'Roster semen abu naturalnya pas banget dipaduin sama cat putih minimalis.',
-        'Kemarin beli 250 pcs, kualitas barang dari atas sampe bawah sama rata rapinya.'
+        'Kemarin beli 250 pcs, kualitas barang dari atas sampe bawah sama rata rapinya.',
     ];
 
     // Template Isi Ulasan Produk (4-5 Bintang)
@@ -174,7 +175,7 @@ class SimulationHelper
         'Barang mendarat dengan selamat tanpa ada yang pecah atau rompal. Packing rapi, semennya kerasa kokoh dan padat. Bakal order lagi buat proyek berikutnya.',
         'Look-nya mewah bgt. Presisi pas dipasang tukang jadi ga repot ngerapihin lagi. Harga sangat bersahabat dibanding toko bangunan biasa.',
         'Beton K-200 asli ini mah, tebel kokoh bukan kaleng-kaleng. Sangat rekomen buat yang lagi cari roster beton kualitas premium tapi harga bersahabat.',
-        'Udah dibandingin sama beberapa vendor lain, Indoroster paling mantap respon dan harganya. Roster presisi dan pengiriman super cepat.'
+        'Udah dibandingin sama beberapa vendor lain, Indoroster paling mantap respon dan harganya. Roster presisi dan pengiriman super cepat.',
     ];
 
     // Template Ulasan Khusus Rating Rendah (1-3 Bintang) - Komplain Realistis dengan Aspek Positif
@@ -192,7 +193,7 @@ class SimulationHelper
         'Kualitas betonnya sebenernya bagus tebal, tapi kecewa berat karena barangnya salah motif dikirim semua dan harus nunggu retur lagi.',
         'Pengiriman cepat dan driver ramah, tapi banyak yang pecah di jalan sampai hampir 15 pcs gara-gara tidak diikat rapi di truk.',
         'Barangnya bagus presisi, tapi pesanan saya tertukar dengan proyek lain jadi kacau jadwal tukang pasangnya.',
-        'Adminnya ramah dan fast respon, tapi barang yang datang warnanya belang-belang abu gelap dan abu terang, kurang konsisten.'
+        'Adminnya ramah dan fast respon, tapi barang yang datang warnanya belang-belang abu gelap dan abu terang, kurang konsisten.',
     ];
 
     // Helper untuk membuat user dummy
@@ -205,21 +206,22 @@ class SimulationHelper
         if ($existingDummyCount >= $count) {
             // Limit the number of IDs plucked to avoid memory exhaustion
             $limit = max($count, 5000);
+
             return User::where('email', 'like', 'dummy_user_%@indoroster.com')->limit($limit)->pluck('id')->toArray();
         }
 
         $needed = $count - $existingDummyCount;
         $insertData = [];
         $now = Carbon::now();
-        
+
         // Hash password once to bypass bcrypt computation overhead per loop
         $hashedPassword = Hash::make('password123');
 
         for ($i = 0; $i < $needed; $i++) {
             $nameIdx = rand(0, count(self::$indonesianNames) - 1);
             $name = self::$indonesianNames[$nameIdx];
-            $email = 'dummy_user_' . Str::random(8) . '_' . uniqid() . '@indoroster.com';
-            $phone = '08' . rand(111111111, 999999999);
+            $email = 'dummy_user_'.Str::random(8).'_'.uniqid().'@indoroster.com';
+            $phone = '08'.rand(111111111, 999999999);
 
             $insertData[] = [
                 'name' => $name,
@@ -233,7 +235,7 @@ class SimulationHelper
             ];
         }
 
-        if (!empty($insertData)) {
+        if (! empty($insertData)) {
             $chunks = array_chunk($insertData, 500);
             foreach ($chunks as $chunk) {
                 User::insert($chunk);
@@ -242,6 +244,7 @@ class SimulationHelper
 
         // Ambil id user dummy dengan limit untuk mencegah kehabisan memori
         $limit = max($count, 5000);
+
         return User::where('email', 'like', 'dummy_user_%@indoroster.com')->limit($limit)->pluck('id')->toArray();
     }
 
@@ -251,22 +254,27 @@ class SimulationHelper
         @ini_set('max_execution_time', 300);
         @ini_set('memory_limit', '512M');
 
-        $requiredUsers = max(50, min(5000, (int)ceil($count / 5)));
+        $requiredUsers = max(50, min(5000, (int) ceil($count / 5)));
         $userIds = self::seedDummyUsers($requiredUsers);
-        if (empty($userIds)) return 0;
+        if (empty($userIds)) {
+            return 0;
+        }
 
         $adminVideos = Gallery::where('category', 'video-inspirasi')->where('is_active', true)->get();
         $reviewVideos = ProductReview::where('is_approved', true)
             ->whereNotNull('images')
             ->get()
-            ->filter(function($review) {
-                if (!$review->images) return false;
+            ->filter(function ($review) {
+                if (! $review->images) {
+                    return false;
+                }
                 foreach ($review->images as $path) {
                     $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
                     if (in_array($ext, ['mp4', 'mov', 'avi'])) {
                         return true;
                     }
                 }
+
                 return false;
             });
 
@@ -292,7 +300,7 @@ class SimulationHelper
             $totalWeight += $item['weight'];
         }
 
-        $pickWeightedCommentable = function() use ($weightedCommentables, $totalWeight) {
+        $pickWeightedCommentable = function () use ($weightedCommentables, $totalWeight) {
             $rand = rand(1, $totalWeight);
             $sum = 0;
             foreach ($weightedCommentables as $item) {
@@ -301,6 +309,7 @@ class SimulationHelper
                     return $item;
                 }
             }
+
             return $weightedCommentables[0];
         };
 
@@ -312,7 +321,7 @@ class SimulationHelper
             $body = Arr::random(self::$videoCommentTemplates);
 
             if (rand(1, 10) <= 2) {
-                $body .= ' ' . Arr::random(['🔥', '👍', '😍', '🏠', '😂', '💯']);
+                $body .= ' '.Arr::random(['🔥', '👍', '😍', '🏠', '😂', '💯']);
             }
 
             $insertData[] = [
@@ -340,22 +349,27 @@ class SimulationHelper
         @ini_set('max_execution_time', 300);
         @ini_set('memory_limit', '512M');
 
-        $requiredUsers = max(50, min(5000, (int)ceil($count / 5)));
+        $requiredUsers = max(50, min(5000, (int) ceil($count / 5)));
         $userIds = self::seedDummyUsers($requiredUsers);
-        if (empty($userIds)) return 0;
+        if (empty($userIds)) {
+            return 0;
+        }
 
         $adminPhotos = Gallery::where('category', '!=', 'video-inspirasi')->where('is_active', true)->get();
         $reviewPhotos = ProductReview::where('is_approved', true)
             ->whereNotNull('images')
             ->get()
-            ->filter(function($review) {
-                if (!$review->images) return false;
+            ->filter(function ($review) {
+                if (! $review->images) {
+                    return false;
+                }
                 foreach ($review->images as $path) {
                     $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
-                    if (!in_array($ext, ['mp4', 'mov', 'avi'])) {
+                    if (! in_array($ext, ['mp4', 'mov', 'avi'])) {
                         return true;
                     }
                 }
+
                 return false;
             });
 
@@ -381,7 +395,7 @@ class SimulationHelper
             $totalWeight += $item['weight'];
         }
 
-        $pickWeightedCommentable = function() use ($weightedCommentables, $totalWeight) {
+        $pickWeightedCommentable = function () use ($weightedCommentables, $totalWeight) {
             $rand = rand(1, $totalWeight);
             $sum = 0;
             foreach ($weightedCommentables as $item) {
@@ -390,6 +404,7 @@ class SimulationHelper
                     return $item;
                 }
             }
+
             return $weightedCommentables[0];
         };
 
@@ -401,7 +416,7 @@ class SimulationHelper
             $body = Arr::random(self::$photoCommentTemplates);
 
             if (rand(1, 10) <= 2) {
-                $body .= ' ' . Arr::random(['🔥', '👍', '😍', '🏠', '🙌', '💯']);
+                $body .= ' '.Arr::random(['🔥', '👍', '😍', '🏠', '🙌', '💯']);
             }
 
             $insertData[] = [
@@ -430,12 +445,14 @@ class SimulationHelper
         @ini_set('memory_limit', '512M');
 
         $products = Product::all();
-        if ($products->isEmpty()) return 0;
+        if ($products->isEmpty()) {
+            return 0;
+        }
 
         $locations = [
-            'Bekasi', 'Bandung', 'Tangerang', 'Surabaya', 'Depok', 'Semarang', 'Bogor', 'Cirebon', 
-            'Jakarta Selatan', 'Karawang', 'Tangerang Selatan', 'Jakarta Barat', 'BSD', 'Cilegon', 
-            'Malang', 'Purwakarta', 'Yogyakarta', 'Jakarta Timur', 'Solo', 'Medan'
+            'Bekasi', 'Bandung', 'Tangerang', 'Surabaya', 'Depok', 'Semarang', 'Bogor', 'Cirebon',
+            'Jakarta Selatan', 'Karawang', 'Tangerang Selatan', 'Jakarta Barat', 'BSD', 'Cilegon',
+            'Malang', 'Purwakarta', 'Yogyakarta', 'Jakarta Timur', 'Solo', 'Medan',
         ];
 
         $insertData = [];
@@ -445,7 +462,7 @@ class SimulationHelper
             $nameIdx = rand(0, count(self::$indonesianNames) - 1);
             $reviewerName = self::$indonesianNames[$nameIdx];
             $location = Arr::random($locations);
-            
+
             $randRating = rand(1, 100);
             if ($randRating <= 75) {
                 $rating = 5;
@@ -489,12 +506,14 @@ class SimulationHelper
         @ini_set('memory_limit', '512M');
 
         $product = Product::find($productId);
-        if (!$product) return 0;
+        if (! $product) {
+            return 0;
+        }
 
         $locations = [
-            'Bekasi', 'Bandung', 'Tangerang', 'Surabaya', 'Depok', 'Semarang', 'Bogor', 'Cirebon', 
-            'Jakarta Selatan', 'Karawang', 'Tangerang Selatan', 'Jakarta Barat', 'BSD', 'Cilegon', 
-            'Malang', 'Purwakarta', 'Yogyakarta', 'Jakarta Timur', 'Solo', 'Medan'
+            'Bekasi', 'Bandung', 'Tangerang', 'Surabaya', 'Depok', 'Semarang', 'Bogor', 'Cirebon',
+            'Jakarta Selatan', 'Karawang', 'Tangerang Selatan', 'Jakarta Barat', 'BSD', 'Cilegon',
+            'Malang', 'Purwakarta', 'Yogyakarta', 'Jakarta Timur', 'Solo', 'Medan',
         ];
 
         $insertData = [];
@@ -503,7 +522,7 @@ class SimulationHelper
             $nameIdx = rand(0, count(self::$indonesianNames) - 1);
             $reviewerName = self::$indonesianNames[$nameIdx];
             $location = Arr::random($locations);
-            
+
             $finalRating = $rating;
             if ($finalRating === null || $finalRating === 0) {
                 // acak rating
@@ -551,7 +570,9 @@ class SimulationHelper
         @ini_set('memory_limit', '512M');
 
         $userIds = self::seedDummyUsers(max(50, $count));
-        if (empty($userIds)) return 0;
+        if (empty($userIds)) {
+            return 0;
+        }
 
         $insertData = [];
         $now = Carbon::now();
@@ -560,7 +581,7 @@ class SimulationHelper
             $body = Arr::random(self::$videoCommentTemplates);
 
             if (rand(1, 10) <= 2) {
-                $body .= ' ' . Arr::random(['🔥', '👍', '😍', '🏠', '😂', '💯']);
+                $body .= ' '.Arr::random(['🔥', '👍', '😍', '🏠', '😂', '💯']);
             }
 
             $insertData[] = [
@@ -589,7 +610,9 @@ class SimulationHelper
         @ini_set('memory_limit', '512M');
 
         $userIds = self::seedDummyUsers(max(50, $count));
-        if (empty($userIds)) return 0;
+        if (empty($userIds)) {
+            return 0;
+        }
 
         $insertData = [];
         $now = Carbon::now();
@@ -598,7 +621,7 @@ class SimulationHelper
             $body = Arr::random(self::$photoCommentTemplates);
 
             if (rand(1, 10) <= 2) {
-                $body .= ' ' . Arr::random(['🔥', '👍', '😍', '🏠', '🙌', '💯']);
+                $body .= ' '.Arr::random(['🔥', '👍', '😍', '🏠', '🙌', '💯']);
             }
 
             $insertData[] = [
@@ -628,17 +651,19 @@ class SimulationHelper
 
         // Check if item exists
         $item = $likeableType::find($likeableId);
-        if (!$item) return 0;
+        if (! $item) {
+            return 0;
+        }
 
         // Get all user IDs that have ALREADY liked this item
-        $existingLikes = \App\Models\Like::where('likeable_type', $likeableType)
+        $existingLikes = Like::where('likeable_type', $likeableType)
             ->where('likeable_id', $likeableId)
             ->pluck('user_id')
             ->toArray();
 
         // Get dummy users who haven't liked it yet, limited to what we need
         $query = User::where('email', 'like', 'dummy_user_%@indoroster.com');
-        if (!empty($existingLikes)) {
+        if (! empty($existingLikes)) {
             // chunk the existing likes if it's too large, but typically an item has < 10k likes
             // However, to be perfectly safe against placeholders:
             if (count($existingLikes) > 50000) {
@@ -652,18 +677,18 @@ class SimulationHelper
         // If we don't have enough available users, create more!
         if (count($availableUserIds) < $count) {
             $neededNewUsers = $count - count($availableUserIds);
-            
+
             // Bypass seedDummyUsers because it only ensures total DB count.
             // We need GUARANTEED NEW users.
             $insertData = [];
             $now = Carbon::now();
             $hashedPassword = Hash::make('password123');
-            
+
             for ($i = 0; $i < $neededNewUsers; $i++) {
                 $nameIdx = rand(0, count(self::$indonesianNames) - 1);
                 $name = self::$indonesianNames[$nameIdx];
-                $email = 'dummy_user_' . Str::random(8) . '_' . uniqid() . '@indoroster.com';
-                $phone = '08' . rand(111111111, 999999999);
+                $email = 'dummy_user_'.Str::random(8).'_'.uniqid().'@indoroster.com';
+                $phone = '08'.rand(111111111, 999999999);
 
                 $insertData[] = [
                     'name' => $name,
@@ -676,9 +701,9 @@ class SimulationHelper
                     'updated_at' => $now,
                 ];
             }
-            
+
             User::insert($insertData);
-            
+
             // Fetch the newly created users
             $newDummyIds = User::where('email', 'like', 'dummy_user_%@indoroster.com')
                 ->whereNotIn('id', $existingLikes)
@@ -686,13 +711,13 @@ class SimulationHelper
                 ->limit($neededNewUsers)
                 ->pluck('id')
                 ->toArray();
-                
+
             $availableUserIds = array_merge($availableUserIds, $newDummyIds);
         }
 
         // Pick random users (or just use them since we limited to $count)
         $selectedUsers = array_slice($availableUserIds, 0, $count);
-        if (!is_array($selectedUsers)) {
+        if (! is_array($selectedUsers)) {
             $selectedUsers = [$selectedUsers];
         }
 
@@ -708,10 +733,10 @@ class SimulationHelper
             ];
         }
 
-        if (!empty($insertData)) {
+        if (! empty($insertData)) {
             $chunks = array_chunk($insertData, 500);
             foreach ($chunks as $chunk) {
-                \App\Models\Like::insert($chunk);
+                Like::insert($chunk);
             }
         }
 
@@ -726,7 +751,7 @@ class SimulationHelper
 
         // 1. Dapatkan semua item media yang valid (video & foto)
         $likeableItems = [];
-        
+
         // Videos
         $adminVideos = Gallery::where('category', 'video-inspirasi')->where('is_active', true)->get();
         foreach ($adminVideos as $v) {
@@ -735,14 +760,17 @@ class SimulationHelper
         $reviewVideos = ProductReview::where('is_approved', true)
             ->whereNotNull('images')
             ->get()
-            ->filter(function($review) {
-                if (!$review->images) return false;
+            ->filter(function ($review) {
+                if (! $review->images) {
+                    return false;
+                }
                 foreach ($review->images as $path) {
                     $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
                     if (in_array($ext, ['mp4', 'mov', 'avi'])) {
                         return true;
                     }
                 }
+
                 return false;
             });
         foreach ($reviewVideos as $v) {
@@ -757,14 +785,17 @@ class SimulationHelper
         $reviewPhotos = ProductReview::where('is_approved', true)
             ->whereNotNull('images')
             ->get()
-            ->filter(function($review) {
-                if (!$review->images) return false;
+            ->filter(function ($review) {
+                if (! $review->images) {
+                    return false;
+                }
                 foreach ($review->images as $path) {
                     $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
-                    if (!in_array($ext, ['mp4', 'mov', 'avi'])) {
+                    if (! in_array($ext, ['mp4', 'mov', 'avi'])) {
                         return true;
                     }
                 }
+
                 return false;
             });
         foreach ($reviewPhotos as $p) {
@@ -801,7 +832,7 @@ class SimulationHelper
             $distributedCounts[] = [
                 'type' => $item['type'],
                 'id' => $item['id'],
-                'target' => $target
+                'target' => $target,
             ];
         }
 
@@ -812,16 +843,18 @@ class SimulationHelper
                 $maxTarget = $dist['target'];
             }
         }
-        
+
         // Use a larger pool of dummy users so they are distributed randomly and naturally
-        $requiredUsersCount = min(5000, max([200, $maxTarget * 2, (int)($count / 4)]));
-        
+        $requiredUsersCount = min(5000, max([200, $maxTarget * 2, (int) ($count / 4)]));
+
         // Seed dummy users up to the required count
         $userIds = self::seedDummyUsers($requiredUsersCount);
-        if (empty($userIds)) return 0;
+        if (empty($userIds)) {
+            return 0;
+        }
 
         // 5. Fetch existing likes by dummy users to avoid duplicate key errors
-        $existingLikes = \App\Models\Like::whereIn('user_id', $userIds)->get();
+        $existingLikes = Like::whereIn('user_id', $userIds)->get();
         $likedKeys = [];
         foreach ($existingLikes as $like) {
             $likedKeys["{$like->user_id}-{$like->likeable_type}-{$like->likeable_id}"] = true;
@@ -844,7 +877,7 @@ class SimulationHelper
             $availableUserIds = [];
             foreach ($userIds as $userId) {
                 $key = "{$userId}-{$itemType}-{$itemId}";
-                if (!isset($likedKeys[$key])) {
+                if (! isset($likedKeys[$key])) {
                     $availableUserIds[] = $userId;
                 }
             }
@@ -857,7 +890,7 @@ class SimulationHelper
 
             // Pick a random subset of user IDs
             $selectedUsers = Arr::random($availableUserIds, $toAssign);
-            if (!is_array($selectedUsers)) {
+            if (! is_array($selectedUsers)) {
                 $selectedUsers = [$selectedUsers];
             }
 
@@ -874,10 +907,10 @@ class SimulationHelper
         }
 
         // 7. Bulk insert likes in chunks of 500
-        if (!empty($insertData)) {
+        if (! empty($insertData)) {
             $chunks = array_chunk($insertData, 500);
             foreach ($chunks as $chunk) {
-                \App\Models\Like::insert($chunk);
+                Like::insert($chunk);
             }
         }
 
@@ -889,19 +922,19 @@ class SimulationHelper
     {
         $deletedReviews = ProductReview::where('is_seeded', true)->delete();
         $deletedComments = Comment::where('is_seeded', true)->delete();
-        
+
         // Deleting dummy users will cascade delete their likes as defined in foreignId('user_id')->cascadeOnDelete()
         $deletedUsers = User::where('email', 'like', 'dummy_user_%@indoroster.com')->delete();
 
         return [
             'reviews' => $deletedReviews,
             'comments' => $deletedComments,
-            'users' => $deletedUsers
+            'users' => $deletedUsers,
         ];
     }
 
     /**
-     * Menghasilkan isi ulasan produk acak dengan mix-and-match frase 
+     * Menghasilkan isi ulasan produk acak dengan mix-and-match frase
      * serta personalisasi nama produk agar ulasan bervariasi dan alami.
      */
     public static function getRandomReviewContent(int $rating, string $productName): string
@@ -911,44 +944,45 @@ class SimulationHelper
                 "Sebenarnya roster {$productName} tebal, padat dan kokoh banget,",
                 "Kualitas produk {$productName} memuaskan, cetakannya presisi dan rapi,",
                 "Roster {$productName}-nya bagus bersih dan estetik parah,",
-                "Pengiriman cepat sekali pakai truk pabrik langsung,",
-                "Adminnya ramah dan fast respon pas nanya-nanya kebutuhan,",
+                'Pengiriman cepat sekali pakai truk pabrik langsung,',
+                'Adminnya ramah dan fast respon pas nanya-nanya kebutuhan,',
                 "Barang {$productName} sendiri sangat bagus dan permukaannya halus,",
-                "Respon admin ramah dan kooperatif dari awal transaksi,",
+                'Respon admin ramah dan kooperatif dari awal transaksi,',
             ];
-            
+
             $complaints = [
-                " cuma pengiriman agak telat dari estimasi jadwal.",
-                " tapi kemarin pas sampai ada beberapa pcs yang cuil ujungnya karena diturunin buru-buru.",
-                " hanya saja chat admin agak lambat dibalas saat weekend.",
-                " tapi pesanan sempat kurang beberapa pcs, untungnya admin langsung kirim susulan.",
-                " cuma paking kayu/paletnya agak renggang jadi ada yang kegores.",
-                " tapi driver yang anter kurang ramah pas nurunin barang di lokasi.",
-                " sayang sekali ongkos kirim ke luar kota agak mahal menurut saya.",
-                " tapi ada sedikit perbedaan warna abu antara cetakan lama dan baru.",
-                " cuma saat sampai ada beberapa yang retak karena jalanan jelek dan tidak diikat kencang.",
+                ' cuma pengiriman agak telat dari estimasi jadwal.',
+                ' tapi kemarin pas sampai ada beberapa pcs yang cuil ujungnya karena diturunin buru-buru.',
+                ' hanya saja chat admin agak lambat dibalas saat weekend.',
+                ' tapi pesanan sempat kurang beberapa pcs, untungnya admin langsung kirim susulan.',
+                ' cuma paking kayu/paletnya agak renggang jadi ada yang kegores.',
+                ' tapi driver yang anter kurang ramah pas nurunin barang di lokasi.',
+                ' sayang sekali ongkos kirim ke luar kota agak mahal menurut saya.',
+                ' tapi ada sedikit perbedaan warna abu antara cetakan lama dan baru.',
+                ' cuma saat sampai ada beberapa yang retak karena jalanan jelek dan tidak diikat kencang.',
             ];
 
             $closings = [
-                "",
-                " Semoga ke depannya layanannya bisa ditingkatkan lagi.",
-                " Tapi overall barangnya ok dan tetap bisa dipakai.",
-                " Untung diganti kekurangannya oleh admin.",
-                " Mungkin pakingnya perlu dipertebal lagi.",
-                " Tapi untungnya kualitas rosternya tetap mantap.",
+                '',
+                ' Semoga ke depannya layanannya bisa ditingkatkan lagi.',
+                ' Tapi overall barangnya ok dan tetap bisa dipakai.',
+                ' Untung diganti kekurangannya oleh admin.',
+                ' Mungkin pakingnya perlu dipertebal lagi.',
+                ' Tapi untungnya kualitas rosternya tetap mantap.',
             ];
 
-            $text = Arr::random($positives) . Arr::random($complaints) . Arr::random($closings);
+            $text = Arr::random($positives).Arr::random($complaints).Arr::random($closings);
+
             return trim(preg_replace('/\s+/', ' ', $text));
         } else {
             $openings = [
-                "",
-                "Mantap! ",
-                "Alhamdulillah, ",
-                "Barang sudah sampai. ",
-                "Puas banget! ",
-                "Rekomended seller. ",
-                "Bintang 5 buat pelayanannya. ",
+                '',
+                'Mantap! ',
+                'Alhamdulillah, ',
+                'Barang sudah sampai. ',
+                'Puas banget! ',
+                'Rekomended seller. ',
+                'Bintang 5 buat pelayanannya. ',
             ];
 
             $qualities = [
@@ -962,50 +996,48 @@ class SimulationHelper
             ];
 
             $deliveries = [
-                " Pengiriman aman pakai armada/truk pabrik langsung.",
-                " Sampai lokasi aman ga ada yang pecah atau rompal.",
-                " Packing aman dan rapi, drivernya juga ramah bantu nurunin.",
-                " Dikirim tepat waktu sesuai jadwal koordinasi admin.",
-                " Pengiriman cepat dan barang selamat sampai depan rumah.",
-                " Sopir truk pabrik ramah banget dan kerjanya profesional.",
+                ' Pengiriman aman pakai armada/truk pabrik langsung.',
+                ' Sampai lokasi aman ga ada yang pecah atau rompal.',
+                ' Packing aman dan rapi, drivernya juga ramah bantu nurunin.',
+                ' Dikirim tepat waktu sesuai jadwal koordinasi admin.',
+                ' Pengiriman cepat dan barang selamat sampai depan rumah.',
+                ' Sopir truk pabrik ramah banget dan kerjanya profesional.',
             ];
 
             $admins = [
-                " Adminnya responsif dan ramah banget pas konsultasi kebutuhan.",
-                " Pelayanan ramah, dibantu hitung jumlah roster yang pas.",
-                " Tanya-tanya admin dilayani dengan baik dan cepat responnya.",
-                " Penjual sangat amanah, responsif dari awal pemesanan.",
+                ' Adminnya responsif dan ramah banget pas konsultasi kebutuhan.',
+                ' Pelayanan ramah, dibantu hitung jumlah roster yang pas.',
+                ' Tanya-tanya admin dilayani dengan baik dan cepat responnya.',
+                ' Penjual sangat amanah, responsif dari awal pemesanan.',
             ];
 
             $closings = [
-                " Next bakal order lagi buat proyek berikutnya.",
-                " Bakal jadi langganan ini mah. Sukses terus!",
-                " Rekomen buat yang cari roster berkualitas harga pabrik.",
-                " Sangat memuaskan belanja di Indoroster.",
-                " Hasil akhir di teras rumah jadi estetik parah 👍",
-                " Fasad rumah keliatan mewah dan minimalis banget 😍",
+                ' Next bakal order lagi buat proyek berikutnya.',
+                ' Bakal jadi langganan ini mah. Sukses terus!',
+                ' Rekomen buat yang cari roster berkualitas harga pabrik.',
+                ' Sangat memuaskan belanja di Indoroster.',
+                ' Hasil akhir di teras rumah jadi estetik parah 👍',
+                ' Fasad rumah keliatan mewah dan minimalis banget 😍',
             ];
 
             // Randomly build the review
             $parts = [];
             $parts[] = Arr::random($openings);
             $parts[] = Arr::random($qualities);
-            
+
             // Randomly include delivery comment (80% chance)
             if (rand(1, 10) <= 8) {
                 $parts[] = Arr::random($deliveries);
             }
-            
+
             // Randomly include admin comment (60% chance)
             if (rand(1, 10) <= 6) {
                 $parts[] = Arr::random($admins);
             }
-            
+
             $parts[] = Arr::random($closings);
 
             return trim(preg_replace('/\s+/', ' ', implode('', $parts)));
         }
     }
 }
-
-

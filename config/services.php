@@ -35,4 +35,14 @@ return [
         ],
     ],
 
+    'seo' => [
+        'api_token' => env('SEO_API_TOKEN', 'dev-seo-token-secret-123'),
+    ],
+
+    'github' => [
+        'token' => env('GITHUB_TOKEN'),
+        'owner' => env('GITHUB_OWNER'),
+        'repo' => env('GITHUB_REPO'),
+    ],
+
 ];

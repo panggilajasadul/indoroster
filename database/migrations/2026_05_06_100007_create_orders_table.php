@@ -14,10 +14,10 @@ return new class extends Migration
             $table->string('order_number', 30)->unique();
             $table->enum('status', [
                 'pending_payment', 'paid', 'processing',
-                'shipped', 'delivered', 'completed', 'cancelled'
+                'shipped', 'delivered', 'completed', 'cancelled',
             ])->default('pending_payment');
             $table->enum('payment_status', [
-                'unpaid', 'paid', 'expired', 'failed', 'refunded'
+                'unpaid', 'paid', 'expired', 'failed', 'refunded',
             ])->default('unpaid');
             $table->decimal('subtotal', 15, 2);
             $table->decimal('shipping_cost', 12, 2)->default(0);

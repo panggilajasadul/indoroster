@@ -3,25 +3,28 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\MaterialResource\Pages;
-use App\Filament\Resources\MaterialResource\RelationManagers;
 use App\Models\Material;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Str;
 
 class MaterialResource extends Resource
 {
     protected static ?string $model = Material::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-swatch';
+
     protected static ?string $navigationLabel = 'Opsi Varian';
+
     protected static ?string $modelLabel = 'Opsi Varian';
+
     protected static ?string $pluralModelLabel = 'Opsi Varian';
+
     protected static ?string $navigationGroup = 'Katalog';
+
     protected static ?int $navigationSort = 2;
 
     public static function form(Form $form): Form
@@ -35,7 +38,7 @@ class MaterialResource extends Resource
                             ->required()
                             ->maxLength(255)
                             ->live(onBlur: true)
-                            ->afterStateUpdated(fn (string $operation, $state, Forms\Set $set) => $operation === 'create' ? $set('slug', \Illuminate\Support\Str::slug($state)) : null)
+                            ->afterStateUpdated(fn (string $operation, $state, Forms\Set $set) => $operation === 'create' ? $set('slug', Str::slug($state)) : null)
                             ->columnSpanFull(),
                         Forms\Components\Hidden::make('slug')
                             ->required()

@@ -1,12 +1,13 @@
 <?php
 
-require __DIR__ . '/../vendor/autoload.php';
-$app = require_once __DIR__ . '/../bootstrap/app.php';
-$kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
+require __DIR__.'/../vendor/autoload.php';
+$app = require_once __DIR__.'/../bootstrap/app.php';
+$kernel = $app->make(Kernel::class);
 $kernel->bootstrap();
 
 use App\Models\Gallery;
 use App\Models\ProductReview;
+use Illuminate\Contracts\Console\Kernel;
 
 echo "--- Testing Gallery View Increment ---\n";
 $gallery = Gallery::first();
@@ -50,9 +51,9 @@ $adminVideos = Gallery::where('category', 'video-inspirasi')
     ->where('is_active', true)
     ->with(['likes', 'comments'])
     ->get()
-    ->map(function($gallery) {
+    ->map(function ($gallery) {
         return [
-            'id' => 'gallery-' . $gallery->id,
+            'id' => 'gallery-'.$gallery->id,
             'title' => $gallery->title,
             'likes_count' => $gallery->likes->count(),
             'comments_count' => $gallery->comments->count(),
@@ -64,20 +65,21 @@ $reviewVideos = ProductReview::where('is_approved', true)
     ->whereNotNull('images')
     ->with(['likes', 'comments'])
     ->get()
-    ->flatMap(function($review) {
+    ->flatMap(function ($review) {
         $videos = [];
         foreach ($review->images as $path) {
             $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
             if (in_array($ext, ['mp4', 'mov', 'avi'])) {
                 $videos[] = [
-                    'id' => 'review-' . $review->id,
-                    'title' => 'Ulasan: ' . $review->content,
+                    'id' => 'review-'.$review->id,
+                    'title' => 'Ulasan: '.$review->content,
                     'likes_count' => $review->likes->count(),
                     'comments_count' => $review->comments->count(),
                     'views_count' => $review->views_count ?? 0,
                 ];
             }
         }
+
         return $videos;
     });
 
@@ -86,6 +88,7 @@ $collection = $adminVideos->concat($reviewVideos);
 $sorted = $collection->sortByDesc(function ($item) {
     $score = ($item['views_count'] ?? 0) + (($item['likes_count'] ?? 0) * 5) + (($item['comments_count'] ?? 0) * 10);
     echo "Item: {$item['id']} | Title: {$item['title']} | Views: {$item['views_count']} | Likes: {$item['likes_count']} | Comments: {$item['comments_count']} | Score: {$score}\n";
+
     return $score;
 });
 

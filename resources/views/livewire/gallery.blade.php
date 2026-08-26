@@ -1,4 +1,4 @@
-<div class="py-12 bg-gray-50 min-h-screen" x-data="{ 
+<div class="bg-slate-50 dark:bg-slate-950 min-h-screen py-6 sm:py-10" x-data="{ 
     fullSizeModal: {{ $initialActiveIndex !== null ? 'true' : 'false' }}, 
     activeIndex: {{ $initialActiveIndex !== null ? $initialActiveIndex : 0 }}, 
     isLoggedIn: {{ auth()->check() ? 'true' : 'false' }}, 
@@ -20,34 +20,51 @@
             if (idx !== -1) { activeIndex = idx; }
         }
     });
+    $watch('fullSizeModal', isOpen => {
+        if (isOpen && photos && photos[activeIndex]) {
+            const slug = photos[activeIndex].slug || photos[activeIndex].id;
+            history.replaceState(null, '', '{{ url('/gallery') }}/' + slug);
+        } else {
+            history.replaceState(null, '', '{{ url('/gallery') }}');
+        }
+    });
+    $watch('activeIndex', idx => {
+        if (fullSizeModal && photos && photos[idx]) {
+            const slug = photos[idx].slug || photos[idx].id;
+            history.replaceState(null, '', '{{ url('/gallery') }}/' + slug);
+        }
+    });
 ">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" wire:loading.class="opacity-50 transition-opacity">
-        <!-- Header -->
-        <div class="text-center mb-16">
-            <h1 class="font-display text-fluid-h1 font-black text-slate-900 mb-4 tracking-tight">
-                {!! $title !!}
-            </h1>
-            <div class="w-24 h-1.5 bg-terra-500 mx-auto rounded-full mb-6"></div>
-            <p class="text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed">
-                {{ $description }}
-            </p>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Breadcrumb & Header (Adaptive Light/Dark Theme) -->
+        <div class="mb-6 sm:mb-8">
+            <x-breadcrumb :items="[['label' => 'Galeri Foto Proyek']]" class="!px-0 !py-0 mb-3" />
+
+            <div class="max-w-3xl">
+                <h1 class="font-display text-2xl sm:text-3xl md:text-4xl font-black tracking-tight text-slate-900 dark:text-white mb-2">
+                    {!! $title !!}
+                </h1>
+                <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed font-normal">
+                    {{ $description }}
+                </p>
+            </div>
         </div>
 
         <!-- Filters & Sorting -->
-        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-12 pb-6 border-b border-slate-200">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-8 pb-6 border-b border-slate-200 dark:border-slate-800">
             <!-- Categories -->
-            <div class="flex flex-wrap gap-2.5 md:gap-3">
+            <div class="flex flex-wrap items-center gap-2.5 md:gap-3">
                 <button 
                     type="button"
                     wire:click="setTab('all')" 
-                    class="group relative px-6 py-2.5 rounded-full text-[11px] font-bold uppercase tracking-[0.2em] transition-all duration-300 overflow-hidden
+                    class="group relative px-6 py-2.5 rounded-full text-[11px] font-bold uppercase tracking-[0.2em] transition-all duration-300 overflow-hidden cursor-pointer
                     {{ $activeTab === 'all' 
                         ? 'bg-terra-500 text-white shadow-[0_10px_20px_-5px_rgba(247,92,32,0.4)] translate-y-[-2px]' 
-                        : 'bg-white text-slate-500 border border-slate-200 hover:border-terra-300 hover:text-terra-600 hover:shadow-md hover:translate-y-[-2px]' 
+                        : 'bg-white dark:bg-slate-900 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-800 hover:border-terra-300 dark:hover:border-terra-500 hover:text-terra-600 dark:hover:text-terra-400 hover:shadow-md hover:translate-y-[-2px]' 
                     }}">
                     <span class="relative z-10">SEMUA</span>
                     @if($activeTab !== 'all')
-                        <div class="absolute inset-0 bg-terra-50 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+                        <div class="absolute inset-0 bg-terra-50 dark:bg-terra-500/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
                     @endif
                 </button>
 
@@ -55,40 +72,60 @@
                     <button 
                         type="button"
                         wire:click="setTab('{{ $category }}')" 
-                        class="group relative px-6 py-2.5 rounded-full text-[11px] font-bold uppercase tracking-[0.2em] transition-all duration-300 overflow-hidden
+                        class="group relative px-6 py-2.5 rounded-full text-[11px] font-bold uppercase tracking-[0.2em] transition-all duration-300 overflow-hidden cursor-pointer
                         {{ $activeTab === $category 
                             ? 'bg-terra-500 text-white shadow-[0_10px_20px_-5px_rgba(247,92,32,0.4)] translate-y-[-2px]' 
-                            : 'bg-white text-slate-500 border border-slate-200 hover:border-terra-300 hover:text-terra-600 hover:shadow-md hover:translate-y-[-2px]' 
+                            : 'bg-white dark:bg-slate-900 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-800 hover:border-terra-300 dark:hover:border-terra-500 hover:text-terra-600 dark:hover:text-terra-400 hover:shadow-md hover:translate-y-[-2px]' 
                         }}">
                         <span class="relative z-10">{{ strtoupper($category) }}</span>
                         @if($activeTab !== $category)
-                            <div class="absolute inset-0 bg-terra-50 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+                            <div class="absolute inset-0 bg-terra-50 dark:bg-terra-500/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
                         @endif
                     </button>
                 @endforeach
+            </div>
+
+            <!-- Sorting Filter -->
+            <div class="flex items-center gap-2.5 self-start lg:self-center">
+                <div class="relative inline-flex items-center">
+                    <span class="text-xs font-bold text-slate-500 dark:text-slate-400 mr-2 flex items-center gap-1.5">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 text-terra-500">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 4.5h14.25M3 9h9.75M3 13.5h5.25m5.25-.75L17.25 9m0 0L21 12.75M17.25 9v12" />
+                        </svg>
+                        Urutkan:
+                    </span>
+                    <select 
+                        wire:change="setSortBy($event.target.value)"
+                        class="text-xs font-semibold bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 pr-8 shadow-sm hover:border-terra-400 focus:ring-2 focus:ring-terra-500/20 focus:border-terra-500 cursor-pointer transition-all">
+                        <option value="latest" @selected($sortBy === 'latest')>⚡ Terbaru (Upload Terbaru)</option>
+                        <option value="oldest" @selected($sortBy === 'oldest')>⏳ Terlama</option>
+                        <option value="viral" @selected($sortBy === 'viral')>🔥 Terpopuler / Viral</option>
+                        <option value="views" @selected($sortBy === 'views')>👁️ Paling Banyak Dilihat</option>
+                    </select>
+                </div>
             </div>
         </div>
 
         <!-- Photo Grid -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" id="gallery-container">
-            @foreach($photos as $index => $image)
+            @foreach($displayedPhotos as $index => $image)
                 <div 
                     @click="activeIndex = {{ $index }}; activePhotoId = '{{ $image['id'] }}'; fullSizeModal = true"
                     wire:key="img-{{ $activeTab }}-{{ $loop->index }}"
-                    class="group relative aspect-square overflow-hidden rounded-2xl bg-white cursor-pointer shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 hover:shadow-[0_20px_50px_rgba(0,0,0,0.1)] hover:-translate-y-2 transition-all duration-500 ease-out">
+                    class="group relative aspect-square overflow-hidden rounded-2xl bg-white dark:bg-slate-900 cursor-pointer shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 dark:border-slate-800 hover:shadow-[0_20px_50px_rgba(0,0,0,0.1)] hover:-translate-y-2 transition-all duration-500 ease-out">
                     
                     {{-- Link Badge if associated with product --}}
                     @if(!empty($image['product']))
                         <div class="absolute top-4 left-4 z-10 pointer-events-auto">
                             <div 
                                 @click.stop="window.location.href = '{{ url('/produk/' . $image['product']['slug']) }}'"
-                                class="product-badge-btn inline-flex items-center gap-2 px-3 py-1.5 bg-white/95 backdrop-blur-md rounded-xl text-slate-800 text-[10px] md:text-xs font-bold border border-slate-200/50 shadow-md hover:bg-terra-500 hover:text-white hover:border-terra-500 hover:scale-105 transition-all duration-300 group/badge cursor-pointer">
+                                class="product-badge-btn inline-flex items-center gap-2 px-3 py-1.5 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md rounded-xl text-slate-800 dark:text-white text-[10px] md:text-xs font-bold border border-slate-200/50 dark:border-slate-700/50 shadow-md hover:bg-terra-500 hover:text-white hover:border-terra-500 hover:scale-105 transition-all duration-300 group/badge cursor-pointer">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-3.5 h-3.5 text-terra-500 flex-shrink-0 group-hover/badge:text-white transition-colors">
                                     <path fill-rule="evenodd" d="M6 5v1h8V5a4 4 0 0 0-8 0ZM4 8.5a.75.75 0 0 1 .75-.75h10.5a.75.75 0 0 1 .75.75v6.75a2.25 2.25 0 0 1-2.25 2.25H6.25a2.25 2.25 0 0 1-2.25-2.25V8.5Zm3 1.5a.75.75 0 1 0-1.5 0v1.5a.75.75 0 1 0 1.5 0v-1.5Zm6.5-.75a.75.75 0 0 1 .75.75v1.5a.75.75 0 1 1-1.5 0v-1.5a.75.75 0 0 1 .75-.75Z" clip-rule="evenodd" />
                                 </svg>
                                 <div class="flex flex-col leading-tight">
-                                    <span class="truncate max-w-[110px] text-[9px] text-slate-500 group-hover/badge:text-white/80 font-medium transition-colors">{{ $image['product']['name'] }}</span>
-                                    <span class="text-[10px] font-black text-terra-600 group-hover/badge:text-white transition-colors">Beli Sekarang →</span>
+                                    <span class="truncate max-w-[120px]">{{ $image['product']['name'] }}</span>
+                                    <span class="text-terra-600 dark:text-terra-400 group-hover/badge:text-white/90 text-[9px] font-black">{{ $image['product']['formatted_price'] }}</span>
                                 </div>
                             </div>
                         </div>
@@ -98,11 +135,12 @@
                         src="{{ $image['url'] }}" 
                         alt="{{ $image['title'] }}" 
                         loading="lazy"
-                        class="w-full h-full object-cover transition-transform duration-1000 ease-out group-hover:scale-110">
-                    
+                        class="w-full h-full object-cover transition-transform duration-1000 ease-out group-hover:scale-110"
+                    />
+
                     {{-- Overlay with better gradient and animation --}}
                     <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex flex-col justify-end p-6 translate-y-4 group-hover:translate-y-0">
-                        <span class="text-terra-400 text-xs font-bold uppercase tracking-widest mb-1">{{ $image['category'] }}</span>
+                        <span class="text-terra-400 text-xs font-bold uppercase tracking-widest mb-1">{{ $image['category'] ?? 'Proyek' }}</span>
                         <h3 class="font-display text-white text-sm font-bold leading-tight drop-shadow-sm">{{ $image['title'] }}</h3>
                         @if(!empty($image['location']))
                             <p class="text-white/70 text-[10px] mt-1 flex items-center gap-1">
@@ -139,6 +177,47 @@
                 </div>
             @endforeach
         </div>
+
+        <!-- Infinite Scroll Native Sensor (100% Otomatis saat Scroll) -->
+        @if($hasMore)
+            <div 
+                x-data="{
+                    observer: null,
+                    isLoading: false,
+                    init() {
+                        this.observer = new IntersectionObserver((entries) => {
+                            entries.forEach(entry => {
+                                if (entry.isIntersecting && !this.isLoading) {
+                                    this.isLoading = true;
+                                    $wire.loadMore().then(() => {
+                                        this.isLoading = false;
+                                    });
+                                }
+                            });
+                        }, { rootMargin: '350px' });
+                        this.observer.observe(this.$el);
+                    },
+                    destroy() {
+                        if (this.observer) this.observer.disconnect();
+                    }
+                }"
+                class="w-full flex flex-col items-center justify-center py-10"
+            >
+                <div class="inline-flex items-center gap-2.5 px-6 py-3 rounded-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-soft-xs text-slate-700 dark:text-slate-300 text-xs font-semibold">
+                    <svg class="animate-spin h-4 w-4 text-terra-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                    </svg>
+                    <span>Memuat foto proyek berikutnya...</span>
+                </div>
+            </div>
+        @elseif($totalPhotos > 0)
+            <div class="w-full text-center py-10">
+                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 text-xs font-medium">
+                    <span>✓ Semua foto proyek telah ditampilkan (Total {{ $totalPhotos }} Foto)</span>
+                </div>
+            </div>
+        @endif
 
         @if(count($photos) === 0)
             <div class="text-center py-20">
@@ -265,7 +344,8 @@
                     <!-- Share Button -->
                     <button 
                         @click.stop="
-                            const shareUrl = `${window.location.origin}${window.location.pathname}?photo=${photos[activeIndex].id}`;
+                            const slug = photos[activeIndex].slug || photos[activeIndex].id;
+                            const shareUrl = `${window.location.origin}/gallery/${slug}`;
                             if (navigator.share) {
                                 navigator.share({
                                     title: photos[activeIndex].title,
@@ -620,4 +700,39 @@
             transform: scale(1.1);
         }
     </style>
+    </div>
 </div>
+
+@push('seo')
+@php
+    $siteUrl = config('app.url');
+@endphp
+@foreach($photos as $photo)
+    @php
+        $description = 'Inspirasi pemasangan roster beton minimalis ' . ($photo['product']['name'] ?? '') . ' pada kategori ' . $photo['category'] . ' berlokasi di ' . $photo['location'] . '. Dapatkan kualitas premium langsung dari pabrik INDOROSTER.';
+    @endphp
+    <script type="application/ld+json">
+    {
+        "@@context": "https://schema.org",
+        "@@type": "ImageObject",
+        "contentUrl": "{{ $photo['url'] }}",
+        "name": "{{ e($photo['title']) }}",
+        "description": "{{ e($description) }}",
+        "datePublished": "{{ $photo['created_at'] }}",
+        @if(!empty($photo['product']))
+        "about": {
+            "@@type": "Product",
+            "name": "{{ e($photo['product']['name']) }}",
+            "url": "{{ url('/produk/' . $photo['product']['slug']) }}",
+            "image": "{{ $photo['product']['image'] }}"
+        },
+        @endif
+        "author": {
+            "@@type": "Organization",
+            "name": "Indoroster",
+            "url": "{{ $siteUrl }}"
+        }
+    }
+    </script>
+@endforeach
+@endpush

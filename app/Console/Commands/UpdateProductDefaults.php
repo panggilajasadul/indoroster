@@ -2,13 +2,14 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\Models\Product;
+use Illuminate\Console\Command;
 use Illuminate\Support\Str;
 
 class UpdateProductDefaults extends Command
 {
     protected $signature = 'products:update-defaults';
+
     protected $description = 'Update existing products with default description and SKU if missing';
 
     public function handle()
@@ -23,13 +24,13 @@ class UpdateProductDefaults extends Command
 
             // Update SKU if empty
             if (empty($product->sku)) {
-                $product->sku = 'IR-' . strtoupper(Str::random(6));
+                $product->sku = 'IR-'.strtoupper(Str::random(6));
                 $updated = true;
             }
 
             // Append template if not already present
-            if (!Str::contains($product->description, 'PANDUAN PEMESANAN')) {
-                $product->description = $product->description . '<br><br>' . $template;
+            if (! Str::contains($product->description, 'PANDUAN PEMESANAN')) {
+                $product->description = $product->description.'<br><br>'.$template;
                 $updated = true;
             }
 

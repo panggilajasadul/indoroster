@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\CourierResource\Pages;
 
 use App\Filament\Resources\CourierResource;
-use Filament\Actions;
 use Filament\Resources\Pages\CreateRecord;
 
 class CreateCourier extends CreateRecord
@@ -13,8 +12,9 @@ class CreateCourier extends CreateRecord
     protected function mutateFormDataBeforeCreate(array $data): array
     {
         if (empty($data['email'])) {
-            $data['email'] = $data['phone'] . '@kurir.indoroster.local';
+            $data['email'] = $data['phone'].'@kurir.indoroster.local';
         }
+
         return $data;
     }
 }

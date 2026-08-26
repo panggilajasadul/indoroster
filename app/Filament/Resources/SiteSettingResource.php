@@ -9,14 +9,20 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class SiteSettingResource extends Resource
 {
     protected static ?string $model = SiteSetting::class;
+
     protected static ?string $navigationIcon = 'heroicon-o-cog-6-tooth';
+
     protected static ?string $navigationGroup = 'Pengaturan';
+
     protected static ?string $navigationLabel = 'Pengaturan Website';
+
     protected static ?string $modelLabel = 'Pengaturan';
+
     protected static ?int $navigationSort = 1;
 
     public static function form(Form $form): Form
@@ -26,13 +32,30 @@ class SiteSettingResource extends Resource
                 ->schema([
                     Forms\Components\Select::make('group')
                         ->label('Grup')
-                        ->options([
-                            'general' => '🏠 Umum',
-                            'contact' => '📞 Kontak',
-                            'payment' => '💳 Pembayaran',
-                            'shipping' => '🚚 Pengiriman',
-                            'seo' => '🔍 SEO',
-                        ])
+                        ->options(function () {
+                            $base = [
+                                'general' => '🏠 Umum',
+                                'contact' => '📞 Kontak',
+                                'document_settings' => '📄 Dokumen & Cetak (Invoice / SPK)',
+                                'theme' => '🎨 Tema & Tampilan',
+                                'payment' => '💳 Pembayaran',
+                                'shipping' => '🚚 Pengiriman',
+                                'seo' => '🔍 SEO',
+                            ];
+                            try {
+                                $fromDb = SiteSetting::distinct()->pluck('group', 'group')->filter()->toArray();
+                                foreach ($fromDb as $grp => $label) {
+                                    if ($grp !== 'mail' && ! isset($base[$grp])) {
+                                        $base[$grp] = '⚙️ '.ucfirst(str_replace('_', ' ', $grp));
+                                    }
+                                }
+                            } catch (\Throwable $e) {
+                                // Fallback to base options if DB query fails
+                            }
+
+                            return $base;
+                        })
+                        ->searchable()
                         ->default('general')
                         ->required(),
                     Forms\Components\TextInput::make('key')
@@ -82,11 +105,24 @@ class SiteSettingResource extends Resource
                     ->color(fn (string $state): string => match ($state) {
                         'general' => 'primary',
                         'contact' => 'success',
+                        'document_settings' => 'warning',
                         'payment' => 'warning',
                         'shipping' => 'info',
+                        'theme' => 'secondary',
                         'seo' => 'gray',
                         'mail' => 'danger',
                         default => 'gray',
+                    })
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                        'general' => 'Umum',
+                        'contact' => 'Kontak',
+                        'document_settings' => 'Dokumen & Cetak',
+                        'theme' => 'Tema & Tampilan',
+                        'payment' => 'Pembayaran',
+                        'shipping' => 'Pengiriman',
+                        'seo' => 'SEO',
+                        'mail' => 'Email',
+                        default => ucfirst(str_replace('_', ' ', $state)),
                     })
                     ->sortable(),
                 Tables\Columns\TextColumn::make('key')->label('Key')->searchable(),
@@ -97,13 +133,29 @@ class SiteSettingResource extends Resource
             ->filters([
                 Tables\Filters\SelectFilter::make('group')
                     ->label('Grup')
-                    ->options([
-                        'general' => 'Umum',
-                        'contact' => 'Kontak',
-                        'payment' => 'Pembayaran',
-                        'shipping' => 'Pengiriman',
-                        'seo' => 'SEO',
-                    ]),
+                    ->options(function () {
+                        $base = [
+                            'general' => 'Umum',
+                            'contact' => 'Kontak',
+                            'document_settings' => 'Dokumen & Cetak',
+                            'theme' => 'Tema & Tampilan',
+                            'payment' => 'Pembayaran',
+                            'shipping' => 'Pengiriman',
+                            'seo' => 'SEO',
+                        ];
+                        try {
+                            $fromDb = SiteSetting::distinct()->pluck('group', 'group')->filter()->toArray();
+                            foreach ($fromDb as $grp => $label) {
+                                if ($grp !== 'mail' && ! isset($base[$grp])) {
+                                    $base[$grp] = ucfirst(str_replace('_', ' ', $grp));
+                                }
+                            }
+                        } catch (\Throwable $e) {
+                            // Fallback
+                        }
+
+                        return $base;
+                    }),
             ])
             ->actions([Tables\Actions\EditAction::make()])
             ->bulkActions([Tables\Actions\BulkActionGroup::make([Tables\Actions\DeleteBulkAction::make()])]);
@@ -118,7 +170,7 @@ class SiteSettingResource extends Resource
         ];
     }
 
-    public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
+    public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()->where('group', '!=', 'mail');
     }

@@ -2,15 +2,17 @@
 
 namespace App\Livewire\Auth;
 
-use Livewire\Component;
+use App\Models\Cart;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cookie;
-use App\Models\Cart;
+use Livewire\Component;
 
 class Login extends Component
 {
     public $email;
+
     public $password;
+
     public $remember = false;
 
     protected $rules = [
@@ -41,17 +43,17 @@ class Login extends Component
         $sessionId = Cookie::get('cart_session_id');
         if ($sessionId) {
             $userId = Auth::id();
-            
+
             // Ambil semua barang keranjang dari session ini
             $sessionCartItems = Cart::where('session_id', $sessionId)->get();
-            
+
             foreach ($sessionCartItems as $item) {
                 // Cek apakah barang yang sama (produk & varian) sudah ada di keranjang user
                 $existing = Cart::where('user_id', $userId)
                     ->where('product_id', $item->product_id)
                     ->where('product_variant_id', $item->product_variant_id)
                     ->first();
-                
+
                 if ($existing) {
                     $existing->increment('quantity', $item->quantity);
                     $item->delete();

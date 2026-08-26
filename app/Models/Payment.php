@@ -41,7 +41,7 @@ class Payment extends Model
             'gopay' => 'GoPay',
             'shopeepay' => 'ShopeePay',
             'qris' => 'QRIS',
-            'bank_transfer' => 'Transfer Bank (' . strtoupper($this->bank ?? '') . ')',
+            'bank_transfer' => 'Transfer Bank ('.strtoupper($this->bank ?? '').')',
             'echannel' => 'Transfer Bank (MANDIRI)',
             'credit_card' => 'Kartu Kredit',
             'cstore' => 'Minimarket',

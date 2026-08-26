@@ -2,9 +2,9 @@
 
 namespace App\Livewire\Member;
 
-use Livewire\Component;
 use App\Models\Order;
 use App\Services\MidtransService;
+use Livewire\Component;
 
 class OrderHistory extends Component
 {
@@ -21,13 +21,14 @@ class OrderHistory extends Component
 
         if ($order->payment_status === 'paid') {
             session()->flash('error', 'Pesanan ini sudah dibayar.');
+
             return;
         }
 
         try {
             $snapToken = $order->snap_token;
-            if (!$snapToken) {
-                $midtrans = new MidtransService();
+            if (! $snapToken) {
+                $midtrans = new MidtransService;
                 $snapToken = $midtrans->getSnapToken($order);
                 $order->update(['snap_token' => $snapToken]);
             }
@@ -35,13 +36,25 @@ class OrderHistory extends Component
             // Dispatch event to open Midtrans Snap popup
             $this->dispatch('snap-pay', token: $snapToken, order_id: $order->order_number);
         } catch (\Exception $e) {
-            session()->flash('error', 'Gagal memproses pembayaran: ' . $e->getMessage());
+            session()->flash('error', 'Gagal memproses pembayaran: '.$e->getMessage());
         }
     }
 
     public function render()
     {
-        $query = Order::where('user_id', auth()->id())
+        $userId = auth()->id();
+        $baseQuery = Order::where('user_id', $userId);
+
+        $tabCounts = [
+            'semua' => (clone $baseQuery)->count(),
+            'belum-bayar' => (clone $baseQuery)->where('status', 'pending_payment')->where('payment_status', '!=', 'paid')->count(),
+            'diproses' => (clone $baseQuery)->whereIn('status', ['paid', 'processing'])->count(),
+            'dikirim' => (clone $baseQuery)->whereIn('status', ['shipped', 'delivered'])->count(),
+            'selesai' => (clone $baseQuery)->where('status', 'completed')->count(),
+            'batal' => (clone $baseQuery)->where('status', 'cancelled')->count(),
+        ];
+
+        $query = (clone $baseQuery)
             ->with(['items.product.media', 'items.variant', 'invoice'])
             ->orderByDesc('created_at');
 
@@ -67,7 +80,8 @@ class OrderHistory extends Component
         $orders = $query->get();
 
         return view('livewire.member.order-history', [
-            'orders' => $orders
+            'orders' => $orders,
+            'tabCounts' => $tabCounts,
         ])->layout('components.layouts.app', ['title' => 'Riwayat Pesanan - Indoroster']);
     }
 }

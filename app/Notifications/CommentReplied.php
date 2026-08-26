@@ -3,15 +3,15 @@
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\Str;
 
 class CommentReplied extends Notification
 {
     use Queueable;
 
     public $reply;
+
     public $parentComment;
 
     /**
@@ -42,15 +42,15 @@ class CommentReplied extends Notification
     {
         $url = '#';
         if ($this->parentComment->commentable_type === 'App\Models\Gallery') {
-            $url = route('gallery') . '?highlight_comment=' . $this->reply->id . '&active_id=' . $this->parentComment->commentable_id;
+            $url = route('gallery').'?highlight_comment='.$this->reply->id.'&active_id='.$this->parentComment->commentable_id;
         } elseif ($this->parentComment->commentable_type === 'App\Models\VideoInspiration') {
-            $url = route('video-inspiration') . '?highlight_comment=' . $this->reply->id . '&active_id=' . $this->parentComment->commentable_id;
+            $url = route('video-inspiration').'?highlight_comment='.$this->reply->id.'&active_id='.$this->parentComment->commentable_id;
         }
 
         return [
             'type' => 'comment_replied',
             'title' => 'Balasan Baru untuk Komentar Anda',
-            'message' => $this->reply->user->name . ' membalas: "' . \Illuminate\Support\Str::limit($this->reply->body, 100) . '"',
+            'message' => $this->reply->user->name.' membalas: "'.Str::limit($this->reply->body, 100).'"',
             'url' => $url,
             'reply_id' => $this->reply->id,
             'parent_id' => $this->parentComment->id,

@@ -25,7 +25,7 @@ class FinancialStatsOverview extends BaseWidget
             ->sum('grand_total');
 
         $revenueTrend = $revenueLastMonth > 0 ? (($revenueThisMonth - $revenueLastMonth) / $revenueLastMonth) * 100 : 100;
-        $revenueDescription = $revenueTrend > 0 ? '+' . number_format($revenueTrend, 1) . '% dari bulan lalu' : number_format($revenueTrend, 1) . '% dari bulan lalu';
+        $revenueDescription = $revenueTrend > 0 ? '+'.number_format($revenueTrend, 1).'% dari bulan lalu' : number_format($revenueTrend, 1).'% dari bulan lalu';
         $revenueIcon = $revenueTrend > 0 ? 'heroicon-m-arrow-trending-up' : 'heroicon-m-arrow-trending-down';
         $revenueColor = $revenueTrend > 0 ? 'success' : 'danger';
 
@@ -38,19 +38,19 @@ class FinancialStatsOverview extends BaseWidget
             ->sum('grand_total');
 
         return [
-            Stat::make('Pendapatan Bulan Ini', 'Rp ' . number_format($revenueThisMonth, 0, ',', '.'))
+            Stat::make('Pendapatan Bulan Ini', 'Rp '.number_format($revenueThisMonth, 0, ',', '.'))
                 ->description($revenueDescription)
                 ->descriptionIcon($revenueIcon)
                 ->color($revenueColor)
                 ->url(route('filament.admin.resources.orders.index')),
 
-            Stat::make('Pendapatan Minggu Ini', 'Rp ' . number_format($revenueThisWeek, 0, ',', '.'))
+            Stat::make('Pendapatan Minggu Ini', 'Rp '.number_format($revenueThisWeek, 0, ',', '.'))
                 ->description('Mulai Senin minggu ini')
                 ->descriptionIcon('heroicon-m-banknotes')
                 ->color('success')
                 ->url(route('filament.admin.resources.orders.index')),
 
-            Stat::make('Pendapatan Hari Ini', 'Rp ' . number_format($revenueToday, 0, ',', '.'))
+            Stat::make('Pendapatan Hari Ini', 'Rp '.number_format($revenueToday, 0, ',', '.'))
                 ->description('Total penjualan masuk hari ini')
                 ->descriptionIcon('heroicon-m-banknotes')
                 ->color('success')

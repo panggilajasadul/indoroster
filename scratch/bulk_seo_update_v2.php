@@ -6,15 +6,15 @@ use Illuminate\Support\Str;
 // List of words that indicate it's already an SEO title in Indonesian
 $indoKeywords = ['Inspirasi', 'Desain', 'Pemasangan', 'Aksen', 'Sekat', 'Pagar', 'Fasad', 'Dinding', 'Roster Beton'];
 
-$galleries = Gallery::all()->filter(function($gallery) use ($indoKeywords) {
+$galleries = Gallery::all()->filter(function ($gallery) use ($indoKeywords) {
     // If it's video-inspirasi, we definitely want to SEO-ify it too if it's still short/English
     if ($gallery->category === 'video-inspirasi') {
-        return strlen($gallery->title) < 25 || !Str::contains($gallery->title, $indoKeywords);
+        return strlen($gallery->title) < 25 || ! Str::contains($gallery->title, $indoKeywords);
     }
-    
+
     // For others, if it's short or doesn't have a description, or matches English patterns
-    return strlen($gallery->title) < 35 || 
-           empty($gallery->description) || 
+    return strlen($gallery->title) < 35 ||
+           empty($gallery->description) ||
            Str::contains($gallery->title, ['Modern', 'Minimalist', 'Design', 'Idea', 'Highlight', 'Look', 'Architecture']);
 });
 
@@ -29,7 +29,7 @@ $seoPatterns = [
             'Inspirasi Rumah Sejuk: Fasad Roster Beton Anti Panas',
             'Facade Cantik Rumah Minimalis dengan Lubang Angin Roster',
         ],
-        'desc' => 'Transformasi tampilan luar rumah dengan penggunaan roster beton minimalis yang memberikan sirkulasi udara maksimal dan kesan estetik.'
+        'desc' => 'Transformasi tampilan luar rumah dengan penggunaan roster beton minimalis yang memberikan sirkulasi udara maksimal dan kesan estetik.',
     ],
     'pagar' => [
         'titles' => [
@@ -40,7 +40,7 @@ $seoPatterns = [
             'Keunggulan Pagar Roster Beton: Kuat, Kokoh, dan Berkarakter',
             'Pagar Roster Motif Minimalis untuk Rumah Industrial Modern',
         ],
-        'desc' => 'Dapatkan inspirasi desain pagar rumah minimalis menggunakan roster beton yang tidak hanya aman tapi juga menambah nilai artistik properti Anda.'
+        'desc' => 'Dapatkan inspirasi desain pagar rumah minimalis menggunakan roster beton yang tidak hanya aman tapi juga menambah nilai artistik properti Anda.',
     ],
     'interior' => [
         'titles' => [
@@ -51,7 +51,7 @@ $seoPatterns = [
             'Penerapan Roster Beton pada Ruang Tengah Rumah Modern',
             'Dinding Partisi Roster untuk Interior Rumah Lebih Berwarna',
         ],
-        'desc' => 'Ciptakan interior rumah yang unik dan berkarakter dengan aplikasi sekat ruang atau aksen dinding menggunakan roster beton dekoratif.'
+        'desc' => 'Ciptakan interior rumah yang unik dan berkarakter dengan aplikasi sekat ruang atau aksen dinding menggunakan roster beton dekoratif.',
     ],
     'video-inspirasi' => [
         'titles' => [
@@ -62,7 +62,7 @@ $seoPatterns = [
             'Video Dokumentasi: Hasil Pemasangan Roster Indoroster',
             'Tonton: Keindahan Aksen Roster Beton di Hunian Modern',
         ],
-        'desc' => 'Lihat langsung video dokumentasi dan inspirasi pemasangan roster beton kami di berbagai lokasi proyek untuk hasil yang maksimal.'
+        'desc' => 'Lihat langsung video dokumentasi dan inspirasi pemasangan roster beton kami di berbagai lokasi proyek untuk hasil yang maksimal.',
     ],
     'default' => [
         'titles' => [
@@ -73,29 +73,29 @@ $seoPatterns = [
             'Roster Beton Indoroster: Pilihan Terbaik untuk Hunian Anda',
             'Solusi Sirkulasi Udara Rumah dengan Roster Beton Estetik',
         ],
-        'desc' => 'Lihat berbagai inspirasi penggunaan roster beton atau breeze block pada berbagai bagian bangunan untuk menciptakan hunian yang estetik dan nyaman.'
-    ]
+        'desc' => 'Lihat berbagai inspirasi penggunaan roster beton atau breeze block pada berbagai bagian bangunan untuk menciptakan hunian yang estetik dan nyaman.',
+    ],
 ];
 
-echo "Updating " . $galleries->count() . " records...\n";
+echo 'Updating '.$galleries->count()." records...\n";
 
 foreach ($galleries as $index => $gallery) {
     $cat = $gallery->category;
     $pattern = $seoPatterns[$cat] ?? ($seoPatterns[str_replace(' ', '-', strtolower($cat))] ?? $seoPatterns['default']);
-    
+
     $titles = $pattern['titles'];
     $newTitle = $titles[$index % count($titles)];
     $newDesc = $pattern['desc'];
-    
+
     // Add uniqueness if title already exists
     if (Gallery::where('title', $newTitle)->where('id', '!=', $gallery->id)->exists()) {
-        $newTitle .= " " . ($index + 1);
+        $newTitle .= ' '.($index + 1);
     }
 
     $gallery->update([
         'title' => $newTitle,
         'description' => $newDesc,
-        'slug' => Str::slug($newTitle) . '-' . Str::random(5)
+        'slug' => Str::slug($newTitle).'-'.Str::random(5),
     ]);
 }
 

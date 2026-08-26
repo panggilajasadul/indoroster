@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\Models\ShippingRate;
+use Illuminate\Console\Command;
 use Laravolt\Indonesia\Models\City;
 
 class PopulateShippingRates extends Command

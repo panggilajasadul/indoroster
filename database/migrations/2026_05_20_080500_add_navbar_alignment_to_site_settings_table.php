@@ -1,14 +1,13 @@
 <?php
 
+use App\Models\SiteSetting;
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
     public function up(): void
     {
-        \App\Models\SiteSetting::updateOrCreate(
+        SiteSetting::updateOrCreate(
             ['key' => 'navbar_alignment'],
             [
                 'group' => 'general',
@@ -22,6 +21,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        \App\Models\SiteSetting::where('key', 'navbar_alignment')->delete();
+        SiteSetting::where('key', 'navbar_alignment')->delete();
     }
 };

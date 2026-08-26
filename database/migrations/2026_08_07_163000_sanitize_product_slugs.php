@@ -1,9 +1,9 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use App\Models\Product;
 use App\Models\Category;
 use App\Models\Page;
+use App\Models\Product;
+use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Str;
 
 return new class extends Migration

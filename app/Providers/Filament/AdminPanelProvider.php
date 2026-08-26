@@ -10,6 +10,7 @@ use Filament\Pages;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\View\PanelsRenderHook;
 use Filament\Widgets;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
@@ -45,6 +46,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->navigationGroups([
                 'Transaksi',
+                'Manajemen Pemenuhan',
                 'Katalog',
                 'Konten',
                 'Pengaturan',
@@ -62,6 +64,25 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
-            ]);
+            ])
+            ->renderHook(
+                PanelsRenderHook::HEAD_END,
+                fn (): string => '<style>
+                    /* Max height & smooth scrolling for Builder Block Picker and all large dropdown panels */
+                    .fi-dropdown-panel, [x-ref="panel"], .fi-builder-block-picker {
+                        max-height: 80vh !important;
+                        overflow-y: auto !important;
+                        overscroll-behavior: contain;
+                    }
+                    .fi-dropdown-list {
+                        max-height: 75vh !important;
+                        overflow-y: auto !important;
+                    }
+                </style>'
+            )
+            ->renderHook(
+                PanelsRenderHook::BODY_END,
+                fn (): string => '<script src="'.asset('js/filament/rich-editor-align.js').'?v='.time().'"></script>'
+            );
     }
 }

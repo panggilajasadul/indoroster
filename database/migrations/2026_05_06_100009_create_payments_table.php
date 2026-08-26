@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('va_number', 50)->nullable();
             $table->decimal('gross_amount', 15, 2);
             $table->enum('status', [
-                'pending', 'settlement', 'capture', 'deny', 'cancel', 'expire', 'refund'
+                'pending', 'settlement', 'capture', 'deny', 'cancel', 'expire', 'refund',
             ])->default('pending');
             $table->string('fraud_status', 20)->nullable();
             $table->string('payment_url', 500)->nullable();

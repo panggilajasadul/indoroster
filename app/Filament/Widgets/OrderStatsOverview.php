@@ -27,7 +27,7 @@ class OrderStatsOverview extends BaseWidget
             ->sum('grand_total');
 
         $revenueTrend = $revenueLastMonth > 0 ? (($revenueThisMonth - $revenueLastMonth) / $revenueLastMonth) * 100 : 100;
-        $revenueDescription = $revenueTrend > 0 ? '+' . number_format($revenueTrend, 1) . '% dari bulan lalu' : number_format($revenueTrend, 1) . '% dari bulan lalu';
+        $revenueDescription = $revenueTrend > 0 ? '+'.number_format($revenueTrend, 1).'% dari bulan lalu' : number_format($revenueTrend, 1).'% dari bulan lalu';
         $revenueIcon = $revenueTrend > 0 ? 'heroicon-m-arrow-trending-up' : 'heroicon-m-arrow-trending-down';
         $revenueColor = $revenueTrend > 0 ? 'success' : 'danger';
 

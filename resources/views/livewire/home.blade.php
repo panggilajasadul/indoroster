@@ -1,7 +1,4 @@
 <div>
-@push('seo')
-    <x-seo-schemas />
-@endpush
 @php
     $rawWa = \App\Models\SiteSetting::getValue('whatsapp_number', '0813-8970-9847');
     $waNumber = preg_replace('/[^0-9]/', '', $rawWa);
@@ -17,68 +14,87 @@
         $sliderDuration = (int) \App\Models\SiteSetting::getValue('hero_slider_duration', 5000);
         $bannerCount = $banners->count();
     @endphp
-    <div id="heroSlider" class="relative bg-slate-900 overflow-hidden min-h-[620px] sm:min-h-[580px] md:min-h-[70vh] lg:min-h-[75vh]">
+    <div id="heroSlider" class="relative bg-slate-950 overflow-hidden min-h-[580px] sm:min-h-[620px] md:min-h-[75vh] lg:min-h-[82vh] flex items-center select-none" data-duration="{{ $sliderDuration }}">
         @if($bannerCount > 0)
             @foreach($banners as $index => $banner)
                 <div 
-                    class="hero-slide absolute inset-0 transition-opacity duration-1000 {{ $index === 0 ? 'active' : '' }}"
-                    style="{{ $index === 0 ? 'opacity:1; z-index:1;' : 'opacity:0; z-index:0;' }}"
+                    class="hero-slide absolute inset-0 transition-opacity duration-1000 ease-out {{ $index === 0 ? 'active' : '' }}"
+                    style="{{ $index === 0 ? 'opacity:1; z-index:2;' : 'opacity:0; z-index:1; pointer-events:none;' }}"
                     data-slide="{{ $index }}"
                 >
                     <img 
                         src="{{ $banner->image_url }}" 
                         alt="{{ $banner->title }} — Roster Beton Minimalis Indoroster Plered Purwakarta" 
                         class="w-full h-full object-cover"
-                        style="opacity: 0.45;"
+                        style="opacity: 0.40;"
                         {{ $index === 0 ? 'loading=eager fetchpriority=high' : 'loading=lazy' }}
                     >
-                    <div class="absolute inset-0 bg-slate-950/75 sm:bg-transparent sm:bg-gradient-to-r sm:from-slate-950/95 sm:via-slate-950/70 sm:to-transparent"></div>
+                    <div class="absolute inset-0 bg-slate-950/80 sm:bg-transparent sm:bg-gradient-to-r sm:from-slate-950/95 sm:via-slate-950/75 sm:to-transparent"></div>
                     
-                    <div class="absolute inset-0 flex items-center py-12 sm:py-16 md:py-0">
-                        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full mt-12 md:mt-0">
-                            <div class="max-w-2xl">
-                                @if($index === 0)
-                                <h1 class="text-sm font-bold text-terra-400 uppercase tracking-widest mb-3 flex items-center gap-2">
-                                    <span class="w-5 h-px bg-terra-500"></span>
-                                    Pabrik Roster Beton Minimalis Plered Purwakarta
-                                    <span class="w-5 h-px bg-terra-500"></span>
-                                </h1>
-                                @endif
-                                <div class="inline-block bg-terra-500/15 border border-terra-500/40 text-orange-500 px-3 py-1 rounded-full text-xs sm:text-sm font-semibold mb-4 sm:mb-5 tracking-wider uppercase">
-                                    Pabrik Tangan Pertama · Plered, Purwakarta
+                    <div class="absolute inset-0 flex items-center py-12 sm:py-16 md:py-0 pointer-events-none">
+                        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full pointer-events-auto">
+                            <div class="max-w-3xl">
+                                
+                                <div class="motion-badge">
+                                    @if($index === 0)
+                                    <h1 class="text-xs sm:text-sm font-bold text-slate-300 uppercase tracking-widest mb-3 flex items-center gap-2">
+                                        <span class="w-4 h-px bg-terra-500"></span>
+                                        Pabrik Roster Beton Minimalis Plered Purwakarta
+                                        <span class="w-4 h-px bg-terra-500"></span>
+                                    </h1>
+                                    @endif
+                                    <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-terra-500/15 border border-terra-500/30 backdrop-blur-md text-terra-400 text-xs sm:text-sm font-bold uppercase tracking-wider mb-4 sm:mb-5 shadow-lg">
+                                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                                        <span>Pabrik Tangan Pertama · Plered, Purwakarta</span>
+                                    </div>
                                 </div>
-                                <h2 class="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-semibold text-white leading-tight mb-6 sm:mb-8 tracking-normal">
-                                    {!! $banner->title !!}
-                                </h2>
-                                <p class="text-sm sm:text-base text-slate-300 mb-6 sm:mb-8 max-w-lg leading-relaxed">
-                                    {!! $banner->subtitle !!}
-                                </p>
-                                <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full sm:w-auto">
-                                    <a href="{{ $banner->button_url ?? route('catalog') }}" class="inline-flex items-center justify-center border border-white bg-black/20 hover:bg-white hover:text-slate-900 text-white px-6 sm:px-8 py-3 sm:py-3.5 rounded-full font-semibold text-sm sm:text-base transition-all text-center backdrop-blur-sm">
-                                        {{ $banner->button_text ?? 'Lihat Katalog Produk' }}
+
+                                <div class="motion-title">
+                                    <h2 class="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white leading-[1.12] tracking-tight mb-5 sm:mb-6">
+                                        {!! $banner->title !!}
+                                    </h2>
+                                </div>
+
+                                <div class="motion-subtitle">
+                                    <p class="text-sm sm:text-base md:text-lg text-slate-300 mb-6 sm:mb-8 max-w-xl leading-relaxed font-normal">
+                                        {!! $banner->subtitle !!}
+                                    </p>
+                                </div>
+
+                                <div class="flex flex-col sm:flex-row gap-3.5 sm:gap-4 w-full sm:w-auto motion-buttons">
+                                    <a href="{{ $banner->button_url ?? route('catalog') }}" class="inline-flex items-center justify-center gap-2.5 px-8 py-4 bg-terra-500 hover:bg-terra-400 text-white font-bold text-sm uppercase tracking-wider rounded-2xl transition-all shadow-luxury hover:scale-105 active:scale-95 group">
+                                        <span>{{ $banner->button_text ?? 'Lihat Katalog Produk' }}</span>
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                        </svg>
                                     </a>
-                                    <a href="{{ route('contact') }}" class="inline-flex items-center justify-center border border-terra-500 bg-black/20 hover:bg-terra-500 hover:text-white text-terra-500 px-6 sm:px-8 py-3 sm:py-3.5 rounded-full font-semibold text-sm sm:text-base transition-all text-center backdrop-blur-sm">
-                                        Konsultasi Gratis
+                                    <a href="{{ route('contact') }}" class="inline-flex items-center justify-center gap-2 px-8 py-4 border border-white/20 hover:border-white text-white hover:bg-white/10 backdrop-blur-md font-bold text-sm uppercase tracking-wider rounded-2xl transition-all hover:scale-105 active:scale-95">
+                                        <span>Konsultasi Pabrik Gratis</span>
                                     </a>
                                 </div>
+
                             </div>
                         </div>
                     </div>
                 </div>
             @endforeach
-            @else
+        @else
             <!-- Fallback bila tidak ada banner -->
-            <div class="absolute inset-0 flex items-center py-12 sm:py-16 md:py-0 bg-gradient-to-br from-slate-900 to-slate-800">
+            <div class="absolute inset-0 flex items-center py-12 sm:py-16 md:py-0 bg-gradient-to-br from-slate-950 to-slate-900">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-                    <div class="max-w-2xl">
-                        <h1 class="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-semibold text-white leading-tight mb-6 sm:mb-8">
-                            Pabrik Roster Beton Minimalis Plered Purwakarta.
+                    <div class="max-w-3xl">
+                        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-terra-500/15 border border-terra-500/30 text-terra-400 text-xs font-bold uppercase tracking-wider mb-5">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                            <span>Pabrik Tangan Pertama Purwakarta</span>
+                        </div>
+                        <h1 class="font-display text-3xl sm:text-5xl md:text-6xl font-black text-white leading-tight mb-6">
+                            Pabrik Roster Beton Minimalis Cetak Tumbuk Padat & Presisi.
                         </h1>
-                        <p class="text-sm sm:text-base text-slate-400 mb-8 sm:mb-12 max-w-lg leading-relaxed">
-                            Produksi langsung dari tangan pertama. Melayani pengiriman ke seluruh Indonesia.
+                        <p class="text-sm sm:text-base md:text-lg text-slate-300 mb-8 max-w-xl leading-relaxed">
+                            Produksi langsung tangan pertama pengrajin Plered Purwakarta dengan teknik tumbuk padat khusus. Keras, rapi, presisi, dan bergaransi pengiriman ke seluruh Indonesia.
                         </p>
-                        <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full sm:w-auto">
-                            <a href="{{ route('catalog') }}" class="inline-flex items-center justify-center border border-terra-500 bg-black/20 hover:bg-terra-500 hover:text-white text-terra-500 px-6 sm:px-8 py-3 sm:py-3.5 rounded-full font-semibold text-sm sm:text-base transition-all text-center backdrop-blur-sm">
+                        <div class="flex flex-col sm:flex-row gap-4">
+                            <a href="{{ route('catalog') }}" class="inline-flex items-center justify-center px-8 py-4 bg-terra-500 hover:bg-terra-400 text-white font-bold text-sm uppercase tracking-wider rounded-2xl transition-all shadow-luxury">
                                 Lihat Katalog
                             </a>
                         </div>
@@ -89,17 +105,17 @@
 
         @if($bannerCount > 1)
             <!-- Prev Arrow -->
-            <button onclick="heroSliderPrev()" class="hidden md:flex absolute left-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-black/30 hover:bg-black/60 border-none text-white cursor-pointer items-center justify-center transition-colors group">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="group-hover:-translate-x-1 transition-transform"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+            <button onclick="heroSliderPrev()" class="hidden md:flex absolute left-6 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-2xl bg-black/40 hover:bg-terra-500 border border-white/15 text-white cursor-pointer items-center justify-center transition-all duration-300 backdrop-blur-md hover:scale-110 active:scale-95 shadow-xl group" aria-label="Slide Sebelumnya">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="group-hover:-translate-x-0.5 transition-transform"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" /></svg>
             </button>
             <!-- Next Arrow -->
-            <button onclick="heroSliderNext()" class="hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-black/30 hover:bg-black/60 border-none text-white cursor-pointer items-center justify-center transition-colors group">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="group-hover:translate-x-1 transition-transform"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+            <button onclick="heroSliderNext()" class="hidden md:flex absolute right-6 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-2xl bg-black/40 hover:bg-terra-500 border border-white/15 text-white cursor-pointer items-center justify-center transition-all duration-300 backdrop-blur-md hover:scale-110 active:scale-95 shadow-xl group" aria-label="Slide Berikutnya">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="group-hover:translate-x-0.5 transition-transform"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" /></svg>
             </button>
-            <!-- Dots -->
-            <div id="heroDots" class="absolute bottom-7 left-1/2 -translate-x-1/2 z-20 flex gap-3">
+            <!-- Expanding Progress Indicator Dots -->
+            <div id="heroDots" class="absolute bottom-8 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2.5 bg-black/40 backdrop-blur-md px-4 py-2 rounded-full border border-white/10">
                 @foreach($banners as $i => $b)
-                    <button onclick="heroSliderGoto({{ $i }})" data-dot="{{ $i }}" class="w-3 h-3 rounded-full border transition-all duration-300 {{ $i === 0 ? 'border-terra-500 bg-terra-500' : 'border-white/50 bg-transparent' }}"></button>
+                    <button onclick="heroSliderGoto({{ $i }})" data-dot="{{ $i }}" class="h-2 rounded-full transition-all duration-500 {{ $i === 0 ? 'w-8 bg-terra-500 shadow-sm' : 'w-2 bg-white/40 hover:bg-white/70' }}" aria-label="Ke Slide {{ $i + 1 }}"></button>
                 @endforeach
             </div>
         @endif
@@ -107,32 +123,36 @@
     @if($bannerCount > 1)
     <script>
     (function() {
+        var sliderEl = document.getElementById('heroSlider');
+        if (!sliderEl) return;
+
         var current = 0;
         var total = {{ $bannerCount }};
         var duration = {{ $sliderDuration }};
         var timer = null;
 
-        function init() {
-            startTimer();
-        }
-
         function goto(n) {
-            var slides = document.querySelectorAll('#heroSlider .hero-slide');
-            var dots = document.querySelectorAll('#heroDots button');
+            var slides = sliderEl.querySelectorAll('.hero-slide');
+            var dots = sliderEl.querySelectorAll('#heroDots button');
+            if (!slides.length) return;
+
             slides[current].classList.remove('active');
             slides[current].style.opacity = '0';
-            slides[current].style.zIndex = '0';
+            slides[current].style.zIndex = '1';
             slides[current].style.pointerEvents = 'none';
+
             current = (n + total) % total;
+
             slides[current].classList.add('active');
             slides[current].style.opacity = '1';
-            slides[current].style.zIndex = '1';
+            slides[current].style.zIndex = '2';
             slides[current].style.pointerEvents = '';
+
             dots.forEach(function(d, i) {
                 if (i === current) {
-                    d.className = "w-3 h-3 rounded-full border border-terra-500 bg-terra-500 cursor-pointer transition-all duration-300";
+                    d.className = "h-2 w-8 bg-terra-500 rounded-full cursor-pointer transition-all duration-500 shadow-sm";
                 } else {
-                    d.className = "w-3 h-3 rounded-full border border-white/50 bg-transparent cursor-pointer transition-all duration-300";
+                    d.className = "h-2 w-2 bg-white/40 hover:bg-white/70 rounded-full cursor-pointer transition-all duration-500";
                 }
             });
         }
@@ -142,6 +162,7 @@
         window.heroSliderGoto = function(n) { resetTimer(); goto(n); };
 
         function startTimer() {
+            if (timer) clearInterval(timer);
             timer = setInterval(function() { goto(current + 1); }, duration);
         }
         function resetTimer() {
@@ -149,11 +170,23 @@
             startTimer();
         }
 
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', init);
-        } else {
-            init();
-        }
+        // Mobile Touch Swipe Support
+        var touchStartX = 0;
+        var touchEndX = 0;
+        sliderEl.addEventListener('touchstart', function(e) {
+            touchStartX = e.changedTouches[0].screenX;
+        }, { passive: true });
+
+        sliderEl.addEventListener('touchend', function(e) {
+            touchEndX = e.changedTouches[0].screenX;
+            if (touchStartX - touchEndX > 50) {
+                window.heroSliderNext();
+            } else if (touchEndX - touchStartX > 50) {
+                window.heroSliderPrev();
+            }
+        }, { passive: true });
+
+        startTimer();
     })();
     </script>
     @endif
@@ -180,7 +213,7 @@
                 </span>
                 <span class="flex items-center gap-3 font-black text-xs uppercase tracking-[0.2em]">
                     <span class="w-2 h-2 bg-accent rounded-full animate-pulse"></span>
-                    Kualitas Beton K-200
+                    Cetak Tumbuk Padat & Rapi
                 </span>
             </div>
             @endfor
@@ -237,7 +270,7 @@
                         Seberapa Kuat <br><span class="text-accent font-display text-fluid-h1">Roster Kami?</span>
                     </h2>
                     <p class="text-lg text-slate-600 mb-8 leading-relaxed">
-                        Dibuat dengan beton kualitas <span class="font-bold text-black">K-200</span> dan teknik pengepresan maksimal. Roster kami dirancang untuk tahan banting, tahan cuaca, dan tetap kokoh hingga puluhan tahun.
+                        Dibuat dengan teknik <span class="font-bold text-black">cetak tumbuk padat</span> menggunakan alat khusus oleh pengrajin berpengalaman Plered. Roster kami dirancang padat tanpa rongga, keras, sudut siku rapi, dan tahan cuaca hingga puluhan tahun.
                     </p>
                     <div class="grid grid-cols-2 gap-6">
                         <div class="flex items-start gap-4">
@@ -476,7 +509,7 @@
                 <div>
                     <h2 class="font-display text-fluid-h2 font-bold mb-6">Kenapa Memilih Roster Beton Minimalis Indoroster?</h2>
                     <p class="text-slate-400 mb-8 text-lg leading-relaxed">
-                        Sebagai produsen tangan pertama pabrik roster beton Plered Purwakarta, kami memproduksi loster dengan standar tinggi K-200. Kami telah melayani ribuan proyek mulai dari rumah minimalis hingga komersial di seluruh Indonesia.
+                        Sebagai produsen tangan pertama pabrik roster beton Plered Purwakarta, kami memproduksi loster dengan teknik cetak tumbuk padat berkualitas tinggi. Hasilnya keras, halus, dan rapi, telah melayani ribuan proyek hunian hingga komersial di seluruh Indonesia.
                     </p>
                     <div class="space-y-6">
                         <div class="flex items-start gap-4">
@@ -614,7 +647,7 @@
                         <!-- TikTok Overlay UI (Visual only) -->
                         <div class="absolute bottom-16 left-4 text-white z-10 pointer-events-none group">
                             <div class="font-bold text-sm mb-1">@indoroster_official</div>
-                            <div class="text-xs text-white/80 line-clamp-2">Uji kekuatan roster beton K-200 🔥 #roster #minimalis #industrial</div>
+                            <div class="text-xs text-white/80 line-clamp-2">Uji kekuatan roster beton cetak tumbuk padat 🔥 #roster #minimalis #industrial</div>
                         </div>
                     </div>
                 </div>

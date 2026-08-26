@@ -14,11 +14,17 @@ use Illuminate\Support\Str;
 class CategoryResource extends Resource
 {
     protected static ?string $model = Category::class;
+
     protected static ?string $navigationIcon = 'heroicon-o-tag';
+
     protected static ?string $navigationGroup = 'Katalog';
+
     protected static ?string $navigationLabel = 'Kategori';
+
     protected static ?string $modelLabel = 'Kategori';
+
     protected static ?string $pluralModelLabel = 'Kategori';
+
     protected static ?int $navigationSort = 1;
 
     public static function form(Form $form): Form
@@ -55,6 +61,21 @@ class CategoryResource extends Resource
                             ->label('Aktif')
                             ->default(true),
                     ])->columns(2),
+                Forms\Components\Section::make('SEO Kategori')
+                    ->description('Pengaturan meta tag untuk halaman katalog kategori ini agar ramah mesin pencari.')
+                    ->schema([
+                        Forms\Components\TextInput::make('meta_title')
+                            ->label('Meta Title')
+                            ->maxLength(255)
+                            ->placeholder('Contoh: Jual Roster Beton Minimalis Harga Pabrik')
+                            ->helperText('Judul halaman yang tampil di hasil pencarian Google. Disarankan 50-60 karakter.'),
+                        Forms\Components\Textarea::make('meta_description')
+                            ->label('Meta Description')
+                            ->rows(3)
+                            ->maxLength(500)
+                            ->placeholder('Contoh: Temukan pilihan roster beton minimalis berkualitas tinggi langsung dari produsen...')
+                            ->helperText('Deskripsi singkat halaman di Google. Disarankan 120-160 karakter.'),
+                    ])->collapsed(),
             ]);
     }
 

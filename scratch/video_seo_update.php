@@ -17,25 +17,25 @@ $videoPatterns = [
         'Proses Pemasangan Roster Beton: Tips dan Trik Video',
         'Review Hasil Jadi Pemasangan Roster di Rumah Minimalis',
     ],
-    'desc' => 'Tonton video dokumentasi inspiratif mengenai penggunaan roster beton minimalis untuk mempercantik hunian Anda.'
+    'desc' => 'Tonton video dokumentasi inspiratif mengenai penggunaan roster beton minimalis untuk mempercantik hunian Anda.',
 ];
 
-echo "Updating " . $galleries->count() . " video records...\n";
+echo 'Updating '.$galleries->count()." video records...\n";
 
 foreach ($galleries as $index => $gallery) {
     $titles = $videoPatterns['titles'];
     $newTitle = $titles[$index % count($titles)];
     $newDesc = $videoPatterns['desc'];
-    
+
     // Add uniqueness
     if (Gallery::where('title', $newTitle)->where('id', '!=', $gallery->id)->exists()) {
-        $newTitle .= " " . ($index + 1);
+        $newTitle .= ' '.($index + 1);
     }
 
     $gallery->update([
         'title' => $newTitle,
         'description' => $newDesc,
-        'slug' => Str::slug($newTitle) . '-' . Str::random(5)
+        'slug' => Str::slug($newTitle).'-'.Str::random(5),
     ]);
 }
 

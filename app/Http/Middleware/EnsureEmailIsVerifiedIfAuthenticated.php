@@ -15,7 +15,7 @@ class EnsureEmailIsVerifiedIfAuthenticated
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if ($request->user() && !$request->user()->hasVerifiedEmail()) {
+        if ($request->user() && ! $request->user()->hasVerifiedEmail()) {
             return redirect()->route('verification.notice');
         }
 

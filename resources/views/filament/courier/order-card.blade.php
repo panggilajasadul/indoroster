@@ -3,35 +3,76 @@
     $phone = preg_replace('/[^0-9]/', '', $record->shipping_phone ?? '');
     if (str_starts_with($phone, '0')) { $phone = '62' . substr($phone, 1); }
     $waUrl = 'https://wa.me/' . $phone . '?text=Halo%20' . urlencode($record->shipping_name) . ',%20saya%20kurir%20Indoroster%20ingin%20mengirimkan%20pesanan%20Anda.';
-    $mapsUrl = 'https://www.google.com/maps/search/?api=1&query=' . urlencode($record->shipping_address);
+    $hasGps = !empty($record->shipping_latitude) && !empty($record->shipping_longitude);
+    $mapsUrl = $hasGps
+        ? 'https://www.google.com/maps/dir/?api=1&destination=' . $record->shipping_latitude . ',' . $record->shipping_longitude
+        : 'https://www.google.com/maps/search/?api=1&query=' . urlencode($record->shipping_address . ', ' . $record->shipping_city);
+
+    // Untuk PO Batch: ambil batch yang ditugaskan ke kurir ini
+    $isBatch = $record->fulfillment_type === 'po_batch';
+    $myBatches = $isBatch
+        ? $record->batches()->where('courier_id', auth()->id())->whereIn('status', ['shipped'])->orderBy('batch_number')->get()
+        : collect();
+    $totalBatches = $isBatch ? $record->batches()->count() : 0;
+    $shippedBatches = $isBatch ? $record->batches()->whereIn('status', ['shipped', 'delivered'])->count() : 0;
 @endphp
-<div style="padding: 4px 2px 8px 2px; max-width: 100%; box-sizing: border-box; overflow: hidden; word-break: break-word;">
-    <p style="color: #f97316; font-weight: 700; font-size: 0.95rem; margin: 0 0 6px 0;">
-        Order: #{{ $record->order_number }}
+
+<div class="p-1 max-w-full box-border overflow-hidden break-words">
+
+    {{-- Header Pesanan --}}
+    <p class="text-orange-600 dark:text-orange-500 font-bold text-sm sm:text-base flex items-center justify-between mb-1">
+        <span>Order: #{{ $record->order_number }}</span>
+        @if($isBatch)
+        <span class="bg-amber-100 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 text-[10px] px-2.5 py-0.5 rounded-full font-bold border border-amber-200 dark:border-amber-900/60 ml-2">
+            🚚 PO Batch ({{ $shippedBatches }}/{{ $totalBatches }} Terkirim)
+        </span>
+        @endif
     </p>
-    <p style="color: #9ca3af; font-size: 0.88rem; margin: 0 0 4px 0;">
-        Pelanggan: <strong style="color: #ffffff; font-weight: 700;">{{ $record->shipping_name }}</strong>
+    
+    <p class="text-slate-500 dark:text-slate-400 text-xs sm:text-sm mb-1">
+        Pelanggan: <strong class="text-slate-800 dark:text-white font-bold">{{ $record->shipping_name }}</strong>
     </p>
-    <p style="color: #6b7280; font-size: 0.82rem; margin: 0 0 14px 0; line-height: 1.5;">
+    
+    <p class="text-slate-500 dark:text-slate-500 text-[11px] sm:text-xs leading-relaxed mb-3">
         Alamat: {{ $record->shipping_address }}
+        @if($hasGps)
+            <span class="inline-flex items-center gap-1 text-[10px] text-emerald-600 dark:text-emerald-400 font-bold ml-1 bg-emerald-50 dark:bg-emerald-950/40 px-1.5 py-0.5 rounded border border-emerald-200 dark:border-emerald-800">
+                📍 GPS Terpasang
+            </span>
+        @endif
     </p>
+
+    {{-- Untuk PO Batch: tampilkan batch yang jadi tanggung jawab kurir ini --}}
+    @if($isBatch && $myBatches->isNotEmpty())
+    <div class="courier-batch-box">
+        <div class="courier-batch-title">
+            📦 Batch yang Kamu Antar
+        </div>
+        @foreach($myBatches as $batch)
+        <div class="courier-batch-item">
+            <div class="courier-batch-text-main">{{ $batch->batch_name }} — {{ number_format($batch->quantity, 0, ',', '.') }} pcs</div>
+            <div class="courier-batch-text-sub">Plat: <span style="font-family: monospace; font-weight: 700;">{{ $batch->tracking_number ?? '-' }}</span></div>
+        </div>
+        @endforeach
+    </div>
+    @endif
 
     {{-- Tombol Utama: Selesaikan Pesanan --}}
     <button
         wire:click="mountTableAction('complete_delivery', '{{ $record->getKey() }}')"
-        style="width:100%; padding: 10px 12px; margin-bottom: 10px; background: linear-gradient(135deg, #f97316, #ea580c); border: none; border-radius: 999px; color: #fff; font-weight: 700; font-size: clamp(0.72rem, 3.5vw, 0.85rem); text-transform: uppercase; letter-spacing: 0.04em; cursor: pointer; box-shadow: 0 4px 15px rgba(249,115,22,0.4); display: flex; align-items: center; justify-content: center; gap: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; box-sizing: border-box;">
-        ✅ Selesaikan Pesanan
+        style="width: 100% !important; padding: 10px 12px !important; margin-bottom: 10px !important; background: linear-gradient(135deg, #f97316, #ea580c) !important; border: none !important; border-radius: 999px !important; color: #ffffff !important; font-weight: 700 !important; font-size: 0.82rem !important; text-transform: uppercase !important; letter-spacing: 0.04em !important; cursor: pointer !important; box-shadow: 0 4px 15px rgba(249,115,22,0.3) !important; display: flex !important; align-items: center !important; justify-content: center !important; gap: 6px !important; line-height: 1.5 !important;">
+        <span>✅ Selesaikan Pengiriman</span>
     </button>
 
     {{-- Tombol Sekunder --}}
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; width: 100%; box-sizing: border-box;">
+    <div style="display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 8px !important; width: 100% !important;">
         <a href="{{ $waUrl }}" target="_blank"
-           style="display:flex; align-items:center; justify-content:center; padding: 8px 4px; border: 1.5px solid #f97316; border-radius: 999px; color: #f97316; font-size: clamp(0.65rem, 3vw, 0.78rem); font-weight: 600; text-decoration: none; gap: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; box-sizing: border-box;">
+           style="display: flex !important; align-items: center !important; justify-content: center !important; padding: 8px 4px !important; border: 1.5px solid #ea580c !important; border-radius: 999px !important; color: #ea580c !important; font-size: 0.75rem !important; font-weight: 600 !important; text-decoration: none !important; gap: 3px !important; background: transparent !important; text-align: center !important; box-sizing: border-box !important;">
             📞 WA Pelanggan
         </a>
         <a href="{{ $mapsUrl }}" target="_blank"
-           style="display:flex; align-items:center; justify-content:center; padding: 8px 4px; border: 1.5px solid #f97316; border-radius: 999px; color: #f97316; font-size: clamp(0.65rem, 3vw, 0.78rem); font-weight: 600; text-decoration: none; gap: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; box-sizing: border-box;">
-            🗺️ Lacak Alamat
+           style="display: flex !important; align-items: center !important; justify-content: center !important; padding: 8px 4px !important; border: 1.5px solid #ea580c !important; border-radius: 999px !important; color: #ea580c !important; font-size: 0.75rem !important; font-weight: 600 !important; text-decoration: none !important; gap: 3px !important; background: {{ $hasGps ? '#fff7ed' : 'transparent' }} !important; text-align: center !important; box-sizing: border-box !important;">
+            {{ $hasGps ? '📍 Navigasi GPS' : '🗺️ Lacak Alamat' }}
         </a>
     </div>
 </div>
