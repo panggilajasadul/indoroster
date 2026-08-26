@@ -121,8 +121,8 @@
         <thead>
             <tr>
                 <th>Produk</th>
-                <th class="text-right">Harga</th>
-                <th class="text-right">Jumlah</th>
+                <th class="text-right">Harga Satuan</th>
+                <th class="text-right">Qty</th>
                 <th class="text-right">Subtotal</th>
             </tr>
         </thead>
@@ -131,12 +131,17 @@
             <tr>
                 <td>
                     <strong>{{ $item->product_name }}</strong>
-                    @if($item->product_variant_name && $item->product_variant_name !== '-')
-                        <br><small>Varian: {{ $item->product_variant_name }}</small>
+                    @if($item->variant && $item->variant->name && $item->variant->name !== '-')
+                        <br><small style="color: #64748b;">Varian: {{ $item->variant->name }}</small>
+                    @elseif($item->product_variant_name && $item->product_variant_name !== '-')
+                        <br><small style="color: #64748b;">Varian: {{ $item->product_variant_name }}</small>
+                    @endif
+                    @if($item->product && $item->product->dimensions)
+                        <br><small style="color: #94a3b8;">({{ $item->product->dimensions }})</small>
                     @endif
                 </td>
                 <td class="text-right">Rp{{ number_format($item->product_price, 0, ',', '.') }}</td>
-                <td class="text-right">{{ $item->quantity }}</td>
+                <td class="text-right">{{ number_format($item->quantity, 0, ',', '.') }} pcs</td>
                 <td class="text-right">Rp{{ number_format($item->subtotal, 0, ',', '.') }}</td>
             </tr>
             @endforeach
