@@ -35,11 +35,12 @@ class ThemeSettings extends Page implements HasForms
 
     public function mount(): void
     {
-        $settings = SiteSetting::where('group', 'theme')->pluck('value', 'key')->toArray();
+        $settings = SiteSetting::whereIn('group', ['theme', 'general'])->pluck('value', 'key')->toArray();
 
         $this->form->fill([
             'theme_default_mode' => $settings['theme_default_mode'] ?? 'light',
             'theme_allow_user_toggle' => filter_var($settings['theme_allow_user_toggle'] ?? true, FILTER_VALIDATE_BOOLEAN),
+            'top_bar_is_active' => filter_var($settings['top_bar_is_active'] ?? false, FILTER_VALIDATE_BOOLEAN),
             'theme_accent_color' => $settings['theme_accent_color'] ?? '#f75c20',
             'theme_navbar_style' => $settings['theme_navbar_style'] ?? 'glassmorphism',
             'theme_border_radius' => $settings['theme_border_radius'] ?? 'rounded-2xl',
@@ -72,6 +73,11 @@ class ThemeSettings extends Page implements HasForms
                             ->label('Tampilkan Tombol Switcher (Matahari / Bulan) untuk Pengunjung')
                             ->helperText('Jika diaktifkan, pengunjung website dapat bebas mengganti antara Dark Mode & Light Mode melalui icon switcher di navbar & mobile drawer.')
                             ->default(true),
+
+                        Toggle::make('top_bar_is_active')
+                            ->label('Tampilkan Bar Pengumuman Paling Atas (Top Trust Strip)')
+                            ->helperText('Jika dimatikan (OFF), baris hitam di atas header ("Pabrik Tangan Pertama... | Lacak Pengiriman | WA") akan disembunyikan sepenuhnya.')
+                            ->default(false),
                     ])->columns(1),
 
                 Section::make('Palet Warna Aksen Signature')
