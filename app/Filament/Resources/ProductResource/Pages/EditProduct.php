@@ -66,3 +66,4 @@ class EditProduct extends EditRecord
             $record->variants()->delete();
         }
     }
+}
