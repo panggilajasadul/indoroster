@@ -171,10 +171,86 @@
         </tr>
     </table>
 
+    <!-- Tanda Tangan & Stempel Resmi Pabrik -->
+    <table style="width: 100%; margin-top: 30px; border-collapse: collapse; page-break-inside: avoid;">
+        <tr>
+            <td style="width: 55%; vertical-align: top; font-size: 11px; color: #64748b; line-height: 1.5; padding-right: 20px;">
+                <strong style="color: #334155;">Syarat &amp; Ketentuan Pengiriman:</strong>
+                <ul style="margin: 4px 0 0 16px; padding: 0;">
+                    <li>Penurunan material dilakukan di titik bongkar yang dapat diakses armada truk.</li>
+                    <li>Klaim garansi pecah wajib disertakan bukti foto saat serah terima barang.</li>
+                    <li>Dokumen ini merupakan bukti transaksi sah yang diterbitkan otomatis oleh sistem.</li>
+                </ul>
+            </td>
+            <td style="width: 45%; vertical-align: top; text-align: center;">
+                <div style="font-size: 12px; color: #475569; margin-bottom: 3px;">
+                    Purwakarta, {{ $order->paid_at ? $order->paid_at->translatedFormat('d F Y') : date('d F Y') }}
+                </div>
+                <div style="font-size: 13px; font-weight: 700; color: #0f172a; margin-bottom: 4px;">
+                    Pabrik IndoRoster
+                </div>
+
+                <div style="position: relative; height: 135px; width: 290px; margin: 0 auto;">
+                    @php
+                        $stampPath = null;
+                        $sigPath = null;
+                        $combinedPath = null;
+
+                        $combinedCandidates = ['stamp_signature.png', 'stempel_ttd.png', 'ttd_stempel.png', 'stamp_ttd.png', 'signature_stamp.png', 'stempel_dan_ttd.png', 'stempel_ttd.PNG', 'stamp_signature.PNG', 'stempel_ttd.jpg'];
+                        $stampCandidates = ['stamp.png', 'stempel.png', 'company_stamp.png', 'stempel_indoroster.png', 'stamp.PNG', 'stempel.PNG', 'stamp.jpg', 'stempel.jpg', 'stempel_pabrik.png'];
+                        $sigCandidates = ['signature.png', 'ttd.png', 'tanda_tangan.png', 'signature.PNG', 'ttd.PNG', 'signature.jpg', 'ttd.jpg'];
+
+                        foreach ($combinedCandidates as $f) {
+                            if (file_exists(public_path('assets/' . $f))) { $combinedPath = public_path('assets/' . $f); break; }
+                            if (file_exists(base_path('assets/' . $f))) { $combinedPath = base_path('assets/' . $f); break; }
+                        }
+                        if (!$combinedPath) {
+                            foreach ($stampCandidates as $f) {
+                                if (file_exists(public_path('assets/' . $f))) { $stampPath = public_path('assets/' . $f); break; }
+                                if (file_exists(base_path('assets/' . $f))) { $stampPath = base_path('assets/' . $f); break; }
+                            }
+                            foreach ($sigCandidates as $f) {
+                                if (file_exists(public_path('assets/' . $f))) { $sigPath = public_path('assets/' . $f); break; }
+                                if (file_exists(base_path('assets/' . $f))) { $sigPath = base_path('assets/' . $f); break; }
+                            }
+                        }
+                    @endphp
+
+                    @if($combinedPath)
+                        <img src="{{ $combinedPath }}" alt="Stempel & TTD" style="max-height: 130px; max-width: 290px; object-fit: contain;">
+                    @elseif($stampPath || $sigPath)
+                        @if($stampPath)
+                            <img src="{{ $stampPath }}" alt="Stempel" style="position: absolute; left: 0px; top: 10px; width: 120px; height: 120px; object-fit: contain; opacity: 0.95; transform: rotate(-6deg);">
+                        @endif
+                        @if($sigPath)
+                            <img src="{{ $sigPath }}" alt="TTD" style="position: absolute; left: 40px; top: 5px; width: 260px; height: 125px; object-fit: contain; z-index: 2;">
+                        @endif
+                    @else
+                        <!-- Stempel Digital Otomatis Resmi IndoRoster -->
+                        <div style="position: absolute; left: 15px; top: 10px; width: 105px; height: 105px; border: 2.5px dashed #ea580c; border-radius: 50%; color: #ea580c; text-align: center; font-weight: 800; font-size: 10px; line-height: 1.15; padding-top: 18px; box-sizing: border-box; transform: rotate(-6deg); background: rgba(234,88,12,0.03);">
+                            INDOROSTER<br>
+                            <span style="display: block; border-top: 1px solid #ea580c; border-bottom: 1px solid #ea580c; color: #16a34a; font-size: 11px; margin: 3px 0;">★ LUNAS ★</span>
+                            PLERED PWK
+                        </div>
+                        <div style="position: absolute; left: 75px; top: 35px; font-family: 'Brush Script MT', cursive, sans-serif; font-size: 32px; color: #0284c7; font-weight: bold; transform: rotate(-5deg); z-index: 2;">
+                            IndoRoster
+                        </div>
+                    @endif
+                </div>
+
+                <div style="font-weight: 700; text-decoration: underline; color: #0f172a; font-size: 13px; margin-top: 4px;">
+                    Abdul Hamid
+                </div>
+                <div style="font-size: 10.5px; color: #64748b; margin-top: 2px;">
+                    Divisi Keuangan &amp; Distribusi Pabrik
+                </div>
+            </td>
+        </tr>
+    </table>
+
     <div class="footer">
         Terima kasih telah berbelanja di <strong>indoroster.com</strong>.<br>
-        Faktur ini dihasilkan secara otomatis dan sah tanpa tanda tangan.<br>
-        <strong>indoroster.com - Pabrik Roster & bata ekpose dan ornamen dinding Terlengkap</strong>
+        <strong>indoroster.com - Pabrik Roster &amp; Bata Ekspose dan Ornamen Dinding Terlengkap</strong>
     </div>
 </body>
 </html>
