@@ -576,7 +576,15 @@
                     </div>
                     @endif
 
-                    <button type="submit" wire:loading.attr="disabled" @disabled($isProcessing || ($city_id && $totalQty < $minOrderQty)) class="font-display w-full flex justify-center items-center bg-slate-900 dark:bg-terra-500 hover:bg-black dark:hover:bg-terra-600 text-white font-bold py-4 px-4 rounded-xl shadow-lg shadow-slate-900/20 transition-all gap-2 disabled:opacity-70 disabled:cursor-not-allowed cursor-pointer">
+                    <button type="submit" wire:loading.attr="disabled" @disabled($isProcessing || ($city_id && $totalQty < $minOrderQty)) class="font-display w-full flex justify-center items-center bg-slate-900 dark:bg-terra-500 hover:bg-black dark:hover:bg-terra-600 text-white font-bold py-4 px-4 rounded-xl shadow-lg shadow-slate-900/20 transition-all gap-2 disabled:opacity-70 disabled:cursor-not-allowed cursor-pointer"
+                        x-on:click="
+                            const mapEl = document.querySelector('[x-data^=\'checkoutMapHandler\']');
+                            if (mapEl && mapEl._x_dataStack) {
+                                const mapData = mapEl._x_dataStack[0];
+                                if (mapData.lat) $wire.set('latitude', parseFloat(mapData.lat));
+                                if (mapData.lng) $wire.set('longitude', parseFloat(mapData.lng));
+                            }
+                        ">
                         <span wire:loading.remove wire:target="processCheckout">
                             @if($isProcessing)
                                 Menunggu Pembayaran...
