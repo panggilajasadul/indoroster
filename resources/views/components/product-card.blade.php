@@ -89,7 +89,7 @@
                     <span class="text-slate-400 dark:text-slate-500">({{ $product->reviews_count }})</span>
                 @endif
                 <span class="text-slate-300 dark:text-slate-700">|</span>
-                <span class="truncate">{{ $product->total_sold > 0 ? $product->formatted_total_sold . ' terjual' : '150+ terjual' }}</span>
+                <span class="truncate">{{ $product->total_sold > 0 ? $product->formatted_total_sold . ' terjual' : '0 terjual' }}</span>
             </div>
 
             <!-- Price Row -->
