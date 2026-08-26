@@ -146,11 +146,11 @@ class BulkCatalogProductSeeder extends Seeder
             $metaDesc = "{$productIntro}\n\n{$deliveryCoverage}";
 
             $product = Product::updateOrCreate(
-                ['slug' => $slug],
+                ['sku' => $sku],
                 [
+                    'slug' => $slug,
                     'category_id' => $category->id,
                     'name' => $formattedTitle,
-                    'sku' => $sku,
                     'description' => $defaultDescription,
                     'short_description' => 'Roster beton minimalis arsitektural motif '.$item['name'].' tipe '.$item['type'].' ukuran '.$cleanDimensions.'. Kokoh, padat, presisi, dan cocok untuk dinding ventilasi fasad maupun pagar.',
                     'dimensions' => $cleanDimensions,
@@ -159,6 +159,7 @@ class BulkCatalogProductSeeder extends Seeder
                     'original_price' => $item['white'] + 2000,
                     'min_order' => 1,
                     'stock' => 85000,
+                    'total_sold' => 150 + (($item['no'] * 17) % 700),
                     'is_featured' => ($item['no'] <= 8), // 8 produk teratas featured
                     'is_active' => true,
                     'best_for' => 'Fasad Rumah, Pagar Minimalis, Dinding Ventilasi, Sekat Partisi Interior & Eksterior',

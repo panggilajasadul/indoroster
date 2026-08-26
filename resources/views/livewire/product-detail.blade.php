@@ -148,10 +148,13 @@
                             <span class="text-2xl sm:text-3xl font-black text-terra-600 dark:text-terra-400 font-display">Rp{{ number_format($this->activePrice, 0, ',', '.') }}</span>
                         @endif
 
-                        @if($product->original_price > 0 && (!$selectedVariant || $product->original_price > $this->activePrice))
+                        @php
+                            $currentComparePrice = ($selectedVariant && $this->activePrice > 0) ? $this->activePrice : $product->min_price;
+                        @endphp
+                        @if($product->original_price > 0 && $product->original_price > $currentComparePrice)
                             <span class="text-sm sm:text-base text-slate-400 dark:text-slate-500 line-through">Rp{{ number_format($product->original_price, 0, ',', '.') }}</span>
                             @php
-                                $discountPercentage = round((($product->original_price - $this->activePrice) / $product->original_price) * 100);
+                                $discountPercentage = round((($product->original_price - $currentComparePrice) / $product->original_price) * 100);
                             @endphp
                             @if($discountPercentage > 0)
                                 <span class="text-xs font-bold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 border border-red-100 dark:border-red-900/40 px-1.5 py-0.5 rounded">-{{ $discountPercentage }}%</span>
