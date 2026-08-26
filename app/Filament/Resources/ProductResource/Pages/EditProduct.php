@@ -55,4 +55,14 @@ class EditProduct extends EditRecord
 
         return $data;
     }
-}
+
+    protected function afterSave(): void
+    {
+        $record = $this->getRecord();
+        $formData = $this->form->getRawState();
+
+        // Jika tipe produk dipilih "single", hapus semua varian dari database
+        if (($formData['product_type'] ?? null) === 'single') {
+            $record->variants()->delete();
+        }
+    }
