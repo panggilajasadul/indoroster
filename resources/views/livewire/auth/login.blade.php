@@ -38,6 +38,9 @@
                 <div x-data="{ show: false }">
                     <div class="flex justify-between items-center mb-2">
                         <label for="password" class="font-display block text-sm font-bold text-slate-700 dark:text-slate-300">Password</label>
+                        <a href="{{ route('password.request') }}" class="text-xs font-bold text-terra-500 hover:text-terra-600 dark:text-terra-400 dark:hover:text-terra-300 transition-colors">
+                            Lupa Password?
+                        </a>
                     </div>
                     <div class="relative">
                         <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">

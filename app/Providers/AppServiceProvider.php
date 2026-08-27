@@ -11,6 +11,7 @@ use App\Models\Page;
 use App\Models\Product;
 use App\Models\SiteSetting;
 use App\Observers\OrderObserver;
+use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Support\Facades\Schema;
@@ -98,6 +99,23 @@ class AppServiceProvider extends ServiceProvider
                 ->line('Tautan verifikasi ini akan kedaluwarsa dalam waktu 60 menit.')
                 ->line('Apabila Anda tidak merasa mendaftar di akun Indoroster, Anda tidak perlu melakukan tindakan apa pun dan dapat mengabaikan email ini.')
                 ->salutation(new HtmlString('Salam hangat,<br><strong>Tim Indoroster</strong>'));
+        });
+
+        // Custom professional reset password email narrative
+        ResetPassword::toMailUsing(function (object $notifiable, string $token) {
+            $resetUrl = route('password.reset', [
+                'token' => $token,
+                'email' => $notifiable->getEmailForPasswordReset(),
+            ]);
+
+            return (new MailMessage)
+                ->subject('Permintaan Atur Ulang Kata Sandi - Indoroster')
+                ->greeting('Halo, '.($notifiable->name ?? 'Pelanggan IndoRoster').'!')
+                ->line('Kami menerima permintaan untuk mengatur ulang kata sandi akun IndoRoster Anda.')
+                ->action('Atur Ulang Kata Sandi', $resetUrl)
+                ->line('Tautan pemulihan kata sandi ini akan kedaluwarsa dalam waktu 60 menit.')
+                ->line('Jika Anda tidak merasa mengajukan permintaan ini, tidak ada tindakan lebih lanjut yang diperlukan. Akun Anda tetap aman.')
+                ->salutation(new HtmlString('Salam hangat,<br><strong>Tim Keamanan Indoroster</strong>'));
         });
     }
 }
