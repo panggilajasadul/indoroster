@@ -51,15 +51,27 @@ class AppServiceProvider extends ServiceProvider
                 $mailSettings = SiteSetting::where('group', 'mail')->pluck('value', 'key');
 
                 if ($mailSettings->isNotEmpty()) {
-                    config([
-                        'mail.mailers.smtp.host' => $mailSettings->get('mail_host', config('mail.mailers.smtp.host')),
-                        'mail.mailers.smtp.port' => $mailSettings->get('mail_port', config('mail.mailers.smtp.port')),
-                        'mail.mailers.smtp.username' => $mailSettings->get('mail_username', config('mail.mailers.smtp.username')),
-                        'mail.mailers.smtp.password' => $mailSettings->get('mail_password', config('mail.mailers.smtp.password')),
-                        'mail.mailers.smtp.encryption' => $mailSettings->get('mail_encryption', config('mail.mailers.smtp.encryption')),
-                        'mail.from.address' => $mailSettings->get('mail_from_address', config('mail.from.address')),
-                        'mail.from.name' => $mailSettings->get('mail_from_name', config('mail.from.name')),
-                    ]);
+                    if (filled($mailSettings->get('mail_host'))) {
+                        config(['mail.mailers.smtp.host' => $mailSettings->get('mail_host')]);
+                    }
+                    if (filled($mailSettings->get('mail_port'))) {
+                        config(['mail.mailers.smtp.port' => $mailSettings->get('mail_port')]);
+                    }
+                    if (filled($mailSettings->get('mail_username'))) {
+                        config(['mail.mailers.smtp.username' => $mailSettings->get('mail_username')]);
+                    }
+                    if (filled($mailSettings->get('mail_password'))) {
+                        config(['mail.mailers.smtp.password' => $mailSettings->get('mail_password')]);
+                    }
+                    if (filled($mailSettings->get('mail_encryption'))) {
+                        config(['mail.mailers.smtp.encryption' => $mailSettings->get('mail_encryption')]);
+                    }
+                    if (filled($mailSettings->get('mail_from_address'))) {
+                        config(['mail.from.address' => $mailSettings->get('mail_from_address')]);
+                    }
+                    if (filled($mailSettings->get('mail_from_name'))) {
+                        config(['mail.from.name' => $mailSettings->get('mail_from_name')]);
+                    }
                 }
             }
         } catch (\Exception $e) {

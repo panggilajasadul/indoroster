@@ -13,9 +13,12 @@ class VerifyEmail extends Component
             return redirect()->intended(route('home'));
         }
 
-        Auth::user()->sendEmailVerificationNotification();
-
-        session()->flash('success', 'Link verifikasi baru telah dikirim ke alamat email Anda.');
+        try {
+            Auth::user()->sendEmailVerificationNotification();
+            session()->flash('success', 'Link verifikasi baru telah berhasil dikirim ke alamat email Anda.');
+        } catch (\Exception $e) {
+            session()->flash('error', 'Gagal mengirim email verifikasi: '.$e->getMessage().'. Pastikan pengaturan SMTP email Anda valid.');
+        }
     }
 
     public function render()
