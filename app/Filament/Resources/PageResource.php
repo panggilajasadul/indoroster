@@ -1310,12 +1310,26 @@ class PageResource extends Resource
                     Forms\Components\TextInput::make('meta_title')
                         ->label('Judul Utama Halaman (Heading 1 & Title)')
                         ->placeholder('Contoh: Katalog Roster Beton & Bata Expose — Pabrik & Produsen Terpercaya')
-                        ->helperText('Teks ini akan tampil sebagai Judul Utama halaman di browser dan hasil pencarian Google.'),
+                        ->live(onBlur: true)
+                        ->hint(fn ($state): string => strlen($state ?? '').' / 60 karakter')
+                        ->hintColor(fn ($state): string => match (true) {
+                            strlen($state ?? '') > 60 => 'danger',
+                            strlen($state ?? '') >= 40 => 'success',
+                            default => 'gray',
+                        })
+                        ->helperText('Ideal SEO: 40–60 karakter. Teks ini tampil sebagai judul di browser dan hasil pencarian Google.'),
                     Forms\Components\Textarea::make('meta_description')
                         ->label('Deskripsi Paragraf Halaman & SEO')
-                        ->rows(3)
+                        ->rows(4)
                         ->placeholder('Contoh: Pusat katalog roster beton minimalis...')
-                        ->helperText('Teks ini akan tampil sebagai paragraf penjelasan di bawah judul halaman dan di deskripsi Google.'),
+                        ->live(onBlur: true)
+                        ->hint(fn ($state): string => strlen($state ?? '').' / 160 karakter')
+                        ->hintColor(fn ($state): string => match (true) {
+                            strlen($state ?? '') > 160 => 'danger',
+                            strlen($state ?? '') >= 120 => 'success',
+                            default => 'gray',
+                        })
+                        ->helperText('Ideal SEO: 120–160 karakter. Lebih dari 160 karakter akan terpotong di hasil Google.'),
                 ])->columns(1),
         ]);
     }
