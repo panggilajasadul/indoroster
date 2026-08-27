@@ -15,18 +15,72 @@ use Illuminate\Support\Str;
 
 class SimulationHelper
 {
-    // List Nama Indonesia untuk Dummy Users
+    // List 200+ Nama Pembeli (Perorangan, Kontraktor, Cafe/Resto, Studio Arsitek, & Developer)
     protected static $indonesianNames = [
-        'Hendra Saputra', 'Rina Maharani', 'Arief Budiman', 'Dewi Anggraeni', 'Fajar Hidayat',
-        'Budi Santoso', 'Siti Nurhaliza', 'Agus Pramono', 'Lina Wijaya', 'Rudi Hartono',
-        'Maya Indah', 'Putri Ayu', 'Bambang Wicaksono', 'Tommy Halim', 'Deni Kurniawan',
-        'Yusuf Rahman', 'Ratna Sari', 'Ahmad Fauzi', 'Nadia Permata', 'Joko Susilo',
-        'Siska Amelia', 'Andi Wijaya', 'Cici Paramida', 'Dedi Heryanto', 'Euis Kartini',
-        'Fandi Ahmad', 'Gita Gutawa', 'Hadi Pranoto', 'Ika Kartika', 'Junaidi',
-        'Kiki Amelia', 'Lulu Tobing', 'Maman Suherman', 'Nana Mirdad', 'Oki Setiana',
-        'Pipit Dian', 'Qori Sandioriva', 'Rendy Pandugo', 'Sari Nila', 'Taufik Hidayat',
-        'Aditya Pratama', 'Bella Cantika', 'Citra Kirana', 'Dimas Anggara', 'Elina Joerg',
-        'Febby Rastanty', 'Gading Marten', 'Hesti Purwadinata', 'Indra Herlambang', 'Jessica Mila',
+        // 1. Perorangan & Pemilik Rumah (100 Nama)
+        'Bpk. Hendra Saputra', 'Ibu Rina Maharani', 'dr. Arief Budiman', 'Dewi Anggraeni, S.T.', 'Fajar Hidayat',
+        'Bpk. Budi Santoso', 'Ibu Siti Nurhaliza', 'Agus Pramono', 'Lina Wijaya', 'Rudi Hartono',
+        'Maya Indah Puspita', 'Putri Ayu Lestari', 'Ir. Bambang Wicaksono', 'Tommy Halim', 'Deni Kurniawan',
+        'H. Yusuf Rahman', 'Hj. Ratna Sari', 'Ahmad Fauzi', 'Nadia Permata', 'Joko Susilo',
+        'Siska Amelia', 'Andi Wijaya Kusuma', 'Dedi Heryanto', 'Euis Kartini', 'Fandi Ahmad',
+        'Hadi Pranoto', 'Ika Kartika', 'Junaidi Saleh', 'Maman Suherman', 'Rendy Pandugo',
+        'Taufik Hidayat', 'Aditya Pratama', 'Citra Kirana', 'Dimas Anggara', 'Hesti Purwadinata',
+        'Indra Herlambang', 'Reza Rahadian', 'Dian Sastrowardoyo', 'Arifin Putra', 'Nadine Chandrawinata',
+        'Chicco Jerikho', 'Rio Dewanto', 'Tara Basro', 'Vino G. Bastian', 'Marsha Timothy',
+        'Bpk. Gunawan Wibisono', 'Ibu Yuliana Salim', 'drg. Felicia Tan', 'Bpk. Irawan Setiadi', 'Ibu Martha Tilaar',
+        'Bpk. Suryadi Halim', 'Ibu Veronica Ong', 'Bpk. Eko Prasetyo', 'Ibu Wulandari', 'Bpk. Tono Sudirgo',
+        'Bpk. Heru Cahyono', 'Ibu Sri Wahyuni', 'Bpk. Donny Alamsyah', 'Ibu Maya Safitri', 'Bpk. Anton Hartono',
+        'Bpk. Lukman Sardi', 'Ibu Cynthia Lamusu', 'Bpk. Surya Saputra', 'Ibu Nia Ramadhani', 'Bpk. Ananda Mikola',
+        'Bpk. Denny Sumargo', 'Ibu Olivia Allan', 'Bpk. Raditya Dika', 'Ibu Anissa Aziza', 'Bpk. Atta Halilintar',
+        'Bpk. Raffi Ahmad', 'Ibu Nagita Slavina', 'Bpk. Baim Wong', 'Ibu Paula Verhoeven', 'Bpk. Irwansyah',
+        'Ibu Zaskia Sungkar', 'Bpk. Teuku Wisnu', 'Ibu Shireen Sungkar', 'Bpk. Dude Harlino', 'Ibu Alyssa Soebandono',
+        'Bpk. Christian Sugiono', 'Ibu Titi Kamal', 'Bpk. Rio Febrian', 'Ibu Sabria Kono', 'Bpk. Judika Sihotang',
+        'Ibu Duma Riris', 'Bpk. Darius Sinathrya', 'Ibu Donna Agnesia', 'Bpk. Gilang Dirga', 'Ibu Adiezty Fersa',
+        'Bpk. Gading Marten', 'Ibu Gisella Anastasia', 'Bpk. Ruben Onsu', 'Ibu Sarwendah', 'Bpk. Wendy Cagur',
+        'dr. Kevin Sanjaya', 'Ibu Valencia Tanoe', 'Ir. Wahyu Pratama', 'Bpk. Satria Dewantara', 'Ibu Clara Shinta',
+
+        // 2. Kontraktor Bangunan & Aplikator (40 Entitas)
+        'PT Sinar Bangun Mandiri', 'CV Graha Cipta Konstruksi', 'PT Karya Megah Nusantara',
+        'CV Utama Jaya Contractor', 'PT Adhi Mitra Abadi', 'CV Mitra Bangun Sejahtera', 'PT Pilar Utama Konstruksi',
+        'CV Duta Sarana Mandiri', 'PT Tri Tunggal Jaya Konstruksi', 'CV Berkah Jaya Abadi Kontraktor',
+        'PT Mega Cipta Pratama', 'CV Sumber Bangunan Mandiri', 'PT Wijaya Kreasi Propertindo',
+        'CV Multi Karya Perkasa', 'PT Bangun Griya Nusantara', 'CV Cipta Pesona Mandiri',
+        'PT Artha Buana Konstruksi', 'CV Bina Sarana Kontraktor', 'PT Satria Jaya Gemilang',
+        'CV Graha Mandiri Kontruksi', 'PT Pratama Mitra Sejati', 'CV Karya Bersama Mandiri',
+        'PT Selaras Abadi Properti', 'CV Dinamika Cipta Mandiri', 'PT Pandawa Lima Konstruksi',
+        'CV Sinar Mulia Konstruksi', 'PT Jaya Makmur Perkasa', 'CV Griya Arsitektur Mandiri',
+        'PT Mitra Konstruksi Nusantara', 'CV Agung Sejahtera Mandiri', 'PT Mahakarya Bangun Persada',
+        'CV Tri Sakti Kontraktor', 'PT Indo Bangun Cemerlang', 'CV Mandiri Perkasa Abadi',
+        'PT Sentra Bangun Mandiri', 'CV Harmoni Cipta Graha', 'PT Prima Karya Megah',
+        'CV Langgeng Jaya Kontraktor', 'PT Estetika Bangun Selaras', 'CV Karya Prima Mandiri',
+
+        // 3. Studio Arsitektur & Interior Design (30 Entitas)
+        'Studio Reka Ruang Arsitektur', 'Atelier 8 Design & Build', 'Kalam Studio Arsitek',
+        'Dinding Estetika Interior', 'Ruang Tropis Architects', 'Garis Studio Bandung',
+        'Nirmana Design Studio', 'Forma Arsitektur Jakarta', 'Lantai Dua Interior',
+        'Bumi Hijau Architecture', 'Spasi Ruang Design', 'Monokrom Studio Interior',
+        'Selasar Arsitektur', 'Bentuk Ruang Design Lab', 'Batu & Bata Design',
+        'Studio Sekat Bali', 'Tropika Living Studio', 'Urban Spasi Architecture',
+        'Habitat Design Studio', 'Arsitektur Nusantara Studio', 'Warna Ruang Interior',
+        'Kreasi Fasad Modern Studio', 'Ruang Teduh Design', 'Arsitek Fasad Indonesia',
+        'Studio Beton Minimalis', 'Line & Dot Architect', 'Rumah & Ruang Design',
+        'Bambu & Bata Studio', 'Terracotta Concept Architecture', 'Kompak Living Interior',
+
+        // 4. Cafe, Resto, Hotel & Komersial (20 Entitas)
+        'Kopi Senja Terrace Cafe', 'The Foliage Coffee & Eatery', 'Dapur Nusantara Resto & Cafe',
+        'Kopi Toko Djawa Cabang BSD', 'Tanamera Coffee Outlet', 'Anomali Coffee Shop Kemang',
+        'Warung Kopi Klotok Cabang', 'Titik Temu Coffee Senopati', 'Work Coffee Indonesia',
+        'Common Grounds Cafe PIK', 'Sudut Selatan Eatery', 'Ruang Kopi Roastery Dago',
+        'Kopi Nako Official Project', 'Fore Coffee Store BSD', 'Tuku Kopi Tetangga',
+        'Barber & Co Kemang', 'Salon & Spa Tirta Ayu', 'Boutique Hotel Lembang',
+        'Villa Asri Sunset Puncak', 'The Greenhouse Coworking Hub',
+
+        // 5. Developer Kawasan & Perumahan Besar (15 Entitas)
+        'Summarecon Serpong (Proyek Klaster)', 'Summarecon Bekasi Development', 'Summarecon Bandung',
+        'Sinarmas Land (BSD City Project)', 'CitraRaya Tangerang (Ciputra Group)', 'CitraIndah City Jonggol',
+        'Podomoro Golf View Cimanggis', 'Agung Podomoro Park Bandung', 'Paramount Land Gading Serpong',
+        'Lippo Cikarang Properti', 'Grand Wisata Bekasi (Sinarmas)', 'Kota Baru Parahyangan',
+        'Sentul City Development', 'Pakuwon City Residence', 'Alam Sutera Property Development',
     ];
 
     // List username sosial media untuk Dummy Users
@@ -41,6 +95,9 @@ class SimulationHelper
         'pipit_dian', 'qori_s', 'rendy_p', 'sari_nila', 'taufik_h',
         'adit_pratama', 'bella_cantik', 'citra_k', 'dimas_ang', 'elina_j',
         'febby_r', 'gading_m', 'hesti_p', 'indra_h', 'jessica_mila',
+        'sinar_bangun_m', 'graha_cipta_konst', 'karya_megah_n', 'utama_jaya_c',
+        'studio_reka_ruang', 'atelier8_design', 'kopi_senja_cafe', 'the_foliage_coffee',
+        'summarecon_project', 'bsd_architect_group', 'podomoro_view', 'citraraya_home',
     ];
 
     // Template Komentar Video (TikTok Style)
@@ -106,6 +163,32 @@ class SimulationHelper
         'Desain roster ini dipaduin sama tanaman hijau estetik parah sih, aslinya cakep bgt.',
         'Harga pabrik langsung emang paling bersahabat buat renovasi budget minimalis.',
         'Kemarin sempet kurang 15 pcs, langsung direspon cepat & dikirim susulan. Pelayanan top!',
+    ];
+
+    // List 50+ Lokasi Pengiriman Nyata
+    protected static $locations = [
+        // Jabodetabek & Banten
+        'Summarecon Bekasi', 'BSD City Tangerang', 'PIK 2 Jakarta Utara', 'Gading Serpong', 'Bintaro Jaya Sektor 9',
+        'Cibubur Junction Area', 'Kelapa Gading Jakarta Utara', 'Pondok Indah Jakarta Selatan', 'Kemang Jakarta Selatan',
+        'Bekasi Barat', 'Bekasi Timur', 'Cikarang Selatan', 'Sentul City Bogor', 'Bogor Kota', 'Cibinong Bogor',
+        'Depok Margonda', 'Sawangan Depok', 'Cinere Depok', 'Tangerang Kota', 'Karawaci Tangerang', 'Alam Sutera Serpong',
+        'Ciputat Tangerang Selatan', 'Pamulang', 'Cilegon Banten', 'Serang Banten',
+
+        // Jawa Barat
+        'Bandung Kota (Dago)', 'Kota Baru Parahyangan Padalarang', 'Buahbatu Bandung', 'Cimahi', 'Purwakarta (Plered)',
+        'Karawang Barat', 'Karawang Timur', 'Cirebon Kota', 'Kuningan Jawa Barat', 'Sukabumi Kota', 'Cianjur', 'Garut Kota',
+        'Tasikmalaya', 'Sumedang',
+
+        // Jawa Tengah & DIY
+        'Semarang Barat', 'Semarang Kota (Candi)', 'Solo (Surakarta)', 'Yogyakarta (Sleman)', 'Bantul Yogyakarta',
+        'Magelang', 'Pekalongan', 'Tegal Kota', 'Purwokerto', 'Kudus',
+
+        // Jawa Timur & Bali
+        'Surabaya Barat (Pakuwon)', 'Surabaya Timur', 'Malang Kota', 'Batu Malang', 'Sidoarjo Kota', 'Gresik',
+        'Denpasar Bali', 'Canggu Bali', 'Ubud Bali', 'Sanur Bali',
+
+        // Luar Pulau
+        'Bandar Lampung', 'Palembang Kota', 'Medan Kota', 'Pekanbaru', 'Balikpapan', 'Makassar Kota',
     ];
 
     // Template Komentar Foto (Instagram Style)
@@ -449,19 +532,13 @@ class SimulationHelper
             return 0;
         }
 
-        $locations = [
-            'Bekasi', 'Bandung', 'Tangerang', 'Surabaya', 'Depok', 'Semarang', 'Bogor', 'Cirebon',
-            'Jakarta Selatan', 'Karawang', 'Tangerang Selatan', 'Jakarta Barat', 'BSD', 'Cilegon',
-            'Malang', 'Purwakarta', 'Yogyakarta', 'Jakarta Timur', 'Solo', 'Medan',
-        ];
-
         $insertData = [];
         $now = Carbon::now();
         for ($i = 0; $i < $count; $i++) {
             $product = $products->random();
             $nameIdx = rand(0, count(self::$indonesianNames) - 1);
             $reviewerName = self::$indonesianNames[$nameIdx];
-            $location = Arr::random($locations);
+            $location = Arr::random(self::$locations);
 
             $randRating = rand(1, 100);
             if ($randRating <= 75) {
@@ -476,7 +553,7 @@ class SimulationHelper
                 $rating = 1;
             }
 
-            $content = self::getRandomReviewContent($rating, $product->name);
+            $content = self::getRandomReviewContent($rating, $product->name, $reviewerName);
 
             $insertData[] = [
                 'product_id' => $product->id,
@@ -510,18 +587,12 @@ class SimulationHelper
             return 0;
         }
 
-        $locations = [
-            'Bekasi', 'Bandung', 'Tangerang', 'Surabaya', 'Depok', 'Semarang', 'Bogor', 'Cirebon',
-            'Jakarta Selatan', 'Karawang', 'Tangerang Selatan', 'Jakarta Barat', 'BSD', 'Cilegon',
-            'Malang', 'Purwakarta', 'Yogyakarta', 'Jakarta Timur', 'Solo', 'Medan',
-        ];
-
         $insertData = [];
         $now = Carbon::now();
         for ($i = 0; $i < $count; $i++) {
             $nameIdx = rand(0, count(self::$indonesianNames) - 1);
             $reviewerName = self::$indonesianNames[$nameIdx];
-            $location = Arr::random($locations);
+            $location = Arr::random(self::$locations);
 
             $finalRating = $rating;
             if ($finalRating === null || $finalRating === 0) {
@@ -540,7 +611,7 @@ class SimulationHelper
                 }
             }
 
-            $content = self::getRandomReviewContent($finalRating, $product->name);
+            $content = self::getRandomReviewContent($finalRating, $product->name, $reviewerName);
 
             $insertData[] = [
                 'product_id' => $product->id,
@@ -935,29 +1006,34 @@ class SimulationHelper
 
     /**
      * Menghasilkan isi ulasan produk acak dengan mix-and-match frase
-     * serta personalisasi nama produk agar ulasan bervariasi dan alami.
+     * serta personalisasi nama produk & persona pembeli (kontraktor, cafe, developer, retail).
      */
-    public static function getRandomReviewContent(int $rating, string $productName): string
+    public static function getRandomReviewContent(int $rating, string $productName, string $reviewerName = ''): string
     {
+        $isContractor = str_contains($reviewerName, 'PT') || str_contains($reviewerName, 'CV') || str_contains($reviewerName, 'Kontraktor') || str_contains($reviewerName, 'Konstruksi');
+        $isDeveloper = str_contains($reviewerName, 'Summarecon') || str_contains($reviewerName, 'Sinarmas') || str_contains($reviewerName, 'Podomoro') || str_contains($reviewerName, 'Citra') || str_contains($reviewerName, 'Land') || str_contains($reviewerName, 'Lippo') || str_contains($reviewerName, 'Pakuwon');
+        $isCafe = str_contains($reviewerName, 'Kopi') || str_contains($reviewerName, 'Cafe') || str_contains($reviewerName, 'Resto') || str_contains($reviewerName, 'Eatery') || str_contains($reviewerName, 'Hotel') || str_contains($reviewerName, 'Barber');
+        $isArchitect = str_contains($reviewerName, 'Studio') || str_contains($reviewerName, 'Arsitek') || str_contains($reviewerName, 'Design') || str_contains($reviewerName, 'Atelier');
+
         if ($rating <= 3) {
             $positives = [
                 "Sebenarnya roster {$productName} tebal, padat dan kokoh banget,",
-                "Kualitas produk {$productName} memuaskan, cetakannya presisi dan rapi,",
+                "Kualitas cetakan {$productName} memuaskan dan presisi siku 90 derajat,",
                 "Roster {$productName}-nya bagus bersih dan estetik parah,",
                 'Pengiriman cepat sekali pakai truk pabrik langsung,',
-                'Adminnya ramah dan fast respon pas nanya-nanya kebutuhan,',
+                'Adminnya ramah dan fast respon pas konsultasi hitungan kebutuhan,',
                 "Barang {$productName} sendiri sangat bagus dan permukaannya halus,",
                 'Respon admin ramah dan kooperatif dari awal transaksi,',
             ];
 
             $complaints = [
-                ' cuma pengiriman agak telat dari estimasi jadwal.',
-                ' tapi kemarin pas sampai ada beberapa pcs yang cuil ujungnya karena diturunin buru-buru.',
+                ' cuma pengiriman armada agak telat dari estimasi jadwal koordinasi.',
+                ' tapi kemarin pas sampai ada 3 pcs yang cuil ujungnya karena diturunin buru-buru.',
                 ' hanya saja chat admin agak lambat dibalas saat weekend.',
-                ' tapi pesanan sempat kurang beberapa pcs, untungnya admin langsung kirim susulan.',
-                ' cuma paking kayu/paletnya agak renggang jadi ada yang kegores.',
-                ' tapi driver yang anter kurang ramah pas nurunin barang di lokasi.',
-                ' sayang sekali ongkos kirim ke luar kota agak mahal menurut saya.',
+                ' tapi pesanan sempat kurang 5 pcs, untungnya admin langsung kirim susulan gratis.',
+                ' cuma paking palet kayunya agak renggang jadi ada yang sedikit kegores.',
+                ' tapi driver yang antar kurang ramah pas nurunin barang di lokasi proyek.',
+                ' sayang sekali ongkos kirim ke luar pulau lumayan mahal menurut saya.',
                 ' tapi ada sedikit perbedaan warna abu antara cetakan lama dan baru.',
                 ' cuma saat sampai ada beberapa yang retak karena jalanan jelek dan tidak diikat kencang.',
             ];
@@ -974,70 +1050,97 @@ class SimulationHelper
             $text = Arr::random($positives).Arr::random($complaints).Arr::random($closings);
 
             return trim(preg_replace('/\s+/', ' ', $text));
-        } else {
-            $openings = [
-                '',
-                'Mantap! ',
-                'Alhamdulillah, ',
-                'Barang sudah sampai. ',
-                'Puas banget! ',
-                'Rekomended seller. ',
-                'Bintang 5 buat pelayanannya. ',
-            ];
-
-            $qualities = [
-                "Roster {$productName} betonnya tebal dan kokoh.",
-                "Kualitas beton {$productName} emang juara, padat banget.",
-                "Bahannya solid dan finishing {$productName} rapi.",
-                "Roster {$productName} presisi banget pas dipasang sama tukang.",
-                "Barang solid, tebal, berat dan kerasa premium beton {$productName}-nya.",
-                "Sangat kokoh dan cetakan {$productName} presisi.",
-                "Kualitas {$productName} luar biasa, permukaannya halus dan ga gampang gumpil.",
-            ];
-
-            $deliveries = [
-                ' Pengiriman aman pakai armada/truk pabrik langsung.',
-                ' Sampai lokasi aman ga ada yang pecah atau rompal.',
-                ' Packing aman dan rapi, drivernya juga ramah bantu nurunin.',
-                ' Dikirim tepat waktu sesuai jadwal koordinasi admin.',
-                ' Pengiriman cepat dan barang selamat sampai depan rumah.',
-                ' Sopir truk pabrik ramah banget dan kerjanya profesional.',
-            ];
-
-            $admins = [
-                ' Adminnya responsif dan ramah banget pas konsultasi kebutuhan.',
-                ' Pelayanan ramah, dibantu hitung jumlah roster yang pas.',
-                ' Tanya-tanya admin dilayani dengan baik dan cepat responnya.',
-                ' Penjual sangat amanah, responsif dari awal pemesanan.',
-            ];
-
-            $closings = [
-                ' Next bakal order lagi buat proyek berikutnya.',
-                ' Bakal jadi langganan ini mah. Sukses terus!',
-                ' Rekomen buat yang cari roster berkualitas harga pabrik.',
-                ' Sangat memuaskan belanja di Indoroster.',
-                ' Hasil akhir di teras rumah jadi estetik parah 👍',
-                ' Fasad rumah keliatan mewah dan minimalis banget 😍',
-            ];
-
-            // Randomly build the review
-            $parts = [];
-            $parts[] = Arr::random($openings);
-            $parts[] = Arr::random($qualities);
-
-            // Randomly include delivery comment (80% chance)
-            if (rand(1, 10) <= 8) {
-                $parts[] = Arr::random($deliveries);
-            }
-
-            // Randomly include admin comment (60% chance)
-            if (rand(1, 10) <= 6) {
-                $parts[] = Arr::random($admins);
-            }
-
-            $parts[] = Arr::random($closings);
-
-            return trim(preg_replace('/\s+/', ' ', implode('', $parts)));
         }
+
+        // 5-Star Reviews tailored to Buyer Persona
+        if ($isDeveloper || $isContractor) {
+            $qty = Arr::random(['1.500 pcs', '2.400 pcs', '3.500 pcs', '5.000 pcs', '8.000 pcs', '12.000 pcs']);
+            $developerReviews = [
+                "Pengadaan {$qty} roster {$productName} untuk proyek fasad cluster perumahan mendarat tepat waktu. Kualitas beton K-200 sangat padat dan presisi sudut memudahkan tukang kami memasang nat rapi.",
+                "Order {$qty} untuk dinding ventilasi dan pagar proyek. Dokumen surat jalan, faktur, dan koordinasi sopir armada pabrik sangat profesional. Rekomendasi vendor roster terbaik!",
+                "Sangat puas bermitra dengan IndoRoster untuk suplai {$qty} roster {$productName}. Kualitas cetakan sangat stabil dan lolos standar QC pengawas lapangan kami.",
+                "Pemesanan volume besar {$qty} dilayani dengan cepat dan diskon pabrik tangan pertama yang sangat kompetitif. Roster padat, tidak mudah gumpil.",
+                "Suplai bertahap {$qty} roster {$productName} untuk proyek ruko dan rukan berjalan lancar tanpa kendala. Garansi pecah ganti baru beneran amanah.",
+            ];
+
+            return Arr::random($developerReviews);
+        }
+
+        if ($isCafe || $isArchitect) {
+            $qty = Arr::random(['350 pcs', '550 pcs', '800 pcs', '1.200 pcs', '1.800 pcs']);
+            $commercialReviews = [
+                "Pemasangan {$qty} roster {$productName} di area outdoor cafe kami bikin suasana jadi adem dan estetik banget. Banyak customer yang foto-foto di spot ini!",
+                "Desain minimalis {$productName} pas banget dengan konsep industrial modern studio kami. Sirkulasi udara lancar dan pencahayaan alami maksimal.",
+                "Kualitas permukaan roster {$productName} sangat halus dan rapi. Klien kami sangat puas dengan hasil akhir fasad bangunan.",
+                "Order {$qty} buat partisi sekat ruang dan fasad kedai kopi. Tampilan visualnya sangat eye-catching dan kokoh terkena hujan panas.",
+                "Roster beton {$productName} presisi tinggi, nat dinding terlihat lurus sempurna tanpa banyak dempul tambahan. Hasil akhir mewah!",
+            ];
+
+            return Arr::random($commercialReviews);
+        }
+
+        // Retail / Homeowner Reviews
+        $qty = Arr::random(['80 pcs', '120 pcs', '220 pcs', '350 pcs', '450 pcs', '600 pcs']);
+        $openings = [
+            '',
+            'Mantap! ',
+            'Alhamdulillah, ',
+            'Barang sudah sampai selamat. ',
+            'Puas banget belanja disini! ',
+            'Rekomended seller pabrik langsung. ',
+            'Bintang 5 buat pelayanannya. ',
+        ];
+
+        $qualities = [
+            "Order {$qty} roster {$productName}, betonnya tebal dan kokoh banget.",
+            "Kualitas beton {$productName} emang juara, cetakannya padat dan rapi.",
+            "Bahannya solid dan finishing {$productName} presisi pas dipasang tukang.",
+            "Pesan {$qty} buat pagar depan rumah, hasilnya keliatan mewah dan minimalis.",
+            "Barang solid, tebal, berat dan kerasa premium beton {$productName}-nya.",
+            "Roster {$productName} bikin fasad rumah kami jadi sejuk dan adem sirkulasinya.",
+            "Kualitas {$productName} luar biasa, permukaannya halus dan tidak berlumut.",
+        ];
+
+        $deliveries = [
+            ' Pengiriman aman pakai armada truk pabrik langsung.',
+            ' Sampai lokasi aman tanpa ada yang pecah atau cuil.',
+            ' Packing aman dan rapi, drivernya juga ramah bantu nurunin.',
+            ' Dikirim tepat waktu sesuai jadwal koordinasi admin.',
+            ' Pengiriman cepat dan barang selamat sampai depan rumah.',
+            ' Sopir truk pabrik ramah banget dan kerjanya profesional.',
+        ];
+
+        $admins = [
+            ' Adminnya responsif dan ramah banget pas konsultasi hitung kebutuhan.',
+            ' Pelayanan ramah, dibantu hitung jumlah keping yang pas.',
+            ' Tanya-tanya admin dilayani dengan sabar dan cepat responnya.',
+            ' Penjual sangat amanah, responsif dari awal pemesanan.',
+        ];
+
+        $closings = [
+            ' Next bakal order lagi buat renovasi berikutnya.',
+            ' Bakal jadi langganan ini mah. Sukses terus IndoRoster!',
+            ' Rekomen buat yang cari roster berkualitas harga pabrik.',
+            ' Sangat memuaskan belanja di Indoroster.',
+            ' Hasil akhir di teras rumah jadi estetik parah 👍',
+            ' Fasad rumah keliatan mewah dan minimalis banget 😍',
+        ];
+
+        // Randomly build the review
+        $parts = [];
+        $parts[] = Arr::random($openings);
+        $parts[] = Arr::random($qualities);
+
+        if (rand(1, 10) <= 8) {
+            $parts[] = Arr::random($deliveries);
+        }
+
+        if (rand(1, 10) <= 6) {
+            $parts[] = Arr::random($admins);
+        }
+
+        $parts[] = Arr::random($closings);
+
+        return trim(preg_replace('/\s+/', ' ', implode('', $parts)));
     }
 }
