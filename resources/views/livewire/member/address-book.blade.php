@@ -145,6 +145,14 @@
                         @error('full_address') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                     </div>
 
+                    <!-- 3b. Catatan Akses Jalan Truk Pabrik -->
+                    <div>
+                        <label class="font-display block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
+                            Catatan Akses Jalan Truk Armada Pabrik (Opsional)
+                        </label>
+                        <input type="text" wire:model="truck_access_notes" placeholder="Contoh: Akses jalan muat truk CDD 6 roda / Titik bongkar di depan gerbang proyek" class="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-xl text-sm focus:border-terra-500 focus:ring-4 focus:ring-terra-500/10 focus:outline-none transition-all duration-200 shadow-xs">
+                    </div>
+
                     <!-- 4. PETA INTERAKTIF (LEBAR, TENGAH & JELAS) -->
                     <div wire:ignore class="p-6 bg-slate-50/50 dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-soft-xs">
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 mb-4 border-b border-slate-200/80 dark:border-slate-800">

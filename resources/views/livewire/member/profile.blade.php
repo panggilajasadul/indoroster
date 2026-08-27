@@ -11,14 +11,11 @@
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                     <h1 class="font-display text-fluid-h1 font-black text-slate-900 dark:text-white tracking-tight">Profil & Informasi Kemitraan</h1>
-                    <p class="text-slate-500 dark:text-slate-400 mt-1 text-sm">Lengkapi data akun dan lokasi proyek Anda untuk kemudahan penawaran harga pabrik & pengiriman armada.</p>
+                    <p class="text-slate-500 dark:text-slate-400 mt-1 text-sm">Kelola data profil, nomor WhatsApp, dan kategori kemitraan Anda untuk mendapatkan penawaran pabrik terbaik.</p>
                 </div>
                 <div class="flex items-center gap-2">
-                    <a href="{{ route('member.addresses') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-700 dark:text-slate-200 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-all shadow-2xs">
-                        <span>📍 Buku Alamat</span>
-                    </a>
-                    <a href="{{ route('member.orders') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-700 dark:text-slate-200 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-all shadow-2xs">
-                        <span>📦 Riwayat Pesanan</span>
+                    <a href="{{ route('member.addresses') }}" class="inline-flex items-center gap-2 px-4 py-2.5 bg-terra-500 hover:bg-terra-600 text-white text-xs font-bold rounded-xl transition-all shadow-md shadow-terra-500/20">
+                        <span>📍 Kelola Buku Alamat & Peta GPS</span>
                     </a>
                 </div>
             </div>
@@ -152,103 +149,76 @@
                         <input type="email" value="{{ $email }}" disabled class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 cursor-not-allowed">
                     </div>
                 </div>
-            </div>
 
-            <!-- 2. ALAMAT UTAMA / LOKASI PROYEK PENGIRIMAN -->
-            <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xl p-6 sm:p-8 space-y-6">
-                <div class="flex items-center gap-3 pb-4 border-b border-slate-100 dark:border-slate-800">
-                    <div class="w-10 h-10 rounded-2xl bg-amber-50 dark:bg-amber-950/50 flex items-center justify-center text-amber-600 dark:text-amber-400 font-bold">
-                        🚚
-                    </div>
-                    <div>
-                        <h2 class="font-display text-lg font-black text-slate-900 dark:text-white">Alamat Lokasi Proyek & Pengiriman Utama</h2>
-                        <p class="text-xs text-slate-500 dark:text-slate-400">Data ini otomatis terisi saat Anda memesan produk roster di IndoRoster.</p>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
-                    <!-- Label Alamat -->
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Label Lokasi</label>
-                        <input type="text" wire:model="label" placeholder="Misal: Lokasi Proyek / Rumah" class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-4 focus:ring-terra-500/10 focus:border-terra-500">
-                    </div>
-
-                    <!-- Nama Penerima Lapangan -->
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Penerima di Lapangan</label>
-                        <input type="text" wire:model="recipient_name" placeholder="Nama mandor / penerima" class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-4 focus:ring-terra-500/10 focus:border-terra-500">
-                    </div>
-
-                    <!-- No HP Penerima Lapangan -->
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">No. HP Penerima</label>
-                        <input type="tel" wire:model="address_phone" placeholder="0812XXXXXXXX" class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-4 focus:ring-terra-500/10 focus:border-terra-500">
-                    </div>
-                </div>
-
-                <!-- Dropdown Wilayah -->
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Provinsi</label>
-                        <select wire:model.live="province_id" class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-4 focus:ring-terra-500/10 focus:border-terra-500">
-                            <option value="">-- Pilih Provinsi --</option>
-                            @foreach($provinces as $prov)
-                                <option value="{{ $prov->code }}">{{ $prov->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Kota / Kabupaten</label>
-                        <select wire:model.live="city_id" class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-4 focus:ring-terra-500/10 focus:border-terra-500" {{ empty($cities) ? 'disabled' : '' }}>
-                            <option value="">-- Pilih Kota/Kabupaten --</option>
-                            @foreach($cities as $c)
-                                <option value="{{ $c->code }}">{{ $c->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Kecamatan</label>
-                        <select wire:model.live="district_id" class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-4 focus:ring-terra-500/10 focus:border-terra-500" {{ empty($districts) ? 'disabled' : '' }}>
-                            <option value="">-- Pilih Kecamatan --</option>
-                            @foreach($districts as $d)
-                                <option value="{{ $d->code }}">{{ $d->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                </div>
-
-                <!-- Alamat Lengkap & Catatan Armada -->
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-                            Alamat Lengkap & Patokan Jalan
-                        </label>
-                        <textarea wire:model="full_address" rows="3" placeholder="Nama jalan, nomor bangunan, RT/RW, patokan lokasi..." class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-4 focus:ring-terra-500/10 focus:border-terra-500"></textarea>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-                            Catatan Akses Jalan Truk Armada Pabrik (Opsional)
-                        </label>
-                        <input type="text" wire:model="truck_access_notes" placeholder="Contoh: Akses jalan muat truk CDD 6 roda / Titik bongkar di depan gerbang proyek" class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-4 focus:ring-terra-500/10 focus:border-terra-500">
-                    </div>
+                <!-- Submit Button -->
+                <div class="flex justify-end pt-4 border-t border-slate-100 dark:border-slate-800">
+                    <button type="submit" wire:loading.attr="disabled" class="font-display inline-flex items-center gap-2 px-7 py-3 bg-terra-500 hover:bg-terra-600 text-white font-black text-sm rounded-xl shadow-lg shadow-terra-500/25 transition-all duration-200 cursor-pointer disabled:opacity-75">
+                        <span wire:loading.remove wire:target="save">Simpan Perubahan Profil</span>
+                        <span wire:loading wire:target="save" class="flex items-center gap-2">
+                            <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Menyimpan...
+                        </span>
+                    </button>
                 </div>
             </div>
 
-            <!-- Submit Button -->
-            <div class="flex justify-end">
-                <button type="submit" wire:loading.attr="disabled" class="font-display inline-flex items-center gap-2 px-8 py-4 bg-terra-500 hover:bg-terra-600 text-white font-black text-sm rounded-2xl shadow-xl shadow-terra-500/25 transition-all duration-200 cursor-pointer disabled:opacity-75">
-                    <span wire:loading.remove wire:target="save">Simpan Pembaruan Profil</span>
-                    <span wire:loading wire:target="save" class="flex items-center gap-2">
-                        <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        Menyimpan...
-                    </span>
-                </button>
+            <!-- 2. STATUS ALAMAT & TITIK KOORDINAT GPS (INTEGRASI KE BUKU ALAMAT) -->
+            <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xl p-6 sm:p-8">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100 dark:border-slate-800 mb-6">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-2xl bg-amber-50 dark:bg-amber-950/50 flex items-center justify-center text-amber-600 dark:text-amber-400 font-bold">
+                            📍
+                        </div>
+                        <div>
+                            <h2 class="font-display text-lg font-black text-slate-900 dark:text-white">Alamat Pengiriman & Titik Koordinat GPS</h2>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">Pengelolaan alamat utama dan penentuan titik GPS gerbang proyek terpusat di Buku Alamat.</p>
+                        </div>
+                    </div>
+
+                    <a href="{{ route('member.addresses') }}" class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-terra-500 dark:hover:bg-terra-500 dark:hover:text-white text-xs font-black rounded-xl transition-all shadow-md shrink-0">
+                        <span>🗺️ Buka Buku Alamat & Peta GPS</span>
+                    </a>
+                </div>
+
+                @if($defaultAddress)
+                    <div class="p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/80 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div class="space-y-1.5">
+                            <div class="flex items-center gap-2">
+                                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider bg-terra-100 dark:bg-terra-950/60 text-terra-700 dark:text-terra-300 border border-terra-200 dark:border-terra-900/40">
+                                    {{ $defaultAddress->label }} (Alamat Utama)
+                                </span>
+                                <span class="text-xs font-bold text-slate-900 dark:text-white">{{ $defaultAddress->recipient_name }} ({{ $defaultAddress->phone }})</span>
+                            </div>
+                            <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">{{ $defaultAddress->formatted_address }}</p>
+                            @if($defaultAddress->truck_access_notes)
+                                <p class="text-[11px] text-amber-600 dark:text-amber-400 font-medium">🚚 Akses Truk: {{ $defaultAddress->truck_access_notes }}</p>
+                            @endif
+                        </div>
+
+                        <div class="flex items-center gap-2 shrink-0">
+                            @if($defaultAddress->latitude && $defaultAddress->longitude)
+                                <span class="px-3 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900/50 text-emerald-700 dark:text-emerald-300 text-xs font-mono font-bold">
+                                    📍 GPS Terpasang
+                                </span>
+                            @else
+                                <a href="{{ route('member.addresses') }}" class="px-3 py-1.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/50 text-amber-700 dark:text-amber-300 text-xs font-bold hover:bg-amber-100 transition-colors">
+                                    ⚠️ Pasang Titik GPS
+                                </a>
+                            @endif
+                        </div>
+                    </div>
+                @else
+                    <div class="p-6 rounded-2xl bg-amber-50/50 dark:bg-amber-950/20 border border-dashed border-amber-300 dark:border-amber-800 text-center">
+                        <p class="text-xs font-bold text-amber-900 dark:text-amber-200 mb-2">Anda belum menyimpan alamat pengiriman utama.</p>
+                        <p class="text-[11px] text-amber-700 dark:text-amber-400 mb-4">Simpan alamat pengiriman lengkap dengan titik pin peta GPS agar surat jalan armada driver akurat.</p>
+                        <a href="{{ route('member.addresses') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-xs font-black rounded-xl shadow-xs transition-all">
+                            <span>+ Tambah Alamat & Titik GPS Sekarang</span>
+                        </a>
+                    </div>
+                @endif
             </div>
         </form>
 

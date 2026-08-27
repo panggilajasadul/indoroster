@@ -33,6 +33,8 @@ class AddressBook extends Component
 
     public $full_address;
 
+    public $truck_access_notes = '';
+
     public $latitude = null;
 
     public $longitude = null;
@@ -122,6 +124,7 @@ class AddressBook extends Component
         $this->phone = $address->phone;
         $this->postal_code = $address->postal_code;
         $this->full_address = $address->full_address;
+        $this->truck_access_notes = $address->truck_access_notes ?: '';
         $this->latitude = $address->latitude;
         $this->longitude = $address->longitude;
         $this->is_default = $address->is_default;
@@ -176,6 +179,7 @@ class AddressBook extends Component
             'district' => $districtName,
             'postal_code' => $this->postal_code,
             'full_address' => $this->full_address,
+            'truck_access_notes' => $this->truck_access_notes,
             'latitude' => $this->latitude ?: null,
             'longitude' => $this->longitude ?: null,
             'is_default' => $this->is_default,
@@ -239,6 +243,7 @@ class AddressBook extends Component
         $this->district_id = null;
         $this->postal_code = '';
         $this->full_address = '';
+        $this->truck_access_notes = '';
         $this->latitude = null;
         $this->longitude = null;
         $this->is_default = false;
