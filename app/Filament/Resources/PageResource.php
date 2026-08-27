@@ -432,9 +432,9 @@ class PageResource extends Resource
                                 ->label('[3. Pabrik] 📊 Angka & Statistik Pabrik (Stats Counter)')
                                 ->icon('heroicon-o-chart-bar')
                                 ->schema([
-                                    Forms\Components\TextInput::make('badge')->label('Badge (Opsional)'),
-                                    Forms\Components\TextInput::make('title')->label('Judul'),
-                                    Forms\Components\Textarea::make('description')->label('Deskripsi'),
+                                    Forms\Components\TextInput::make('badge')->label('Badge (Opsional)')->default('PORTFOLIO & KAPASITAS'),
+                                    Forms\Components\TextInput::make('title')->label('Judul')->default('Angka Nyata Dedikasi Kami'),
+                                    Forms\Components\Textarea::make('description')->label('Deskripsi')->default('Pengalaman bertahun-tahun melayani ribuan proyek rumah tinggal, ruko, perumahan, dan gedung perkantoran.'),
                                     static::alignmentSelect('center'),
                                     static::bgThemeSelect(),
                                     Forms\Components\Repeater::make('stats')
@@ -464,8 +464,8 @@ class PageResource extends Resource
                                 ->label('[4. Galeri] 💪 Uji Kekuatan & Ketahanan Beban')
                                 ->icon('heroicon-o-shield-check')
                                 ->schema([
-                                    Forms\Components\TextInput::make('title')->label('Judul'),
-                                    Forms\Components\Textarea::make('description')->label('Deskripsi'),
+                                    Forms\Components\TextInput::make('title')->label('Judul')->default('Uji Kekuatan & Ketahanan Beban Nyata'),
+                                    Forms\Components\Textarea::make('description')->label('Deskripsi')->default('Roster beton kami diproduksi menggunakan formula pasir silika dan semen mutu tinggi dengan sistem cetak getar padat. Hasilnya adalah struktur yang sangat padat, minim pori, dan sanggup menahan beban struktural maupun cuaca ekstrem.'),
                                     static::alignmentSelect('left'),
                                     Forms\Components\FileUpload::make('video_upload')
                                         ->label('Upload Media (Foto/Video)')
@@ -486,7 +486,12 @@ class PageResource extends Resource
                                             Forms\Components\TextInput::make('title')->label('Fitur'),
                                             Forms\Components\TextInput::make('desc')->label('Keterangan Singkat'),
                                         ])
-                                        ->columns(2),
+                                        ->columns(2)
+                                        ->default([
+                                            ['title' => 'Beban Tekan Maksimal', 'desc' => 'Struktur sangat padat dan tidak mudah retak rambut saat dipasang pada bentang dinding tinggi.'],
+                                            ['title' => 'Tahan Cuaca Tropis', 'desc' => 'Tahan paparan panas terik dan hujan tanpa risiko lumut berlebih atau kerapuhan semen.'],
+                                            ['title' => 'Presisi Sudut 90°', 'desc' => 'Siku dan ketebalan seragam memudahkan tukang memasang dengan nat rapi dan sejajar.'],
+                                        ]),
                                 ]),
 
                             Forms\Components\Builder\Block::make('featured_products')
@@ -560,8 +565,8 @@ class PageResource extends Resource
                                 ->label('[3. Pabrik] 💎 Kenapa Memilih Kami (Why Us)')
                                 ->icon('heroicon-o-hand-thumb-up')
                                 ->schema([
-                                    Forms\Components\TextInput::make('title')->label('Judul'),
-                                    Forms\Components\Textarea::make('description')->label('Deskripsi'),
+                                    Forms\Components\TextInput::make('title')->label('Judul')->default('Kenapa Memilih Roster Pabrik Kami?'),
+                                    Forms\Components\Textarea::make('description')->label('Deskripsi')->default('Kami mengedepankan kualitas cetakan, kecepatan pengiriman armada mandiri, dan transparansi harga pabrik tangan pertama.'),
                                     static::alignmentSelect('center'),
                                     static::bgThemeSelect('dark'),
                                     Forms\Components\Repeater::make('items')
@@ -569,7 +574,13 @@ class PageResource extends Resource
                                             Forms\Components\TextInput::make('title')->label('Judul Poin'),
                                             Forms\Components\Textarea::make('content')->label('Isi Poin'),
                                         ])
-                                        ->columns(2),
+                                        ->columns(2)
+                                        ->default([
+                                            ['title' => 'Pabrik Tangan Pertama', 'content' => 'Harga langsung dari produsen tanpa perantara agen atau toko material retail.'],
+                                            ['title' => 'Garansi Pecah Ganti Baru', 'content' => 'Setiap keping roster yang rusak atau pecah saat proses pengiriman armada kami ganti 100% tanpa biaya tambahan.'],
+                                            ['title' => 'Armada Truk Khusus', 'content' => 'Pengiriman tepat waktu terjadwal menggunakan truk boks dan armada khusus material.'],
+                                            ['title' => 'Motif Terlengkap', 'content' => 'Lebih dari 150+ variasi motif modern minimalis, klasik, bunga, dan geometris.'],
+                                        ]),
                                     Forms\Components\Repeater::make('videos')
                                         ->schema([
                                             Forms\Components\FileUpload::make('video_upload')
@@ -592,9 +603,9 @@ class PageResource extends Resource
                                 ->label('[7. Kontak] 🚚 Informasi Pengiriman & Armada Truk')
                                 ->icon('heroicon-o-truck')
                                 ->schema([
-                                    Forms\Components\TextInput::make('badge')->label('Teks Kecil (Badge)'),
-                                    Forms\Components\TextInput::make('title')->label('Judul'),
-                                    Forms\Components\Textarea::make('content')->label('Isi Konten'),
+                                    Forms\Components\TextInput::make('badge')->label('Teks Kecil (Badge)')->default('Armada Pengiriman Mandiri'),
+                                    Forms\Components\TextInput::make('title')->label('Judul')->default('Jangkauan Pengiriman Seluruh Jabodetabek & Indonesia'),
+                                    Forms\Components\Textarea::make('content')->label('Isi Konten')->default('Pengiriman langsung dari pabrik dengan packing aman bersegel dan garansi ganti baru 100% jika terjadi kerusakan dalam perjalanan.'),
                                     static::alignmentSelect('left'),
                                     Forms\Components\FileUpload::make('video_upload')
                                         ->label('Upload Media (Foto/Video)')
@@ -609,7 +620,7 @@ class PageResource extends Resource
                                         ->label('Atau URL Media Eksternal (Foto/Video)')
                                         ->live(),
                                     static::mediaPreview('video_upload', 'video_url'),
-                                    Forms\Components\TextInput::make('button_text')->label('Teks Tombol'),
+                                    Forms\Components\TextInput::make('button_text')->label('Teks Tombol')->default('Konsultasi Ongkos Kirim'),
                                     Forms\Components\TextInput::make('button_url')->label('Link Tombol'),
                                     static::bgThemeSelect('white'),
                                 ]),
@@ -618,9 +629,9 @@ class PageResource extends Resource
                                 ->label('[5. Ulasan] 💬 Screenshot Chat WhatsApp & Sosmed')
                                 ->icon('heroicon-o-device-phone-mobile')
                                 ->schema([
-                                    Forms\Components\TextInput::make('badge')->label('Teks Kecil (Badge)'),
-                                    Forms\Components\TextInput::make('title')->label('Judul'),
-                                    Forms\Components\Textarea::make('description')->label('Deskripsi'),
+                                    Forms\Components\TextInput::make('badge')->label('Teks Kecil (Badge)')->default('Ulasan Nyata Pelanggan'),
+                                    Forms\Components\TextInput::make('title')->label('Judul')->default('Dipercaya Ribuan Pemilik Rumah, Kontraktor & Arsitek'),
+                                    Forms\Components\Textarea::make('description')->label('Deskripsi')->default('Tangkapan layar chat transaksi dan kepuasan pelanggan saat barang diterima di lokasi proyek.'),
                                     static::alignmentSelect('center'),
                                     Forms\Components\FileUpload::make('video_upload')
                                         ->label('Upload Media (Foto/Video)')
@@ -635,7 +646,7 @@ class PageResource extends Resource
                                         ->label('Atau URL Media Eksternal (Foto/Video)')
                                         ->live(),
                                     static::mediaPreview('video_upload', 'video_url'),
-                                    Forms\Components\TextInput::make('creators_count')->label('Jumlah Kreator'),
+                                    Forms\Components\TextInput::make('creators_count')->label('Jumlah Kreator')->default('2.500+ Proyek'),
                                     static::bgThemeSelect('dark'),
                                 ]),
 
@@ -659,9 +670,9 @@ class PageResource extends Resource
                                 ->label('[4. Galeri] 🖼️ Grid Galeri Foto Proyek Arsitektur')
                                 ->icon('heroicon-o-squares-2x2')
                                 ->schema([
-                                    Forms\Components\TextInput::make('badge')->label('Badge'),
-                                    Forms\Components\TextInput::make('title')->label('Judul'),
-                                    Forms\Components\Textarea::make('description')->label('Deskripsi'),
+                                    Forms\Components\TextInput::make('badge')->label('Badge')->default('Inspirasi Visual'),
+                                    Forms\Components\TextInput::make('title')->label('Judul')->default('Galeri Aplikasi Roster pada Bangunan Nyata'),
+                                    Forms\Components\Textarea::make('description')->label('Deskripsi')->default('Lihat bagaimana produk roster kami mengubah fasad rumah, pagar, dan sekat ruang menjadi karya arsitektural yang estetik.'),
                                     static::alignmentSelect('center'),
                                     static::bgThemeSelect('dark'),
                                     Forms\Components\Repeater::make('items')
@@ -1176,11 +1187,11 @@ class PageResource extends Resource
                                 ->label('[7. Kontak] 🚀 Call To Action Banner Konsultasi (CTA)')
                                 ->icon('heroicon-o-cursor-arrow-rays')
                                 ->schema([
-                                    Forms\Components\TextInput::make('badge')->label('Badge'),
-                                    Forms\Components\TextInput::make('title')->label('Judul Utama'),
+                                    Forms\Components\TextInput::make('badge')->label('Badge')->default('KONSULTASI GRATIS'),
+                                    Forms\Components\TextInput::make('title')->label('Judul Utama')->default('Wujudkan Rumah Impian dengan Sentuhan Roster Modern'),
                                     static::alignmentSelect('center'),
-                                    Forms\Components\TextInput::make('button_text')->label('Teks Tombol WA'),
-                                    Forms\Components\TextInput::make('button_url')->label('Link Tombol (Kosongkan untuk WA Otomatis)'),
+                                    Forms\Components\TextInput::make('button_text')->label('Teks Tombol WA')->default('Hubungi Kami via WhatsApp'),
+                                    Forms\Components\TextInput::make('button_url')->label('Link Tombol (Kosongkan untuk WA Otomatis)')->default('https://wa.me/6281389709847'),
                                     static::bgThemeSelect('white'),
                                 ]),
 
