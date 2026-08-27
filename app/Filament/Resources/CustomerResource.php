@@ -46,6 +46,7 @@ class CustomerResource extends Resource
     {
         return parent::getEloquentQuery()
             ->where('role', 'customer')
+            ->where('email', 'not like', 'dummy_user_%@indoroster.com')
             ->with(['addresses']);
     }
 

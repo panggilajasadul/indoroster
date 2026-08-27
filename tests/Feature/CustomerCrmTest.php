@@ -44,6 +44,8 @@ class CustomerCrmTest extends TestCase
 
     public function test_register_creates_user_and_redirects_to_member_profile()
     {
+        Mail::fake();
+
         Livewire::test(Register::class)
             ->set('name', 'Ibu Rina Maharani')
             ->set('email', 'rina.maharani@example.com')

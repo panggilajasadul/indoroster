@@ -17,7 +17,9 @@ class UserResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()->where('role', '!=', 'courier');
+        return parent::getEloquentQuery()
+            ->where('role', '!=', 'courier')
+            ->where('email', 'not like', 'dummy_user_%@indoroster.com');
     }
 
     protected static ?string $navigationIcon = 'heroicon-o-users';
