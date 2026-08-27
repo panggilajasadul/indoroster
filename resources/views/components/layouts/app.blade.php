@@ -583,9 +583,9 @@
             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
             <span class="text-[10px]">Katalog</span>
         </a>
-        <a href="{{ route('cart') }}" class="flex flex-col items-center gap-1 text-slate-600 dark:text-slate-400 hover:text-terra-600 dark:hover:text-terra-400 transition relative {{ request()->routeIs('cart') ? 'text-terra-600 dark:text-terra-400 font-bold' : '' }}">
-            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
-            <span class="text-[10px]">Keranjang</span>
+        <a href="{{ route('video-inspiration') }}" class="flex flex-col items-center gap-1 text-slate-600 dark:text-slate-400 hover:text-terra-600 dark:hover:text-terra-400 transition relative {{ request()->routeIs('video-inspiration*') ? 'text-terra-600 dark:text-terra-400 font-bold' : '' }}">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+            <span class="text-[10px]">Inspirasi</span>
         </a>
         <a href="{{ route('order.tracking') }}" class="flex flex-col items-center gap-1 text-slate-600 dark:text-slate-400 hover:text-terra-600 dark:hover:text-terra-400 transition {{ request()->routeIs('order.tracking') ? 'text-terra-600 dark:text-terra-400 font-bold' : '' }}">
             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8h4l3 3v5a1 1 0 01-1 1h-1m-6 0h-2" /></svg>
