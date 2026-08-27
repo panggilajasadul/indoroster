@@ -47,23 +47,54 @@ class SitemapController extends Controller
                 ->setPriority(1.0)
         );
 
-        // 2. Halaman Katalog Produk (tanpa filter)
-        $sitemap->add(
-            Url::create($baseUrl.'/katalog')
-                ->setLastModificationDate(Carbon::now())
-                ->setChangeFrequency(Url::CHANGE_FREQUENCY_DAILY)
-                ->setPriority(0.9)
-        );
+        // 2. Halaman Katalog Produk (tanpa filter) + Foto Produk Unggulan
+        $catalogUrl = Url::create($baseUrl.'/katalog')
+            ->setLastModificationDate(Carbon::now())
+            ->setChangeFrequency(Url::CHANGE_FREQUENCY_DAILY)
+            ->setPriority(0.9);
 
-        // 3. Katalog per Kategori — menggunakan clean URL /katalog/{slug}
-        $categories = Category::where('is_active', true)->get();
+        $featuredProducts = Product::where('is_active', true)
+            ->with(['media' => function ($q) {
+                $q->where('media_type', 'image')->orderBy('is_primary', 'desc');
+            }])
+            ->limit(10)
+            ->get();
+
+        foreach ($featuredProducts as $fp) {
+            $m = $fp->media->first();
+            if ($m && ! empty($m->media_url)) {
+                $imgUrl = str_starts_with($m->media_url, 'http') ? $m->media_url : $baseUrl.'/storage/'.ltrim($m->media_url, '/');
+                $catalogUrl->addImage($imgUrl, $m->alt_text ?: $fp->name, 'Purwakarta, Jawa Barat, Indonesia', 'Katalog Roster IndoRoster - '.$fp->name);
+            }
+        }
+        $sitemap->add($catalogUrl);
+
+        // 3. Katalog per Kategori — menggunakan clean URL /katalog/{slug} + Foto Produk Kategori
+        $categories = Category::where('is_active', true)
+            ->with(['products' => function ($q) {
+                $q->where('is_active', true)
+                    ->with(['media' => function ($mq) {
+                        $mq->where('media_type', 'image')->orderBy('is_primary', 'desc');
+                    }])
+                    ->limit(15);
+            }])
+            ->get();
+
         foreach ($categories as $category) {
-            $sitemap->add(
-                Url::create($baseUrl.'/katalog/'.trim($category->slug))
-                    ->setLastModificationDate($category->updated_at ?? Carbon::now())
-                    ->setChangeFrequency(Url::CHANGE_FREQUENCY_WEEKLY)
-                    ->setPriority(0.8)
-            );
+            $catUrl = Url::create($baseUrl.'/katalog/'.trim($category->slug))
+                ->setLastModificationDate($category->updated_at ?? Carbon::now())
+                ->setChangeFrequency(Url::CHANGE_FREQUENCY_WEEKLY)
+                ->setPriority(0.8);
+
+            foreach ($category->products as $cp) {
+                $cm = $cp->media->first();
+                if ($cm && ! empty($cm->media_url)) {
+                    $imgUrl = str_starts_with($cm->media_url, 'http') ? $cm->media_url : $baseUrl.'/storage/'.ltrim($cm->media_url, '/');
+                    $catUrl->addImage($imgUrl, $cm->alt_text ?: $cp->name, 'Purwakarta, Jawa Barat, Indonesia', 'Katalog '.$category->name.' - '.$cp->name);
+                }
+            }
+
+            $sitemap->add($catUrl);
         }
 
         // 4. Semua halaman produk aktif + Metadata Google Images
@@ -151,21 +182,26 @@ class SitemapController extends Controller
             }
         }
 
-        // 6. Artikel & Blog Postings
+        // 6. Artikel & Blog Postings + Thumbnail Gambar
         if (Schema::hasTable('articles')) {
             $articles = Article::where('is_published', true)
                 ->whereNotNull('published_at')
                 ->where('published_at', '<=', Carbon::now())
                 ->orderBy('updated_at', 'desc')
-                ->get(['slug', 'updated_at']);
+                ->get(['title', 'slug', 'thumbnail', 'thumbnail_alt', 'updated_at']);
 
             foreach ($articles as $article) {
-                $sitemap->add(
-                    Url::create($baseUrl.'/artikel/'.trim($article->slug))
-                        ->setLastModificationDate($article->updated_at ?? Carbon::now())
-                        ->setChangeFrequency(Url::CHANGE_FREQUENCY_WEEKLY)
-                        ->setPriority(0.75)
-                );
+                $articleUrl = Url::create($baseUrl.'/artikel/'.trim($article->slug))
+                    ->setLastModificationDate($article->updated_at ?? Carbon::now())
+                    ->setChangeFrequency(Url::CHANGE_FREQUENCY_WEEKLY)
+                    ->setPriority(0.75);
+
+                if (! empty($article->thumbnail)) {
+                    $imgUrl = str_starts_with($article->thumbnail, 'http') ? $article->thumbnail : $baseUrl.'/storage/'.ltrim($article->thumbnail, '/');
+                    $articleUrl->addImage($imgUrl, $article->thumbnail_alt ?: $article->title, 'Purwakarta, Jawa Barat, Indonesia', $article->title);
+                }
+
+                $sitemap->add($articleUrl);
             }
         }
 
