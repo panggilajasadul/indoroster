@@ -10,68 +10,62 @@ class SkillArticlesSeeder extends Seeder
 {
     public function run(): void
     {
-        $cats = array (
-  0 => 
-  array (
-    'id' => 1,
-    'name' => 'Inspirasi Desain',
-    'slug' => 'inspirasi-desain',
-    'description' => 'Ide, konsep arsitektur, dan tren desain fasad serta partisi dinding menggunakan roster beton minimalis.',
-    'is_active' => true,
-    'created_at' => '2026-08-24T07:23:24.000000Z',
-    'updated_at' => '2026-08-24T07:23:24.000000Z',
-  ),
-  1 => 
-  array (
-    'id' => 2,
-    'name' => 'Panduan & Tips Pemasangan',
-    'slug' => 'tips-pemasangan',
-    'description' => 'Panduan teknis, tips tukang, cara pasang roster yang kokoh, dan perawatan dinding roster arsitektural.',
-    'is_active' => true,
-    'created_at' => '2026-08-24T07:23:24.000000Z',
-    'updated_at' => '2026-08-24T07:23:24.000000Z',
-  ),
-  2 => 
-  array (
-    'id' => 3,
-    'name' => 'Info Material & Mutu Beton',
-    'slug' => 'info-material',
-    'description' => 'Edukasi spesifikasi mutu beton K-200, ketahanan cuaca, perbedaan varian roster semen abu, putih, dan terakota.',
-    'is_active' => true,
-    'created_at' => '2026-08-24T07:23:24.000000Z',
-    'updated_at' => '2026-08-24T07:23:24.000000Z',
-  ),
-  3 => 
-  array (
-    'id' => 4,
-    'name' => 'Proyek & Realisasi Fasad',
-    'slug' => 'proyek-fasad',
-    'description' => 'Dokumentasi proyek hunian, kafe, masjid, dan gedung komersial yang menggunakan produk pabrik IndoRoster.',
-    'is_active' => true,
-    'created_at' => '2026-08-24T07:23:24.000000Z',
-    'updated_at' => '2026-08-24T07:23:24.000000Z',
-  ),
-  4 => 
-  array (
-    'id' => 5,
-    'name' => 'Panduan & Tips Konstruksi',
-    'slug' => 'panduan-tips',
-    'description' => 'Panduan teknis, tips perhitungan, dan cara pasang roster beton berkualitas.',
-    'is_active' => true,
-    'created_at' => '2026-08-24T22:03:42.000000Z',
-    'updated_at' => '2026-08-24T22:03:42.000000Z',
-  ),
-  5 => 
-  array (
-    'id' => 6,
-    'name' => 'Material & Komparasi',
-    'slug' => 'material-komparasi',
-    'description' => 'Uji ketahanan bahan, komparasi mutu semen, dan spesifikasi teknis.',
-    'is_active' => true,
-    'created_at' => '2026-08-24T22:03:42.000000Z',
-    'updated_at' => '2026-08-24T22:03:42.000000Z',
-  ),
-);
+        $cats = [
+            0 => [
+                'id' => 1,
+                'name' => 'Inspirasi Desain',
+                'slug' => 'inspirasi-desain',
+                'description' => 'Ide, konsep arsitektur, dan tren desain fasad serta partisi dinding menggunakan roster beton minimalis.',
+                'is_active' => true,
+                'created_at' => '2026-08-24T07:23:24.000000Z',
+                'updated_at' => '2026-08-24T07:23:24.000000Z',
+            ],
+            1 => [
+                'id' => 2,
+                'name' => 'Panduan & Tips Pemasangan',
+                'slug' => 'tips-pemasangan',
+                'description' => 'Panduan teknis, tips tukang, cara pasang roster yang kokoh, dan perawatan dinding roster arsitektural.',
+                'is_active' => true,
+                'created_at' => '2026-08-24T07:23:24.000000Z',
+                'updated_at' => '2026-08-24T07:23:24.000000Z',
+            ],
+            2 => [
+                'id' => 3,
+                'name' => 'Info Material & Mutu Beton',
+                'slug' => 'info-material',
+                'description' => 'Edukasi spesifikasi mutu beton K-200, ketahanan cuaca, perbedaan varian roster semen abu, putih, dan terakota.',
+                'is_active' => true,
+                'created_at' => '2026-08-24T07:23:24.000000Z',
+                'updated_at' => '2026-08-24T07:23:24.000000Z',
+            ],
+            3 => [
+                'id' => 4,
+                'name' => 'Proyek & Realisasi Fasad',
+                'slug' => 'proyek-fasad',
+                'description' => 'Dokumentasi proyek hunian, kafe, masjid, dan gedung komersial yang menggunakan produk pabrik IndoRoster.',
+                'is_active' => true,
+                'created_at' => '2026-08-24T07:23:24.000000Z',
+                'updated_at' => '2026-08-24T07:23:24.000000Z',
+            ],
+            4 => [
+                'id' => 5,
+                'name' => 'Panduan & Tips Konstruksi',
+                'slug' => 'panduan-tips',
+                'description' => 'Panduan teknis, tips perhitungan, dan cara pasang roster beton berkualitas.',
+                'is_active' => true,
+                'created_at' => '2026-08-24T22:03:42.000000Z',
+                'updated_at' => '2026-08-24T22:03:42.000000Z',
+            ],
+            5 => [
+                'id' => 6,
+                'name' => 'Material & Komparasi',
+                'slug' => 'material-komparasi',
+                'description' => 'Uji ketahanan bahan, komparasi mutu semen, dan spesifikasi teknis.',
+                'is_active' => true,
+                'created_at' => '2026-08-24T22:03:42.000000Z',
+                'updated_at' => '2026-08-24T22:03:42.000000Z',
+            ],
+        ];
         $catMap = [];
         foreach ($cats as $c) {
             $rec = ArticleCategory::updateOrCreate(['slug' => $c['slug']], [
@@ -82,17 +76,16 @@ class SkillArticlesSeeder extends Seeder
             $catMap[$c['id']] = $rec->id;
         }
 
-        $arts = array (
-  0 => 
-  array (
-    'id' => 1,
-    'article_category_id' => 1,
-    'title' => '7 Inspirasi Desain Fasad Roster Beton Minimalis untuk Hunian Tropis Modern',
-    'slug' => '7-inspirasi-desain-fasad-roster-beton-minimalis-rumah-tropis',
-    'thumbnail' => 'https://images.pexels.com/photos/3882638/pexels-photo-3882638.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940',
-    'thumbnail_alt' => '7 Inspirasi Desain Fasad Roster Beton Minimalis untuk Hunian Tropis Modern',
-    'excerpt' => 'Temukan 7 konsep desain dinding fasad roster beton minimalis yang memaksimalkan sirkulasi udara alami dan pencahayaan matahari tanpa mengorbankan privasi hunian Anda.',
-    'content' => '<p class="lead">
+        $arts = [
+            0 => [
+                'id' => 1,
+                'article_category_id' => 1,
+                'title' => '7 Inspirasi Desain Fasad Roster Beton Minimalis untuk Hunian Tropis Modern',
+                'slug' => '7-inspirasi-desain-fasad-roster-beton-minimalis-rumah-tropis',
+                'thumbnail' => 'https://images.pexels.com/photos/3882638/pexels-photo-3882638.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940',
+                'thumbnail_alt' => '7 Inspirasi Desain Fasad Roster Beton Minimalis untuk Hunian Tropis Modern',
+                'excerpt' => 'Temukan 7 konsep desain dinding fasad roster beton minimalis yang memaksimalkan sirkulasi udara alami dan pencahayaan matahari tanpa mengorbankan privasi hunian Anda.',
+                'content' => '<p class="lead">
     Di tengah iklim tropis Indonesia yang cenderung hangat dan lembap, penggunaan <strong>roster beton minimalis (breeze blocks)</strong> menjadi solusi arsitektur yang kian digemari. Selain menghadirkan estetika geometris yang estetik dan mewah, susunan roster memungkinkan angin dan cahaya alami mengalir leluasa ke dalam hunian.
 </p>
 
@@ -126,35 +119,33 @@ class SkillArticlesSeeder extends Seeder
     <li><strong>Gunakan Mortar Khusus:</strong> Untuk perekat antar-blok roster, gunakan semen instan tipis (thinbed) agar garis nat terlihat rapi dan presisi.</li>
     <li><strong>Beli Langsung dari Pabrik:</strong> Dapatkan jaminan harga tangan pertama dan garansi ganti pecah 100% dari pabrik terpercaya seperti <strong>IndoRoster</strong>.</li>
 </ul>',
-    'tags' => 
-    array (
-      0 => 'Fasad Rumah',
-      1 => 'Roster Beton Minimalis',
-      2 => 'Desain Tropis',
-      3 => 'Arsitektur',
-    ),
-    'author_name' => 'Tim Desain Arsitektur IndoRoster',
-    'views_count' => 130,
-    'reading_time' => 4,
-    'is_published' => true,
-    'is_featured' => true,
-    'published_at' => '2026-08-22T07:23:24.000000Z',
-    'meta_title' => '7 Inspirasi Desain Fasad Roster Beton Minimalis Rumah Tropis | IndoRoster',
-    'meta_description' => 'Inspirasi desain fasad rumah modern menggunakan roster beton minimalis mutu K-200. Sirkulasi udara lancar, sejuk alami, dan fasad tampak mewah.',
-    'meta_keywords' => 'fasad roster beton, desain rumah tropis, roster minimalis, ventilasi beton, secondary skin roster',
-    'created_at' => '2026-08-22T07:23:24.000000Z',
-    'updated_at' => '2026-08-24T22:19:21.000000Z',
-  ),
-  1 => 
-  array (
-    'id' => 2,
-    'article_category_id' => 2,
-    'title' => 'Panduan Lengkap: Cara Menghitung Kebutuhan Roster Beton per Meter Persegi (m²)',
-    'slug' => 'cara-menghitung-kebutuhan-roster-beton-per-meter-persegi',
-    'thumbnail' => 'https://images.pexels.com/photos/3882638/pexels-photo-3882638.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940',
-    'thumbnail_alt' => 'Panduan Lengkap: Cara Menghitung Kebutuhan Roster Beton per Meter Persegi (m²)',
-    'excerpt' => 'Ketahui rumus mudah dan tepat untuk menghitung jumlah blok roster beton ukuran 20x20 cm per meter persegi dinding serta estimasi cadangan pecah.',
-    'content' => '<p class="lead">
+                'tags' => [
+                    0 => 'Fasad Rumah',
+                    1 => 'Roster Beton Minimalis',
+                    2 => 'Desain Tropis',
+                    3 => 'Arsitektur',
+                ],
+                'author_name' => 'Tim Desain Arsitektur IndoRoster',
+                'views_count' => 130,
+                'reading_time' => 4,
+                'is_published' => true,
+                'is_featured' => true,
+                'published_at' => '2026-08-22T07:23:24.000000Z',
+                'meta_title' => '7 Inspirasi Desain Fasad Roster Beton Minimalis Rumah Tropis | IndoRoster',
+                'meta_description' => 'Inspirasi desain fasad rumah modern menggunakan roster beton minimalis mutu K-200. Sirkulasi udara lancar, sejuk alami, dan fasad tampak mewah.',
+                'meta_keywords' => 'fasad roster beton, desain rumah tropis, roster minimalis, ventilasi beton, secondary skin roster',
+                'created_at' => '2026-08-22T07:23:24.000000Z',
+                'updated_at' => '2026-08-24T22:19:21.000000Z',
+            ],
+            1 => [
+                'id' => 2,
+                'article_category_id' => 2,
+                'title' => 'Panduan Lengkap: Cara Menghitung Kebutuhan Roster Beton per Meter Persegi (m²)',
+                'slug' => 'cara-menghitung-kebutuhan-roster-beton-per-meter-persegi',
+                'thumbnail' => 'https://images.pexels.com/photos/3882638/pexels-photo-3882638.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940',
+                'thumbnail_alt' => 'Panduan Lengkap: Cara Menghitung Kebutuhan Roster Beton per Meter Persegi (m²)',
+                'excerpt' => 'Ketahui rumus mudah dan tepat untuk menghitung jumlah blok roster beton ukuran 20x20 cm per meter persegi dinding serta estimasi cadangan pecah.',
+                'content' => '<p class="lead">
     Sebelum memulai pemasangan pagar atau dinding fasad, langkah krusial yang wajib dilakukan adalah menghitung estimasi jumlah keping roster yang dibutuhkan secara akurat.
 </p>
 
@@ -187,29 +178,28 @@ class SkillArticlesSeeder extends Seeder
 <blockquote>
     <strong>Catatan Pabrik:</strong> Selalu lebihkan pesanan 3% hingga 5% sebagai cadangan pemotongan pada sudut kolom atau tepi dinding agar pekerjaan tukang tidak terhenti di tengah jalan.
 </blockquote>',
-    'tags' => 'Tips Bangunan,Kalkulator Roster,Hitung Roster,Panduan Tukang',
-    'author_name' => 'Divisi Teknis Pabrik IndoRoster',
-    'views_count' => 96,
-    'reading_time' => 3,
-    'is_published' => true,
-    'is_featured' => false,
-    'published_at' => '2026-08-23T07:23:24.000000Z',
-    'meta_title' => 'Cara Menghitung Kebutuhan Roster Beton per Meter Persegi (m²) | IndoRoster',
-    'meta_description' => 'Rumus praktis menghitung jumlah roster beton ukuran 20x20 cm per meter persegi dinding. Lengkap dengan contoh simulasi dan estimasi cadangan.',
-    'meta_keywords' => 'hitung roster per meter, kebutuhan roster 20x20, rumus roster beton, estimasi pasang roster',
-    'created_at' => '2026-08-23T07:23:24.000000Z',
-    'updated_at' => '2026-08-24T22:19:22.000000Z',
-  ),
-  2 => 
-  array (
-    'id' => 3,
-    'article_category_id' => 3,
-    'title' => 'Mengapa Harus Roster Beton Mutu K-200? Mengenal Kekuatan dan Daya Tahan Cuaca',
-    'slug' => 'keunggulan-roster-beton-mutu-k200-tahan-cuaca-ekstrem',
-    'thumbnail' => 'https://images.pexels.com/photos/3882638/pexels-photo-3882638.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940',
-    'thumbnail_alt' => 'Mengapa Harus Roster Beton Mutu K-200? Mengenal Kekuatan dan Daya Tahan Cuaca',
-    'excerpt' => 'Pahami perbedaan signifikan antara roster pasir semen konvensional dengan roster cetak hidrolik mutu K-200 dari pabrik IndoRoster.',
-    'content' => '<p class="lead">
+                'tags' => 'Tips Bangunan,Kalkulator Roster,Hitung Roster,Panduan Tukang',
+                'author_name' => 'Divisi Teknis Pabrik IndoRoster',
+                'views_count' => 96,
+                'reading_time' => 3,
+                'is_published' => true,
+                'is_featured' => false,
+                'published_at' => '2026-08-23T07:23:24.000000Z',
+                'meta_title' => 'Cara Menghitung Kebutuhan Roster Beton per Meter Persegi (m²) | IndoRoster',
+                'meta_description' => 'Rumus praktis menghitung jumlah roster beton ukuran 20x20 cm per meter persegi dinding. Lengkap dengan contoh simulasi dan estimasi cadangan.',
+                'meta_keywords' => 'hitung roster per meter, kebutuhan roster 20x20, rumus roster beton, estimasi pasang roster',
+                'created_at' => '2026-08-23T07:23:24.000000Z',
+                'updated_at' => '2026-08-24T22:19:22.000000Z',
+            ],
+            2 => [
+                'id' => 3,
+                'article_category_id' => 3,
+                'title' => 'Mengapa Harus Roster Beton Mutu K-200? Mengenal Kekuatan dan Daya Tahan Cuaca',
+                'slug' => 'keunggulan-roster-beton-mutu-k200-tahan-cuaca-ekstrem',
+                'thumbnail' => 'https://images.pexels.com/photos/3882638/pexels-photo-3882638.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940',
+                'thumbnail_alt' => 'Mengapa Harus Roster Beton Mutu K-200? Mengenal Kekuatan dan Daya Tahan Cuaca',
+                'excerpt' => 'Pahami perbedaan signifikan antara roster pasir semen konvensional dengan roster cetak hidrolik mutu K-200 dari pabrik IndoRoster.',
+                'content' => '<p class="lead">
     Banyak orang tergiur dengan harga roster yang sangat murah di pasaran tanpa mengetahui komposisi dan mutu kekuatannya. Akibatnya, roster mudah retak, berlumut, atau bahkan hancur saat terkena hujan dan panas matahari dalam hitungan bulan.
 </p>
 
@@ -224,37 +214,35 @@ class SkillArticlesSeeder extends Seeder
     <li><strong>Tahan Lumut & Jamur:</strong> Pori-pori mikro yang rapat meminimalkan penyerapan air (daya serap air rendah), mencegah timbulnya bercak jamur hitam di dinding fasad luar.</li>
     <li><strong>Garansi Pengiriman 100%:</strong> Karena mutunya yang kokoh, risiko retak selama distribusi kargo sangat rendah, dan kami memberikan jaminan ganti baru bila ada yang pecah saat pengiriman.</li>
 </ol>',
-    'tags' => 
-    array (
-      0 => 'Mutu Beton K-200',
-      1 => 'Material Roster',
-      2 => 'Pabrik Plered',
-      3 => 'Kualitas Produk',
-    ),
-    'author_name' => 'Quality Control IndoRoster',
-    'views_count' => 76,
-    'reading_time' => 3,
-    'is_published' => true,
-    'is_featured' => false,
-    'published_at' => '2026-08-24T07:23:24.000000Z',
-    'meta_title' => 'Keunggulan Roster Beton Mutu K-200 Tahan Cuaca Ekstrem | IndoRoster',
-    'meta_description' => 'Mengenal kualitas roster beton mutu K-200 pabrik IndoRoster. Sangat kokoh, presisi, anti lumut, dan awet puluhan tahun untuk fasad eksterior.',
-    'meta_keywords' => 'mutu beton k200, roster beton berkualitas, roster plered kuat, spesifikasi roster beton',
-    'created_at' => '2026-08-24T07:23:24.000000Z',
-    'updated_at' => '2026-08-24T22:19:22.000000Z',
-  ),
-  3 => 
-  array (
-    'id' => 5,
-    'article_category_id' => 5,
-    'title' => 'Cara Menghitung Kebutuhan Roster Beton per Meter Persegi: Rumus Praktis, Estimasi Semen, dan Trik Antisipasi Nat',
-    'slug' => 'cara-menghitung-kebutuhan-roster-beton-per-m2',
-    'thumbnail' => 'https://images.pexels.com/photos/32968373/pexels-photo-32968373.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940',
-    'thumbnail_alt' => 'Perhitungan dan pemasangan dinding roster beton minimalis',
-    'excerpt' => 'Menghitung dinding roster di atas kertas tampak sesederhana membagi luas bidang dengan ukuran keping. Namun di lapangan, tebal nat semen, potongan sudut miring, dan kolom praktis bisa membuat perhitungan meleset. Simak panduan hitung riil dari praktisi pabrik Plered agar proyek dinding Anda rapi tanpa drama kekurangan material.
+                'tags' => [
+                    0 => 'Mutu Beton K-200',
+                    1 => 'Material Roster',
+                    2 => 'Pabrik Plered',
+                    3 => 'Kualitas Produk',
+                ],
+                'author_name' => 'Quality Control IndoRoster',
+                'views_count' => 76,
+                'reading_time' => 3,
+                'is_published' => true,
+                'is_featured' => false,
+                'published_at' => '2026-08-24T07:23:24.000000Z',
+                'meta_title' => 'Keunggulan Roster Beton Mutu K-200 Tahan Cuaca Ekstrem | IndoRoster',
+                'meta_description' => 'Mengenal kualitas roster beton mutu K-200 pabrik IndoRoster. Sangat kokoh, presisi, anti lumut, dan awet puluhan tahun untuk fasad eksterior.',
+                'meta_keywords' => 'mutu beton k200, roster beton berkualitas, roster plered kuat, spesifikasi roster beton',
+                'created_at' => '2026-08-24T07:23:24.000000Z',
+                'updated_at' => '2026-08-24T22:19:22.000000Z',
+            ],
+            3 => [
+                'id' => 5,
+                'article_category_id' => 5,
+                'title' => 'Cara Menghitung Kebutuhan Roster Beton per Meter Persegi: Rumus Praktis, Estimasi Semen, dan Trik Antisipasi Nat',
+                'slug' => 'cara-menghitung-kebutuhan-roster-beton-per-m2',
+                'thumbnail' => 'https://images.pexels.com/photos/32968373/pexels-photo-32968373.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940',
+                'thumbnail_alt' => 'Perhitungan dan pemasangan dinding roster beton minimalis',
+                'excerpt' => 'Menghitung dinding roster di atas kertas tampak sesederhana membagi luas bidang dengan ukuran keping. Namun di lapangan, tebal nat semen, potongan sudut miring, dan kolom praktis bisa membuat perhitungan meleset. Simak panduan hitung riil dari praktisi pabrik Plered agar proyek dinding Anda rapi tanpa drama kekurangan material.
 
 ---',
-    'content' => '<p>Pernahkah Anda mengalami situasi menyebalkan ini saat renovasi rumah: dinding partisi teras tinggal menyisakan satu baris paling atas, tukang sudah bersiap menyudahi pekerjaan, tapi tumpukan roster di pojok halaman ternyata ludes tak bersisa?</p>
+                'content' => '<p>Pernahkah Anda mengalami situasi menyebalkan ini saat renovasi rumah: dinding partisi teras tinggal menyisakan satu baris paling atas, tukang sudah bersiap menyudahi pekerjaan, tapi tumpukan roster di pojok halaman ternyata ludes tak bersisa?</p>
 <p>Kurang cuma 6 keping.</p>
 <p>Masalahnya, hari sudah Minggu sore. Toko material langganan sudah tutup. Mau pesan dadakan ke pabrik, ongkos kirim mobil pikap untuk 6 keping jelas bikin elus dada. Akhirnya proyek terpaksa mangkrak sampai hari Selasa, dan Anda harus membayar upah harian tukang ekstra hanya untuk menunggu kiriman datang.</p>
 <p>Menghitung kebutuhan roster beton memang terlihat sepele di atas denah arsitek. Namun di lapangan, ada selisih antara hitungan matematika bersih dengan dinamika pemasangan adukan semen.</p>
@@ -348,31 +336,30 @@ $$250\\text{ pcs} \\times 4,5\\text{ kg} = \\mathbf{1.125\\text{ kg (1,12 Ton)}}
 <li><input disabled="" type="checkbox"> Sediakan area penyimpanan beralas terpal dan terlindung di lokasi proyek agar roster yang baru diturunkan dari truk tidak terkena tumpahan lumpur atau oli mesin.</li>
 </ul>
 ',
-    'tags' => NULL,
-    'author_name' => 'Tim Teknis Lapangan IndoRoster',
-    'views_count' => 237,
-    'reading_time' => 6,
-    'is_published' => true,
-    'is_featured' => true,
-    'published_at' => '2026-08-22T14:28:42.000000Z',
-    'meta_title' => 'Cara Hitung Kebutuhan Roster Beton per m² (Rumus & Nat) | IndoRoster',
-    'meta_description' => 'Panduan lengkap cara menghitung kebutuhan roster beton per m2 (ukuran 20x20 & 20x40 cm). Lengkap rumus praktis, spasi nat semen, estimasi mortar, dan toleransi waste.',
-    'meta_keywords' => 'cara hitung roster beton',
-    'created_at' => '2026-08-24T22:03:47.000000Z',
-    'updated_at' => '2026-08-24T22:28:42.000000Z',
-  ),
-  4 => 
-  array (
-    'id' => 6,
-    'article_category_id' => 5,
-    'title' => 'Perawatan Roster Beton Luar Ruangan: Kapan Waktu Tepat Mengaplikasikan Coating Anti-Lumut?',
-    'slug' => 'perawatan-coating-roster-beton-outdoor-anti-lumut',
-    'thumbnail' => 'https://images.pexels.com/photos/14046317/pexels-photo-14046317.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940',
-    'thumbnail_alt' => 'Aplikasi coating pelindung anti lumut pada dinding roster luar ruangan',
-    'excerpt' => 'Dinding roster beton di area outdoor rentan terkena noda bercak putih semen (efflorescence) dan lumut hitam saat musim penghujan. Pelajari cara membersihkan dinding berlumut, memilih cairan coating (doff vs gloss), dan waktu aplikasi yang tepat agar dinding roster selalu tampil prima.
+                'tags' => null,
+                'author_name' => 'Tim Teknis Lapangan IndoRoster',
+                'views_count' => 237,
+                'reading_time' => 6,
+                'is_published' => true,
+                'is_featured' => true,
+                'published_at' => '2026-08-22T14:28:42.000000Z',
+                'meta_title' => 'Cara Hitung Kebutuhan Roster Beton per m² (Rumus & Nat) | IndoRoster',
+                'meta_description' => 'Panduan lengkap cara menghitung kebutuhan roster beton per m2 (ukuran 20x20 & 20x40 cm). Lengkap rumus praktis, spasi nat semen, estimasi mortar, dan toleransi waste.',
+                'meta_keywords' => 'cara hitung roster beton',
+                'created_at' => '2026-08-24T22:03:47.000000Z',
+                'updated_at' => '2026-08-24T22:28:42.000000Z',
+            ],
+            4 => [
+                'id' => 6,
+                'article_category_id' => 5,
+                'title' => 'Perawatan Roster Beton Luar Ruangan: Kapan Waktu Tepat Mengaplikasikan Coating Anti-Lumut?',
+                'slug' => 'perawatan-coating-roster-beton-outdoor-anti-lumut',
+                'thumbnail' => 'https://images.pexels.com/photos/14046317/pexels-photo-14046317.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940',
+                'thumbnail_alt' => 'Aplikasi coating pelindung anti lumut pada dinding roster luar ruangan',
+                'excerpt' => 'Dinding roster beton di area outdoor rentan terkena noda bercak putih semen (efflorescence) dan lumut hitam saat musim penghujan. Pelajari cara membersihkan dinding berlumut, memilih cairan coating (doff vs gloss), dan waktu aplikasi yang tepat agar dinding roster selalu tampil prima.
 
 ---',
-    'content' => '<p>Salah satu daya tarik utama roster beton dibanding material kayu atau besi adalah sifatnya yang kokoh, tidak lapuk dimakan rayap, dan tidak bisa berkarat. Namun, karena ditempatkan di luar ruangan (<em>outdoor</em>) dan terpapar langsung oleh siklus panas terik serta guyuran hujan di iklim tropis Indonesia, permukaan beton tetap memiliki pori-pori alami yang dapat menyerap kelembapan.</p>
+                'content' => '<p>Salah satu daya tarik utama roster beton dibanding material kayu atau besi adalah sifatnya yang kokoh, tidak lapuk dimakan rayap, dan tidak bisa berkarat. Namun, karena ditempatkan di luar ruangan (<em>outdoor</em>) dan terpapar langsung oleh siklus panas terik serta guyuran hujan di iklim tropis Indonesia, permukaan beton tetap memiliki pori-pori alami yang dapat menyerap kelembapan.</p>
 <p>Jika dibiarkan tanpa lapisan pelindung (<em>coating</em>) yang tepat, dalam waktu 1–2 tahun Anda mungkin akan menemukan permukaan dinding roster mulai ditumbuhi bercak lumut hitam kehijauan atau noda kristal garam keputihan (<em>efflorescence</em>).</p>
 <p>Bagaimana cara merawat dinding roster beton agar tampilannya selalu bersih, elegan, dan bebas lumut sepanjang tahun? Simak langkah-langkah praktisnya berikut ini.</p>
 <hr />
@@ -422,31 +409,30 @@ $$250\\text{ pcs} \\times 4,5\\text{ kg} = \\mathbf{1.125\\text{ kg (1,12 Ton)}}
 <p>Untuk iklim tropis di Indonesia, aplikasi ulang cairan pelapis anti-lumut (<em>re-coating</em>) cukup dilakukan <strong>setiap 1,5 hingga 2 tahun sekali</strong>. Biayanya sangat terjangkau dibanding harus membongkar atau mengecat ulang seluruh bidang dinding.</p>
 <p>Untuk melihat inspirasi pengaplikasian roster beton pada berbagai kondisi eksterior dan interior, Anda dapat meninjau <a href="https://indoroster.com/gallery">galeri proyek terpasang IndoRoster</a> atau menghubungi tim kami di sentra pabrik Plered, Purwakarta untuk konsultasi perawatan material.</p>
 ',
-    'tags' => NULL,
-    'author_name' => 'Tim Teknis & Finishing IndoRoster',
-    'views_count' => 532,
-    'reading_time' => 3,
-    'is_published' => true,
-    'is_featured' => true,
-    'published_at' => '2026-08-22T12:28:42.000000Z',
-    'meta_title' => 'Cara Merawat Roster Beton Outdoor & Aplikasi Coating | IndoRoster',
-    'meta_description' => 'Panduan lengkap cara merawat dinding roster beton outdoor agar bebas jamur dan lumut hitam. Rekomendasi jenis cairan coating pelindung dan jadwal aplikasi ulang.',
-    'meta_keywords' => 'coating roster beton',
-    'created_at' => '2026-08-24T22:03:47.000000Z',
-    'updated_at' => '2026-08-25T08:31:36.000000Z',
-  ),
-  5 => 
-  array (
-    'id' => 7,
-    'article_category_id' => 1,
-    'title' => 'Fasad Rumah Hadap Barat: Mengapa Secondary Skin Roster Lebih Dingin daripada Kaca Film',
-    'slug' => 'fasad-rumah-hadap-barat-secondary-skin-roster',
-    'thumbnail' => 'https://images.pexels.com/photos/19949276/pexels-photo-19949276.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940',
-    'thumbnail_alt' => 'Desain fasad secondary skin roster beton penahan panas matahari',
-    'excerpt' => 'Rumah dengan fasad menghadap ke barat ibarat oven raksasa saat sore hari. Menempelkan kaca film gelap atau menutup gorden tebal hanya membuat ruangan temaram tanpa menghentikan panas yang terserap dinding bata. Simak bagaimana aplikasi secondary skin roster beton produksi Plered mereduksi suhu ruangan hingga 4°C sekaligus memangkas tagihan listrik AC.
+                'tags' => null,
+                'author_name' => 'Tim Teknis & Finishing IndoRoster',
+                'views_count' => 532,
+                'reading_time' => 3,
+                'is_published' => true,
+                'is_featured' => true,
+                'published_at' => '2026-08-22T12:28:42.000000Z',
+                'meta_title' => 'Cara Merawat Roster Beton Outdoor & Aplikasi Coating | IndoRoster',
+                'meta_description' => 'Panduan lengkap cara merawat dinding roster beton outdoor agar bebas jamur dan lumut hitam. Rekomendasi jenis cairan coating pelindung dan jadwal aplikasi ulang.',
+                'meta_keywords' => 'coating roster beton',
+                'created_at' => '2026-08-24T22:03:47.000000Z',
+                'updated_at' => '2026-08-25T08:31:36.000000Z',
+            ],
+            5 => [
+                'id' => 7,
+                'article_category_id' => 1,
+                'title' => 'Fasad Rumah Hadap Barat: Mengapa Secondary Skin Roster Lebih Dingin daripada Kaca Film',
+                'slug' => 'fasad-rumah-hadap-barat-secondary-skin-roster',
+                'thumbnail' => 'https://images.pexels.com/photos/19949276/pexels-photo-19949276.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940',
+                'thumbnail_alt' => 'Desain fasad secondary skin roster beton penahan panas matahari',
+                'excerpt' => 'Rumah dengan fasad menghadap ke barat ibarat oven raksasa saat sore hari. Menempelkan kaca film gelap atau menutup gorden tebal hanya membuat ruangan temaram tanpa menghentikan panas yang terserap dinding bata. Simak bagaimana aplikasi secondary skin roster beton produksi Plered mereduksi suhu ruangan hingga 4°C sekaligus memangkas tagihan listrik AC.
 
 ---',
-    'content' => '<p>Setiap jam 2 siang hingga 5 sore, ada satu drama klasik yang dialami pemilik rumah berorientasi hadap barat di kawasan tropis seperti Jabodetabek dan Bandung: ruang keluarga lantai dua mendadak berubah menjadi oven raksasa.</p>
+                'content' => '<p>Setiap jam 2 siang hingga 5 sore, ada satu drama klasik yang dialami pemilik rumah berorientasi hadap barat di kawasan tropis seperti Jabodetabek dan Bandung: ruang keluarga lantai dua mendadak berubah menjadi oven raksasa.</p>
 <p>Sinar matahari sore menyorot langsung ke jendela kaca. Udara di dalam kamar tidur menjadi pengap dan menyengat. Mau pasang AC suhu 16°C pun, hembusan angin dinginnya seolah kalah telak dengan radiasi panas yang memancar dari dinding bata luar yang sudah seharian menyerap terik matahari.</p>
 <p>Banyak orang mencoba jalan pintas dengan menempelkan kaca film gelap 80% dan menutup gorden <em>blackout</em> tebal sepanjang hari.</p>
 <p>Hasilnya? Ruangan Anda memang tidak silau, tapi suasana rumah menjadi temaram suram seperti gua di siang bolong. Parahnya lagi, dinding bata luar tetap saja membara dan melepaskan hawa panas ke dalam ruangan hingga larut malam.</p>
@@ -520,31 +506,30 @@ $$250\\text{ pcs} \\times 4,5\\text{ kg} = \\mathbf{1.125\\text{ kg (1,12 Ton)}}
 <li><input disabled="" type="checkbox"> Siapkan jalur pembuangan air (<em>drainase talang</em>) di celah antara kedua dinding agar air hujan tidak menggenang di balkon.</li>
 </ul>
 ',
-    'tags' => NULL,
-    'author_name' => 'Tim Desain & Arsitektur IndoRoster',
-    'views_count' => 436,
-    'reading_time' => 5,
-    'is_published' => true,
-    'is_featured' => true,
-    'published_at' => '2026-08-22T20:28:42.000000Z',
-    'meta_title' => 'Fasad Rumah Hadap Barat: Solusi Secondary Skin Roster | IndoRoster',
-    'meta_description' => 'Mengatasi ruangan panas pada rumah menghadap barat dengan secondary skin roster beton. Sirkulasi udara lancar, privasi terjaga, dan hemat pemakaian AC.',
-    'meta_keywords' => 'fasad roster minimalis',
-    'created_at' => '2026-08-24T22:03:47.000000Z',
-    'updated_at' => '2026-08-24T22:28:42.000000Z',
-  ),
-  6 => 
-  array (
-    'id' => 8,
-    'article_category_id' => 6,
-    'title' => 'Roster Beton vs Roster Tanah Liat (Terakota): Mana yang Lebih Kuat untuk Pagar Outdoor?',
-    'slug' => 'perbedaan-roster-beton-vs-roster-tanah-liat-terakota',
-    'thumbnail' => 'https://images.pexels.com/photos/9420801/pexels-photo-9420801.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940',
-    'thumbnail_alt' => 'Komparasi material roster beton abu dan roster terakota tanah liat',
-    'excerpt' => 'Memilih antara nuansa jingga hangat terakota tanah liat dan ketangguhan abu industrial roster beton sering kali membingungkan pemilik rumah. Simak komparasi mendalam dari aspek daya serap air, risiko lumut hitam di musim hujan, presisi pemasangan tukang, hingga uji ketahanan benturan fisik di area pagar luar ruangan.
+                'tags' => null,
+                'author_name' => 'Tim Desain & Arsitektur IndoRoster',
+                'views_count' => 436,
+                'reading_time' => 5,
+                'is_published' => true,
+                'is_featured' => true,
+                'published_at' => '2026-08-22T20:28:42.000000Z',
+                'meta_title' => 'Fasad Rumah Hadap Barat: Solusi Secondary Skin Roster | IndoRoster',
+                'meta_description' => 'Mengatasi ruangan panas pada rumah menghadap barat dengan secondary skin roster beton. Sirkulasi udara lancar, privasi terjaga, dan hemat pemakaian AC.',
+                'meta_keywords' => 'fasad roster minimalis',
+                'created_at' => '2026-08-24T22:03:47.000000Z',
+                'updated_at' => '2026-08-24T22:28:42.000000Z',
+            ],
+            6 => [
+                'id' => 8,
+                'article_category_id' => 6,
+                'title' => 'Roster Beton vs Roster Tanah Liat (Terakota): Mana yang Lebih Kuat untuk Pagar Outdoor?',
+                'slug' => 'perbedaan-roster-beton-vs-roster-tanah-liat-terakota',
+                'thumbnail' => 'https://images.pexels.com/photos/9420801/pexels-photo-9420801.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940',
+                'thumbnail_alt' => 'Komparasi material roster beton abu dan roster terakota tanah liat',
+                'excerpt' => 'Memilih antara nuansa jingga hangat terakota tanah liat dan ketangguhan abu industrial roster beton sering kali membingungkan pemilik rumah. Simak komparasi mendalam dari aspek daya serap air, risiko lumut hitam di musim hujan, presisi pemasangan tukang, hingga uji ketahanan benturan fisik di area pagar luar ruangan.
 
 ---',
-    'content' => '<p>Saat merancang pagar depan atau dinding pembatas taman, perdebatan klasik yang hampir selalu muncul di meja diskusi keluarga adalah: <strong>&quot;Pilih roster tanah liat (terakota) yang bernuansa etnik hangat, atau roster beton abu minimalis yang kokoh?&quot;</strong></p>
+                'content' => '<p>Saat merancang pagar depan atau dinding pembatas taman, perdebatan klasik yang hampir selalu muncul di meja diskusi keluarga adalah: <strong>&quot;Pilih roster tanah liat (terakota) yang bernuansa etnik hangat, atau roster beton abu minimalis yang kokoh?&quot;</strong></p>
 <p>Bagi penikmat arsitektur, warna merah bata terakota memang memikat dengan nuansa villa tropis khas Bali. Di sisi lain, karakter roster beton abu natural memancarkan aura <em>modern industrial</em> yang bersih dan maskulin.</p>
 <p>Namun, estetika hanyalah satu sisi mata uang. Ketika material ini dipasang di area pagar luar (<em>outdoor</em>) yang dihantam hujan berangin dan disengat terik matahari sepanjang tahun, faktor ketahanan fisik dan kemudahan perawatan menjadi penentu utama agar Anda tidak menyesal di kemudian hari.</p>
 <p>Mari kita adu kedua material ini dalam 5 ronde uji lapangan yang sesungguhnya.</p>
@@ -611,31 +596,30 @@ $$250\\text{ pcs} \\times 4,5\\text{ kg} = \\mathbf{1.125\\text{ kg (1,12 Ton)}}
 </ul>
 <p>Untuk mengeksplorasi puluhan varian motif roster beton cetak presisi mutu K-200 produksi Plered, Purwakarta, Anda dapat melihat langsung spesifikasinya di <a href="https://indoroster.com/katalog">katalog produk IndoRoster</a> atau berkonsultasi dengan tim teknis kami.</p>
 ',
-    'tags' => NULL,
-    'author_name' => 'Tim Material & Riset IndoRoster',
-    'views_count' => 377,
-    'reading_time' => 4,
-    'is_published' => true,
-    'is_featured' => false,
-    'published_at' => '2026-08-22T12:28:42.000000Z',
-    'meta_title' => 'Roster Beton vs Terakota: Mana Lebih Awet untuk Outdoor? | IndoRoster',
-    'meta_description' => 'Perbandingan mendalam roster beton vs roster tanah liat (terakota). Uji ketahanan cuaca, kekuatan beban benturan, risiko lumut, dan kecocokan desain pagar.',
-    'meta_keywords' => 'perbedaan roster beton dan tanah liat',
-    'created_at' => '2026-08-24T22:03:47.000000Z',
-    'updated_at' => '2026-08-26T13:25:14.000000Z',
-  ),
-  7 => 
-  array (
-    'id' => 9,
-    'article_category_id' => 5,
-    'title' => '5 Kesalahan Fatal Pemasangan Dinding Roster yang Bikin Retak Rambut (dan Trik Mencegahnya)',
-    'slug' => '5-kesalahan-fatal-pemasangan-dinding-roster-retak-rambut',
-    'thumbnail' => 'https://images.pexels.com/photos/19688828/pexels-photo-19688828.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940',
-    'thumbnail_alt' => 'Proses pemasangan dinding roster beton dengan kolom praktis dan nat rapi',
-    'excerpt' => 'Memasang roster beton terlihat mudah seperti menyusun balok lego, namun mengabaikan kolom pengikat praktis, spasi nat, dan pembatasan tinggi baris harian bisa berakibat fatal. Kenali 5 kekeliruan umum tukang saat pemasangan dinding roster dan cara mengantisipasinya sejak awal.
+                'tags' => null,
+                'author_name' => 'Tim Material & Riset IndoRoster',
+                'views_count' => 377,
+                'reading_time' => 4,
+                'is_published' => true,
+                'is_featured' => false,
+                'published_at' => '2026-08-22T12:28:42.000000Z',
+                'meta_title' => 'Roster Beton vs Terakota: Mana Lebih Awet untuk Outdoor? | IndoRoster',
+                'meta_description' => 'Perbandingan mendalam roster beton vs roster tanah liat (terakota). Uji ketahanan cuaca, kekuatan beban benturan, risiko lumut, dan kecocokan desain pagar.',
+                'meta_keywords' => 'perbedaan roster beton dan tanah liat',
+                'created_at' => '2026-08-24T22:03:47.000000Z',
+                'updated_at' => '2026-08-26T13:25:14.000000Z',
+            ],
+            7 => [
+                'id' => 9,
+                'article_category_id' => 5,
+                'title' => '5 Kesalahan Fatal Pemasangan Dinding Roster yang Bikin Retak Rambut (dan Trik Mencegahnya)',
+                'slug' => '5-kesalahan-fatal-pemasangan-dinding-roster-retak-rambut',
+                'thumbnail' => 'https://images.pexels.com/photos/19688828/pexels-photo-19688828.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940',
+                'thumbnail_alt' => 'Proses pemasangan dinding roster beton dengan kolom praktis dan nat rapi',
+                'excerpt' => 'Memasang roster beton terlihat mudah seperti menyusun balok lego, namun mengabaikan kolom pengikat praktis, spasi nat, dan pembatasan tinggi baris harian bisa berakibat fatal. Kenali 5 kekeliruan umum tukang saat pemasangan dinding roster dan cara mengantisipasinya sejak awal.
 
 ---',
-    'content' => '<p>Banyak orang mengira memasang roster beton itu semudah menyusun balok lego mainan: tinggal tumpuk satu per satu ke atas, oleskan sedikit adukan semen di sela-selanya, lalu tunggu kering.</p>
+                'content' => '<p>Banyak orang mengira memasang roster beton itu semudah menyusun balok lego mainan: tinggal tumpuk satu per satu ke atas, oleskan sedikit adukan semen di sela-selanya, lalu tunggu kering.</p>
 <p>Kenyataan pahit di lapangan sering kali berkata lain.</p>
 <p>Roster beton adalah material berlubang dengan bidang rekat semen yang relatif sempit dibanding bata merah konvensional. Jika tukang mengabaikan prinsip mekanika dinding, dalam hitungan bulan Anda akan mulai melihat garis-garis retak rambut di sepanjang nat semen, dinding melengkung saat terpaan angin musim hujan, atau yang paling mengerikan: dinding roboh saat tersenggol kendaraan di area carport.</p>
 <p>Berikut lima kesalahan paling fatal saat memasang dinding roster beton dan standar operasional yang benar untuk mencegahnya.</p>
@@ -685,31 +669,30 @@ $$250\\text{ pcs} \\times 4,5\\text{ kg} = \\mathbf{1.125\\text{ kg (1,12 Ton)}}
 <p>Pastikan Anda memilih roster beton cetak tumbuk padat dari sentra terpercaya seperti pabrik IndoRoster di Plered, Purwakarta, di mana setiap keping dibuat dengan alat pres khusus sehingga memiliki sudut siku $90^\\circ$ yang rapi, padat, dan kokoh.</p>
 <p>Anda dapat meninjau katalog produk presisi kami di <a href="https://indoroster.com/katalog">katalog roster beton IndoRoster</a> atau berkonsultasi mengenai teknis pemasangan proyek Anda dengan tim kami.</p>
 ',
-    'tags' => NULL,
-    'author_name' => 'Tim Pengawas Lapangan IndoRoster',
-    'views_count' => 439,
-    'reading_time' => 4,
-    'is_published' => true,
-    'is_featured' => false,
-    'published_at' => '2026-08-22T04:28:43.000000Z',
-    'meta_title' => '5 Kesalahan Pasang Dinding Roster & Cara Mencegah Retak | IndoRoster',
-    'meta_description' => 'Pelajari 5 kesalahan fatal saat memasang dinding roster beton yang sering memicu retak rambut, dinding miring, dan roboh. Lengkap solusi kolom praktis & nat.',
-    'meta_keywords' => 'cara pasang dinding roster',
-    'created_at' => '2026-08-24T22:03:47.000000Z',
-    'updated_at' => '2026-08-24T22:28:43.000000Z',
-  ),
-  8 => 
-  array (
-    'id' => 10,
-    'article_category_id' => 6,
-    'title' => 'Mengintip Dapur Pabrik Roster Plered Purwakarta: Dari Formula Pasir Abu Batu hingga Teknik Tumbuk Padat yang Rapi',
-    'slug' => 'mengintip-dapur-pabrik-roster-plered-purwakarta-mutu-k200',
-    'thumbnail' => 'https://images.pexels.com/photos/6537735/pexels-photo-6537735.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940',
-    'thumbnail_alt' => 'Sentra pabrik pembuatan roster beton presisi mutu K-200 Plered Purwakarta',
-    'excerpt' => 'Kecamatan Plered di Purwakarta sudah lama melegenda sebagai episentrum kerajinan keramik dan beton arsitektural di Jawa Barat. Telusuri bagaimana proses manufaktur di pabrik IndoRoster memadukan formula abu batu presisi, teknik cetak tumbuk manual dengan alat khusus pengrajin, menghasilkan roster yang padat, keras, dan bersudut siku rapi.
+                'tags' => null,
+                'author_name' => 'Tim Pengawas Lapangan IndoRoster',
+                'views_count' => 439,
+                'reading_time' => 4,
+                'is_published' => true,
+                'is_featured' => false,
+                'published_at' => '2026-08-22T04:28:43.000000Z',
+                'meta_title' => '5 Kesalahan Pasang Dinding Roster & Cara Mencegah Retak | IndoRoster',
+                'meta_description' => 'Pelajari 5 kesalahan fatal saat memasang dinding roster beton yang sering memicu retak rambut, dinding miring, dan roboh. Lengkap solusi kolom praktis & nat.',
+                'meta_keywords' => 'cara pasang dinding roster',
+                'created_at' => '2026-08-24T22:03:47.000000Z',
+                'updated_at' => '2026-08-24T22:28:43.000000Z',
+            ],
+            8 => [
+                'id' => 10,
+                'article_category_id' => 6,
+                'title' => 'Mengintip Dapur Pabrik Roster Plered Purwakarta: Dari Formula Pasir Abu Batu hingga Teknik Tumbuk Padat yang Rapi',
+                'slug' => 'mengintip-dapur-pabrik-roster-plered-purwakarta-mutu-k200',
+                'thumbnail' => 'https://images.pexels.com/photos/6537735/pexels-photo-6537735.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940',
+                'thumbnail_alt' => 'Sentra pabrik pembuatan roster beton presisi mutu K-200 Plered Purwakarta',
+                'excerpt' => 'Kecamatan Plered di Purwakarta sudah lama melegenda sebagai episentrum kerajinan keramik dan beton arsitektural di Jawa Barat. Telusuri bagaimana proses manufaktur di pabrik IndoRoster memadukan formula abu batu presisi, teknik cetak tumbuk manual dengan alat khusus pengrajin, menghasilkan roster yang padat, keras, dan bersudut siku rapi.
 
 ---',
-    'content' => '<p>Bagi masyarakat Jawa Barat dan para kontraktor di Jabodetabek, nama <strong>Plered, Purwakarta</strong> selalu identik dengan sentra penghasil olahan tanah liat dan beton arsitektural terbaik. Terletak strategis di antara jalur penghubung Jakarta dan Bandung, tradisi keterampilan tangan warga Plered telah berkembang menjadi industri manufaktur bahan bangunan yang menyuplai ribuan proyek hunian.</p>
+                'content' => '<p>Bagi masyarakat Jawa Barat dan para kontraktor di Jabodetabek, nama <strong>Plered, Purwakarta</strong> selalu identik dengan sentra penghasil olahan tanah liat dan beton arsitektural terbaik. Terletak strategis di antara jalur penghubung Jakarta dan Bandung, tradisi keterampilan tangan warga Plered telah berkembang menjadi industri manufaktur bahan bangunan yang menyuplai ribuan proyek hunian.</p>
 <p>Namun, bagaimana sebenarnya proses di balik pembuatan roster beton yang keras, padat, dan rapi?</p>
 <p>Perlu diluruskan: <strong>roster beton arsitektural bukanlah beton cor basah (<em>ready-mix</em>)</strong>, melainkan karya keterampilan cetak tumbuk padat semi-kering (<em>semi-dry mix</em>) yang dikerjakan secara teliti oleh pengrajin berpengalaman menggunakan alat pres khusus.</p>
 <p>Mari kita bedah langsung dari lantai pabrikasi IndoRoster di kawasan Purwakarta.</p>
@@ -758,31 +741,30 @@ $$250\\text{ pcs} \\times 4,5\\text{ kg} = \\mathbf{1.125\\text{ kg (1,12 Ton)}}
 </ol>
 <p>Anda dapat menyaksikan dokumentasi proses pembuatan kami di <a href="https://indoroster.com/proses-produksi">halaman proses produksi</a> atau meninjau seluruh varian motif di <a href="https://indoroster.com/katalog">katalog online IndoRoster</a>.</p>
 ',
-    'tags' => NULL,
-    'author_name' => 'Tim Publikasi Pabrik IndoRoster',
-    'views_count' => 393,
-    'reading_time' => 3,
-    'is_published' => true,
-    'is_featured' => false,
-    'published_at' => '2026-08-22T19:28:43.000000Z',
-    'meta_title' => 'Pabrik Roster Plered Purwakarta: Proses Pembuatan Tumbuk Padat | IndoRoster',
-    'meta_description' => 'Mengintip langsung proses produksi pabrik roster beton di Plered, Purwakarta. Penggunaan teknik cetak tumbuk padat manual dengan alat khusus pengrajin berpengalaman.',
-    'meta_keywords' => 'pabrik roster di Plered',
-    'created_at' => '2026-08-24T22:03:47.000000Z',
-    'updated_at' => '2026-08-24T22:28:43.000000Z',
-  ),
-  9 => 
-  array (
-    'id' => 11,
-    'article_category_id' => 1,
-    'title' => 'Inspirasi Desain Partisi Ruang Tamu & Dapur Menggunakan Roster Minimalis Motif Kotak',
-    'slug' => 'desain-partisi-ruang-tamu-dapur-roster-minimalis',
-    'thumbnail' => 'https://images.pexels.com/photos/14613660/pexels-photo-14613660.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940',
-    'thumbnail_alt' => 'Inspirasi partisi pembatas ruang tamu dan dapur dengan roster minimalis',
-    'excerpt' => 'Memisahkan area ruang tamu dengan ruang makan atau dapur di rumah tipe compact (36/60 atau 45/90) sering kali membuat rumah terasa sempit jika menggunakan dinding masif. Simak bagaimana partisi roster beton motif minimalis mampu membagi zona ruangan dengan elegan tanpa menghalangi sirkulasi udara dan cahaya.
+                'tags' => null,
+                'author_name' => 'Tim Publikasi Pabrik IndoRoster',
+                'views_count' => 393,
+                'reading_time' => 3,
+                'is_published' => true,
+                'is_featured' => false,
+                'published_at' => '2026-08-22T19:28:43.000000Z',
+                'meta_title' => 'Pabrik Roster Plered Purwakarta: Proses Pembuatan Tumbuk Padat | IndoRoster',
+                'meta_description' => 'Mengintip langsung proses produksi pabrik roster beton di Plered, Purwakarta. Penggunaan teknik cetak tumbuk padat manual dengan alat khusus pengrajin berpengalaman.',
+                'meta_keywords' => 'pabrik roster di Plered',
+                'created_at' => '2026-08-24T22:03:47.000000Z',
+                'updated_at' => '2026-08-24T22:28:43.000000Z',
+            ],
+            9 => [
+                'id' => 11,
+                'article_category_id' => 1,
+                'title' => 'Inspirasi Desain Partisi Ruang Tamu & Dapur Menggunakan Roster Minimalis Motif Kotak',
+                'slug' => 'desain-partisi-ruang-tamu-dapur-roster-minimalis',
+                'thumbnail' => 'https://images.pexels.com/photos/14613660/pexels-photo-14613660.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940',
+                'thumbnail_alt' => 'Inspirasi partisi pembatas ruang tamu dan dapur dengan roster minimalis',
+                'excerpt' => 'Memisahkan area ruang tamu dengan ruang makan atau dapur di rumah tipe compact (36/60 atau 45/90) sering kali membuat rumah terasa sempit jika menggunakan dinding masif. Simak bagaimana partisi roster beton motif minimalis mampu membagi zona ruangan dengan elegan tanpa menghalangi sirkulasi udara dan cahaya.
 
 ---',
-    'content' => '<p>Konsep rumah denah terbuka (<em>open plan concept</em>) sangat digemari pada perumahan modern type 36, 45, maupun townhouse perkotaan masa kini. Ruang tamu, ruang keluarga, dan dapur sering kali berada dalam satu garis lurus tanpa sekat pemisah.</p>
+                'content' => '<p>Konsep rumah denah terbuka (<em>open plan concept</em>) sangat digemari pada perumahan modern type 36, 45, maupun townhouse perkotaan masa kini. Ruang tamu, ruang keluarga, dan dapur sering kali berada dalam satu garis lurus tanpa sekat pemisah.</p>
 <p>Meskipun membuat rumah terasa lapang, denah terbuka sering mendatangkan momen canggung (<em>awkward moments</em>): saat ada tamu formal berkunjung, cucian piring kotor di wastafel dapur atau aroma tumisan bawang putih saat memasak langsung menyerbu ke area sofa depan.</p>
 <p>Menutup area tersebut dengan dinding bata masif atau partisi gypsum tertutup justru membuat rumah mungil terasa sempit, gelap seperti lorong, dan memblokir aliran udara alami.</p>
 <p>Solusi cerdas yang kini banyak diadopsi para arsitek interior adalah membangun <strong>partisi semi-transparan menggunakan roster beton minimalis</strong>.</p>
@@ -818,31 +800,30 @@ $$250\\text{ pcs} \\times 4,5\\text{ kg} = \\mathbf{1.125\\text{ kg (1,12 Ton)}}
 </ul>
 <p>Temukan berbagai pilihan motif kotak minimalis dan varian warna natural di <a href="https://indoroster.com/katalog">katalog motif roster IndoRoster</a> atau lihat foto-foto proyek interior terpasang di <a href="https://indoroster.com/gallery">galeri inspirasi desain kami</a>.</p>
 ',
-    'tags' => NULL,
-    'author_name' => 'Tim Desain Interior IndoRoster',
-    'views_count' => 205,
-    'reading_time' => 3,
-    'is_published' => true,
-    'is_featured' => false,
-    'published_at' => '2026-08-23T07:28:43.000000Z',
-    'meta_title' => 'Inspirasi Desain Partisi Ruang Tamu Roster Minimalis | IndoRoster',
-    'meta_description' => 'Ide sekat partisi ruang tamu dan ruang makan dapur menggunakan roster beton minimalis. Ruangan terasa luas, sirkulasi udara lancar, dan tetap menjaga privasi.',
-    'meta_keywords' => 'partisi roster ruang tamu',
-    'created_at' => '2026-08-24T22:03:47.000000Z',
-    'updated_at' => '2026-08-24T22:28:43.000000Z',
-  ),
-  10 => 
-  array (
-    'id' => 12,
-    'article_category_id' => 5,
-    'title' => 'Panduan Memilih Ketebalan dan Ukuran Roster Beton: Bedanya Tebal 10 cm vs 8 cm di Lapangan',
-    'slug' => 'panduan-memilih-ketebalan-ukuran-roster-beton-10cm-vs-8cm',
-    'thumbnail' => 'https://images.pexels.com/photos/24866696/pexels-photo-24866696.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940',
-    'thumbnail_alt' => 'Spesifikasi ukuran dan ketebalan roster beton 10 cm vs 8 cm',
-    'excerpt' => 'Di pasaran material bangunan, Anda akan menemukan variasi ketebalan roster beton mulai dari 8 cm hingga 10 cm. Pelajari dampak ketebalan terhadap kekuatan mekanis dinding pagar, keselarasan dengan tebal kolom bata, serta efisiensi biaya proyek Anda.
+                'tags' => null,
+                'author_name' => 'Tim Desain Interior IndoRoster',
+                'views_count' => 205,
+                'reading_time' => 3,
+                'is_published' => true,
+                'is_featured' => false,
+                'published_at' => '2026-08-23T07:28:43.000000Z',
+                'meta_title' => 'Inspirasi Desain Partisi Ruang Tamu Roster Minimalis | IndoRoster',
+                'meta_description' => 'Ide sekat partisi ruang tamu dan ruang makan dapur menggunakan roster beton minimalis. Ruangan terasa luas, sirkulasi udara lancar, dan tetap menjaga privasi.',
+                'meta_keywords' => 'partisi roster ruang tamu',
+                'created_at' => '2026-08-24T22:03:47.000000Z',
+                'updated_at' => '2026-08-24T22:28:43.000000Z',
+            ],
+            10 => [
+                'id' => 12,
+                'article_category_id' => 5,
+                'title' => 'Panduan Memilih Ketebalan dan Ukuran Roster Beton: Bedanya Tebal 10 cm vs 8 cm di Lapangan',
+                'slug' => 'panduan-memilih-ketebalan-ukuran-roster-beton-10cm-vs-8cm',
+                'thumbnail' => 'https://images.pexels.com/photos/24866696/pexels-photo-24866696.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940',
+                'thumbnail_alt' => 'Spesifikasi ukuran dan ketebalan roster beton 10 cm vs 8 cm',
+                'excerpt' => 'Di pasaran material bangunan, Anda akan menemukan variasi ketebalan roster beton mulai dari 8 cm hingga 10 cm. Pelajari dampak ketebalan terhadap kekuatan mekanis dinding pagar, keselarasan dengan tebal kolom bata, serta efisiensi biaya proyek Anda.
 
 ---',
-    'content' => '<p>Saat berbelanja roster beton untuk proyek renovasi rumah, kebanyakan orang hanya terpaku pada motif tampak depan: apakah pola garis minimalis, kotak empat, labirin, atau bintang.</p>
+                'content' => '<p>Saat berbelanja roster beton untuk proyek renovasi rumah, kebanyakan orang hanya terpaku pada motif tampak depan: apakah pola garis minimalis, kotak empat, labirin, atau bintang.</p>
 <p>Dimensi ketebalan (<em>tebal/depth</em>) sering kali dianggap hal sepele yang luput dari perhatian.</p>
 <p>Padahal di lapangan, perbedaan antara roster tebal <strong>8 cm</strong> dan tebal <strong>10 cm</strong> adalah pembeda nyata antara dinding pagar yang kokoh tahan gempa kecil dengan dinding yang gampang goyang saat terdorong angin kencang.</p>
 <p>Selain itu, ketebalan roster juga menentukan apakah susunan dinding akan tampak rata (<em>flush</em>) saat bertemu dengan kolom plesteran bata, atau justru terlihat menjorok aneh seperti tambal sulam.</p>
@@ -901,31 +882,30 @@ Memberikan aksen garis horizontal yang kuat. Sangat cocok untuk fasad rumah berk
 <li><input disabled="" type="checkbox"> Pastikan roster dicetak dengan mesin press hidrolik bersudut siku tajam $90^\\circ$ agar spasi nat semen bisa rapi maksimal.</li>
 </ul>
 ',
-    'tags' => NULL,
-    'author_name' => 'Tim Pengawas Konstruksi IndoRoster',
-    'views_count' => 586,
-    'reading_time' => 5,
-    'is_published' => true,
-    'is_featured' => false,
-    'published_at' => '2026-08-22T12:28:43.000000Z',
-    'meta_title' => 'Panduan Ukuran & Ketebalan Roster Beton: Tebal 10 cm vs 8 cm | IndoRoster',
-    'meta_description' => 'Memahami perbedaan ketebalan roster beton 10 cm vs 8 cm dan ukuran standar 20x20 cm vs 20x40 cm. Panduan memilih untuk pagar, partisi, dan fasad luar.',
-    'meta_keywords' => 'ukuran roster beton standar',
-    'created_at' => '2026-08-24T22:03:47.000000Z',
-    'updated_at' => '2026-08-24T22:28:43.000000Z',
-  ),
-  11 => 
-  array (
-    'id' => 13,
-    'article_category_id' => 1,
-    'title' => 'Solusi Ruang Cuci Jemur (Laundry Room) Anti Pengap dan Tetap Estetik dengan Roster Ventilasi',
-    'slug' => 'solusi-ruang-cuci-jemur-laundry-room-anti-pengap-roster',
-    'thumbnail' => 'https://images.pexels.com/photos/36546520/pexels-photo-36546520.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940',
-    'thumbnail_alt' => 'Desain ruang cuci jemur laundry room dengan dinding ventilasi roster',
-    'excerpt' => 'Menjemur pakaian di area belakang rumah sering menghadapi dua dilema: jika ditutup rapat pakaian lama kering dan bau apek, namun jika dibiarkan terbuka pakaian terlihat berantakan oleh tetangga. Simak bagaimana dinding roster ventilasi menyelesaikan masalah ruang cuci jemur secara tuntas.
+                'tags' => null,
+                'author_name' => 'Tim Pengawas Konstruksi IndoRoster',
+                'views_count' => 586,
+                'reading_time' => 5,
+                'is_published' => true,
+                'is_featured' => false,
+                'published_at' => '2026-08-22T12:28:43.000000Z',
+                'meta_title' => 'Panduan Ukuran & Ketebalan Roster Beton: Tebal 10 cm vs 8 cm | IndoRoster',
+                'meta_description' => 'Memahami perbedaan ketebalan roster beton 10 cm vs 8 cm dan ukuran standar 20x20 cm vs 20x40 cm. Panduan memilih untuk pagar, partisi, dan fasad luar.',
+                'meta_keywords' => 'ukuran roster beton standar',
+                'created_at' => '2026-08-24T22:03:47.000000Z',
+                'updated_at' => '2026-08-24T22:28:43.000000Z',
+            ],
+            11 => [
+                'id' => 13,
+                'article_category_id' => 1,
+                'title' => 'Solusi Ruang Cuci Jemur (Laundry Room) Anti Pengap dan Tetap Estetik dengan Roster Ventilasi',
+                'slug' => 'solusi-ruang-cuci-jemur-laundry-room-anti-pengap-roster',
+                'thumbnail' => 'https://images.pexels.com/photos/36546520/pexels-photo-36546520.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940',
+                'thumbnail_alt' => 'Desain ruang cuci jemur laundry room dengan dinding ventilasi roster',
+                'excerpt' => 'Menjemur pakaian di area belakang rumah sering menghadapi dua dilema: jika ditutup rapat pakaian lama kering dan bau apek, namun jika dibiarkan terbuka pakaian terlihat berantakan oleh tetangga. Simak bagaimana dinding roster ventilasi menyelesaikan masalah ruang cuci jemur secara tuntas.
 
 ---',
-    'content' => '<p>Area cuci dan jemur pakaian (<em>laundry and drying room</em>) sering kali menjadi sudut rumah yang paling dianaktirikan dalam perencanaan arsitektur. Biasanya diletakkan di pojok belakang atau lantai atas dak jemur, area ini kerap ditutup ala kadarnya dengan seng asbes atau kanopi plastik yang membuat udara di bawahnya terasa panas membara seperti ruang sauna.</p>
+                'content' => '<p>Area cuci dan jemur pakaian (<em>laundry and drying room</em>) sering kali menjadi sudut rumah yang paling dianaktirikan dalam perencanaan arsitektur. Biasanya diletakkan di pojok belakang atau lantai atas dak jemur, area ini kerap ditutup ala kadarnya dengan seng asbes atau kanopi plastik yang membuat udara di bawahnya terasa panas membara seperti ruang sauna.</p>
 <p>Ketika musim penghujan tiba, masalah mulai bermunculan: uap air dari cucian basah terperangkap di ruangan yang minim sirkulasi, pakaian membutuhkan waktu 2 hari untuk kering, dan baunya berubah menjadi aroma apek yang menyengat.</p>
 <p>Sebaliknya, membiarkan area jemur terbuka tanpa dinding penutup membuat pakaian dalam, handuk, dan cucian yang digantung terlihat langsung dari luar, merusak estetika dan privasi keluarga.</p>
 <p>Dinding roster ventilasi beton hadir sebagai jalan tengah paling ideal untuk menata area servis rumah tropis secara tuntas.</p>
@@ -957,31 +937,30 @@ Gunakan atap kaca tempered atau polikarbonat bening di bagian atas agar cahaya m
 <p>Area servis tidak harus selalu terlihat kusam dan kumuh. Dengan sentuhan dinding roster beton cetak presisi warna abu natural atau putih bersih, dipadukan dengan lantai keramik tegel dan beberapa tanaman gantung sirih gading, ruang cuci jemur Anda bisa bertransformasi menjadi sudut rumah yang sangat estetik dan menyenangkan.</p>
 <p>Untuk melihat ragam pilihan motif roster anti-tampias yang cocok untuk area servis rumah, silakan telusuri <a href="https://indoroster.com/katalog">katalog produk IndoRoster</a> atau dapatkan ide visual penataan ruang di <a href="https://indoroster.com/gallery">galeri inspirasi kami</a>.</p>
 ',
-    'tags' => NULL,
-    'author_name' => 'Tim Desain Rumah Tropis IndoRoster',
-    'views_count' => 517,
-    'reading_time' => 3,
-    'is_published' => true,
-    'is_featured' => false,
-    'published_at' => '2026-08-22T11:28:43.000000Z',
-    'meta_title' => 'Desain Ruang Cuci Jemur Anti Pengap dengan Dinding Roster | IndoRoster',
-    'meta_description' => 'Tips merancang area laundry room dan jemuran belakang rumah yang bebas bau apek, sirkulasi lancar, pakaian cepat kering, dan privasi jemuran terlindungi.',
-    'meta_keywords' => 'ventilasi ruang jemur',
-    'created_at' => '2026-08-24T22:03:47.000000Z',
-    'updated_at' => '2026-08-24T22:28:43.000000Z',
-  ),
-  12 => 
-  array (
-    'id' => 14,
-    'article_category_id' => 5,
-    'title' => 'Berapa Estimasi Biaya Bangun Pagar Dinding Roster Panjang 10 Meter? Simak Rincian Bahan & Ongkos Tukang',
-    'slug' => 'estimasi-biaya-bangun-pagar-dinding-roster-panjang-10-meter',
-    'thumbnail' => 'https://images.pexels.com/photos/18254989/pexels-photo-18254989.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940',
-    'thumbnail_alt' => 'Pembangunan pagar rumah minimalis dengan roster beton cetak presisi',
-    'excerpt' => 'Menyusun Rencana Anggaran Biaya (RAB) pagar rumah memerlukan kalkulasi menyeluruh agar tidak over-budget di tengah jalan. Pelajari simulasi rincian biaya pembangunan pagar roster beton bentang panjang 10 meter dan tinggi 2 meter ($20\\text{ m}^2$), mencakup material roster pabrik, sloof pondasi, besi tulangan, semen perekat, dan estimasi upah kerja tukang.
+                'tags' => null,
+                'author_name' => 'Tim Desain Rumah Tropis IndoRoster',
+                'views_count' => 517,
+                'reading_time' => 3,
+                'is_published' => true,
+                'is_featured' => false,
+                'published_at' => '2026-08-22T11:28:43.000000Z',
+                'meta_title' => 'Desain Ruang Cuci Jemur Anti Pengap dengan Dinding Roster | IndoRoster',
+                'meta_description' => 'Tips merancang area laundry room dan jemuran belakang rumah yang bebas bau apek, sirkulasi lancar, pakaian cepat kering, dan privasi jemuran terlindungi.',
+                'meta_keywords' => 'ventilasi ruang jemur',
+                'created_at' => '2026-08-24T22:03:47.000000Z',
+                'updated_at' => '2026-08-24T22:28:43.000000Z',
+            ],
+            12 => [
+                'id' => 14,
+                'article_category_id' => 5,
+                'title' => 'Berapa Estimasi Biaya Bangun Pagar Dinding Roster Panjang 10 Meter? Simak Rincian Bahan & Ongkos Tukang',
+                'slug' => 'estimasi-biaya-bangun-pagar-dinding-roster-panjang-10-meter',
+                'thumbnail' => 'https://images.pexels.com/photos/18254989/pexels-photo-18254989.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940',
+                'thumbnail_alt' => 'Pembangunan pagar rumah minimalis dengan roster beton cetak presisi',
+                'excerpt' => 'Menyusun Rencana Anggaran Biaya (RAB) pagar rumah memerlukan kalkulasi menyeluruh agar tidak over-budget di tengah jalan. Pelajari simulasi rincian biaya pembangunan pagar roster beton bentang panjang 10 meter dan tinggi 2 meter ($20\\text{ m}^2$), mencakup material roster pabrik, sloof pondasi, besi tulangan, semen perekat, dan estimasi upah kerja tukang.
 
 ---',
-    'content' => '<p>Pagar depan rumah berbahan roster beton saat ini menjadi primadona pada perumahan modern di kawasan Jabodetabek, Bandung, dan kota-kota besar lainnya. Tampilannya kokoh, modern, dan memberikan sirkulasi udara yang baik ke area carport.</p>
+                'content' => '<p>Pagar depan rumah berbahan roster beton saat ini menjadi primadona pada perumahan modern di kawasan Jabodetabek, Bandung, dan kota-kota besar lainnya. Tampilannya kokoh, modern, dan memberikan sirkulasi udara yang baik ke area carport.</p>
 <p>Namun, sebelum memulai pembongkaran pagar lama, pertanyaan paling mendasar dari setiap pemilik rumah adalah: <strong>&quot;Berapa total biaya yang harus disiapkan untuk membangun pagar roster?&quot;</strong></p>
 <p>Untuk memberikan gambaran anggaran yang realistis, mari kita bedah simulasi perhitungan biaya untuk proyek pagar dengan <strong>panjang bentang 10 meter dan tinggi 2 meter (Luas Total = $20\\text{ m}^2$)</strong>.</p>
 <hr />
@@ -1044,20 +1023,20 @@ $$525\\text{ pcs} \\times \\text{Rp}14.000 = \\mathbf{\\text{Rp}7.350.000}$$</li
 </ol>
 <p>Untuk mengetahui estimasi harga per keping berdasarkan motif yang Anda inginkan, Anda dapat mengecek langsung daftar harga terbaru di <a href="https://indoroster.com/katalog">katalog online IndoRoster</a>.</p>
 ',
-    'tags' => NULL,
-    'author_name' => 'Tim Estimator Proyek IndoRoster',
-    'views_count' => 199,
-    'reading_time' => 3,
-    'is_published' => true,
-    'is_featured' => false,
-    'published_at' => '2026-08-24T15:28:43.000000Z',
-    'meta_title' => 'Estimasi Biaya Bangun Pagar Dinding Roster 10 Meter | IndoRoster',
-    'meta_description' => 'Simulasi hitungan lengkap estimasi biaya membangun pagar dinding roster beton panjang 10 meter tinggi 2 meter. Rincian material semen, besi, dan ongkos tukang.',
-    'meta_keywords' => 'biaya pasang dinding roster',
-    'created_at' => '2026-08-24T22:03:47.000000Z',
-    'updated_at' => '2026-08-24T22:28:43.000000Z',
-  ),
-);
+                'tags' => null,
+                'author_name' => 'Tim Estimator Proyek IndoRoster',
+                'views_count' => 199,
+                'reading_time' => 3,
+                'is_published' => true,
+                'is_featured' => false,
+                'published_at' => '2026-08-24T15:28:43.000000Z',
+                'meta_title' => 'Estimasi Biaya Bangun Pagar Dinding Roster 10 Meter | IndoRoster',
+                'meta_description' => 'Simulasi hitungan lengkap estimasi biaya membangun pagar dinding roster beton panjang 10 meter tinggi 2 meter. Rincian material semen, besi, dan ongkos tukang.',
+                'meta_keywords' => 'biaya pasang dinding roster',
+                'created_at' => '2026-08-24T22:03:47.000000Z',
+                'updated_at' => '2026-08-24T22:28:43.000000Z',
+            ],
+        ];
         foreach ($arts as $a) {
             Article::updateOrCreate(['slug' => $a['slug']], [
                 'article_category_id' => $catMap[$a['article_category_id']] ?? array_values($catMap)[0] ?? 1,

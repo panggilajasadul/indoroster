@@ -93,7 +93,7 @@
                         $imageUrl = str_starts_with($rawImg, 'http') ? $rawImg : asset('storage/' . $rawImg);
                     }
                     $ext = $imageUrl ? pathinfo(parse_url($imageUrl, PHP_URL_PATH), PATHINFO_EXTENSION) : '';
-                    $isVideo = !empty($imageUrl) && (in_array(strtolower($ext), ['mp4', 'webm', 'ogg']) || str_contains(strtolower($imageUrl), 'video'));
+                    $isVideo = !empty($imageUrl) && (in_array(strtolower($ext), ['mp4', 'webm', 'ogg', 'mov', 'm4v', 'avi', 'mkv', '3gp']) || str_contains(strtolower($imageUrl), 'video'));
                     $imageFitClass = $banner['image_fit'] ?? 'object-cover';
                 @endphp
                 @if($isVideo)

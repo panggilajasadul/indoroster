@@ -100,7 +100,8 @@ class PageResource extends Resource
                                             // Mode Custom
                                             Forms\Components\FileUpload::make('image_upload')
                                                 ->label('Upload Banner Foto/Video')
-                                                ->acceptedFileTypes(['image/*', 'video/mp4', 'video/webm'])
+                                                ->acceptedFileTypes(['image/*', 'video/*'])
+                                                ->maxSize(102400)
                                                 ->imagePreviewHeight('100')
                                                 ->directory('pages/banners')
                                                 ->visible(fn (Forms\Get $get) => $get('type') === 'custom')
@@ -262,7 +263,8 @@ class PageResource extends Resource
                                         ->schema([
                                             Forms\Components\FileUpload::make('image_upload')
                                                 ->label('Upload Media Banner (Foto/Video)')
-                                                ->acceptedFileTypes(['image/*', 'video/mp4', 'video/webm'])
+                                                ->acceptedFileTypes(['image/*', 'video/*'])
+                                                ->maxSize(102400)
                                                 ->imagePreviewHeight('120')
                                                 ->openable()
                                                 ->downloadable()
@@ -403,7 +405,7 @@ class PageResource extends Resource
                                         ->helperText('Jika dinonaktifkan (OFF), galeri foto akan meluncur terus tanpa henti meskipun tersentuh kursor mouse.'),
                                     Forms\Components\FileUpload::make('images_upload')
                                         ->label('Upload Koleksi Media (Foto/Video)')
-                                        ->acceptedFileTypes(['image/*', 'video/mp4', 'video/webm'])
+                                        ->acceptedFileTypes(['image/*', 'video/*'])
                                         ->multiple()
                                         ->reorderable()
                                         ->appendFiles()
@@ -413,9 +415,9 @@ class PageResource extends Resource
                                         ->panelLayout('grid')
                                         ->imagePreviewHeight('100')
                                         ->maxFiles(50)
-                                        ->maxSize(51200)
+                                        ->maxSize(102400)
                                         ->directory('pages/showcase')
-                                        ->helperText('Bisa pilih/upload banyak foto sekaligus atau tambah foto secara bertahap.'),
+                                        ->helperText('Bisa pilih/upload banyak foto/video sekaligus atau tambah secara bertahap.'),
                                     Forms\Components\Repeater::make('images')
                                         ->label('Atau Tambahkan URL Media Eksternal')
                                         ->simple(
@@ -467,7 +469,8 @@ class PageResource extends Resource
                                     static::alignmentSelect('left'),
                                     Forms\Components\FileUpload::make('video_upload')
                                         ->label('Upload Media (Foto/Video)')
-                                        ->acceptedFileTypes(['image/*', 'video/mp4', 'video/webm'])
+                                        ->acceptedFileTypes(['image/*', 'video/*'])
+                                        ->maxSize(102400)
                                         ->imagePreviewHeight('120')
                                         ->openable()
                                         ->downloadable()
@@ -571,7 +574,8 @@ class PageResource extends Resource
                                         ->schema([
                                             Forms\Components\FileUpload::make('video_upload')
                                                 ->label('Upload Media (Foto/Video)')
-                                                ->acceptedFileTypes(['image/*', 'video/mp4', 'video/webm'])
+                                                ->acceptedFileTypes(['image/*', 'video/*'])
+                                                ->maxSize(102400)
                                                 ->imagePreviewHeight('120')
                                                 ->openable()
                                                 ->downloadable()
@@ -594,7 +598,8 @@ class PageResource extends Resource
                                     static::alignmentSelect('left'),
                                     Forms\Components\FileUpload::make('video_upload')
                                         ->label('Upload Media (Foto/Video)')
-                                        ->acceptedFileTypes(['image/*', 'video/mp4', 'video/webm'])
+                                        ->acceptedFileTypes(['image/*', 'video/*'])
+                                        ->maxSize(102400)
                                         ->imagePreviewHeight('120')
                                         ->openable()
                                         ->downloadable()
@@ -619,7 +624,8 @@ class PageResource extends Resource
                                     static::alignmentSelect('center'),
                                     Forms\Components\FileUpload::make('video_upload')
                                         ->label('Upload Media (Foto/Video)')
-                                        ->acceptedFileTypes(['image/*', 'video/mp4', 'video/webm'])
+                                        ->acceptedFileTypes(['image/*', 'video/*'])
+                                        ->maxSize(102400)
                                         ->imagePreviewHeight('120')
                                         ->openable()
                                         ->downloadable()
@@ -662,7 +668,8 @@ class PageResource extends Resource
                                         ->schema([
                                             Forms\Components\FileUpload::make('image_upload')
                                                 ->label('Upload Media Proyek (Foto/Video)')
-                                                ->acceptedFileTypes(['image/*', 'video/mp4', 'video/webm'])
+                                                ->acceptedFileTypes(['image/*', 'video/*'])
+                                                ->maxSize(102400)
                                                 ->imagePreviewHeight('120')
                                                 ->openable()
                                                 ->downloadable()
@@ -706,7 +713,7 @@ class PageResource extends Resource
                                     static::bgThemeSelect('white'),
                                     Forms\Components\FileUpload::make('videos_upload')
                                         ->label('Upload Koleksi Video/Foto (Bisa Pilih Banyak Sekaligus)')
-                                        ->acceptedFileTypes(['video/mp4', 'video/webm', 'video/ogg', 'image/*'])
+                                        ->acceptedFileTypes(['video/*', 'image/*'])
                                         ->multiple()
                                         ->reorderable()
                                         ->appendFiles()
@@ -718,13 +725,14 @@ class PageResource extends Resource
                                         ->maxFiles(20)
                                         ->maxSize(102400)
                                         ->directory('pages/ugc')
-                                        ->helperText('Format: MP4/WebM atau Foto (aspek rasio 9:16 vertikal lebih bagus).'),
+                                        ->helperText('Format: Semua Video/Foto (aspek rasio 9:16 vertikal lebih bagus).'),
                                     Forms\Components\Repeater::make('videos')
                                         ->label('Atau Tambah Media Satuan / URL Eksternal (Cloudinary / Link)')
                                         ->schema([
                                             Forms\Components\FileUpload::make('video_upload')
                                                 ->label('Upload Media (Foto/Video)')
-                                                ->acceptedFileTypes(['image/*', 'video/mp4', 'video/webm'])
+                                                ->acceptedFileTypes(['image/*', 'video/*'])
+                                                ->maxSize(102400)
                                                 ->imagePreviewHeight('120')
                                                 ->openable()
                                                 ->downloadable()
@@ -1367,7 +1375,7 @@ class PageResource extends Resource
 
                 $src = str_starts_with($file, 'http') ? $file : asset('storage/'.$file);
                 $ext = strtolower(pathinfo(parse_url($src, PHP_URL_PATH), PATHINFO_EXTENSION));
-                $isVideo = in_array($ext, ['mp4', 'webm', 'ogg']) || str_contains(strtolower($src), 'video');
+                $isVideo = in_array($ext, ['mp4', 'webm', 'ogg', 'mov', 'm4v', 'avi', 'mkv', '3gp', 'quicktime']) || str_contains(strtolower($src), 'video');
 
                 if ($isVideo) {
                     return new HtmlString('

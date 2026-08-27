@@ -63,7 +63,7 @@
             $mediaUrl = $file ? (str_starts_with($file, 'http') ? $file : asset('storage/' . ltrim($file, '/'))) : null;
             
             $ext = $mediaUrl ? strtolower(pathinfo(parse_url($mediaUrl, PHP_URL_PATH), PATHINFO_EXTENSION)) : '';
-            $isVideo = in_array($ext, ['mp4', 'webm', 'ogg']) || str_contains(strtolower($mediaUrl ?? ''), 'video');
+            $isVideo = in_array($ext, ['mp4', 'webm', 'ogg', 'mov', 'm4v', 'avi', 'mkv', '3gp']) || str_contains(strtolower($mediaUrl ?? ''), 'video');
 
             if ($mediaUrl) {
                 $processedItems[] = [

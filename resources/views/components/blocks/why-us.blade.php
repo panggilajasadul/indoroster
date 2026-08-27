@@ -42,7 +42,7 @@
                 @php
                     $finalVideoUrl = !empty($video['video_upload']) ? asset('storage/' . $video['video_upload']) : ($video['url'] ?? '');
                     $ext = pathinfo(parse_url($finalVideoUrl, PHP_URL_PATH), PATHINFO_EXTENSION);
-                    $isVideo = in_array(strtolower($ext), ['mp4', 'webm', 'ogg']) || str_contains(strtolower($finalVideoUrl), 'video');
+                    $isVideo = in_array(strtolower($ext), ['mp4', 'webm', 'ogg', 'mov', 'm4v', 'avi', 'mkv', '3gp']) || str_contains(strtolower($finalVideoUrl), 'video');
                     $videoBoxClass = $theme->isDark 
                         ? 'border-4 border-slate-800 bg-slate-900 shadow-luxury' 
                         : 'border-4 border-white bg-white shadow-soft-xl ring-1 ring-slate-900/5';
@@ -50,7 +50,7 @@
                 <div class="relative rounded-3xl overflow-hidden aspect-video {{ $videoBoxClass }}">
                     @if($isVideo)
                     <video class="w-full h-full object-cover" autoplay loop muted playsinline>
-                        <source src="{{ $finalVideoUrl }}" type="video/mp4">
+                        <source src="{{ $finalVideoUrl }}">
                     </video>
                     @elseif($finalVideoUrl)
                     <img src="{{ $finalVideoUrl }}" class="w-full h-full object-cover" alt="Keunggulan IndoRoster">

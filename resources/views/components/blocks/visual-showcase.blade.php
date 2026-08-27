@@ -49,7 +49,7 @@
                 @php
                     $src = str_starts_with($img, 'http') ? $img : asset('storage/' . $img);
                     $ext = pathinfo(parse_url($src, PHP_URL_PATH), PATHINFO_EXTENSION);
-                    $isVideo = in_array(strtolower($ext), ['mp4', 'webm', 'ogg']) || str_contains(strtolower($src), 'video');
+                    $isVideo = in_array(strtolower($ext), ['mp4', 'webm', 'ogg', 'mov', 'm4v', 'avi', 'mkv', '3gp']) || str_contains(strtolower($src), 'video');
                 @endphp
                 <div class="w-[280px] sm:w-[380px] md:w-[440px] aspect-[4/3] rounded-2xl sm:rounded-3xl overflow-hidden shrink-0 shadow-lg dark:shadow-2xl/40 border border-slate-200/50 dark:border-slate-800/60 bg-slate-900/40 transition-transform duration-300 hover:scale-[1.02]">
                     @if($isVideo)

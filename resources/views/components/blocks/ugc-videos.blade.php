@@ -59,7 +59,7 @@
                 @php
                     $videoUrl = !empty($vid['video_upload']) ? asset('storage/' . $vid['video_upload']) : ($vid['url'] ?? '');
                     $ext = pathinfo(parse_url($videoUrl, PHP_URL_PATH), PATHINFO_EXTENSION);
-                    $isVideo = in_array(strtolower($ext), ['mp4', 'webm', 'ogg']) || str_contains(strtolower($videoUrl), 'video');
+                    $isVideo = in_array(strtolower($ext), ['mp4', 'webm', 'ogg', 'mov', 'm4v', 'avi', 'mkv', '3gp']) || str_contains(strtolower($videoUrl), 'video');
                     $frameClass = $theme->isDark 
                         ? 'bg-slate-900 shadow-2xl border-4 border-white/15 hover:border-terra-500/50' 
                         : 'bg-slate-100 shadow-soft-xl border-4 border-white ring-1 ring-slate-900/5 hover:shadow-2xl hover:scale-[1.02]';

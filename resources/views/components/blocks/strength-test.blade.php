@@ -54,11 +54,11 @@
                     @php
                         $finalVideoUrl = !empty($data['video_upload']) ? asset('storage/' . $data['video_upload']) : $videoUrl;
                         $ext = pathinfo(parse_url($finalVideoUrl, PHP_URL_PATH), PATHINFO_EXTENSION);
-                        $isVideo = in_array(strtolower($ext), ['mp4', 'webm', 'ogg']) || str_contains(strtolower($finalVideoUrl), 'video');
+                        $isVideo = in_array(strtolower($ext), ['mp4', 'webm', 'ogg', 'mov', 'm4v', 'avi', 'mkv', '3gp']) || str_contains(strtolower($finalVideoUrl), 'video');
                     @endphp
                     @if($isVideo)
                     <video class="w-full h-full object-cover" autoplay loop muted playsinline>
-                        <source src="{{ $finalVideoUrl }}" type="video/mp4">
+                        <source src="{{ $finalVideoUrl }}">
                     </video>
                     @elseif($finalVideoUrl)
                     <img src="{{ $finalVideoUrl }}" class="w-full h-full object-cover" alt="Uji Kekuatan Roster">

@@ -27,7 +27,7 @@
             @php
                 $imageUrl = !empty($item['image_upload']) ? asset('storage/' . $item['image_upload']) : (str_starts_with($item['image'] ?? '', 'http') ? $item['image'] : asset('storage/' . ($item['image'] ?? '')));
                 $ext = pathinfo(parse_url($imageUrl, PHP_URL_PATH), PATHINFO_EXTENSION);
-                $isVideo = in_array(strtolower($ext), ['mp4', 'webm', 'ogg']) || str_contains(strtolower($imageUrl), 'video');
+                $isVideo = in_array(strtolower($ext), ['mp4', 'webm', 'ogg', 'mov', 'm4v', 'avi', 'mkv', '3gp']) || str_contains(strtolower($imageUrl), 'video');
             @endphp
             <div class="group relative aspect-square overflow-hidden rounded-2xl bg-slate-900">
                 @if($isVideo)
