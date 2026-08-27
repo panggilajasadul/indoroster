@@ -28,10 +28,7 @@
 
     // Fallback if empty
     if (empty($videoList)) {
-        $videoList = [
-            ['url' => 'https://res.cloudinary.com/indoroster/video/upload/v1765259348/15_lhowif.mp4'],
-            ['url' => 'https://res.cloudinary.com/indoroster/video/upload/v1765259277/7_upqkhz.mp4'],
-        ];
+        $videoList = [];
     }
 @endphp
 

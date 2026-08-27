@@ -28,3 +28,19 @@
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
 </IfModule>
+
+# Handle HTML5 Video Range Requests & Streaming (Fix 412 Precondition Failed)
+<IfModule mod_headers.c>
+    Header set Accept-Ranges bytes
+</IfModule>
+
+<IfModule mod_deflate.c>
+    SetEnvIfNoCase Request_URI \.(?:og[gv]|mp4|m4v|webm|mov|avi|mkv|3gp)$ no-gzip dont-vary
+</IfModule>
+
+<FilesMatch "\.(mp4|webm|ogg|mov|m4v|avi|mkv|3gp)$">
+    FileETag None
+    <IfModule mod_headers.c>
+        Header unset ETag
+    </IfModule>
+</FilesMatch>

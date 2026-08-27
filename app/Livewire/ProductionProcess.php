@@ -10,7 +10,7 @@ class ProductionProcess extends Component
     public $mainVideos = [
         [
             'title' => 'Uji Kekuatan Roster Beton di Lapangan',
-            'video' => 'https://res.cloudinary.com/indoroster/video/upload/v1765641154/1213_owgax5.mp4',
+            'video' => '',
             'description' => 'Simak bukti nyata kekuatan roster beton IndoRoster di lapangan. Roster kami teruji tahan retak, mampu menopang struktur dengan kuat, dan hasilnya tetap lurus presisi untuk pemasangan skala besar. Sangat cocok bagi Anda yang menginginkan fasad atau pagar rumah yang estetik sekaligus punya struktur yang sangat kokoh.',
             'subtitle' => 'DIBUAT DENGAN KETELITIAN TINGGI | 100% PRESISI',
             'features' => [
@@ -33,7 +33,7 @@ class ProductionProcess extends Component
         ],
         [
             'title' => 'Detail Produk Lebih Dekat',
-            'video' => 'https://res.cloudinary.com/indoroster/video/upload/v1765261084/5_ttttx3.mp4',
+            'video' => '',
             'description' => '"Melalui video detail produk ini, Anda dapat melihat lebih dekat permukaan roster, ketebalan dindingnya, kerapian sudut-sudutnya, hingga kualitas finishing di setiap sisi. Detail ini sangat penting untuk memastikan roster kami memenuhi standar proyek premium, baik untuk fasad, pagar, maupun kebutuhan interior."',
             'subtitle' => 'KUALITAS MATERIAL PREMIUM',
             'features' => [],
@@ -44,32 +44,32 @@ class ProductionProcess extends Component
     public $productionProcess = [
         [
             'title' => 'Cetakan Presisi untuk Motif Roster Rumit',
-            'video' => 'https://res.cloudinary.com/indoroster/video/upload/v1765261092/22_qoynzd.mp4',
+            'video' => '',
             'desc' => 'Intip proses cetak motif labirin kami yang detail. Video ini menunjukkan bagaimana motif rumit dibentuk dengan dimensi yang konsisten, menjamin hasil pemasangan yang rapi pada dinding Anda.',
         ],
         [
             'title' => 'Proses Cetak Manual Roster Minimalis',
-            'video' => 'https://res.cloudinary.com/indoroster/video/upload/v1765261204/3_pttu7e.mp4',
+            'video' => '',
             'desc' => 'Roster kami diproduksi melalui proses cetak manual yang terkontrol secara ketat. Setiap unit dipadatkan secara maksimal untuk menjamin kekuatan struktur dan hasil permukaan yang halus serta presisi.',
         ],
         [
             'title' => 'Pelepasan Cetakan & Finishing Awal',
-            'video' => 'https://res.cloudinary.com/indoroster/video/upload/v1765261610/23_ajgyzf.mp4',
+            'video' => '',
             'desc' => 'Video ini menunjukkan tahap pelepasan cetakan, di mana roster yang baru dibentuk dikeluarkan dengan hati-hati untuk proses penguatan. Ketelitian pada tahap ini sangat penting untuk menjaga sudut roster tetap tajam dan simetris.',
         ],
         [
             'title' => 'Produksi Skala Besar',
-            'video' => 'https://res.cloudinary.com/indoroster/video/upload/v1765641914/432_txkdbm.mp4',
+            'video' => '',
             'desc' => 'Kami siap melayani kebutuhan proyek dalam skala besar dengan kapasitas produksi yang mumpuni tanpa mengurangi kualitas di setiap kepingnya.',
         ],
         [
             'title' => 'Pengiriman & Logistik',
-            'video' => 'https://res.cloudinary.com/indoroster/video/upload/v1765641888/2211_ll5rbt.mov',
+            'video' => '',
             'desc' => 'Proses packing dan pengiriman yang aman untuk memastikan roster sampai di lokasi proyek Anda dalam kondisi sempurna.',
         ],
         [
             'title' => 'QC & Finishing Akhir',
-            'video' => 'https://res.cloudinary.com/indoroster/video/upload/v1765640940/1213_6_qhfncx.mp4',
+            'video' => '',
             'desc' => 'Setiap roster melewati tahap Quality Control yang ketat untuk memastikan tidak ada cacat produksi sebelum dikirim ke pelanggan.',
         ],
     ];
