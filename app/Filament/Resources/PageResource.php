@@ -740,7 +740,7 @@ class PageResource extends Resource
                                                 ->directory('pages/ugc'),
                                             Forms\Components\TextInput::make('url')
                                                 ->label('Atau URL Media Eksternal (Foto/Video)')
-                                                ->placeholder('https://res.cloudinary.com/...mp4')
+                                                ->placeholder('https://...')
                                                 ->live(),
                                             static::mediaPreview('video_upload', 'url'),
                                         ]),
@@ -1371,6 +1371,16 @@ class PageResource extends Resource
 
                 if (empty($file) || ! is_string($file)) {
                     return new HtmlString('<span class="text-xs text-slate-400 italic">Belum ada file media yang diupload/diisi</span>');
+                }
+
+                if (str_contains($file, 'res.cloudinary.com')) {
+                    return new HtmlString('
+                        <div class="rounded-xl border border-amber-300 dark:border-amber-700/60 bg-amber-50 dark:bg-amber-950/30 p-2.5 max-w-sm">
+                            <div class="text-[11px] text-amber-700 dark:text-amber-400 font-semibold flex items-center gap-1.5">
+                                <span>⚠️</span> Link Cloudinary lama terdeteksi (tidak aktif). Silakan upload file baru pada kotak upload di atas atau kosongkan field URL.
+                            </div>
+                        </div>
+                    ');
                 }
 
                 $src = str_starts_with($file, 'http') ? $file : asset('storage/'.$file);
