@@ -1299,6 +1299,37 @@ class PageResource extends Resource
                                         ->collapsible()
                                         ->collapsed(),
                                 ]),
+                            Forms\Components\Builder\Block::make('partner_cta')
+                                ->label('[CTA] 🤝 Ajakan Kemitraan Proyek & Pelanggan (B2B & B2C)')
+                                ->icon('heroicon-o-user-group')
+                                ->schema([
+                                    Forms\Components\TextInput::make('badge')
+                                        ->label('Teks Badge Atas')
+                                        ->default('Kemitraan Pabrik & Pengadaan Proyek'),
+                                    Forms\Components\TextInput::make('title')
+                                        ->label('Judul Ajakan Kemitraan')
+                                        ->default('Terkoneksi Langsung dengan Pabrik Roster IndoRoster')
+                                        ->required(),
+                                    Forms\Components\Textarea::make('description')
+                                        ->label('Deskripsi Ajakan')
+                                        ->rows(3)
+                                        ->default('Solusi pengadaan roster beton arsitektural tangan pertama untuk pemilik rumah, kontraktor, arsitek, pemilik bisnis kafe, hingga developer kawasan perumahan di seluruh Indonesia.'),
+                                    static::bgThemeSelect('dark'),
+                                    Forms\Components\Grid::make(2)->schema([
+                                        Forms\Components\TextInput::make('cta_text_1')
+                                            ->label('Teks Tombol 1 (Daftar Akun)')
+                                            ->default('Daftar Akun Mitra Sekarang'),
+                                        Forms\Components\TextInput::make('cta_url_1')
+                                            ->label('Link Tombol 1')
+                                            ->default('/register'),
+                                        Forms\Components\TextInput::make('cta_text_2')
+                                            ->label('Teks Tombol 2 (WhatsApp B2B)')
+                                            ->default('Konsultasi Pengadaan via WhatsApp'),
+                                        Forms\Components\TextInput::make('cta_url_2')
+                                            ->label('Link Tombol 2')
+                                            ->placeholder('Biarkan kosong untuk otomatis ke WhatsApp Sales Proyek'),
+                                    ]),
+                                ]),
                         ])
                         ->columnSpanFull()
                         ->collapsed(),

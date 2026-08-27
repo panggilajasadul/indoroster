@@ -3,55 +3,49 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">
     <url>
     <loc>http://localhost/</loc>
-    <lastmod>2026-08-27T15:36:18+07:00</lastmod>
+    <lastmod>2026-08-27T16:58:19+07:00</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
             </url>
     <url>
     <loc>http://localhost/katalog</loc>
-    <lastmod>2026-08-27T15:36:18+07:00</lastmod>
+    <lastmod>2026-08-27T16:58:19+07:00</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
             </url>
     <url>
     <loc>http://localhost/artikel</loc>
-    <lastmod>2026-08-27T15:36:18+07:00</lastmod>
+    <lastmod>2026-08-27T16:58:19+07:00</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
             </url>
     <url>
     <loc>http://localhost/video-inspirasi</loc>
-    <lastmod>2026-08-27T15:36:18+07:00</lastmod>
+    <lastmod>2026-08-27T16:58:19+07:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
             </url>
     <url>
     <loc>http://localhost/proses-produksi</loc>
-    <lastmod>2026-08-27T15:36:18+07:00</lastmod>
+    <lastmod>2026-08-27T16:58:19+07:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
             </url>
     <url>
     <loc>http://localhost/tentang-kami</loc>
-    <lastmod>2026-08-27T15:36:18+07:00</lastmod>
+    <lastmod>2026-08-27T16:58:19+07:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
             </url>
     <url>
     <loc>http://localhost/kontak</loc>
-    <lastmod>2026-08-27T15:36:18+07:00</lastmod>
+    <lastmod>2026-08-27T16:58:19+07:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
             </url>
     <url>
-    <loc>http://localhost/artikel/cara-hitung-kebutuhan-roster-20x20</loc>
-    <lastmod>2026-08-27T15:36:18+07:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-            </url>
-    <url>
     <loc>http://localhost/artikel/7-inspirasi-desain-fasad-roster-beton-minimalis-rumah-tropis</loc>
-    <lastmod>2026-08-27T15:36:16+07:00</lastmod>
+    <lastmod>2026-08-27T16:58:16+07:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <image:image>
@@ -63,7 +57,7 @@
         </url>
     <url>
     <loc>http://localhost/artikel/cara-menghitung-kebutuhan-roster-beton-per-meter-persegi</loc>
-    <lastmod>2026-08-27T15:36:16+07:00</lastmod>
+    <lastmod>2026-08-27T16:58:16+07:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <image:image>
@@ -75,7 +69,7 @@
         </url>
     <url>
     <loc>http://localhost/artikel/keunggulan-roster-beton-mutu-k200-tahan-cuaca-ekstrem</loc>
-    <lastmod>2026-08-27T15:36:16+07:00</lastmod>
+    <lastmod>2026-08-27T16:58:16+07:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <image:image>
@@ -86,50 +80,56 @@
 </image:image>
         </url>
     <url>
+    <loc>http://localhost/page/kemitraan-indoroster</loc>
+    <lastmod>2026-08-27T16:58:19+07:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+            </url>
+    <url>
     <loc>http://localhost/page/syarat-dan-ketentuan</loc>
-    <lastmod>2026-08-27T15:36:17+07:00</lastmod>
+    <lastmod>2026-08-27T16:58:16+07:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
             </url>
     <url>
     <loc>http://localhost/page/kebijakan-privasi</loc>
-    <lastmod>2026-08-27T15:36:17+07:00</lastmod>
+    <lastmod>2026-08-27T16:58:16+07:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
             </url>
     <url>
     <loc>http://localhost/page/tentang-kami</loc>
-    <lastmod>2026-08-27T15:36:17+07:00</lastmod>
+    <lastmod>2026-08-27T16:58:16+07:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
             </url>
     <url>
     <loc>http://localhost/page/kontak</loc>
-    <lastmod>2026-08-27T15:36:17+07:00</lastmod>
+    <lastmod>2026-08-27T16:58:16+07:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
             </url>
     <url>
     <loc>http://localhost/page/proses-produksi</loc>
-    <lastmod>2026-08-27T15:36:17+07:00</lastmod>
+    <lastmod>2026-08-27T16:58:16+07:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
             </url>
     <url>
     <loc>http://localhost/page/katalog</loc>
-    <lastmod>2026-08-27T15:36:17+07:00</lastmod>
+    <lastmod>2026-08-27T16:58:16+07:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
             </url>
     <url>
     <loc>http://localhost/page/gallery</loc>
-    <lastmod>2026-08-27T15:36:17+07:00</lastmod>
+    <lastmod>2026-08-27T16:58:16+07:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
             </url>
     <url>
     <loc>http://localhost/page/indoroster-video</loc>
-    <lastmod>2026-08-27T15:36:17+07:00</lastmod>
+    <lastmod>2026-08-27T16:58:16+07:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
             </url>

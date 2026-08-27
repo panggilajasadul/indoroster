@@ -53,8 +53,8 @@ class Register extends Component
         // Trigger event Registered agar mengirim email verifikasi bawaan Laravel
         event(new Registered($user));
 
-        // Redirect ke intended URL atau halaman verifikasi
-        return redirect()->route('verification.notice');
+        // Redirect ke halaman kelola profil kemitraan
+        return redirect()->route('member.profile')->with('success', 'Selamat datang di IndoRoster! Silakan lengkapi profil & lokasi proyek Anda.');
     }
 
     private function mergeCart()

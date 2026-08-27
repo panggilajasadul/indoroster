@@ -19,6 +19,7 @@ use App\Livewire\Home;
 use App\Livewire\Member\AddressBook;
 use App\Livewire\Member\Notifications;
 use App\Livewire\Member\OrderHistory;
+use App\Livewire\Member\Profile;
 use App\Livewire\OrderSuccess;
 use App\Livewire\OrderTracking;
 use App\Livewire\ProductCatalog;
@@ -61,8 +62,9 @@ Route::middleware(['verified.if.auth'])->group(function () {
     Route::get('/checkout/success', OrderSuccess::class)->name('checkout.success');
 });
 
-// Route member: wajib login + email terverifikasi
-Route::middleware(['auth', 'verified'])->group(function () {
+// Route member: wajib login
+Route::middleware(['auth'])->group(function () {
+    Route::get('/member/profil', Profile::class)->name('member.profile');
     Route::get('/member/alamat', AddressBook::class)->name('member.addresses');
     Route::get('/member/pesanan', OrderHistory::class)->name('member.orders');
     Route::get('/member/notifikasi', Notifications::class)->name('member.notifications');

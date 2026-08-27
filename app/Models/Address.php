@@ -17,6 +17,7 @@ class Address extends Model
         'district',
         'postal_code',
         'full_address',
+        'truck_access_notes',
         'latitude',
         'longitude',
         'is_default',

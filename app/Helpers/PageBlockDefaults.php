@@ -83,6 +83,16 @@ class PageBlockDefaults
                 'button_text' => 'Hubungi Kami via WhatsApp',
                 'button_url' => 'https://wa.me/6281389709847',
             ],
+            'partner_cta' => [
+                'badge' => 'Kemitraan Pabrik & Pengadaan Proyek',
+                'title' => 'Terkoneksi Langsung dengan Pabrik Roster IndoRoster',
+                'description' => 'Solusi pengadaan roster beton arsitektural tangan pertama untuk pemilik rumah, kontraktor, arsitek, pemilik bisnis kafe, hingga developer kawasan perumahan di seluruh Indonesia.',
+                'bg_theme' => 'dark',
+                'cta_text_1' => 'Daftar Akun Mitra Sekarang',
+                'cta_url_1' => '/register',
+                'cta_text_2' => 'Konsultasi Pengadaan via WhatsApp',
+                'cta_url_2' => '',
+            ],
         ];
 
         return $defaults[$blockType] ?? [];
