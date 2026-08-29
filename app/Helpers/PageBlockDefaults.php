@@ -104,6 +104,18 @@ class PageBlockDefaults
     public static function hydrateBlock(array $block): array
     {
         $type = $block['type'] ?? '';
+
+        // Map legacy block aliases so they appear correctly in Filament Page Builder
+        $aliasMap = [
+            'product_grid' => 'featured_products',
+            'product-grid' => 'featured_products',
+            'features' => 'why_us',
+        ];
+        if (isset($aliasMap[$type])) {
+            $type = $aliasMap[$type];
+            $block['type'] = $type;
+        }
+
         $data = $block['data'] ?? [];
 
         if (empty($type)) {
