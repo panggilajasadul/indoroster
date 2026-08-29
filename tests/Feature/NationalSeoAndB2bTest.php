@@ -48,33 +48,25 @@ class NationalSeoAndB2bTest extends TestCase
             'intro_content' => 'Layanan pengiriman roster beton minimalis untuk proyek di Bandung Raya dengan kualitas cetak padat presisi.',
         ]);
 
-        Page::create([
-            'title' => 'Khusus Kontraktor Proyek',
-            'slug' => 'untuk-kontraktor',
-            'content' => [],
-            'is_active' => true,
-        ]);
+        Page::firstOrCreate(
+            ['slug' => 'untuk-kontraktor'],
+            ['title' => 'Khusus Kontraktor Proyek', 'content' => [], 'is_active' => true]
+        );
 
-        Page::create([
-            'title' => 'Pengadaan Developer',
-            'slug' => 'untuk-developer',
-            'content' => [],
-            'is_active' => true,
-        ]);
+        Page::firstOrCreate(
+            ['slug' => 'untuk-developer'],
+            ['title' => 'Pengadaan Developer', 'content' => [], 'is_active' => true]
+        );
 
-        Page::create([
-            'title' => 'Katalog Teknis Arsitek',
-            'slug' => 'untuk-arsitek',
-            'content' => [],
-            'is_active' => true,
-        ]);
+        Page::firstOrCreate(
+            ['slug' => 'untuk-arsitek'],
+            ['title' => 'Katalog Teknis Arsitek', 'content' => [], 'is_active' => true]
+        );
 
-        Page::create([
-            'title' => 'Grosir Toko Bangunan',
-            'slug' => 'supplier-roster-beton',
-            'content' => [],
-            'is_active' => true,
-        ]);
+        Page::firstOrCreate(
+            ['slug' => 'supplier-roster-beton'],
+            ['title' => 'Grosir Toko Bangunan', 'content' => [], 'is_active' => true]
+        );
     }
 
     public function test_homepage_loads_successfully()
