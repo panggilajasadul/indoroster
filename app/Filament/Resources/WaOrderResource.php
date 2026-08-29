@@ -78,9 +78,18 @@ class WaOrderResource extends Resource
 
                         Forms\Components\Select::make('user_id')
                             ->label('Hubungkan ke Akun Pelanggan Terdaftar (Opsional)')
-                            ->options(User::where('role', 'customer')->pluck('name', 'id'))
                             ->searchable()
-                            ->preload()
+                            ->getSearchResultsUsing(fn (string $search): array => User::where('role', 'customer')
+                                ->where(function ($q) use ($search) {
+                                    $q->where('name', 'like', "%{$search}%")
+                                        ->orWhere('phone', 'like', "%{$search}%")
+                                        ->orWhere('email', 'like', "%{$search}%");
+                                })
+                                ->limit(20)
+                                ->pluck('name', 'id')
+                                ->toArray()
+                            )
+                            ->getOptionLabelUsing(fn ($value): ?string => User::find($value)?->name)
                             ->live()
                             ->afterStateUpdated(function ($state, Set $set) {
                                 if ($state) {
@@ -135,7 +144,6 @@ class WaOrderResource extends Resource
                             ->label('Provinsi')
                             ->options(fn () => Province::orderBy('name')->pluck('name', 'name'))
                             ->searchable()
-                            ->preload()
                             ->live()
                             ->afterStateUpdated(function (Set $set) {
                                 $set('shipping_city', null);
@@ -160,7 +168,6 @@ class WaOrderResource extends Resource
                                 return City::where('province_code', $prov->code)->orderBy('name')->pluck('name', 'name');
                             })
                             ->searchable()
-                            ->preload()
                             ->live()
                             ->disabled(fn (Get $get) => empty($get('shipping_province')))
                             ->afterStateUpdated(function (Set $set) {
@@ -185,7 +192,6 @@ class WaOrderResource extends Resource
                                 return District::where('city_code', $city->code)->orderBy('name')->pluck('name', 'name');
                             })
                             ->searchable()
-                            ->preload()
                             ->live()
                             ->disabled(fn (Get $get) => empty($get('shipping_city')))
                             ->afterStateUpdated(function ($state, Set $set, Get $get) {
@@ -199,15 +205,12 @@ class WaOrderResource extends Resource
                                     }
                                     $dist = $distQuery->first();
                                     if ($dist) {
-                                        $villages = Village::where('district_code', $dist->code)->get();
-                                        $codes = $villages->map(function ($v) {
+                                        $v = Village::where('district_code', $dist->code)->whereNotNull('meta')->first();
+                                        if ($v) {
                                             $meta = is_string($v->meta) ? json_decode($v->meta, true) : $v->meta;
-
-                                            return $meta['pos'] ?? null;
-                                        })->filter()->unique()->values()->toArray();
-
-                                        if (! empty($codes)) {
-                                            $set('shipping_postal_code', (string) $codes[0]);
+                                            if (! empty($meta['pos'])) {
+                                                $set('shipping_postal_code', (string) $meta['pos']);
+                                            }
                                         }
                                     }
                                 }
@@ -237,7 +240,6 @@ class WaOrderResource extends Resource
                                 return Village::where('district_code', $dist->code)->orderBy('name')->pluck('name', 'name');
                             })
                             ->searchable()
-                            ->preload()
                             ->live()
                             ->disabled(fn (Get $get) => empty($get('shipping_district')))
                             ->afterStateUpdated(function ($state, Set $set, Get $get) {
@@ -268,61 +270,7 @@ class WaOrderResource extends Resource
                         Forms\Components\TextInput::make('shipping_postal_code')
                             ->label('Kode Pos')
                             ->placeholder('Contoh: 15520')
-                            ->datalist(function (Get $get) {
-                                $cityName = $get('shipping_city');
-                                $distName = $get('shipping_district');
-                                if (! $distName) {
-                                    return [];
-                                }
-                                $city = $cityName ? City::where('name', $cityName)->first() : null;
-                                $distQuery = District::where('name', $distName);
-                                if ($city) {
-                                    $distQuery->where('city_code', $city->code);
-                                }
-                                $dist = $distQuery->first();
-                                if (! $dist) {
-                                    return [];
-                                }
-
-                                $villages = Village::where('district_code', $dist->code)->get();
-
-                                return $villages->map(function ($v) {
-                                    $meta = is_string($v->meta) ? json_decode($v->meta, true) : $v->meta;
-
-                                    return $meta['pos'] ?? null;
-                                })->filter()->unique()->values()->toArray();
-                            })
-                            ->helperText(function (Get $get) {
-                                $cityName = $get('shipping_city');
-                                $distName = $get('shipping_district');
-                                if (! $distName) {
-                                    return 'Otomatis terdeteksi saat memilih kecamatan / desa, bisa diketik manual.';
-                                }
-                                $city = $cityName ? City::where('name', $cityName)->first() : null;
-                                $distQuery = District::where('name', $distName);
-                                if ($city) {
-                                    $distQuery->where('city_code', $city->code);
-                                }
-                                $dist = $distQuery->first();
-                                if (! $dist) {
-                                    return 'Otomatis terdeteksi saat memilih kecamatan / desa, bisa diketik manual.';
-                                }
-
-                                $villages = Village::where('district_code', $dist->code)->get();
-                                $codes = $villages->map(function ($v) {
-                                    $meta = is_string($v->meta) ? json_decode($v->meta, true) : $v->meta;
-
-                                    return $meta['pos'] ?? null;
-                                })->filter()->unique()->values()->toArray();
-
-                                if (count($codes) > 1) {
-                                    return '💡 Rekomendasi Kode Pos untuk Kec. '.$distName.': '.implode(', ', $codes).' (otomatis terisi saat pilih desa, atau pilih/ketik manual).';
-                                } elseif (count($codes) === 1) {
-                                    return '✅ Kode Pos terdeteksi otomatis untuk wilayah ini: '.$codes[0];
-                                }
-
-                                return 'Otomatis terdeteksi saat memilih kecamatan / desa, bisa diketik manual.';
-                            })
+                            ->helperText('Otomatis terisi saat memilih kecamatan/desa, atau bisa diketik manual.')
                             ->maxLength(10),
 
                         Forms\Components\Grid::make(2)
@@ -362,9 +310,14 @@ class WaOrderResource extends Resource
                                 // PILIHAN DARI DATABASE (Tampil HANYA saat is_custom_item == 0)
                                 Forms\Components\Select::make('product_id')
                                     ->label('Pilih Produk dari Katalog')
-                                    ->options(Product::where('is_active', true)->pluck('name', 'id'))
                                     ->searchable()
-                                    ->preload()
+                                    ->getSearchResultsUsing(fn (string $search): array => Product::where('is_active', true)
+                                        ->where('name', 'like', "%{$search}%")
+                                        ->limit(25)
+                                        ->pluck('name', 'id')
+                                        ->toArray()
+                                    )
+                                    ->getOptionLabelUsing(fn ($value): ?string => Product::find($value)?->name)
                                     ->live()
                                     ->columnSpan(2)
                                     ->visible(fn (Get $get) => (int) $get('is_custom_item') === 0)
@@ -607,7 +560,7 @@ class WaOrderResource extends Resource
                                 ->columns(6)
                                 ->columnSpanFull()
                                 ->addActionLabel('+ Tambah Rit Truk / Batch Baru')
-                                ->defaultItems(2),
+                                ->defaultItems(0),
                         ])
                             ->visible(fn (Get $get) => $get('fulfillment_type') === 'po_batch')
                             ->columnSpanFull(),
