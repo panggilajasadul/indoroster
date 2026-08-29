@@ -10,12 +10,19 @@ use App\Livewire\Auth\Login;
 use App\Livewire\Auth\Register;
 use App\Livewire\Auth\ResetPassword;
 use App\Livewire\Auth\VerifyEmail;
+use App\Livewire\B2b\ArchitectHub;
+use App\Livewire\B2b\ContractorHub;
+use App\Livewire\B2b\DeveloperHub;
+use App\Livewire\B2b\ProjectHub;
+use App\Livewire\B2b\SupplierHub;
 use App\Livewire\Cart;
 use App\Livewire\Checkout;
 use App\Livewire\Contact;
 use App\Livewire\DynamicPage;
 use App\Livewire\Gallery;
 use App\Livewire\Home;
+use App\Livewire\Location\LocationDetail;
+use App\Livewire\Location\LocationHub;
 use App\Livewire\Member\AddressBook;
 use App\Livewire\Member\Notifications;
 use App\Livewire\Member\OrderHistory;
@@ -25,6 +32,7 @@ use App\Livewire\OrderTracking;
 use App\Livewire\ProductCatalog;
 use App\Livewire\ProductDetail;
 use App\Livewire\ProductionProcess;
+use App\Livewire\Tools\RosterCalculator;
 use App\Livewire\VideoInspiration;
 use App\Mail\InvoiceMail;
 use App\Models\Order;
@@ -102,6 +110,21 @@ Route::get('/video-inspirasi/{slug}', VideoInspiration::class)->name('video-insp
 Route::get('/proses-produksi', ProductionProcess::class)->name('production');
 Route::get('/tentang-kami', AboutUs::class)->name('about-us');
 Route::get('/kontak', Contact::class)->name('contact');
+
+// B2B & Project Procurement Hub Routes
+Route::get('/untuk-kontraktor', ContractorHub::class)->name('b2b.contractor');
+Route::get('/untuk-developer', DeveloperHub::class)->name('b2b.developer');
+Route::get('/untuk-arsitek', ArchitectHub::class)->name('b2b.architect');
+Route::get('/supplier-roster-beton', SupplierHub::class)->name('b2b.supplier');
+Route::get('/roster-beton-grosir', SupplierHub::class)->name('b2b.wholesale');
+Route::get('/roster-beton-proyek', ProjectHub::class)->name('b2b.project');
+
+// Interactive Tools & Calculation Engine
+Route::get('/kalkulator-roster', RosterCalculator::class)->name('tools.calculator');
+
+// Scalable Multi-City Location Engine Routes
+Route::get('/lokasi', LocationHub::class)->name('location.index');
+Route::get('/lokasi/{slug}', LocationDetail::class)->name('location.detail');
 
 // Dynamic Pages (/page/{slug} as requested, /halaman/{slug} redirects with 301)
 Route::get('/page/{slug}', DynamicPage::class)->name('dynamic.page');

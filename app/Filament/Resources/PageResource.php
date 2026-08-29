@@ -513,6 +513,14 @@ class PageResource extends Resource
                                         ->multiple()
                                         ->options(Category::pluck('name', 'id'))
                                         ->helperText('Biarkan kosong jika ingin menampilkan SEMUA kategori produk roster.'),
+                                    Forms\Components\Select::make('grid_columns')
+                                        ->label('Tata Letak Ukuran Kartu & Jumlah Kolom')
+                                        ->options([
+                                            '4' => '🧱 Ukuran Standar (4 Kolom per Baris — Sesuai Foto 3)',
+                                            '6' => '📐 Ukuran Kompak (6 Kolom per Baris — Sesuai Katalog Foto 4)',
+                                        ])
+                                        ->default('4')
+                                        ->helperText('Pilih 4 kolom untuk tampilan kartu lebih besar dan jelas, atau 6 kolom untuk tampilan kompak seperti di halaman katalog.'),
                                     Forms\Components\TextInput::make('limit')
                                         ->label('Jumlah Produk Ditampilkan')
                                         ->helperText('Contoh: 12, 24, atau 50 agar semua produk tampil.')
@@ -1330,6 +1338,201 @@ class PageResource extends Resource
                                             ->placeholder('Biarkan kosong untuk otomatis ke WhatsApp Sales Proyek'),
                                     ]),
                                 ]),
+
+                            Forms\Components\Builder\Block::make('document_procurement_proof')
+                                ->label('[B2B & Dokumen] 📑 Bukti Dokumen Pengadaan Resmi (Spill Surat Jalan, Invoice, Kwitansi & Uji Lab)')
+                                ->icon('heroicon-o-document-check')
+                                ->schema([
+                                    Forms\Components\TextInput::make('badge')
+                                        ->label('Teks Badge Atas')
+                                        ->default('DOKUMEN RESMI PABRIK & TRANSAKSI B2B'),
+                                    Forms\Components\TextInput::make('title')
+                                        ->label('Judul Seksi')
+                                        ->default('Kelengkapan Dokumen Transaksi Resmi & Administrasi Pengadaan Proyek')
+                                        ->required(),
+                                    Forms\Components\Textarea::make('subtitle')
+                                        ->label('Sub-judul / Keterangan')
+                                        ->rows(2)
+                                        ->default('Spill lembar dokumen pengadaan asli pabrik siap terbit cepat. Transparansi penuh untuk pelaporan SPJ proyek, tanda terima material, kwitansi bermaterai, dan verifikasi kontraktor.'),
+                                    static::bgThemeSelect('white'),
+
+                                    Forms\Components\Grid::make(2)->schema([
+                                        Forms\Components\TextInput::make('company_legal_name')
+                                            ->label('Nama Brand / Produsen')
+                                            ->default('INDOROSTER INDONESIA')
+                                            ->helperText('Ditampilkan pada kop preview dokumen (Surat Jalan, Invoice, SPH).'),
+                                        Forms\Components\TextInput::make('npwp_status')
+                                            ->label('Keterangan Dokumen / Legalitas')
+                                            ->default('Dokumen Transaksi Sah & Kwitansi Bermaterai'),
+                                    ]),
+
+                                    Forms\Components\Grid::make(3)->schema([
+                                        Forms\Components\TextInput::make('quick_badge_1')->label('Badge Cepat 1')->default('⚡ Terbit Cepat 1x24 Jam'),
+                                        Forms\Components\TextInput::make('quick_badge_2')->label('Badge Cepat 2')->default('📜 Stempel Basah & TTD Pabrik Asli'),
+                                        Forms\Components\TextInput::make('quick_badge_3')->label('Badge Cepat 3')->default('🏢 Siap Kontraktor & Pengadaan Proyek'),
+                                    ]),
+
+                                    Forms\Components\Repeater::make('documents')
+                                        ->label('Daftar Dokumen Resmi yang Ditampilkan (Spill Documents)')
+                                        ->collapsible()
+                                        ->itemLabel(fn (array $state): ?string => ($state['type_badge'] ?? '').' — '.($state['title'] ?? 'Dokumen'))
+                                        ->schema([
+                                            Forms\Components\Grid::make(3)->schema([
+                                                Forms\Components\Select::make('category')
+                                                    ->label('Kategori Filter Tab')
+                                                    ->options([
+                                                        'surat-jalan' => '🚚 Surat Jalan / Delivery Order (DO)',
+                                                        'invoice' => '🧾 Invoice Penjualan & Tagihan',
+                                                        'receipt' => '💰 Kwitansi Pembayaran Sah',
+                                                        'bast' => '📋 Berita Acara Serah Terima (BAST)',
+                                                        'tender' => '📝 Surat Penawaran Harga (SPH / Quotation)',
+                                                        'uji-lab' => '🔬 Sertifikat Uji Kuat Tekan Lab SNI',
+                                                    ])
+                                                    ->default('surat-jalan')
+                                                    ->required(),
+                                                Forms\Components\TextInput::make('type_badge')
+                                                    ->label('Label Badge Dokumen')
+                                                    ->default('SURAT JALAN RESMI')
+                                                    ->required(),
+                                                Forms\Components\TextInput::make('status')
+                                                    ->label('Status Kesiapan')
+                                                    ->default('SIAP TERBIT BERSAMA ARMADA')
+                                                    ->required(),
+                                            ]),
+                                            Forms\Components\TextInput::make('title')
+                                                ->label('Judul Dokumen')
+                                                ->default('Surat Jalan Pabrik & Delivery Order (DO)')
+                                                ->required(),
+                                            Forms\Components\Textarea::make('desc')
+                                                ->label('Deskripsi Fungsi & Keabsahan Dokumen')
+                                                ->rows(3)
+                                                ->default('Diterbitkan rangkap untuk setiap armada pengiriman pabrik. Memuat rincian motif roster, jumlah keping, nomor polisi truk armada, data supir, tanda terima penerima proyek, serta stempel basah Quality Control (QC).')
+                                                ->required(),
+                                            Forms\Components\Grid::make(2)->schema([
+                                                Forms\Components\TextInput::make('sample_no')
+                                                    ->label('Format / Nomor Seri Contoh')
+                                                    ->default('DO/IR/PLR/2026/0842'),
+                                                Forms\Components\TextInput::make('usage')
+                                                    ->label('Peruntukan Penggunaan Dokumen')
+                                                    ->default('Bukti Bongkar Proyek & Security Clearance'),
+                                            ]),
+                                            Forms\Components\TagsInput::make('features')
+                                                ->label('Poin Keunggulan & Ciri Keabsahan Dokumen (Tekan Enter)')
+                                                ->placeholder('Tambahkan poin keabsahan...')
+                                                ->default([
+                                                    'Nomor seri surat jalan unik & barcode pelacakan',
+                                                    'Daftar rincian koli & motif roster terperinci',
+                                                    'Kolom tanda tangan 3 pihak (Pengirim, Supir, Penerima)',
+                                                    'Stempel basah Quality Control bebas pecah',
+                                                ]),
+                                            Forms\Components\Section::make('Foto Contoh Dokumen Asli (Opsional - Jika Ingin Spill Foto Fisik)')
+                                                ->schema([
+                                                    Forms\Components\FileUpload::make('sample_image_upload')
+                                                        ->label('Upload Foto/Scan Dokumen (Watermarked)')
+                                                        ->image()
+                                                        ->directory('pages/legal-documents')
+                                                        ->live(),
+                                                    Forms\Components\TextInput::make('sample_image_url')
+                                                        ->label('Atau URL Gambar Dokumen')
+                                                        ->live(),
+                                                    static::mediaPreview('sample_image_upload', 'sample_image_url'),
+                                                ])
+                                                ->collapsed(),
+                                        ]),
+
+                                    Forms\Components\Section::make('Kotak Ajakan Aksi B2B (Bottom CTA)')
+                                        ->schema([
+                                            Forms\Components\TextInput::make('cta_title')
+                                                ->label('Judul Banner CTA')
+                                                ->default('Butuh Dokumen Penawaran Resmi (RAB / SPH / Faktur) Hari Ini?'),
+                                            Forms\Components\Grid::make(2)->schema([
+                                                Forms\Components\TextInput::make('cta_btn_text')
+                                                    ->label('Teks Tombol')
+                                                    ->default('Minta Dokumen Penawaran via WhatsApp'),
+                                                Forms\Components\TextInput::make('cta_btn_link')
+                                                    ->label('Link WhatsApp Kustom (Opsional)')
+                                                    ->placeholder('Kosongkan untuk otomatis ke WhatsApp Sales B2B'),
+                                            ]),
+                                        ])
+                                        ->collapsed(),
+                                ]),
+
+                            Forms\Components\Builder\Block::make('scanned_document_gallery')
+                                ->label('[B2B & Bukti Foto] 📸 Galeri Foto Scan Dokumen Fisik Asli (Surat Jalan, Kwitansi, BAST & Uji Lab Asli)')
+                                ->icon('heroicon-o-camera')
+                                ->schema([
+                                    Forms\Components\TextInput::make('badge')
+                                        ->label('Teks Badge Atas')
+                                        ->default('BUKTI FISIK & DOKUMENTASI PROYEK NYATA'),
+                                    Forms\Components\TextInput::make('title')
+                                        ->label('Judul Seksi')
+                                        ->default('Galeri Foto Scan Dokumen & Bukti Transaksi Asli')
+                                        ->required(),
+                                    Forms\Components\Textarea::make('subtitle')
+                                        ->label('Sub-judul / Keterangan')
+                                        ->rows(2)
+                                        ->default('Dokumentasi otentik lembar fisik surat jalan armada, kwitansi bertanda tangan, surat penawaran, dan hasil uji laboratorium dari pesanan proyek pelanggan kami.'),
+                                    static::bgThemeSelect('slate'),
+
+                                    Forms\Components\Repeater::make('scans')
+                                        ->label('Daftar Foto Scan Dokumen Fisik')
+                                        ->collapsible()
+                                        ->itemLabel(fn (array $state): ?string => ($state['doc_no'] ?? '').' — '.($state['title'] ?? 'Scan Dokumen'))
+                                        ->schema([
+                                            Forms\Components\Grid::make(3)->schema([
+                                                Forms\Components\Select::make('category')
+                                                    ->label('Kategori Filter Tab')
+                                                    ->options([
+                                                        'surat-jalan' => '🚚 Surat Jalan Asli',
+                                                        'kwitansi' => '💰 Kwitansi Bermaterai',
+                                                        'uji-lab' => '🔬 Uji Kuat Tekan Lab',
+                                                        'bast' => '📋 BAST Lapangan',
+                                                        'sph' => '📝 SPH Penawaran',
+                                                    ])
+                                                    ->default('surat-jalan')
+                                                    ->required(),
+                                                Forms\Components\TextInput::make('tag')
+                                                    ->label('Badge Tag di Foto')
+                                                    ->default('✓ STEMPEL QC BASAH')
+                                                    ->required(),
+                                                Forms\Components\TextInput::make('doc_no')
+                                                    ->label('Nomor Registrasi / Kode Dokumen')
+                                                    ->placeholder('Contoh: DO/IR-PLR/2026/0412')
+                                                    ->required(),
+                                            ]),
+                                            Forms\Components\TextInput::make('title')
+                                                ->label('Judul / Nama Dokumen')
+                                                ->placeholder('Contoh: Scan Surat Jalan Pengiriman 3.500 Pcs Roster BSD Serpong')
+                                                ->required(),
+                                            Forms\Components\Grid::make(2)->schema([
+                                                Forms\Components\TextInput::make('project_name')
+                                                    ->label('Nama Proyek / Lokasi / Klien')
+                                                    ->placeholder('Contoh: Proyek Cluster Residensial — BSD City Tangerang')
+                                                    ->required(),
+                                                Forms\Components\TextInput::make('date_str')
+                                                    ->label('Tanggal Terbit Dokumen')
+                                                    ->placeholder('Contoh: 18 Februari 2026')
+                                                    ->required(),
+                                            ]),
+                                            Forms\Components\Textarea::make('desc')
+                                                ->label('Keterangan / Rincian Pengiriman Dokumen')
+                                                ->rows(2)
+                                                ->placeholder('Rincian singkat muatan koli, motif roster, atau hasil lab...'),
+                                            Forms\Components\Section::make('Foto Scan Asli (Wajib Diupload atau URL)')
+                                                ->schema([
+                                                    Forms\Components\FileUpload::make('image_upload')
+                                                        ->label('Upload File Foto Scan (Kamera / Scanner HP)')
+                                                        ->image()
+                                                        ->directory('pages/scanned-documents')
+                                                        ->live(),
+                                                    Forms\Components\TextInput::make('image_url')
+                                                        ->label('Atau URL Gambar / Link Foto Dokumen')
+                                                        ->placeholder('https://...')
+                                                        ->live(),
+                                                    static::mediaPreview('image_upload', 'image_url'),
+                                                ]),
+                                        ]),
+                                ]),
                         ])
                         ->columnSpanFull()
                         ->collapsed(),
@@ -1474,8 +1677,34 @@ class PageResource extends Resource
                 Tables\Columns\TextColumn::make('title')->label('Judul')->searchable()->sortable(),
                 Tables\Columns\TextColumn::make('slug')
                     ->label('URL Link Halaman')
-                    ->formatStateUsing(fn ($state) => '/page/'.$state)
-                    ->url(fn (Page $record) => url('/page/'.$record->slug))
+                    ->formatStateUsing(function ($state) {
+                        $customRoutes = [
+                            'home' => '/',
+                            'katalog' => '/produk',
+                            'gallery' => '/gallery',
+                            'untuk-arsitek' => '/untuk-arsitek',
+                            'untuk-kontraktor' => '/untuk-kontraktor',
+                            'untuk-developer' => '/untuk-developer',
+                            'supplier-roster-beton' => '/supplier-roster-beton',
+                            'roster-beton-proyek' => '/roster-beton-proyek',
+                        ];
+
+                        return $customRoutes[$state] ?? ('/page/'.$state);
+                    })
+                    ->url(function (Page $record) {
+                        $customRoutes = [
+                            'home' => '/',
+                            'katalog' => '/produk',
+                            'gallery' => '/gallery',
+                            'untuk-arsitek' => '/untuk-arsitek',
+                            'untuk-kontraktor' => '/untuk-kontraktor',
+                            'untuk-developer' => '/untuk-developer',
+                            'supplier-roster-beton' => '/supplier-roster-beton',
+                            'roster-beton-proyek' => '/roster-beton-proyek',
+                        ];
+
+                        return url($customRoutes[$record->slug] ?? ('/page/'.$record->slug));
+                    })
                     ->openUrlInNewTab()
                     ->color('primary')
                     ->weight('bold'),
@@ -1487,7 +1716,20 @@ class PageResource extends Resource
                     ->label('Buka')
                     ->icon('heroicon-o-arrow-top-right-on-square')
                     ->color('success')
-                    ->url(fn (Page $record) => url('/page/'.$record->slug))
+                    ->url(function (Page $record) {
+                        $customRoutes = [
+                            'home' => '/',
+                            'katalog' => '/produk',
+                            'gallery' => '/gallery',
+                            'untuk-arsitek' => '/untuk-arsitek',
+                            'untuk-kontraktor' => '/untuk-kontraktor',
+                            'untuk-developer' => '/untuk-developer',
+                            'supplier-roster-beton' => '/supplier-roster-beton',
+                            'roster-beton-proyek' => '/roster-beton-proyek',
+                        ];
+
+                        return url($customRoutes[$record->slug] ?? ('/page/'.$record->slug));
+                    })
                     ->openUrlInNewTab(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\Action::make('clone')

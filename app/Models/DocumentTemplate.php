@@ -207,7 +207,7 @@ class DocumentTemplate extends Model
                 'y' => 82,
                 'width' => 180,
                 'height' => 15,
-                'visible' => in_array($type, ['penawaran', 'quotation', 'surat_pesanan', 'sales_order']),
+                'visible' => in_array($type, ['penawaran', 'quotation', 'sph', 'bast', 'lab_test', 'surat_pesanan', 'sales_order']),
             ],
             'product_table' => [
                 'name' => 'Tabel Produk/Item',
@@ -223,7 +223,7 @@ class DocumentTemplate extends Model
                 'y' => 185,
                 'width' => 85,
                 'height' => 30,
-                'visible' => ! in_array($type, ['surat_jalan', 'delivery_note', 'packing_list']),
+                'visible' => ! in_array($type, ['surat_jalan', 'delivery_note', 'packing_list', 'bast', 'lab_test']),
             ],
             'terms_box' => [
                 'name' => 'Syarat & Ketentuan / Petunjuk',

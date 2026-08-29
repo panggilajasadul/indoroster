@@ -311,11 +311,14 @@ class DocumentTemplateResource extends Resource
     {
         return [
             'quotation' => '💼 Penawaran Harga (Quotation)',
+            'sph' => '📝 Surat Dukungan Tender & SPH',
             'sales_order' => '📝 Surat Pesanan (Sales Order)',
             'invoice' => '🧾 Faktur Penjualan (Invoice)',
             'receipt' => '💰 Kwitansi Pembayaran (Receipt)',
             'proforma_invoice' => '📄 Proforma Invoice',
             'surat_jalan' => '🚚 Surat Jalan Pengiriman',
+            'bast' => '📋 Berita Acara Serah Terima (BAST)',
+            'lab_test' => '🔬 Sertifikat Uji Kuat Tekan Lab SNI',
             'delivery_note' => '📦 Delivery Note',
             'packing_list' => '📋 Packing List',
             'purchase_order' => '🛒 Purchase Order (PO)',

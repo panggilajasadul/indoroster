@@ -59,9 +59,12 @@ class OptimizeAllProductsSeo extends Command
                 'roster pagar minimalis modern',
                 'roster fasad dinding ventilasi',
                 'roster sekat partisi interior',
-                'pabrik roster beton plered purwakarta',
+                'pabrik roster beton tangan pertama',
                 'jual roster jakarta jabodetabek',
                 'supplier roster bandung jawa barat',
+                'distributor roster karawang cirebon',
+                'jual loster cianjur sukabumi',
+                'supplier roster proyek perumahan',
                 'ekspedisi roster kargo nasional',
                 'loster beton padat presisi',
             ];

@@ -596,6 +596,12 @@
         </div>
     </section>
 
+    <!-- Section: Bukti Dokumen Pengadaan & Legalitas Resmi (B2B Proof) -->
+    <x-blocks.document-procurement-proof :data="['bg_theme' => 'white']" />
+
+    <!-- Section: Galeri Foto Scan Dokumen Fisik Asli (Scanned Proof) -->
+    <x-blocks.scanned-document-gallery :data="['bg_theme' => 'slate']" />
+
     <!-- Section: TikTok Review -->
     <section class="py-24 bg-slate-950 overflow-hidden relative">
         <!-- Glow Effect -->

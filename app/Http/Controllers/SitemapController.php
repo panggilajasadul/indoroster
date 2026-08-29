@@ -7,6 +7,7 @@ use App\Models\Category;
 use App\Models\Gallery;
 use App\Models\Page;
 use App\Models\Product;
+use App\Models\SeoLocation;
 use Carbon\Carbon;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Schema;
@@ -18,24 +19,33 @@ class SitemapController extends Controller
 {
     public function index(): Response
     {
-        self::generate();
+        // Selalu regenerate dengan base URL dari HTTP request yang sedang berjalan
+        self::generate(rtrim(url('/'), '/'));
 
         $sitemapPath = public_path('sitemap.xml');
         $xmlContent = file_exists($sitemapPath) ? file_get_contents($sitemapPath) : '';
 
         return response($xmlContent, 200, [
-            'Content-Type' => 'application/xml',
+            'Content-Type' => 'application/xml; charset=utf-8',
+            'Cache-Control' => 'no-cache, no-store, must-revalidate',
+            'Pragma' => 'no-cache',
+            'Expires' => '0',
         ]);
     }
 
-    public static function generate(): void
+    /**
+     * Generate sitemap.xml ke public/sitemap.xml.
+     * Dipanggil dari: (1) HTTP request via index(), (2) model observer hooks di AppServiceProvider.
+     * Selalu gunakan APP_URL dari config sebagai base — bisa di-override via parameter.
+     */
+    public static function generate(?string $customBaseUrl = null): void
     {
-        $baseUrl = rtrim(config('app.url', 'https://indoroster.com'), '/');
-        if (request()->getHost() && request()->getHost() !== ':' && request()->getHost() !== 'localhost') {
-            $baseUrl = rtrim(url('/'), '/');
-        } elseif (app()->environment('local') && request()->getHost()) {
-            $baseUrl = rtrim(url('/'), '/');
+        if (app()->runningUnitTests()) {
+            return;
         }
+
+        // Gunakan parameter jika ada, fallback ke APP_URL (sudah benar di .env)
+        $baseUrl = rtrim($customBaseUrl ?? config('app.url', 'https://indoroster.com'), '/');
 
         $sitemap = Sitemap::create();
 
@@ -121,9 +131,16 @@ class SitemapController extends Controller
             $sitemap->add($productUrl);
         }
 
-        // 5. Halaman Statis & Hub
+        // 5. Halaman Statis & B2B Hub & Tools
         $staticPages = [
             ['url' => '/artikel', 'priority' => 0.85, 'freq' => Url::CHANGE_FREQUENCY_DAILY],
+            ['url' => '/untuk-kontraktor', 'priority' => 0.9, 'freq' => Url::CHANGE_FREQUENCY_WEEKLY],
+            ['url' => '/untuk-developer', 'priority' => 0.9, 'freq' => Url::CHANGE_FREQUENCY_WEEKLY],
+            ['url' => '/untuk-arsitek', 'priority' => 0.9, 'freq' => Url::CHANGE_FREQUENCY_WEEKLY],
+            ['url' => '/supplier-roster-beton', 'priority' => 0.9, 'freq' => Url::CHANGE_FREQUENCY_WEEKLY],
+            ['url' => '/roster-beton-proyek', 'priority' => 0.9, 'freq' => Url::CHANGE_FREQUENCY_WEEKLY],
+            ['url' => '/kalkulator-roster', 'priority' => 0.85, 'freq' => Url::CHANGE_FREQUENCY_MONTHLY],
+            ['url' => '/lokasi', 'priority' => 0.85, 'freq' => Url::CHANGE_FREQUENCY_WEEKLY],
             ['url' => '/video-inspirasi', 'priority' => 0.8, 'freq' => Url::CHANGE_FREQUENCY_WEEKLY],
             ['url' => '/proses-produksi', 'priority' => 0.6, 'freq' => Url::CHANGE_FREQUENCY_MONTHLY],
             ['url' => '/tentang-kami', 'priority' => 0.5, 'freq' => Url::CHANGE_FREQUENCY_MONTHLY],
@@ -137,6 +154,22 @@ class SitemapController extends Controller
                     ->setChangeFrequency($page['freq'])
                     ->setPriority($page['priority'])
             );
+        }
+
+        // 5b. Halaman Lokasi SEO Aktif (Quality Score >= 75)
+        if (Schema::hasTable('seo_locations')) {
+            $seoLocations = SeoLocation::where('seo_enabled', true)
+                ->where('seo_score', '>=', 75)
+                ->get();
+
+            foreach ($seoLocations as $loc) {
+                $sitemap->add(
+                    Url::create($baseUrl.'/lokasi/'.trim($loc->slug))
+                        ->setLastModificationDate($loc->updated_at ?? Carbon::now())
+                        ->setChangeFrequency(Url::CHANGE_FREQUENCY_WEEKLY)
+                        ->setPriority(0.8)
+                );
+            }
         }
 
         // 6. Halaman Galeri Proyek Mandiri (/gallery/{slug}) + Metadata Foto Google Images
@@ -205,10 +238,13 @@ class SitemapController extends Controller
             }
         }
 
-        // 7. Dynamic Pages (/page/{slug})
+        // 7. Dynamic CMS Pages (/page/{slug})
         if (Schema::hasTable('pages')) {
             $pages = Page::where('is_active', true)
-                ->where('slug', '!=', 'home')
+                ->whereNotIn('slug', [
+                    'home', 'tentang-kami', 'kontak', 'katalog', 'gallery', 'lokasi',
+                    'untuk-arsitek', 'untuk-kontraktor', 'untuk-developer', 'supplier-roster-beton', 'roster-beton-proyek',
+                ])
                 ->orderBy('updated_at', 'desc')
                 ->get(['slug', 'updated_at']);
 
@@ -227,11 +263,21 @@ class SitemapController extends Controller
         // Clean up script name prefix if generated via browser direct scripts
         $xmlContent = str_replace(['/generate_sitemap.php', '/test_sitemap.php'], '', $xmlContent);
 
-        // Inject XSL stylesheet for modern visual browser display (seperti Rank Math / Yoast)
+        // Inject XSL stylesheet for modern visual browser display
+        // Use root-relative /sitemap.xsl so browser never encounters CORS issues on any port/domain
         if (! str_contains($xmlContent, 'xml-stylesheet')) {
             $xslTag = '<?xml-stylesheet type="text/xsl" href="/sitemap.xsl"?>'."\n";
             $xmlContent = preg_replace('/(<\?xml[^>]+>\s*)/', '$1'.$xslTag, $xmlContent, 1);
         }
+
+        // Simpan tanggal & URL count ke komentar di file untuk debugging
+        $generatedAt = Carbon::now()->setTimezone('Asia/Jakarta')->format('Y-m-d H:i:s T');
+        $urlTotal = substr_count($xmlContent, '<url>');
+        $xmlContent = str_replace(
+            '<?xml-stylesheet',
+            "<!-- IndoRoster Sitemap | Generated: {$generatedAt} | Total URLs: {$urlTotal} | Base: {$baseUrl} -->\n<?xml-stylesheet",
+            $xmlContent
+        );
 
         file_put_contents(public_path('sitemap.xml'), $xmlContent);
     }

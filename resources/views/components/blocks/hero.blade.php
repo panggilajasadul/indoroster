@@ -2,6 +2,44 @@
 
 @php
     $banners = $data['banners'] ?? [];
+    if (empty($banners)) {
+        $dbBanners = \App\Models\Banner::where('is_active', true)->orderBy('sort_order')->get();
+        if ($dbBanners->isNotEmpty()) {
+            $banners = $dbBanners->map(function($b) {
+                return [
+                    'title' => $b->title,
+                    'subtitle' => $b->subtitle,
+                    'badge' => $b->badge ?? 'Produsen Resmi · Plered, Purwakarta',
+                    'image' => $b->image_url,
+                    'button_text' => $b->button_text ?? 'Lihat Katalog Produk',
+                    'button_url' => $b->button_url ?? route('catalog'),
+                    'button_2_text' => 'Konsultasi Pabrik Gratis',
+                    'button_2_url' => route('contact'),
+                    'alignment' => 'left',
+                    'image_opacity' => 40,
+                    'overlay_color' => '#020617',
+                    'overlay_opacity' => 80,
+                ];
+            })->toArray();
+        } else {
+            $banners = [
+                [
+                    'title' => 'Pabrik Roster Beton Minimalis Cetak Tumbuk Padat & Presisi',
+                    'subtitle' => 'Produksi langsung pengrajin ahli Plered Purwakarta dengan mutu cetak padat presisi, siku 90°, keras, dan bergaransi pengiriman ke seluruh Indonesia.',
+                    'badge' => 'Produsen Resmi · Plered, Purwakarta',
+                    'image' => 'https://res.cloudinary.com/indoroster/image/upload/v1765262980/2_zurmam.jpg',
+                    'button_text' => 'Lihat Katalog Produk',
+                    'button_url' => route('catalog'),
+                    'button_2_text' => 'Konsultasi Pabrik Gratis',
+                    'button_2_url' => route('contact'),
+                    'alignment' => 'left',
+                    'image_opacity' => 40,
+                    'overlay_color' => '#020617',
+                    'overlay_opacity' => 80,
+                ]
+            ];
+        }
+    }
     $sliderDuration = (int) ($data['slider_duration'] ?? 5000);
     $bannerCount = count($banners);
 @endphp

@@ -52,11 +52,13 @@
     },
     "knowsAbout": [
         "Roster Beton Minimalis",
+        "Pengadaan Roster Partai Besar Proyek",
+        "Suplier Tender Proyek Kontraktor",
+        "Pengadaan Roster Developer Klaster Perumahan",
+        "Grosir Roster Toko Bangunan & Ritase Truk",
         "Architectural Breeze Blocks",
-        "Concrete Screen Blocks",
         "Loster Beton Modern",
-        "Bata Tempel Terakota",
-        "Ventilation Blocks Exporter"
+        "Pusat Pabrikasi Roster Plered Purwakarta"
     ],
     "sameAs": {!! json_encode(array_values($sameAs)) !!}
 }
@@ -67,12 +69,12 @@
 {
     "@@context": "https://schema.org",
     "@@type": ["LocalBusiness", "Manufacturer"],
-    "name": "IndoRoster — Pabrik Roster Beton Minimalis & Breeze Block Exporter",
+    "name": "IndoRoster — Pabrik Roster Beton Minimalis & Suplier Proyek Nasional",
     "image": "{{ $logoUrl }}",
     "url": "{{ $siteUrl }}",
     "telephone": "{{ $phone }}",
     "email": "{{ $email }}",
-    "description": "Pabrik dan produsen tangan pertama roster beton minimalis, bata tempel, dan loster arsitektural modern di Plered, Purwakarta. Melayani pengiriman proyek seluruh Jabodetabek, Jawa Barat, seluruh Indonesia, serta International Export (Custom Concrete Screen & Breeze Blocks).",
+    "description": "Pusat produsen dan pabrik roster beton minimalis, loster arsitektural, dan bata expose di Plered, Purwakarta. Siap melayani pengadaan partai besar (ribuan hingga puluhan ribu pcs) untuk kontraktor proyek, developer perumahan, arsitek, dan toko bangunan dengan garansi 100% bebas pecah dan armada pengiriman ke Jabodetabek, Bandung, serta seluruh Indonesia.",
     "address": {
         "@@type": "PostalAddress",
         "streetAddress": "{{ $address }}",
@@ -94,12 +96,33 @@
             "closes": "17:00"
         }
     ],
-    "priceRange": "Rp / USD",
-    "currenciesAccepted": "IDR, USD, SGD, AUD",
-    "paymentAccepted": "Cash, Transfer Bank, QRIS, TT (Telegraphic Transfer), LC (Letter of Credit)",
+    "priceRange": "Rp / Grosir Proyek",
+    "currenciesAccepted": "IDR, USD",
+    "paymentAccepted": "Cash, Transfer Bank, QRIS, Invoice Proyek",
+    "hasOfferCatalog": {
+        "@@type": "OfferCatalog",
+        "name": "Layanan Pengadaan Roster IndoRoster",
+        "itemListElement": [
+            {
+                "@@type": "OfferCatalog",
+                "name": "Pengadaan Partai Besar & Proyek Kontraktor",
+                "description": "Suplai ribuan pcs roster beton cetak padat sudut siku 90° presisi, dokumen surat jalan & faktur resmi, garansi bebas pecah."
+            },
+            {
+                "@@type": "OfferCatalog",
+                "name": "Pengadaan Developer & Klaster Perumahan",
+                "description": "Kontrak harga pabrik terkunci untuk puluhan hingga ratusan unit rumah perumahan dan gerbang utama cluster."
+            },
+            {
+                "@@type": "OfferCatalog",
+                "name": "Grosir Toko Bahan Bangunan (Ritase Truk)",
+                "description": "Harga grosir per ritase truk dengan margin penjualan maksimal untuk toko depo material."
+            }
+        ]
+    },
     "areaServed": [
-        "Jakarta", "Bogor", "Depok", "Tangerang", "Bekasi", "Bandung", "Purwakarta", 
-        "Jawa Barat", "Indonesia", "Southeast Asia", "Australia", "Worldwide"
+        "Jakarta", "Bogor", "Depok", "Tangerang", "Bekasi", "Bandung", "Karawang", "Cianjur", "Cirebon", "Sukabumi", 
+        "Jawa Barat", "DKI Jakarta", "Banten", "Jawa Tengah", "Jawa Timur", "Indonesia", "Worldwide"
     ]
 }
 </script>

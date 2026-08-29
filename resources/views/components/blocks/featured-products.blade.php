@@ -6,6 +6,7 @@
     $badge = $data['badge'] ?? 'Koleksi Pilihan Arsitek';
     $categoryIds = $data['categories'] ?? [];
     $limit = $data['limit'] ?? 24;
+    $gridColumns = (string) ($data['grid_columns'] ?? \App\Models\SiteSetting::getValue('home_product_grid_columns', '4'));
     $theme = \App\Helpers\BlockTheme::resolve($data['bg_theme'] ?? 'white');
 
     $query = \App\Models\Product::with('category', 'media', 'variants')->active();
@@ -74,7 +75,7 @@
         </div>
 
         <!-- Product Grid (Auto-Reveal Smooth Animation) -->
-        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-5" data-motion="stagger">
+        <div class="grid {{ $gridColumns === '6' ? 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4' : 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-5' }}" data-motion="stagger">
             @foreach($products as $index => $product)
                 <div 
                     x-show="{{ $index }} < showCount" 

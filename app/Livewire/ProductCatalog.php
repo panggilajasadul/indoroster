@@ -104,10 +104,10 @@ class ProductCatalog extends Component
         $vouchers = Voucher::active()->get();
 
         if ($activeCategory) {
-            $metaTitle = 'Katalog '.$activeCategory->name.' | INDOROSTER — Pabrik Roster Beton Plered';
+            $metaTitle = 'Katalog '.$activeCategory->name.' | IndoRoster — Suplier Jabodetabek & Indonesia';
             $metaDescription = $activeCategory->meta_description
                 ?? ($activeCategory->description
-                    ?? 'Temukan koleksi lengkap '.$activeCategory->name.' dari pabrik tangan pertama INDOROSTER Plered Purwakarta. Kualitas cetak padat presisi, harga pabrik, pengiriman seluruh Indonesia.');
+                    ?? 'Temukan koleksi lengkap '.$activeCategory->name.' berkualitas tinggi langsung dari pabrik IndoRoster. Kualitas cetak padat presisi, harga pabrik, siap kirim ke Jabodetabek, Bandung, Karawang, Cirebon & seluruh Indonesia.');
             if ($activeCategory->meta_title) {
                 $metaTitle = $activeCategory->meta_title;
             }
@@ -115,21 +115,21 @@ class ProductCatalog extends Component
             $catName = strtolower($activeCategory->name);
             $keywords = $catName.', jual '.$catName.', harga '.$catName
                 .', '.str_replace('roster', 'loster', $catName)
-                .', '.$catName.' plered, '.$catName.' purwakarta'
                 .', '.$catName.' jakarta, '.$catName.' jabodetabek'
+                .', '.$catName.' bandung, '.$catName.' bekasi'
                 .', pabrik '.$catName.', '.$catName.' minimalis';
             $robotsMeta = 'index, follow';
         } elseif ($this->search) {
-            $metaTitle = 'Hasil Pencarian "'.$this->search.'" | INDOROSTER';
-            $metaDescription = 'Temukan produk roster beton yang Anda cari di INDOROSTER. Pabrik roster beton premium Plered Purwakarta.';
+            $metaTitle = 'Hasil Pencarian "'.$this->search.'" | IndoRoster';
+            $metaDescription = 'Temukan produk roster beton yang Anda cari di IndoRoster. Pabrik roster beton minimalis & bata expose siap kirim Jabodetabek & seluruh Indonesia.';
             $canonicalOverride = route('catalog');
             $keywords = 'cari roster beton, '.strtolower($this->search).', roster beton, loster beton';
             $robotsMeta = 'noindex, follow';
         } else {
-            $metaTitle = $page?->meta_title ?: 'Katalog Roster Beton & Bata Expose | INDOROSTER — Pabrik Plered Purwakarta';
-            $metaDescription = $page?->meta_description ?: 'Temukan berbagai koleksi roster beton minimalis, bata expose, dan ornamen dinding berkualitas dari pabrik tangan pertama INDOROSTER. Harga terbaik, pengiriman seluruh Indonesia.';
+            $metaTitle = $page?->meta_title ?: 'Katalog Roster Beton & Bata Expose | IndoRoster — Suplier Jabodetabek & Bandung';
+            $metaDescription = $page?->meta_description ?: 'Temukan berbagai koleksi roster beton minimalis, bata expose, dan loster arsitektural berkualitas langsung dari pabrik resmi IndoRoster. Harga pabrik, melayani pengiriman Jabodetabek, Bandung, Karawang, Cianjur, Cirebon & seluruh Indonesia.';
             $canonicalOverride = route('catalog');
-            $keywords = 'katalog roster beton, roster beton minimalis, loster beton minimalis, jual roster beton, harga roster beton, bata expose, ornamen dinding, pabrik roster plered, roster beton purwakarta, jual roster beton jakarta, roster beton jabodetabek, roster beton murah';
+            $keywords = 'katalog roster beton, roster beton minimalis, loster beton minimalis, jual roster beton, harga roster beton, bata expose, ornamen dinding, jual roster beton jakarta, roster beton jabodetabek, roster beton bandung, supplier roster proyek, roster beton murah';
             $robotsMeta = 'index, follow';
         }
 

@@ -4,6 +4,22 @@
     $title = $data['title'] ?? 'Mengapa Memilih Roster Pabrik Kami?';
     $description = $data['description'] ?? 'Dedikasi tanpa kompromi pada mutu beton, kepresisian cetakan, dan jaminan keamanan pengiriman langsung ke lokasi proyek Anda.';
     $items = $data['items'] ?? [];
+    if (empty($items)) {
+        $items = [
+            [
+                'title' => 'Mutu Cetak Tumbuk Padat & Siku 90°',
+                'description' => 'Diproduksi dengan teknik tumbuk padat presisi tinggi oleh pengrajin ahli Plered Purwakarta, menghasilkan beton kokoh tanpa rongga rapuh.',
+            ],
+            [
+                'title' => 'Garansi 100% Bebas Pecah Armada Pabrik',
+                'description' => 'Setiap keping yang rusak atau pecah selama perjalanan diganti baru langsung tanpa potongan biaya.',
+            ],
+            [
+                'title' => 'Kapasitas Suplai Skala Proyek & Tender',
+                'description' => 'Siap melayani kebutuhan ribuan keping untuk perumahan cluster, hotel, cafe, dan gedung komersial dengan jadwal kirim bertahap.',
+            ],
+        ];
+    }
     $videos = $data['videos'] ?? [];
     $theme = \App\Helpers\BlockTheme::resolve($data['bg_theme'] ?? 'dark');
 @endphp

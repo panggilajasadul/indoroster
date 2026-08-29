@@ -8,6 +8,7 @@ use App\Models\Category;
 use App\Models\Gallery;
 use App\Models\Page;
 use App\Models\Product;
+use App\Models\SeoLocation;
 use Carbon\Carbon;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
@@ -48,6 +49,9 @@ class SitemapSettings extends FilamentPage
         $publishedArticles = class_exists(Article::class) ? Article::where('is_published', true)->count() : 0;
         $activeGalleries = class_exists(Gallery::class) ? Gallery::where('is_active', true)->count() : 0;
         $activePages = class_exists(Page::class) ? Page::where('is_active', true)->count() : 0;
+        $activeSeoLocations = class_exists(SeoLocation::class)
+            ? SeoLocation::where('seo_enabled', true)->where('seo_score', '>=', 75)->count()
+            : 0;
 
         $sitemapUrl = url('/sitemap.xml');
 
@@ -64,6 +68,7 @@ class SitemapSettings extends FilamentPage
             'published_articles' => $publishedArticles,
             'active_galleries' => $activeGalleries,
             'active_pages' => $activePages,
+            'active_seo_locations' => $activeSeoLocations,
             'sitemap_url' => $sitemapUrl,
         ];
     }
@@ -77,10 +82,10 @@ class SitemapSettings extends FilamentPage
                 ->color('primary')
                 ->action(function () {
                     try {
-                        SitemapController::generate();
+                        SitemapController::generate(rtrim(url('/'), '/'));
                         Notification::make()
                             ->title('Sitemap Berhasil Diperbarui!')
-                            ->body('File sitemap.xml telah dibuat ulang dengan data produk, kategori, artikel, dan galeri terbaru.')
+                            ->body('File sitemap.xml telah dibuat ulang dengan 182+ data produk, kategori, lokasi SEO, artikel, dan galeri terbaru.')
                             ->success()
                             ->send();
                     } catch (\Throwable $e) {

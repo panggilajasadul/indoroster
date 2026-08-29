@@ -9,6 +9,7 @@ use App\Models\Gallery;
 use App\Models\Order;
 use App\Models\Page;
 use App\Models\Product;
+use App\Models\SeoLocation;
 use App\Models\SiteSetting;
 use App\Observers\OrderObserver;
 use Illuminate\Auth\Notifications\ResetPassword;
@@ -83,6 +84,9 @@ class AppServiceProvider extends ServiceProvider
 
         // Auto-generate sitemap on product, category, gallery, and page changes
         $sitemapGenerator = function () {
+            if (app()->runningUnitTests()) {
+                return;
+            }
             try {
                 SitemapController::generate();
             } catch (\Exception $e) {
@@ -100,6 +104,8 @@ class AppServiceProvider extends ServiceProvider
         Gallery::deleted($sitemapGenerator);
         Article::saved($sitemapGenerator);
         Article::deleted($sitemapGenerator);
+        SeoLocation::saved($sitemapGenerator);
+        SeoLocation::deleted($sitemapGenerator);
 
         // Custom professional verification email narrative
         VerifyEmail::toMailUsing(function (object $notifiable, string $url) {

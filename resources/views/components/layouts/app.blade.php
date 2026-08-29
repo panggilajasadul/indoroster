@@ -10,8 +10,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     @php
-        $pageTitle      = $title ?? \App\Models\SiteSetting::getValue('meta_title_default', 'Indoroster - Pabrik Roster Beton Minimalis Plered Purwakarta');
-        $pageDesc       = $description ?? \App\Models\SiteSetting::getValue('meta_description_default', 'Pusat Pabrik Roster Beton Minimalis Plered Purwakarta. Produsen tangan pertama, harga pabrik, cetak tumbuk padat, keras, dan rapi. Melayani pengiriman ke seluruh Jabodetabek dan Indonesia.');
+        $pageTitle      = $title ?? \App\Models\SiteSetting::getValue('meta_title_default', 'IndoRoster — Pabrik Roster Beton Minimalis | Suplier Proyek Jabodetabek & Indonesia');
+        $pageDesc       = $description ?? \App\Models\SiteSetting::getValue('meta_description_default', 'Pusat produsen tangan pertama roster beton minimalis, bata expose, dan loster arsitektural modern harga pabrik. Melayani pengiriman cepat partai kecil & proyek ribuan pcs ke Jabodetabek, Bandung, Karawang, Cirebon & seluruh Indonesia.');
         $pageImage      = $ogImage ?? asset('assets/logo_indoroster_no_text.PNG');
         $robotsMeta     = $robots ?? 'index, follow';
 
@@ -33,7 +33,7 @@
         $ogDescFinal  = $ogDescription ?? $pageDesc;
 
         // Keywords: per-halaman jika tersedia, fallback ke keyword bisnis global dari database
-        $keywordsMeta = $keywords ?? \App\Models\SiteSetting::getValue('seo_keywords_default', 'roster beton minimalis, loster beton minimalis, roster beton plered, jual roster beton, pabrik roster beton purwakarta, harga roster beton, roster dinding minimalis, ventilasi beton, jual roster jakarta, roster beton jabodetabek');
+        $keywordsMeta = $keywords ?? \App\Models\SiteSetting::getValue('seo_keywords_default', 'roster beton minimalis, loster beton minimalis, jual roster beton, pabrik roster beton, harga roster beton, roster dinding minimalis, ventilasi beton, jual roster jakarta, roster beton jabodetabek, roster beton bandung, supplier roster proyek');
 
         $rawWa = \App\Models\SiteSetting::getValue('whatsapp_number', '0813-8970-9847');
         $waNumber = preg_replace('/[^0-9]/', '', $rawWa);
@@ -175,7 +175,7 @@
     <!-- Sticky Announcement / Trust Strip -->
     @php
         $topBarActive = filter_var(\App\Models\SiteSetting::getValue('top_bar_is_active', true), FILTER_VALIDATE_BOOLEAN);
-        $topBarTagline = \App\Models\SiteSetting::getValue('top_bar_tagline', 'Pabrik Tangan Pertama Plered Purwakarta');
+        $topBarTagline = \App\Models\SiteSetting::getValue('top_bar_tagline', 'Pabrik Tangan Pertama — Suplier Jabodetabek, Bandung & Indonesia');
         $topBarSubtext = \App\Models\SiteSetting::getValue('top_bar_subtext', 'Cetak Tumbuk Padat & Presisi');
         $topBarTrackingText = \App\Models\SiteSetting::getValue('top_bar_tracking_text', 'Lacak Pengiriman');
     @endphp
@@ -613,7 +613,7 @@
                         </div>
                     </a>
                     <p class="text-slate-400 text-sm leading-relaxed max-w-md mb-6">
-                        Pabrik Roster Beton Premium tangan pertama dari Plered, Purwakarta. Memproduksi roster presisi cetak tumbuk padat dengan alat khusus pengrajin berpengalaman, menghasilkan roster yang keras, rapi, dan kokoh untuk arsitektur tropis modern.
+                        Pabrik Roster Beton Premium langsung dari sentra produksi Plered, Purwakarta. Memproduksi roster presisi cetak tumbuk padat dengan alat khusus pengrajin berpengalaman, menghasilkan roster yang keras, rapi, dan kokoh untuk arsitektur tropis modern.
                     </p>
                     <div class="inline-flex items-center gap-3 bg-slate-900/90 border border-slate-800 px-4 py-2.5 rounded-xl text-xs text-slate-300">
                         <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
@@ -622,17 +622,28 @@
                 </div>
 
                 <div>
-                    <h3 class="text-xs font-bold text-slate-200 tracking-widest uppercase mb-4">Eksplorasi & Legalitas</h3>
+                    <h3 class="text-xs font-bold text-slate-200 tracking-widest uppercase mb-4">Layanan B2B & Wilayah</h3>
+                    <ul class="space-y-2.5">
+                        <li><a href="{{ route('b2b.contractor') }}" class="text-sm text-slate-400 hover:text-terra-400 transition-colors">Khusus Kontraktor Proyek</a></li>
+                        <li><a href="{{ route('b2b.developer') }}" class="text-sm text-slate-400 hover:text-terra-400 transition-colors">Pengadaan Developer</a></li>
+                        <li><a href="{{ route('b2b.architect') }}" class="text-sm text-slate-400 hover:text-terra-400 transition-colors">Katalog Teknis Arsitek</a></li>
+                        <li><a href="{{ route('b2b.supplier') }}" class="text-sm text-slate-400 hover:text-terra-400 transition-colors">Grosir Toko Bangunan</a></li>
+                        <li><a href="{{ route('b2b.project') }}" class="text-sm text-slate-400 hover:text-terra-400 transition-colors">Proyek Fasad & Gedung</a></li>
+                        <li><a href="{{ route('tools.calculator') }}" class="text-sm text-slate-400 hover:text-terra-400 transition-colors text-terra-400/90 font-medium">🧮 Kalkulator Dinding</a></li>
+                        <li><a href="{{ route('location.index') }}" class="text-sm text-slate-400 hover:text-terra-400 transition-colors">📍 Area Layanan Kirim</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h3 class="text-xs font-bold text-slate-200 tracking-widest uppercase mb-4">Eksplorasi & Info</h3>
                     <ul class="space-y-2.5">
                         <li><a href="{{ route('catalog') }}" class="text-sm text-slate-400 hover:text-terra-400 transition-colors">Katalog Roster Lengkap</a></li>
-                        <li><a href="{{ route('article.index') }}" class="text-sm text-slate-400 hover:text-terra-400 transition-colors font-medium text-terra-400/90">Artikel & Edukasi</a></li>
+                        <li><a href="{{ route('article.index') }}" class="text-sm text-slate-400 hover:text-terra-400 transition-colors">Artikel & Edukasi</a></li>
                         <li><a href="{{ route('gallery') }}" class="text-sm text-slate-400 hover:text-terra-400 transition-colors">Galeri Proyek Arsitektur</a></li>
-                        <li><a href="{{ route('video-inspiration') }}" class="text-sm text-slate-400 hover:text-terra-400 transition-colors">Video Dokumentasi & Pasang</a></li>
+                        <li><a href="{{ route('video-inspiration') }}" class="text-sm text-slate-400 hover:text-terra-400 transition-colors">Video Dokumentasi</a></li>
                         <li><a href="{{ route('production') }}" class="text-sm text-slate-400 hover:text-terra-400 transition-colors">Standar Mutu Produksi</a></li>
                         <li><a href="{{ route('order.tracking') }}" class="text-sm text-slate-400 hover:text-terra-400 transition-colors">Lacak Status Pesanan</a></li>
                         <li><a href="{{ route('about-us') }}" class="text-sm text-slate-400 hover:text-terra-400 transition-colors">Tentang Pabrik Kami</a></li>
-                        <li><a href="{{ route('dynamic.page', 'syarat-dan-ketentuan') }}" class="text-sm text-slate-400 hover:text-terra-400 transition-colors">Syarat & Ketentuan</a></li>
-                        <li><a href="{{ route('dynamic.page', 'kebijakan-privasi') }}" class="text-sm text-slate-400 hover:text-terra-400 transition-colors">Kebijakan Privasi</a></li>
                         <li><a href="{{ route('contact') }}" class="text-sm text-slate-400 hover:text-terra-400 transition-colors">Hubungi Sales & Pabrik</a></li>
                     </ul>
                 </div>

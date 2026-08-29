@@ -22,13 +22,15 @@
                 <img src="{{ $displayMedia->media_type === 'image' ? $displayMedia->formatted_url : $product->primary_image }}" 
                      alt="{{ $displayMedia->alt_text ?: $product->name }}" 
                      class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
-                     loading="lazy">
+                     loading="lazy"
+                     onerror="this.onerror=null; this.src='{{ asset('assets/logo_indoroster_no_text.PNG') }}';">
             @endif
         @elseif($product->primary_image)
             <img src="{{ $product->primary_image }}" 
                  alt="{{ $product->name }}" 
                  class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
-                 loading="lazy">
+                 loading="lazy"
+                 onerror="this.onerror=null; this.src='{{ asset('assets/logo_indoroster_no_text.PNG') }}';">
         @else
             <div class="w-full h-full flex flex-col items-center justify-center text-slate-400 p-2 text-center">
                 <span class="text-xl mb-1">🧱</span>

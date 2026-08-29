@@ -79,9 +79,12 @@ class ManualDocumentResource extends Resource
                                                             ->label('Tipe Dokumen')
                                                             ->options([
                                                                 'invoice' => '🧾 Faktur Penjualan',
-                                                                'surat_jalan' => '🚚 Surat Jalan',
+                                                                'surat_jalan' => '🚚 Surat Jalan Pengiriman',
                                                                 'receipt' => '💰 Kwitansi Pembayaran',
                                                                 'quotation' => '💼 Penawaran Harga (Quotation)',
+                                                                'bast' => '📋 Berita Acara Serah Terima (BAST)',
+                                                                'sph' => '📝 Surat Dukungan Tender & SPH',
+                                                                'lab_test' => '🔬 Sertifikat Uji Kuat Tekan Lab SNI',
                                                                 'sales_order' => '📝 Surat Pesanan (Sales Order)',
                                                                 'proforma_invoice' => '📄 Proforma Invoice',
                                                                 'delivery_note' => '📦 Delivery Note',

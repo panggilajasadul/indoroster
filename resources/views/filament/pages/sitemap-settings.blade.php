@@ -151,6 +151,16 @@
 
                     <div class="flex items-center justify-between p-3.5 bg-gray-50/50 dark:bg-gray-800/30">
                         <div class="flex items-center gap-2.5">
+                            <x-heroicon-o-map-pin class="w-4 h-4 text-rose-500" />
+                            <span class="font-medium text-gray-700 dark:text-gray-300">Halaman SEO Lokasi & Kawasan</span>
+                        </div>
+                        <span class="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-rose-100 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300">
+                            {{ $stats['active_seo_locations'] }} Halaman Lokasi (Prioritas 0.80)
+                        </span>
+                    </div>
+
+                    <div class="flex items-center justify-between p-3.5 bg-white dark:bg-gray-900">
+                        <div class="flex items-center gap-2.5">
                             <x-heroicon-o-newspaper class="w-4 h-4 text-emerald-500" />
                             <span class="font-medium text-gray-700 dark:text-gray-300">Artikel & Blog Edukasi</span>
                         </div>
@@ -159,7 +169,7 @@
                         </span>
                     </div>
 
-                    <div class="flex items-center justify-between p-3.5 bg-white dark:bg-gray-900">
+                    <div class="flex items-center justify-between p-3.5 bg-gray-50/50 dark:bg-gray-800/30">
                         <div class="flex items-center gap-2.5">
                             <x-heroicon-o-photo class="w-4 h-4 text-purple-500" />
                             <span class="font-medium text-gray-700 dark:text-gray-300">Galeri Proyek & Video Inspirasi</span>
@@ -169,13 +179,24 @@
                         </span>
                     </div>
 
-                    <div class="flex items-center justify-between p-3.5 bg-gray-50/50 dark:bg-gray-800/30">
+                    <div class="flex items-center justify-between p-3.5 bg-white dark:bg-gray-900">
                         <div class="flex items-center gap-2.5">
                             <x-heroicon-o-document-duplicate class="w-4 h-4 text-gray-500" />
-                            <span class="font-medium text-gray-700 dark:text-gray-300">Halaman Statis & Informasi</span>
+                            <span class="font-medium text-gray-700 dark:text-gray-300">Halaman Statis & B2B Portal</span>
                         </div>
                         <span class="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300">
-                            Homepage, Katalog, Kontak, Tentang Kami
+                            Homepage, Katalog, B2B Kontraktor/Developer/Arsitek, Kontak
+                        </span>
+                    </div>
+
+                    {{-- Total Summary Row --}}
+                    <div class="flex items-center justify-between p-3.5 bg-primary-50/60 dark:bg-primary-950/20 border-t-2 border-primary-200 dark:border-primary-900">
+                        <div class="flex items-center gap-2.5">
+                            <x-heroicon-m-check-badge class="w-4 h-4 text-primary-600 dark:text-primary-400" />
+                            <span class="font-bold text-primary-700 dark:text-primary-300">Total URL di Sitemap.xml (Aktual)</span>
+                        </div>
+                        <span class="px-3 py-1 text-xs font-black rounded-full bg-primary-600 text-white shadow">
+                            {{ number_format($stats['url_count']) }} URL Terindeks
                         </span>
                     </div>
                 </div>

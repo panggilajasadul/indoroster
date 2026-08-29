@@ -550,11 +550,11 @@ class ProductDetail extends Component
 
         // Meta title: prefer explicit meta_title, otherwise auto-generate
         $metaTitle = $this->product->meta_title
-            ?? $this->product->name.' | INDOROSTER — Pabrik Roster Beton Plered';
+            ?? $this->product->name.' | IndoRoster — Suplier Proyek Jabodetabek & Bandung';
 
         // Meta description: prefer explicit, otherwise auto-generate
         $metaDescription = $this->product->meta_description
-            ?? 'Jual '.$this->product->name.' harga pabrik termurah kualitas cetak padat dan presisi. Roster beton minimalis modern presisi untuk pagar rumah, fasad dinding, ventilasi udara, dan sekat partisi. Pengiriman Cepat Jabodetabek, Jawa Barat & Ekspedisi Nasional. Garansi aman sampai tujuan!';
+            ?? 'Jual '.$this->product->name.' harga pabrik termurah kualitas cetak padat dan presisi. Roster beton minimalis modern presisi untuk pagar rumah, fasad dinding, ventilasi udara, dan sekat partisi. Pengiriman Cepat Jabodetabek, Bandung, Karawang, Cirebon & Ekspedisi Nasional. Garansi aman sampai tujuan!';
 
         // Canonical: selalu URL bersih tanpa ?variant untuk menghindari duplicate content
         $canonicalOverride = route('product.detail', $this->product->slug);
@@ -587,12 +587,16 @@ class ProductDetail extends Component
             str_replace('roster', 'loster', $productName),
             'harga '.$productName,
             'jual '.$productName,
-            $productName.' plered purwakarta',
+            'pabrik '.$productName.' tangan pertama',
             $productName.' jakarta',
             $productName.' bekasi',
             $productName.' tangerang',
             $productName.' bogor depok',
             $productName.' bandung jawa barat',
+            $productName.' karawang cirebon',
+            $productName.' cianjur sukabumi',
+            'supplier '.$categoryName.' proyek',
+            'harga grosir '.$productName,
             'roster pagar minimalis',
             'roster fasad dinding',
             'roster partisi interior',
