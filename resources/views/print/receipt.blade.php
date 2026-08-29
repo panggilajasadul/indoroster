@@ -31,8 +31,19 @@
     $amount = (float) $payment->gross_amount;
     $terbilangText = trim(terbilang($amount)) . " Rupiah";
     $grandTotal = (float) ($order ? $order->grand_total : $amount);
-    $totalPaid = (float) ($order ? $order->total_paid_amount : $amount);
-    $remaining = max(0, $grandTotal - $totalPaid);
+    
+    // Hitung akumulasi pembayaran yang sah HANYA s/d tahap pembayaran kuitansi ini
+    $allPayments = $order ? $order->getValidPayments() : collect([$payment]);
+    $paymentsUpToThis = $allPayments->filter(fn($p) => $p->id <= $payment->id);
+    if ($paymentsUpToThis->isEmpty()) {
+        $paymentsUpToThis = collect([$payment]);
+    }
+    $cumulativePaid = (float) $paymentsUpToThis->sum('gross_amount');
+    if ($cumulativePaid <= 0) {
+        $cumulativePaid = $amount;
+    }
+    $remainingAfterThis = max(0, $grandTotal - $cumulativePaid);
+    $isLunasAfterThis = ($remainingAfterThis <= 0);
 
     // Stempel & TTD Path Discovery
     $stampPath = null;
@@ -281,7 +292,7 @@
         </tr>
     </table>
 
-    {{-- Kotak Status Pelunasan Proyek --}}
+    {{-- Kotak Status Pelunasan Proyek S.d Tahap Ini --}}
     @if($order)
     <div class="summary-box">
         <div class="summary-col">
@@ -289,13 +300,13 @@
             <div class="summary-value">Rp {{ number_format($grandTotal, 0, ',', '.') }}</div>
         </div>
         <div class="summary-col">
-            <div class="summary-label">Total Diterima (s.d saat ini)</div>
-            <div class="summary-value" style="color: #16a34a;">Rp {{ number_format($totalPaid, 0, ',', '.') }}</div>
+            <div class="summary-label">Total Diterima (s.d Tahap Ini)</div>
+            <div class="summary-value" style="color: #16a34a;">Rp {{ number_format($cumulativePaid, 0, ',', '.') }}</div>
         </div>
         <div class="summary-col">
-            <div class="summary-label">Sisa Tagihan yang Belum Lunas</div>
-            <div class="summary-value" style="color: {{ $remaining > 0 ? '#dc2626' : '#16a34a' }};">
-                {{ $remaining > 0 ? 'Rp ' . number_format($remaining, 0, ',', '.') : 'LUNAS (Rp 0)' }}
+            <div class="summary-label">Sisa Tagihan Setelah Tahap Ini</div>
+            <div class="summary-value" style="color: {{ $isLunasAfterThis ? '#16a34a' : '#dc2626' }};">
+                {{ $isLunasAfterThis ? 'LUNAS (Rp 0)' : 'Rp ' . number_format($remainingAfterThis, 0, ',', '.') }}
             </div>
         </div>
     </div>
