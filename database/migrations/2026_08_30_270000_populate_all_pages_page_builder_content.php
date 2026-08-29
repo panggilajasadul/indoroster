@@ -247,40 +247,6 @@ return new class extends Migration
             ],
         ];
 
-        // 4. B2B HUBS
-        $b2bBlocks = [
-            'untuk-kontraktor' => [
-                'title' => 'Suplier Roster Beton & Pemborong (Khusus Kontraktor Proyek)',
-                'badge' => '🏗️ Portal Khusus Kontraktor & Pemborong',
-                'heading' => 'Pengadaan Roster Beton Skala Proyek dengan Harga Pabrik',
-                'desc' => 'Dukungan penuh untuk pemborong & kontraktor: harga grosir bertingkat, kepastian jadwal suplai berkala ribuan pcs, dan kelengkapan SPK serta Faktur Pajak resmi.',
-            ],
-            'untuk-developer' => [
-                'title' => 'Pengadaan Roster Skala Klaster (Khusus Developer Perumahan)',
-                'badge' => '🏘️ Portal Khusus Developer Perumahan',
-                'heading' => 'Suplai Roster Beton Klaster Perumahan & Kawasan',
-                'desc' => 'Kapasitas produksi pabrikasi tinggi siap memasok ribuan keping roster motif seragam untuk puluhan unit rumah klaster real estate Anda.',
-            ],
-            'untuk-arsitek' => [
-                'title' => 'Katalog Teknis & Material Roster (Khusus Arsitek & Desainer)',
-                'badge' => '📐 Portal Khusus Arsitek & Desainer',
-                'heading' => 'Spesifikasi Teknis & Estetika Roster Arsitektural',
-                'desc' => 'Koleksi motif roster geometris modern dengan presisi dimensi siku 90°, data CAD/3D, dan sample material fisik untuk studio arsitektur Anda.',
-            ],
-            'supplier-roster-beton' => [
-                'title' => 'Distributor & Grosir Pabrik (Khusus Toko Bangunan & Agen Material)',
-                'badge' => '🏪 Portal Distributor & Toko Bangunan',
-                'heading' => 'Peluang Keagenan & Pasokan Grosir Toko Bangunan',
-                'desc' => 'Dapatkan margin keuntungan terbaik dengan menjadi mitra distribusi resmi produk roster beton IndoRoster di kota Anda.',
-            ],
-            'roster-beton-proyek' => [
-                'title' => 'Pengadaan Roster Beton untuk Proyek Fasad & Gedung Komersial',
-                'badge' => '🏢 Portal Pengadaan Fasad Gedung Komersial',
-                'heading' => 'Solusi Secondary Skin & Fasad Komersial Skala Besar',
-                'desc' => 'Material ventilasi arsitektur tahan cuaca untuk gedung perkantoran, hotel, kafe industrial, dan bangunan publik di seluruh Indonesia.',
-            ],
-        ];
-
         // Update Proses Produksi
         Page::updateOrCreate(
             ['slug' => 'proses-produksi'],
@@ -317,102 +283,21 @@ return new class extends Migration
             ]
         );
 
-        // Update B2B Hubs
-        foreach ($b2bBlocks as $slug => $meta) {
-            $blocks = [
-                [
-                    'type' => 'hero',
-                    'data' => [
-                        'slider_duration' => 5000,
-                        'banners' => [
-                            [
-                                'title' => $meta['heading'],
-                                'subtitle' => $meta['desc'],
-                                'badge' => $meta['badge'],
-                                'image' => 'https://res.cloudinary.com/indoroster/image/upload/v1765259970/7_blkgfx.jpg',
-                                'button_text' => 'Request Quotation / Penawaran',
-                                'button_url' => 'https://wa.me/6281389709847',
-                                'button_2_text' => 'Lihat Katalog Teknis',
-                                'button_2_url' => '/katalog',
-                                'alignment' => 'left',
-                                'image_opacity' => 40,
-                                'overlay_color' => '#020617',
-                                'overlay_opacity' => 80,
-                            ],
-                        ],
-                    ],
-                ],
-                [
-                    'type' => 'ticker',
-                    'data' => [
-                        'bg_theme' => 'dark',
-                        'speed' => 'normal',
-                        'text' => '🏭 Harga Pabrik Tangan Pertama · 📑 Faktur Pajak PPN/PPh & SPK Sah · 🛡️ Garansi Pecah Ganti Baru 100% · 🚚 Kapasitas Suplai Rutin Ribuan Pcs Tiap Minggu',
-                    ],
-                ],
-                [
-                    'type' => 'why_us',
-                    'data' => [
-                        'badge' => '💎 Keunggulan Skala Proyek',
-                        'title' => 'Keuntungan Bermitra Langsung dengan Pabrik IndoRoster',
-                        'description' => 'Jaminan kepastian pasokan, akurasi dimensi sudut siku 90°, dan fleksibilitas harga terbaik untuk kelancaran proyek Anda.',
-                        'bg_theme' => 'slate',
-                        'items' => [
-                            [
-                                'title' => 'Harga Bertingkat & MOQ Fleksibel',
-                                'description' => 'Mendapatkan skema diskon volume bertingkat langsung dari pabrikasi tanpa markup perantara.',
-                            ],
-                            [
-                                'title' => 'Kepastian Jadwal & Kapasitas Suplai Besar',
-                                'description' => 'Armada truk logistik siap mengirim pesanan bertahap sesuai timeline kurva S proyek konstruksi Anda.',
-                            ],
-                            [
-                                'title' => 'Kelengkapan Legalitas Administrasi',
-                                'description' => 'Surat Jalan berstempel resmi, Faktur Pajak PPN/PPh, dan SPK siap diterbitkan untuk kelancaran klaim termin proyek.',
-                            ],
-                        ],
-                    ],
-                ],
-                [
-                    'type' => 'document_procurement_proof',
-                    'data' => [
-                        'badge' => '📑 Administrasi Resmi',
-                        'title' => 'Kesiapan Dokumen Pengadaan & Faktur Pajak',
-                        'subtitle' => 'Surat Jalan (DO), Invoice Komersial, Faktur Pajak PPN/PPh resmi, dan SPK siap kami terbitkan.',
-                        'bg_theme' => 'white',
-                    ],
-                ],
-                [
-                    'type' => 'featured_products',
-                    'data' => [
-                        'badge' => '📦 Motif Rekomendasi Proyek',
-                        'title' => 'Motif Roster Paling Banyak Dipilih untuk Proyek',
-                        'subtitle' => 'Pilihan motif roster minimalis presisi dengan efisiensi pasang tinggi dan stok produksi melimpah.',
-                        'grid_columns' => '6',
-                        'limit' => 8,
-                        'bg_theme' => 'white',
-                    ],
-                ],
-                [
-                    'type' => 'partner_cta',
-                    'data' => [
-                        'badge' => 'Request Quotation Proyek',
-                        'title' => 'Dapatkan Penawaran Harga Khusus Proyek Sekarang',
-                        'description' => 'Kirimkan Bill of Quantity (BOQ) atau kebutuhan motif roster Anda untuk mendapatkan surat penawaran harga resmi dari Sales Proyek IndoRoster.',
-                        'bg_theme' => 'terra',
-                        'cta_text_1' => 'Kirim BOQ via WhatsApp',
-                        'cta_url_1' => 'https://wa.me/6281389709847',
-                        'cta_text_2' => 'Download Katalog Lengkap',
-                        'cta_url_2' => '/katalog',
-                    ],
-                ],
-            ];
+        // Update B2B Hubs (Tetap murni layout bespoke 12 fase interaktif)
+        $b2bSlugs = [
+            'untuk-kontraktor' => 'Suplier Roster Beton & Pemborong (Khusus Kontraktor Proyek)',
+            'untuk-developer' => 'Pengadaan Roster Skala Klaster (Khusus Developer Perumahan)',
+            'untuk-arsitek' => 'Katalog Teknis & Material Roster (Khusus Arsitek & Desainer)',
+            'supplier-roster-beton' => 'Distributor & Grosir Pabrik (Khusus Toko Bangunan & Agen Material)',
+            'roster-beton-proyek' => 'Pengadaan Roster Beton untuk Proyek Fasad & Gedung Komersial',
+        ];
 
+        foreach ($b2bSlugs as $slug => $title) {
             Page::updateOrCreate(
                 ['slug' => $slug],
                 [
-                    'title' => $meta['title'],
-                    'content' => array_values($blocks),
+                    'title' => $title,
+                    'content' => [],
                     'is_active' => true,
                 ]
             );
