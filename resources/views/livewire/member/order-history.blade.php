@@ -249,130 +249,135 @@
                         </div>
 
                         <!-- Info Shipping & Action Footer -->
-                        <div class="bg-slate-50 dark:bg-slate-900/90 border-t border-slate-100 dark:border-slate-800 p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                        <div class="bg-slate-50/80 dark:bg-slate-900/90 border-t border-slate-100 dark:border-slate-800 p-4 sm:p-6 space-y-4">
                             
-                            <!-- Delivery Info (Armada Pabrik) -->
-                            <div class="flex-1">
-                                @if(in_array($order->status, ['shipped', 'delivered', 'completed']))
-                                    <div class="bg-white dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/80 rounded-2xl p-4 flex gap-3.5 text-slate-700 dark:text-slate-200 shadow-soft-xs max-w-md">
-                                        <div class="w-10 h-10 bg-terra-50 dark:bg-terra-500/10 text-terra-600 dark:text-terra-400 border border-terra-100 dark:border-terra-500/20 rounded-xl flex items-center justify-center shrink-0">
-                                            <svg class="w-6 h-6 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" />
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8h4l3 3v5a1 1 0 01-1 1h-1m-6 0h-2" />
-                                            </svg>
-                                        </div>
-                                        <div class="text-xs leading-normal">
-                                            <h5 class="font-display font-bold text-slate-900 dark:text-white">Armada Pengiriman Pabrik</h5>
-                                            @if($order->courier)
-                                                <p class="text-slate-600 dark:text-slate-300 mt-0.5">Sopir: <strong class="text-slate-900 dark:text-white">{{ $order->courier }}</strong></p>
-                                            @endif
-                                            @if($order->tracking_number)
-                                                <p class="text-slate-500 dark:text-slate-400 mt-0.5">Plat Truk: <span class="bg-slate-100 dark:bg-slate-700/90 text-slate-800 dark:text-white px-2 py-0.5 rounded-md font-mono font-bold text-[11px] border border-slate-200 dark:border-slate-600">{{ $order->tracking_number }}</span></p>
-                                            @endif
-                                            @if($order->courier_phone)
-                                                <div class="mt-2">
-                                                    @php
-                                                        $waPhone = preg_replace('/[^0-9]/', '', $order->courier_phone);
-                                                        if (str_starts_with($waPhone, '0')) {
-                                                            $waPhone = '62' . substr($waPhone, 1);
-                                                        }
-                                                        $waText = urlencode("Halo Pak {$order->courier}, saya penerima pesanan {$order->order_number}. Mau koordinasi lokasi pengantaran roster.");
-                                                    @endphp
-                                                    <a href="https://wa.me/{{ $waPhone }}?text={{ $waText }}" target="_blank" class="inline-flex items-center gap-1.5 font-bold text-xs text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors">
-                                                        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
-                                                            <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.724-1.455L0 24zm6.59-4.846c1.6.95 3.197 1.45 4.817 1.453 5.461 0 9.903-4.44 9.907-9.9.002-2.646-1.03-5.132-2.903-7.008C16.599 1.821 14.113.79 11.467.79c-5.467 0-9.911 4.439-9.915 9.899-.001 1.78.48 3.524 1.393 5.068L1.879 21.65l6.012-1.574-.01.008zM17.06 13.9c-.277-.139-1.64-.809-1.895-.901-.254-.093-.44-.139-.624.139-.184.277-.717.901-.879 1.085-.162.184-.323.208-.6.069-.277-.139-1.17-.431-2.228-1.374-.823-.733-1.378-1.64-1.54-1.917-.162-.277-.017-.427.121-.565.125-.124.277-.323.416-.485.139-.162.184-.277.277-.462.093-.185.046-.347-.023-.485-.069-.139-.624-1.503-.855-2.057-.225-.54-.471-.466-.647-.475-.167-.008-.36-.01-.554-.01-.194 0-.508.073-.774.36-.266.287-1.016.993-1.016 2.42 0 1.428 1.039 2.808 1.184 3.002.145.194 2.045 3.123 4.956 4.378.692.299 1.233.477 1.655.611.696.222 1.329.19 1.83.115.558-.083 1.64-.67 1.871-1.316.23-.647.23-1.202.161-1.316-.069-.115-.254-.184-.531-.323z" />
-                                                        </svg>
-                                                        Hubungi Sopir (WA)
-                                                    </a>
+                            <!-- Row 1: Armada / Status & Total Belanja -->
+                            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                                <!-- Delivery Info (Armada Pabrik) / Status -->
+                                <div class="flex-1 w-full sm:w-auto">
+                                    @if(in_array($order->status, ['shipped', 'delivered', 'completed']) && ($order->courier || $order->tracking_number))
+                                        <div class="bg-white dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-700/80 rounded-xl p-3 sm:p-3.5 flex items-center gap-3 text-slate-700 dark:text-slate-200 shadow-soft-xs max-w-lg">
+                                            <div class="w-9 h-9 bg-terra-50 dark:bg-terra-500/10 text-terra-600 dark:text-terra-400 border border-terra-100 dark:border-terra-500/20 rounded-lg flex items-center justify-center shrink-0">
+                                                <svg class="w-5 h-5 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" />
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8h4l3 3v5a1 1 0 01-1 1h-1m-6 0h-2" />
+                                                </svg>
+                                            </div>
+                                            <div class="text-xs leading-tight flex-1">
+                                                <div class="font-display font-bold text-slate-900 dark:text-white">Armada Pengiriman Pabrik</div>
+                                                <div class="text-slate-600 dark:text-slate-300 mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5">
+                                                    @if($order->courier)
+                                                        <span>Sopir: <strong class="text-slate-900 dark:text-white">{{ $order->courier }}</strong></span>
+                                                    @endif
+                                                    @if($order->tracking_number)
+                                                        <span>Plat: <span class="bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-white px-1.5 py-0.5 rounded font-mono font-bold text-[10.5px] border border-slate-200 dark:border-slate-600">{{ $order->tracking_number }}</span></span>
+                                                    @endif
                                                 </div>
+                                                @if($order->courier_phone)
+                                                    <div class="mt-1">
+                                                        @php
+                                                            $waPhone = preg_replace('/[^0-9]/', '', $order->courier_phone);
+                                                            if (str_starts_with($waPhone, '0')) {
+                                                                $waPhone = '62' . substr($waPhone, 1);
+                                                            }
+                                                            $waText = urlencode("Halo Pak {$order->courier}, saya penerima pesanan {$order->order_number}. Mau koordinasi lokasi pengantaran roster.");
+                                                        @endphp
+                                                        <a href="https://wa.me/{{ $waPhone }}?text={{ $waText }}" target="_blank" class="inline-flex items-center gap-1 font-bold text-[11px] text-emerald-600 dark:text-emerald-400 hover:underline">
+                                                            <svg class="w-3 h-3 fill-current" viewBox="0 0 24 24">
+                                                                <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.724-1.455L0 24zm6.59-4.846c1.6.95 3.197 1.45 4.817 1.453 5.461 0 9.903-4.44 9.907-9.9.002-2.646-1.03-5.132-2.903-7.008C16.599 1.821 14.113.79 11.467.79c-5.467 0-9.911 4.439-9.915 9.899-.001 1.78.48 3.524 1.393 5.068L1.879 21.65l6.012-1.574-.01.008zM17.06 13.9c-.277-.139-1.64-.809-1.895-.901-.254-.093-.44-.139-.624.139-.184.277-.717.901-.879 1.085-.162.184-.323.208-.6.069-.277-.139-1.17-.431-2.228-1.374-.823-.733-1.378-1.64-1.54-1.917-.162-.277-.017-.427.121-.565.125-.124.277-.323.416-.485.139-.162.184-.277.277-.462.093-.185.046-.347-.023-.485-.069-.139-.624-1.503-.855-2.057-.225-.54-.471-.466-.647-.475-.167-.008-.36-.01-.554-.01-.194 0-.508.073-.774.36-.266.287-1.016.993-1.016 2.42 0 1.428 1.039 2.808 1.184 3.002.145.194 2.045 3.123 4.956 4.378.692.299 1.233.477 1.655.611.696.222 1.329.19 1.83.115.558-.083 1.64-.67 1.871-1.316.23-.647.23-1.202.161-1.316-.069-.115-.254-.184-.531-.323z" />
+                                                            </svg>
+                                                            Hubungi Sopir via WA
+                                                        </a>
+                                                    </div>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    @else
+                                        <div class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                                            Status: <strong class="text-slate-700 dark:text-slate-200">{{ $order->status === 'draft' ? 'Surat Penawaran' : $order->status_label }}</strong>. 
+                                            @if($order->status === 'draft')
+                                                Dokumen Surat Penawaran resmi siap diunduh.
+                                            @elseif($order->status === 'pending_payment')
+                                                Menunggu penyelesaian pembayaran DP / Pelunasan.
+                                            @elseif($order->status === 'paid' || $order->status === 'processing')
+                                                Roster beton Anda sedang kami cetak/siapkan di pabrik Plered, Purwakarta.
+                                            @elseif($order->status === 'cancelled')
+                                                Pesanan telah dibatalkan.
                                             @endif
                                         </div>
-                                    </div>
-                                @else
-                                    <div class="text-xs text-slate-500 dark:text-slate-400 max-w-sm leading-relaxed">
-                                        Status: <strong class="text-slate-700 dark:text-slate-200">{{ $order->status === 'draft' ? 'Surat Penawaran' : $order->status_label }}</strong>. 
-                                        @if($order->status === 'draft')
-                                            Dokumen Surat Penawaran resmi siap diunduh.
-                                        @elseif($order->status === 'pending_payment')
-                                            Menunggu penyelesaian pembayaran DP / Pelunasan.
-                                        @elseif($order->status === 'paid' || $order->status === 'processing')
-                                            Roster beton Anda sedang kami cetak/siapkan di pabrik Plered, Purwakarta.
-                                        @elseif($order->status === 'cancelled')
-                                            Pesanan telah dibatalkan.
-                                        @endif
-                                    </div>
+                                    @endif
+                                </div>
+
+                                <!-- Total Belanja -->
+                                <div class="text-left sm:text-right shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-200/60 dark:border-slate-700/60 w-full sm:w-auto flex sm:block justify-between items-center">
+                                    <div class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total Belanja</div>
+                                    <div class="font-display font-black text-terra-600 dark:text-terra-400 text-lg sm:text-xl tracking-tight">Rp {{ number_format($order->grand_total, 0, ',', '.') }}</div>
+                                </div>
+                            </div>
+
+                            <!-- Row 2: Action Buttons Bar (Responsive Wrap) -->
+                            <div class="pt-3 border-t border-slate-200/70 dark:border-slate-700/70 flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center justify-end gap-2">
+                                {{-- Tombol Bayar Online Midtrans --}}
+                                @if($order->order_source !== 'whatsapp' && $order->status === 'pending_payment' && $order->payment_status === 'unpaid')
+                                    <button wire:click="payOrder({{ $order->id }})" class="font-display inline-flex items-center justify-center bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2 rounded-xl shadow-md shadow-emerald-600/25 hover:shadow-lg transition-all gap-1.5 cursor-pointer">
+                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                                        </svg>
+                                        Bayar Sekarang
+                                    </button>
+                                @endif
+                                
+                                {{-- Tombol Lacak Pengiriman --}}
+                                <a href="{{ route('order.tracking', ['order_number' => $order->order_number, 'contact' => $order->shipping_email ?? $order->shipping_phone]) }}" class="inline-flex items-center justify-center bg-terra-500 hover:bg-terra-600 text-white text-xs font-bold px-4 py-2 rounded-xl shadow-md shadow-terra-500/20 hover:shadow-lg hover:shadow-terra-500/30 transition-all gap-1.5 cursor-pointer">
+                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    </svg>
+                                    Lacak Pengiriman
+                                </a>
+                                
+                                {{-- Dokumen Penawaran / Invoice Sah --}}
+                                @php
+                                    $docUrl = $order->invoice ? URL::signedRoute('print.invoice', ['invoice' => $order->invoice->id]) : route('print.order', ['order' => $order->id]);
+                                    $docLabel = ($order->status === 'draft' || $order->payment_scheme === 'quotation') ? 'Surat Penawaran' : ($order->payment_status === 'paid' ? 'Invoice Lunas' : 'Invoice / Tagihan');
+                                @endphp
+                                <a href="{{ $docUrl }}" target="_blank" class="inline-flex items-center justify-center border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-white text-xs font-bold px-3.5 py-2 rounded-xl shadow-2xs transition-all gap-1.5 cursor-pointer">
+                                    <svg class="w-4 h-4 text-slate-400 dark:text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                                    </svg>
+                                    📄 {{ $docLabel }}
+                                </a>
+
+                                {{-- Kuitansi Pembayaran Lengkap --}}
+                                @php
+                                    $validPayments = $order->getValidPayments();
+                                @endphp
+                                @if($validPayments->isNotEmpty())
+                                    @foreach($validPayments as $idx => $payment)
+                                        @php
+                                            $payTitle = $payment->installment_title;
+                                            if (empty($payTitle) || preg_match('/pembayaran\s*#?\d+/i', $payTitle) || strlen($payTitle) > 15) {
+                                                if ($validPayments->count() === 1) {
+                                                    $payTitle = ($order->payment_status === 'paid' || (float)$payment->gross_amount >= (float)$order->grand_total) ? 'Lunas' : 'DP';
+                                                } elseif ($idx === 0) {
+                                                    $payTitle = 'DP';
+                                                } elseif ($idx === $validPayments->count() - 1 && ($order->payment_status === 'paid' || (float)$order->remaining_balance <= 0)) {
+                                                    $payTitle = 'Pelunasan';
+                                                } else {
+                                                    $payTitle = 'Tahap ' . ($idx + 1);
+                                                }
+                                            }
+                                        @endphp
+                                        <a href="{{ route('print.receipt', ['payment' => $payment->id]) }}" target="_blank" class="inline-flex items-center justify-center border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 text-xs font-bold px-3 py-2 rounded-xl shadow-2xs transition-all gap-1.5 cursor-pointer" title="Cetak Kuitansi {{ $payTitle }} - Rp {{ number_format((float)$payment->gross_amount, 0, ',', '.') }}">
+                                            <svg class="w-4 h-4 text-emerald-600 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+                                            🧾 Kuitansi {{ $payTitle }}
+                                        </a>
+                                    @endforeach
                                 @endif
                             </div>
-
-                            <!-- Total & CTA Action Buttons -->
-                            <div class="flex flex-col items-end gap-2.5 shrink-0">
-                                <div class="text-right">
-                                    <div class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">Total Belanja</div>
-                                    <div class="font-display font-black text-terra-600 dark:text-terra-400 text-xl tracking-tight mt-0.5">Rp{{ number_format($order->grand_total, 0, ',', '.') }}</div>
-                                </div>
-                                
-                                <div class="flex gap-2 flex-wrap justify-end">
-                                    {{-- Tombol Bayar Online Midtrans (jika pesanan web belum bayar) --}}
-                                    @if($order->order_source !== 'whatsapp' && $order->status === 'pending_payment' && $order->payment_status === 'unpaid')
-                                        <button wire:click="payOrder({{ $order->id }})" class="font-display inline-flex items-center justify-center bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-md shadow-emerald-600/25 hover:shadow-lg hover:shadow-emerald-600/35 hover:-translate-y-0.5 transition-all duration-200 gap-1.5 cursor-pointer">
-                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
-                                            </svg>
-                                            Bayar Sekarang
-                                        </button>
-                                    @endif
-                                    
-                                    {{-- Tombol Lacak Pengiriman --}}
-                                    <a href="{{ route('order.tracking', ['order_number' => $order->order_number, 'contact' => $order->shipping_email ?? $order->shipping_phone]) }}" class="inline-flex items-center justify-center bg-terra-500 hover:bg-terra-600 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-md shadow-terra-500/25 hover:shadow-lg hover:shadow-terra-500/35 hover:-translate-y-0.5 transition-all duration-200 gap-1.5 cursor-pointer">
-                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                                        </svg>
-                                        Lacak Pengiriman
-                                    </a>
-                                    
-                                    {{-- Dokumen Penawaran / Invoice Sah --}}
-                                    @php
-                                        $docUrl = $order->invoice ? URL::signedRoute('print.invoice', ['invoice' => $order->invoice->id]) : route('print.order', ['order' => $order->id]);
-                                        $docLabel = ($order->status === 'draft' || $order->payment_scheme === 'quotation') ? 'Surat Penawaran' : ($order->payment_status === 'paid' ? 'Invoice Lunas' : 'Invoice / Tagihan');
-                                    @endphp
-                                    <a href="{{ $docUrl }}" target="_blank" class="group inline-flex items-center justify-center border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 hover:border-slate-300 dark:hover:border-slate-600 text-slate-700 dark:text-white hover:text-slate-900 dark:hover:text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-2xs transition-all duration-200 gap-1.5 cursor-pointer">
-                                        <svg class="w-4 h-4 text-slate-400 dark:text-slate-300 group-hover:text-slate-600 dark:group-hover:text-white transition-colors duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-                                        </svg>
-                                        📄 {{ $docLabel }}
-                                    </a>
-
-                                    {{-- Kuitansi Pembayaran Lengkap (DP, Termin, Pelunasan) --}}
-                                    @php
-                                        $validPayments = $order->getValidPayments();
-                                    @endphp
-                                    @if($validPayments->isNotEmpty())
-                                        @foreach($validPayments as $idx => $payment)
-                                            @php
-                                                $payTitle = $payment->installment_title;
-                                                if (empty($payTitle) || $payTitle === 'Pembayaran #'.$payment->id) {
-                                                    if ($validPayments->count() === 1) {
-                                                        $payTitle = ($order->payment_status === 'paid' || (float)$payment->gross_amount >= (float)$order->grand_total) ? 'Lunas' : 'DP';
-                                                    } elseif ($idx === 0) {
-                                                        $payTitle = 'DP';
-                                                    } elseif ($idx === $validPayments->count() - 1 && ($order->payment_status === 'paid' || (float)$order->remaining_balance <= 0)) {
-                                                        $payTitle = 'Pelunasan';
-                                                    } else {
-                                                        $payTitle = 'Tahap ' . ($idx + 1);
-                                                    }
-                                                }
-                                            @endphp
-                                            <a href="{{ route('print.receipt', ['payment' => $payment->id]) }}" target="_blank" class="group inline-flex items-center justify-center border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 text-xs font-bold px-3 py-2.5 rounded-xl shadow-2xs transition-all duration-200 gap-1.5 cursor-pointer whitespace-nowrap" title="Cetak Kuitansi {{ $payTitle }} - Rp {{ number_format((float)$payment->gross_amount, 0, ',', '.') }}">
-                                                <svg class="w-4 h-4 text-emerald-600 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                                </svg>
-                                                🧾 Kuitansi {{ $payTitle }}
-                                            </a>
-                                        @endforeach
-                                    @endif
-                                </div>
-                            </div>
+                        </div>
 
                         </div>
                     </div>
