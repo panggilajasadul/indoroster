@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Tools;
 
+use App\Models\Page;
 use App\Models\Product;
 use App\Models\SiteSetting;
 use Livewire\Component;
@@ -59,11 +60,13 @@ class RosterCalculator extends Component
 
         $waUrl = "https://wa.me/{$waNumber}?text=".urlencode($waText);
 
-        $metaTitle = 'Kalkulator Kebutuhan Roster Beton Dinding | Hitung Akurat — IndoRoster';
-        $metaDescription = 'Hitung estimasi kebutuhan jumlah keping roster beton per meter persegi (m2) secara akurat untuk dinding fasad, pagar, dan sekat partisi. Dilengkapi perhitungan safety waste.';
+        $page = Page::where('slug', 'kalkulator-roster')->first();
+        $metaTitle = $page?->meta_title ?: 'Kalkulator Kebutuhan Roster Beton Dinding | Hitung Akurat — IndoRoster';
+        $metaDescription = $page?->meta_description ?: 'Hitung estimasi kebutuhan jumlah keping roster beton per meter persegi (m2) secara akurat untuk dinding fasad, pagar, dan sekat partisi. Dilengkapi perhitungan safety waste.';
         $keywords = 'kalkulator roster, cara hitung kebutuhan roster, berapa roster per m2, hitung roster pagar, kebutuhan roster dinding, ukuran roster beton 20x20';
 
         return view('livewire.tools.roster-calculator', [
+            'page' => $page,
             'netArea' => $netArea,
             'rawPcs' => $rawPcs,
             'wastePcs' => $wastePcs,

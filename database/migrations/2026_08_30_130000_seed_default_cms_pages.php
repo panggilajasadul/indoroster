@@ -530,14 +530,28 @@ return new class extends Migration
                 'meta_title' => 'Pengadaan Roster Beton untuk Proyek Komersial, Cafe, & Gedung | IndoRoster',
                 'meta_description' => 'Pabrik produsen roster beton dan bata expose untuk proyek komersial, hotel, villa, cafe, ruko, dan fasad gedung. Suplai volume ribuan keping dengan garansi mutu dan tepat waktu.',
                 'is_active' => true,
-                'created_at' => '2026-08-29T16:05:43.000000Z',
-                'updated_at' => '2026-08-29T16:05:43.000000Z',
+            ],
+            14 => [
+                'title' => 'Kalkulator Kebutuhan Roster Beton Dinding',
+                'slug' => 'kalkulator-roster',
+                'content' => [],
+                'meta_title' => 'Kalkulator Kebutuhan Roster Beton Dinding | Hitung Akurat — IndoRoster',
+                'meta_description' => 'Hitung estimasi kebutuhan jumlah keping roster beton per meter persegi (m2) secara akurat untuk dinding fasad, pagar, dan sekat partisi. Dilengkapi perhitungan safety waste.',
+                'is_active' => true,
+            ],
+            15 => [
+                'title' => 'Area Layanan Pengiriman Roster Beton Seluruh Indonesia',
+                'slug' => 'lokasi',
+                'content' => [],
+                'meta_title' => 'Area Layanan Pengiriman Roster Beton Seluruh Indonesia | IndoRoster',
+                'meta_description' => 'Daftar kota dan wilayah jangkauan pengiriman langsung armada truk pabrik IndoRoster: Jabodetabek, Bandung, Karawang, Cianjur, Cirebon, dan ekspedisi nasional se-Indonesia.',
+                'is_active' => true,
             ],
         ];
 
         foreach ($pages as $p) {
             unset($p['id'], $p['created_at'], $p['updated_at']);
-            Page::updateOrCreate(
+            Page::firstOrCreate(
                 ['slug' => $p['slug']],
                 $p
             );

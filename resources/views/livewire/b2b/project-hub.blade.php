@@ -1,3 +1,7 @@
+<div>
+@if(isset($page) && $page && is_array($page->content) && count($page->content) > 0)
+    <x-block-renderer :blocks="$page->content" :page-title="$page->title" />
+@else
 <div class="min-h-screen bg-slate-50 dark:bg-slate-950 py-10">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
         <div class="relative rounded-3xl overflow-hidden bg-gradient-to-br from-white via-slate-50 to-orange-50/20 dark:from-slate-900 dark:via-slate-850 dark:to-slate-900 border border-slate-200/80 dark:border-slate-800 text-slate-900 dark:text-white p-8 sm:p-12 lg:p-16 shadow-soft-xl dark:shadow-2xl">
@@ -7,10 +11,10 @@
                     <span>🏢</span> Pengadaan Proyek Komersial, Cafe, & Fasad Gedung
                 </div>
                 <h1 class="text-3xl sm:text-5xl font-black tracking-tight leading-tight text-slate-900 dark:text-white mb-6">
-                    Pengadaan Roster Beton untuk <span class="text-terra-500">Proyek Skala Besar</span>
+                    {!! !empty($page?->title) && $page->title !== 'Pengadaan Roster Beton untuk Proyek Fasad & Gedung Komersial' ? e($page->title) : 'Pengadaan Roster Beton untuk <span class="text-terra-500">Proyek Skala Besar</span>' !!}
                 </h1>
                 <p class="text-base sm:text-lg text-slate-600 dark:text-slate-300 mb-8 leading-relaxed">
-                    Solusi fasad arsitektural, partisi ventilasi estetis, dan ornamen dinding kokoh untuk proyek hotel, villa resort, cafe & restoran modern, ruko, masjid, hingga gedung perkantoran.
+                    {{ $page?->meta_description ?: 'Solusi fasad arsitektural, partisi ventilasi estetis, dan ornamen dinding kokoh untuk proyek hotel, villa resort, cafe & restoran modern, ruko, masjid, hingga gedung perkantoran.' }}
                 </p>
                 <div class="flex flex-wrap items-center gap-4">
                     <a href="{{ $waUrl }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center gap-2.5 px-7 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm sm:text-base shadow-lg shadow-emerald-600/25 transition-all hover:scale-[1.02]">
@@ -138,4 +142,6 @@
         </div>
         @endif
     </div>
+</div>
+@endif
 </div>

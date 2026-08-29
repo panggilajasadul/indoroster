@@ -1,3 +1,7 @@
+<div>
+@if(isset($page) && $page && is_array($page->content) && count($page->content) > 0)
+    <x-block-renderer :blocks="$page->content" :page-title="$page->title" />
+@else
 <div class="min-h-screen bg-slate-50 dark:bg-slate-950 py-10">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Header -->
@@ -6,10 +10,10 @@
                 <span>📍</span> Jangkauan Distribusi Nasional
             </div>
             <h1 class="text-3xl sm:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-                Wilayah Layanan Pengiriman <span class="text-terra-500">Roster Beton</span>
+                {!! !empty($page?->title) && $page->title !== 'Area Layanan Pengiriman Roster Beton Seluruh Indonesia' ? e($page->title) : 'Wilayah Layanan Pengiriman <span class="text-terra-500">Roster Beton</span>' !!}
             </h1>
             <p class="mt-4 text-slate-600 dark:text-slate-400 text-sm sm:text-base leading-relaxed">
-                Sebagai produsen tangan pertama, armada truk kami siap mengirimkan pesanan partai kecil maupun ribuan pieces langsung ke pintu proyek Anda dengan jaminan garansi aman 100% bebas pecah.
+                {{ $page?->meta_description ?: 'Sebagai produsen tangan pertama, armada truk kami siap mengirimkan pesanan partai kecil maupun ribuan pieces langsung ke pintu proyek Anda dengan jaminan garansi aman 100% bebas pecah.' }}
             </p>
         </div>
 
@@ -39,4 +43,6 @@
             @endforeach
         </div>
     </div>
+</div>
+@endif
 </div>
