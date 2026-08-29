@@ -10,11 +10,6 @@ use App\Livewire\Auth\Login;
 use App\Livewire\Auth\Register;
 use App\Livewire\Auth\ResetPassword;
 use App\Livewire\Auth\VerifyEmail;
-use App\Livewire\B2b\ArchitectHub;
-use App\Livewire\B2b\ContractorHub;
-use App\Livewire\B2b\DeveloperHub;
-use App\Livewire\B2b\ProjectHub;
-use App\Livewire\B2b\SupplierHub;
 use App\Livewire\Cart;
 use App\Livewire\Checkout;
 use App\Livewire\Contact;
@@ -112,12 +107,12 @@ Route::get('/tentang-kami', AboutUs::class)->name('about-us');
 Route::get('/kontak', Contact::class)->name('contact');
 
 // B2B & Project Procurement Hub Routes
-Route::get('/untuk-kontraktor', ContractorHub::class)->name('b2b.contractor');
-Route::get('/untuk-developer', DeveloperHub::class)->name('b2b.developer');
-Route::get('/untuk-arsitek', ArchitectHub::class)->name('b2b.architect');
-Route::get('/supplier-roster-beton', SupplierHub::class)->name('b2b.supplier');
-Route::get('/roster-beton-grosir', SupplierHub::class)->name('b2b.wholesale');
-Route::get('/roster-beton-proyek', ProjectHub::class)->name('b2b.project');
+Route::get('/untuk-kontraktor', DynamicPage::class)->name('b2b.contractor');
+Route::get('/untuk-developer', DynamicPage::class)->name('b2b.developer');
+Route::get('/untuk-arsitek', DynamicPage::class)->name('b2b.architect');
+Route::get('/supplier-roster-beton', DynamicPage::class)->name('b2b.supplier');
+Route::get('/roster-beton-grosir', DynamicPage::class)->name('b2b.wholesale');
+Route::get('/roster-beton-proyek', DynamicPage::class)->name('b2b.project');
 
 // Interactive Tools & Calculation Engine
 Route::get('/kalkulator-roster', RosterCalculator::class)->name('tools.calculator');

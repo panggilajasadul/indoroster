@@ -46,6 +46,34 @@ class NationalSeoAndB2bTest extends TestCase
             'headline' => 'Supplier Roster Beton untuk Wilayah Bandung',
             'intro_content' => 'Layanan pengiriman roster beton minimalis untuk proyek di Bandung Raya dengan kualitas cetak padat presisi.',
         ]);
+
+        \App\Models\Page::create([
+            'title' => 'Khusus Kontraktor Proyek',
+            'slug' => 'untuk-kontraktor',
+            'content' => [],
+            'is_active' => true,
+        ]);
+
+        \App\Models\Page::create([
+            'title' => 'Pengadaan Developer',
+            'slug' => 'untuk-developer',
+            'content' => [],
+            'is_active' => true,
+        ]);
+
+        \App\Models\Page::create([
+            'title' => 'Katalog Teknis Arsitek',
+            'slug' => 'untuk-arsitek',
+            'content' => [],
+            'is_active' => true,
+        ]);
+
+        \App\Models\Page::create([
+            'title' => 'Grosir Toko Bangunan',
+            'slug' => 'supplier-roster-beton',
+            'content' => [],
+            'is_active' => true,
+        ]);
     }
 
     public function test_homepage_loads_successfully()
