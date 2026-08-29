@@ -7,9 +7,9 @@
     $theme = \App\Helpers\BlockTheme::resolve($data['bg_theme'] ?? 'white');
 
     $defaultLogos = [
-        ['name' => 'Wika Gedung', 'category' => 'Kontraktor BUMN'],
-        ['name' => 'Adhi Karya', 'category' => 'Infrastruktur'],
-        ['name' => 'Summarecon', 'category' => 'Developer Perumahan'],
+        ['name' => 'Adhi Persada', 'category' => 'Kontraktor Properti'],
+        ['name' => 'Wika Gedung', 'category' => 'Kontraktor Nasional'],
+        ['name' => 'Summarecon', 'category' => 'Pengembang Kawasan'],
         ['name' => 'Sinarmas Land', 'category' => 'Kawasan Mandiri'],
         ['name' => 'Ciputra Group', 'category' => 'Residensial'],
         ['name' => 'Agung Podomoro', 'category' => 'Komersial & Mall'],

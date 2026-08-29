@@ -1067,7 +1067,7 @@ class PageResource extends Resource
                                         ])
                                         ->columns(2)
                                         ->default([
-                                            ['name' => 'Wika Gedung', 'category' => 'Kontraktor BUMN'],
+                                            ['name' => 'Wika Gedung', 'category' => 'Kontraktor Nasional'],
                                             ['name' => 'Adhi Karya', 'category' => 'Infrastruktur'],
                                             ['name' => 'Summarecon', 'category' => 'Developer Perumahan'],
                                             ['name' => 'Sinarmas Land', 'category' => 'Kawasan Mandiri'],

@@ -83,7 +83,7 @@ return new class extends Migration
                                 ],
                                 2 => [
                                     'title' => 'Dokumen Administrasi Lengkap',
-                                    'description' => 'Surat Jalan resmi, Invoice Komersial, Faktur Pajak, dan kelengkapan dokumen pengadaan siap diterbitkan cepat untuk pelaporan pengadaan proyek B2B / BUMN.',
+                                    'description' => 'Surat Jalan resmi, Invoice Komersial, Faktur Pajak, dan kelengkapan dokumen pengadaan siap diterbitkan cepat untuk pelaporan administrasi proyek Anda.',
                                 ],
                             ],
                         ],

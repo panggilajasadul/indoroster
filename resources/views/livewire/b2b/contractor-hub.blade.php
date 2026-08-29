@@ -51,7 +51,7 @@
                 <div class="w-12 h-12 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center text-2xl font-bold mb-5">📄</div>
                 <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-2">Dokumen Administrasi Lengkap</h3>
                 <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
-                    Surat Jalan resmi, Invoice Komersial, Faktur Pajak, dan kelengkapan dokumen pengadaan siap diterbitkan cepat untuk pelaporan pengadaan proyek B2B / BUMN.
+                    Surat Jalan resmi, Invoice Komersial, Faktur Pajak, dan kelengkapan dokumen pengadaan siap diterbitkan cepat untuk pelaporan administrasi proyek Anda.
                 </p>
             </div>
         </div>
