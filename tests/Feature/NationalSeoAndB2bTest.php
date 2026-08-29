@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use App\Models\Category;
-use App\Models\Page;
 use App\Models\Product;
 use App\Models\SeoLocation;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -47,26 +46,6 @@ class NationalSeoAndB2bTest extends TestCase
             'headline' => 'Supplier Roster Beton untuk Wilayah Bandung',
             'intro_content' => 'Layanan pengiriman roster beton minimalis untuk proyek di Bandung Raya dengan kualitas cetak padat presisi.',
         ]);
-
-        Page::firstOrCreate(
-            ['slug' => 'untuk-kontraktor'],
-            ['title' => 'Khusus Kontraktor Proyek', 'content' => [], 'is_active' => true]
-        );
-
-        Page::firstOrCreate(
-            ['slug' => 'untuk-developer'],
-            ['title' => 'Pengadaan Developer', 'content' => [], 'is_active' => true]
-        );
-
-        Page::firstOrCreate(
-            ['slug' => 'untuk-arsitek'],
-            ['title' => 'Katalog Teknis Arsitek', 'content' => [], 'is_active' => true]
-        );
-
-        Page::firstOrCreate(
-            ['slug' => 'supplier-roster-beton'],
-            ['title' => 'Grosir Toko Bangunan', 'content' => [], 'is_active' => true]
-        );
     }
 
     public function test_homepage_loads_successfully()

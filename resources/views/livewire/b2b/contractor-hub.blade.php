@@ -1,7 +1,3 @@
-<div>
-@if(isset($page) && $page && is_array($page->content) && count($page->content) > 0)
-    <x-block-renderer :blocks="$page->content" :page-title="$page->title" />
-@else
 <div class="min-h-screen bg-slate-50 dark:bg-slate-950 py-10">
     <!-- Hero Section -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
@@ -12,10 +8,10 @@
                     <span>🏗️</span> Khusus Kontraktor, Pemborong, & Estimator
                 </div>
                 <h1 class="text-3xl sm:text-5xl font-black tracking-tight leading-tight text-slate-900 dark:text-white mb-6">
-                    {!! !empty($page?->title) && $page->title !== 'Suplier Roster Beton & Pemborong (Khusus Kontraktor Proyek)' ? e($page->title) : 'Pusat Suplai Roster Beton untuk <span class="text-terra-500">Proyek & Kontraktor</span>' !!}
+                    Pusat Suplai Roster Beton untuk <span class="text-terra-500">Proyek & Kontraktor</span>
                 </h1>
                 <p class="text-base sm:text-lg text-slate-600 dark:text-slate-300 mb-8 leading-relaxed">
-                    {{ $page?->meta_description ?: 'Kapasitas produksi pabrik ribuan keping per hari, sudut siku 90° presisi untuk kecepatan pasang tukang di lapangan, garansi bebas pecah di jalan, dan kelengkapan dokumen pengadaan resmi.' }}
+                    Kapasitas produksi pabrik ribuan keping per hari, sudut siku 90° presisi untuk kecepatan pasang tukang di lapangan, garansi bebas pecah di jalan, dan kelengkapan dokumen pengadaan resmi.
                 </p>
                 <div class="flex flex-wrap items-center gap-4">
                     <a href="{{ $waUrl }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center gap-2.5 px-7 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm sm:text-base shadow-lg shadow-emerald-600/25 transition-all hover:scale-[1.02]">
@@ -189,6 +185,4 @@
             </div>
         </div>
     </div>
-</div>
-@endif
 </div>

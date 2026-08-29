@@ -11,17 +11,8 @@ class DynamicPage extends Component
 
     public function mount($slug = null)
     {
-        if (! $slug) {
-            $routeName = request()->route()?->getName();
-            $slug = match ($routeName) {
-                'b2b.contractor' => 'untuk-kontraktor',
-                'b2b.developer' => 'untuk-developer',
-                'b2b.architect' => 'untuk-arsitek',
-                'b2b.supplier', 'b2b.wholesale' => 'supplier-roster-beton',
-                'b2b.project' => 'roster-beton-proyek',
-                'gallery' => 'gallery',
-                default => request()->path(),
-            };
+        if (! $slug && request()->routeIs('gallery')) {
+            $slug = 'gallery';
         }
 
         $normalizedSlug = strtolower(trim($slug ?? ''));
