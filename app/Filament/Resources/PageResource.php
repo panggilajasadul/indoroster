@@ -43,7 +43,7 @@ class PageResource extends Resource
                         ->label('URL Slug Halaman')
                         ->required()
                         ->unique(ignoreRecord: true)
-                        ->helperText(fn (?Page $record) => $record && $record->slug ? new HtmlString('<a href="'.url('/page/'.$record->slug).'" target="_blank" class="text-terra-600 dark:text-terra-400 font-bold underline inline-flex items-center gap-1 mt-1">🔗 Klik Di Sini untuk Buka Halaman: '.url('/page/'.$record->slug).'</a>') : 'Alamat link unik (contoh: katalog-produk-roster-jabodetabek)'),
+                        ->helperText(fn (?Page $record) => $record && $record->slug ? new HtmlString('<a href="'.static::getPublicPageUrl($record).'" target="_blank" class="text-terra-600 dark:text-terra-400 font-bold underline inline-flex items-center gap-1 mt-1">🔗 Klik Di Sini untuk Buka Halaman: '.static::getPublicPageUrl($record).'</a>') : 'Alamat link unik (contoh: katalog-produk-roster-jabodetabek)'),
                     Forms\Components\Toggle::make('is_active')->label('Aktif (Publikasikan)')->default(true),
                 ])->columns(3),
 
@@ -1677,34 +1677,8 @@ class PageResource extends Resource
                 Tables\Columns\TextColumn::make('title')->label('Judul')->searchable()->sortable(),
                 Tables\Columns\TextColumn::make('slug')
                     ->label('URL Link Halaman')
-                    ->formatStateUsing(function ($state) {
-                        $customRoutes = [
-                            'home' => '/',
-                            'katalog' => '/produk',
-                            'gallery' => '/gallery',
-                            'untuk-arsitek' => '/untuk-arsitek',
-                            'untuk-kontraktor' => '/untuk-kontraktor',
-                            'untuk-developer' => '/untuk-developer',
-                            'supplier-roster-beton' => '/supplier-roster-beton',
-                            'roster-beton-proyek' => '/roster-beton-proyek',
-                        ];
-
-                        return $customRoutes[$state] ?? ('/page/'.$state);
-                    })
-                    ->url(function (Page $record) {
-                        $customRoutes = [
-                            'home' => '/',
-                            'katalog' => '/produk',
-                            'gallery' => '/gallery',
-                            'untuk-arsitek' => '/untuk-arsitek',
-                            'untuk-kontraktor' => '/untuk-kontraktor',
-                            'untuk-developer' => '/untuk-developer',
-                            'supplier-roster-beton' => '/supplier-roster-beton',
-                            'roster-beton-proyek' => '/roster-beton-proyek',
-                        ];
-
-                        return url($customRoutes[$record->slug] ?? ('/page/'.$record->slug));
-                    })
+                    ->formatStateUsing(fn ($state, Page $record) => static::getPublicPagePath($record))
+                    ->url(fn (Page $record) => static::getPublicPageUrl($record))
                     ->openUrlInNewTab()
                     ->color('primary')
                     ->weight('bold'),
@@ -1716,20 +1690,7 @@ class PageResource extends Resource
                     ->label('Buka')
                     ->icon('heroicon-o-arrow-top-right-on-square')
                     ->color('success')
-                    ->url(function (Page $record) {
-                        $customRoutes = [
-                            'home' => '/',
-                            'katalog' => '/produk',
-                            'gallery' => '/gallery',
-                            'untuk-arsitek' => '/untuk-arsitek',
-                            'untuk-kontraktor' => '/untuk-kontraktor',
-                            'untuk-developer' => '/untuk-developer',
-                            'supplier-roster-beton' => '/supplier-roster-beton',
-                            'roster-beton-proyek' => '/roster-beton-proyek',
-                        ];
-
-                        return url($customRoutes[$record->slug] ?? ('/page/'.$record->slug));
-                    })
+                    ->url(fn (Page $record) => static::getPublicPageUrl($record))
                     ->openUrlInNewTab(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\Action::make('clone')
@@ -1780,6 +1741,34 @@ class PageResource extends Resource
                 Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([Tables\Actions\BulkActionGroup::make([Tables\Actions\DeleteBulkAction::make()])]);
+    }
+
+    public static function getPublicPagePath(Page $record): string
+    {
+        $customRoutes = [
+            'home' => '/',
+            'tentang-kami' => '/tentang-kami',
+            'kontak' => '/kontak',
+            'proses-produksi' => '/proses-produksi',
+            'katalog' => '/katalog',
+            'gallery' => '/gallery',
+            'indoroster-video' => '/video-inspirasi',
+            'video-inspirasi' => '/video-inspirasi',
+            'untuk-arsitek' => '/untuk-arsitek',
+            'untuk-kontraktor' => '/untuk-kontraktor',
+            'untuk-developer' => '/untuk-developer',
+            'supplier-roster-beton' => '/supplier-roster-beton',
+            'roster-beton-proyek' => '/roster-beton-proyek',
+            'kalkulator-roster' => '/kalkulator-roster',
+            'lokasi' => '/lokasi',
+        ];
+
+        return $customRoutes[$record->slug] ?? ('/page/'.$record->slug);
+    }
+
+    public static function getPublicPageUrl(Page $record): string
+    {
+        return url(static::getPublicPagePath($record));
     }
 
     public static function getPages(): array

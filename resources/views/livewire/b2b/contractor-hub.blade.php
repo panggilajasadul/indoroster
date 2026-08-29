@@ -1,3 +1,7 @@
+<div>
+    @if($page && is_array($page->content) && count($page->content) > 0)
+        <x-block-renderer :blocks="$page->content" :page-title="$page->title ?? 'Untuk Kontraktor'" />
+    @else
 <div class="min-h-screen bg-slate-50 dark:bg-slate-950 py-10">
     <!-- Hero Section -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
@@ -185,4 +189,6 @@
             </div>
         </div>
     </div>
+</div>
+    @endif
 </div>

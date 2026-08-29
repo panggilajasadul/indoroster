@@ -17,6 +17,29 @@ class DynamicPage extends Component
 
         $normalizedSlug = strtolower(trim($slug ?? ''));
 
+        // Redirection mapping untuk halaman-halaman utama yang memiliki route dedicated
+        $dedicatedRoutes = [
+            'home' => '/',
+            'tentang-kami' => '/tentang-kami',
+            'kontak' => '/kontak',
+            'proses-produksi' => '/proses-produksi',
+            'katalog' => '/katalog',
+            'gallery' => '/gallery',
+            'indoroster-video' => '/video-inspirasi',
+            'video-inspirasi' => '/video-inspirasi',
+            'untuk-arsitek' => '/untuk-arsitek',
+            'untuk-kontraktor' => '/untuk-kontraktor',
+            'untuk-developer' => '/untuk-developer',
+            'supplier-roster-beton' => '/supplier-roster-beton',
+            'roster-beton-proyek' => '/roster-beton-proyek',
+            'kalkulator-roster' => '/kalkulator-roster',
+            'lokasi' => '/lokasi',
+        ];
+
+        if (isset($dedicatedRoutes[$normalizedSlug])) {
+            return redirect($dedicatedRoutes[$normalizedSlug], 301);
+        }
+
         // 1. Coba cari langsung dengan slug yang diminta
         $page = Page::where('slug', $normalizedSlug)->where('is_active', true)->first();
 

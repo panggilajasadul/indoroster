@@ -46,6 +46,7 @@ Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap')
 // Frontend Routes (publik, bisa diakses siapa saja)
 Route::get('/', Home::class)->name('home');
 Route::get('/katalog', ProductCatalog::class)->name('catalog');
+Route::redirect('/produk', '/katalog', 301);
 Route::get('/katalog/{categorySlug}', ProductCatalog::class)->name('catalog.category');
 Route::get('/produk/{slug}', ProductDetail::class)->name('product.detail');
 Route::get('/keranjang', Cart::class)->name('cart');
