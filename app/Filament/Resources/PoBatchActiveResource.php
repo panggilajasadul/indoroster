@@ -28,15 +28,15 @@ class PoBatchActiveResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()
-            ->whereIn('status', ['processing', 'shipped', 'completed'])
+        return static::getModel()::query()
+            ->whereIn('status', ['pending_payment', 'paid', 'processing', 'shipped', 'completed'])
             ->where('fulfillment_type', 'po_batch');
     }
 
     public static function getNavigationBadge(): ?string
     {
-        $count = parent::getEloquentQuery()
-            ->whereIn('status', ['processing', 'shipped'])
+        $count = static::getModel()::query()
+            ->whereIn('status', ['pending_payment', 'paid', 'processing', 'shipped'])
             ->where('fulfillment_type', 'po_batch')
             ->count();
 

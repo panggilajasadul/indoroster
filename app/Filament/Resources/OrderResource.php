@@ -39,9 +39,23 @@ class OrderResource extends Resource
 
     protected static ?int $navigationSort = 1;
 
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->where(function ($query) {
+                $query->whereNull('order_source')
+                    ->orWhere('order_source', '!=', 'whatsapp');
+            });
+    }
+
     public static function getNavigationBadge(): ?string
     {
-        return static::getModel()::where('status', 'paid')->count() ?: null;
+        return static::getModel()::where('status', 'paid')
+            ->where(function ($query) {
+                $query->whereNull('order_source')
+                    ->orWhere('order_source', '!=', 'whatsapp');
+            })
+            ->count() ?: null;
     }
 
     public static function getNavigationBadgeColor(): ?string

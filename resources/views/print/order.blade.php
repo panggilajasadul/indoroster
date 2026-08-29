@@ -85,7 +85,9 @@
 
         <div class="title">
             @if(isset($batch))
-                SURAT JALAN PENGIRIMAN BERTAHAP ({{ strtoupper($batch->batch_name) }} DARI {{ $order->batch_count }} BATCH)
+                SURAT JALAN PENGIRIMAN ({{ strtoupper($batch->batch_name) }} DARI {{ $order->batch_count }} BATCH)
+            @elseif($order->fulfillment_type === 'po_batch')
+                SURAT KONFIRMASI PESANAN & JADWAL PENGIRIMAN PROYEK
             @else
                 SURAT JALAN PENGIRIMAN
             @endif
@@ -96,19 +98,24 @@
                 <div class="details-label">Tujuan Pengiriman:</div>
                 <strong style="font-size: 15px; color: #1e293b;">{{ $order->shipping_name }}</strong><br>
                 {{ $order->shipping_address }}<br>
-                {{ $order->shipping_city }}, {{ $order->shipping_province }} {{ $order->shipping_postal_code }}<br>
+                {{ $order->shipping_village ? 'Kel. '.$order->shipping_village.', ' : '' }}{{ $order->shipping_district ? 'Kec. '.$order->shipping_district.', ' : '' }}{{ $order->shipping_city }}, {{ $order->shipping_province }} {{ $order->shipping_postal_code }}<br>
                 <strong>No. HP/WA: {{ $order->shipping_phone }}</strong>
             </div>
             <div class="details-col" style="padding-left: 20px;">
-                <div class="details-label">Informasi Pengiriman:</div>
+                <div class="details-label">Informasi Dokumen:</div>
                 <table style="width: 100%; font-size: 12px;">
                     <tr><td width="42%">No. Pesanan</td><td>: <strong>{{ $order->order_number }}</strong></td></tr>
                     <tr><td>Tanggal Pesanan</td><td>: {{ $order->created_at->format('d M Y') }}</td></tr>
-                    <tr><td>Tgl Keberangkatan</td><td>: <strong>{{ now()->format('d M Y') }}</strong></td></tr>
-                    <tr><td>Armada / Supir</td><td>: <strong>{{ isset($batch) && $batch->courier_name ? $batch->courier_name : ($order->courier ?: 'Armada Pabrik') }}</strong></td></tr>
-                    <tr><td>No. Plat Truk</td><td>: <strong>{{ isset($batch) && $batch->tracking_number ? $batch->tracking_number : ($order->tracking_number ?: '-') }}</strong></td></tr>
-                    @if(isset($batch) && $batch->courier_phone)
+                    @if(isset($batch))
+                    <tr><td>Tgl Keberangkatan</td><td>: <strong>{{ $batch->actual_dispatch_date ? $batch->actual_dispatch_date->format('d M Y') : now()->format('d M Y') }}</strong></td></tr>
+                    <tr><td>Armada / Supir</td><td>: <strong>{{ $batch->courier_name ?: ($order->courier ?: 'Armada Pabrik') }}</strong></td></tr>
+                    <tr><td>No. Plat Truk</td><td>: <strong>{{ $batch->tracking_number ?: ($order->tracking_number ?: '-') }}</strong></td></tr>
+                    @if($batch->courier_phone)
                     <tr><td>No. HP Supir</td><td>: {{ $batch->courier_phone }}</td></tr>
+                    @endif
+                    @else
+                    <tr><td>Metode Pemenuhan</td><td>: <strong>Pengiriman Bertahap ({{ $order->batch_count }} Rit Truk)</strong></td></tr>
+                    <tr><td>Status Pesanan</td><td>: <strong>{{ strtoupper($order->status_label) }}</strong></td></tr>
                     @endif
                 </table>
             </div>
@@ -141,7 +148,7 @@
                     </div>
                     @endif
                     <div style="font-size: 10.5px; color: #475569; line-height: 1.4;">
-                        <strong>Petunjuk Supir:</strong> Ketik angka koordinat di atas pada kolom pencarian <strong>Google Maps</strong>, atau <strong>scan Barcode QR di samping</strong> dengan kamera HP untuk langsung navigasi rute ke titik gerbang/rumah pembeli tanpa ketik manual.
+                        <strong>Petunjuk Navigasi:</strong> Scan Barcode QR di samping untuk langsung membuka rute Google Maps ke titik lokasi proyek pemesan.
                     </div>
                 </td>
                 <td style="width: 110px; text-align: center; vertical-align: middle; padding: 10px; border-left: 1px dashed #cbd5e1; background: #ffffff;">
@@ -153,10 +160,48 @@
             </tr>
         </table>
 
+        @if(!isset($batch) && $order->fulfillment_type === 'po_batch')
+        <!-- JADWAL RINCIAN PENGIRIMAN BERTAHAP PROYEK (UNTUK PELANGGAN) -->
+        <div style="background: #fff7ed; border: 1.5px solid #fdba74; border-radius: 6px; padding: 12px 16px; margin-bottom: 20px;">
+            <div style="color: #c2410c; font-size: 13px; font-weight: bold; text-transform: uppercase; margin-bottom: 8px;">
+                Rincian Jadwal & Rencana Pengiriman Bertahap ({{ $order->batch_count }} Rit Truk):
+            </div>
+            <table style="width: 100%; border-collapse: collapse; font-size: 11px;">
+                <thead>
+                    <tr style="border-bottom: 1.5px solid #fdba74; color: #9a3412; background: #ffedd5;">
+                        <th style="padding: 5px 6px; text-align: left;">Rit / Batch</th>
+                        <th style="padding: 5px 6px; text-align: center;">Muatan (Pcs)</th>
+                        <th style="padding: 5px 6px; text-align: center;">Tgl Mulai Cetak</th>
+                        <th style="padding: 5px 6px; text-align: center;">Est. Berangkat</th>
+                        <th style="padding: 5px 6px; text-align: center;">Est. Tiba di Proyek</th>
+                        <th style="padding: 5px 6px; text-align: right;">Status Rit</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($order->batches as $b)
+                    <tr style="border-bottom: 1px dashed #fed7aa;">
+                        <td style="padding: 5px 6px; font-weight: bold; color: #1e293b;">{{ $b->batch_name }}</td>
+                        <td style="padding: 5px 6px; text-align: center; font-weight: bold; color: #c2410c;">{{ number_format($b->quantity, 0, ',', '.') }} pcs</td>
+                        <td style="padding: 5px 6px; text-align: center; color: #475569;">{{ $b->production_start_date ? $b->production_start_date->format('d/m/Y') : '-' }}</td>
+                        <td style="padding: 5px 6px; text-align: center; color: #475569;">{{ $b->estimated_dispatch_date ? $b->estimated_dispatch_date->format('d/m/Y') : '-' }}</td>
+                        <td style="padding: 5px 6px; text-align: center; color: #475569;">{{ $b->estimated_delivery_date ? $b->estimated_delivery_date->format('d/m/Y') : '-' }}</td>
+                        <td style="padding: 5px 6px; text-align: right;">
+                            <span class="status-badge" style="background: #ffedd5; color: #9a3412; font-size: 9.5px;">{{ $b->status_label }}</span>
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+            <div style="margin-top: 8px; font-size: 10.5px; color: #475569;">
+                Pelanggan dapat memantau progres pesanan secara live di: <strong>{{ route('order.tracking') }}?order_number={{ $order->order_number }}</strong>
+            </div>
+        </div>
+        @endif
+
         @if(isset($batch))
         <!-- REKAPITULASI PROGRES PENGIRIMAN BERTAHAP (PO BATCH) -->
         <div class="batch-box">
-            <h4>📊 Rekapitulasi Progres Pengiriman Proyek ({{ $batch->batch_name }}):</h4>
+            <h4>Rekapitulasi Progres Pengiriman Proyek ({{ $batch->batch_name }}):</h4>
             <table class="batch-table">
                 <tr>
                     <td width="60%">• Total Keseluruhan Pesanan Pelanggan</td>
@@ -197,7 +242,7 @@
                 <tr>
                     <td>
                         <strong style="color: #1e293b;">{{ $item->product_name }}</strong><br>
-                        <small style="color: #64748b;">Varian Warna/Motif: {{ $item->product_variant_name ?: 'Standar' }}</small>
+                        <small style="color: #64748b;">Varian Warna/Motif: {{ $item->custom_variant_name ?: ($item->product_variant_name ?: ($item->variant?->name ?: 'Standar')) }}</small>
                     </td>
                     <td class="right">{{ number_format($item->quantity, 0, ',', '.') }} pcs</td>
                     @if(isset($batch))
@@ -224,8 +269,18 @@
             @endif
 
             @php
+                // Filter hanya catatan teknis/logistik pengiriman untuk supir, abaikan catatan mutasi kasir/finance internal
+                $cleanAdminNotes = null;
+                if ($order->admin_notes) {
+                    $lines = explode("\n", $order->admin_notes);
+                    $filteredLines = array_filter($lines, function($line) {
+                        return !preg_match('/(tercatat:\s*Rp|DP diperbarui|Pembayaran\s*(DP|Termin|Pelunasan|Cicilan))/i', $line);
+                    });
+                    $cleanAdminNotes = trim(implode(', ', $filteredLines));
+                }
+
                 $adminNotesList = array_unique(array_filter([
-                    $order->admin_notes,
+                    $cleanAdminNotes ?: null,
                     $order->fulfillment_notes,
                     (isset($batch) && $batch->notes && $batch->notes !== $order->notes) ? $batch->notes : null
                 ]));
@@ -233,7 +288,7 @@
 
             @if(count($adminNotesList) > 0)
             <div style="font-size: 11.5px; color: #1e293b; margin-bottom: 4px; line-height: 1.4;">
-                <strong style="color: #0f172a;">• Catatan dari Admin:</strong> 
+                <strong style="color: #0f172a;">• Petunjuk Logistik Lapangan:</strong> 
                 <span style="color: #c2410c; font-weight: 600;">{{ implode(', ', $adminNotesList) }}</span>
             </div>
             @endif

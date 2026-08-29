@@ -6,6 +6,7 @@ use App\Models\DocumentTemplate;
 use App\Models\Invoice;
 use App\Models\ManualDocument;
 use App\Models\Order;
+use App\Models\Payment;
 use App\Models\ShippingLabel;
 use App\Services\DocumentPdfService;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -29,11 +30,19 @@ class PrintController extends Controller
 
         $invoice->load(['order.items.product', 'order.items.variant', 'order.user']);
 
-        $pdf = Pdf::loadView('print.invoice', ['invoice' => $invoice])
-            ->setPaper('a4', 'portrait');
+        $paymentStage = null;
+        if ($request->filled('payment_id')) {
+            $paymentStage = Payment::find($request->get('payment_id'));
+        }
+
+        $pdf = Pdf::loadView('print.invoice', [
+            'invoice' => $invoice,
+            'paymentStage' => $paymentStage,
+        ])->setPaper('a4', 'portrait');
 
         // Sanitize filename: replace / with -
-        $filename = str_replace(['/', '\\'], '-', $invoice->invoice_number);
+        $stageSuffix = $paymentStage ? '-Tahap-'.$paymentStage->id : '';
+        $filename = str_replace(['/', '\\'], '-', $invoice->invoice_number).$stageSuffix;
 
         return $pdf->stream('Invoice-Faktur-'.$filename.'.pdf');
     }
@@ -186,5 +195,20 @@ class PrintController extends Controller
             ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
             ->header('Pragma', 'no-cache')
             ->header('Expires', '0');
+    }
+
+    /**
+     * Cetak Kuitansi / Bukti Pembayaran PDF.
+     */
+    public function receipt(Payment $payment, Request $request)
+    {
+        $payment->load(['order.user', 'order.invoice']);
+
+        $pdf = Pdf::loadView('print.receipt', ['payment' => $payment])
+            ->setPaper('a4', 'portrait');
+
+        $filename = str_replace(['/', '\\'], '-', $payment->receipt_number ?? ('KW-'.$payment->id));
+
+        return $pdf->stream('Kuitansi-'.$filename.'.pdf');
     }
 }

@@ -60,7 +60,7 @@
                 <strong style="color: #0f172a; font-size: 14px;">{{ $invoice->order->shipping_name }}</strong><br>
                 <span style="color: #475569; font-size: 12.5px; line-height: 1.5;">
                     {{ $invoice->order->shipping_address }}<br>
-                    {{ $invoice->order->shipping_city }}, {{ $invoice->order->shipping_province }} {{ $invoice->order->shipping_postal_code }}<br>
+                    {{ $invoice->order->shipping_village ? 'Kel. '.$invoice->order->shipping_village.', ' : '' }}{{ $invoice->order->shipping_district ? 'Kec. '.$invoice->order->shipping_district.', ' : '' }}{{ $invoice->order->shipping_city }}, {{ $invoice->order->shipping_province }} {{ $invoice->order->shipping_postal_code }}<br>
                     HP / WA: {{ $invoice->order->shipping_phone }}
                 </span>
             </div>
@@ -83,10 +83,14 @@
                     <tr>
                         <td style="color: #64748b;">Status</td>
                         <td>: 
-                            @if($invoice->status === 'paid')
+                            @if($invoice->status === 'paid' || $invoice->order->payment_status === 'paid')
                                 <span class="status status-paid">LUNAS</span>
+                            @elseif($invoice->order->status === 'draft')
+                                <span class="status" style="background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1;">DRAFT / PENAWARAN</span>
+                            @elseif(($invoice->down_payment_amount > 0 || ($invoice->order->down_payment_amount ?? 0) > 0) && ($invoice->remaining_balance > 0 || ($invoice->order->remaining_balance ?? 0) > 0))
+                                <span class="status" style="background: #fef3c7; color: #b45309; border: 1px solid #fde68a;">DP TERVERIFIKASI</span>
                             @else
-                                <span class="status status-unpaid">{{ strtoupper($invoice->status_label) }}</span>
+                                <span class="status status-unpaid">MENUNGGU PEMBAYARAN</span>
                             @endif
                         </td>
                     </tr>
@@ -111,7 +115,9 @@
                         @if($item->product_variant_name && $item->product_variant_name !== '-')
                             <small style="color: #64748b;">Varian: {{ $item->product_variant_name }}</small><br>
                         @endif
-                        <small style="color: #64748b;">{{ $item->product->material ?? '' }} {{ $item->product->dimensions ? '('.$item->product->dimensions.')' : '' }}</small>
+                        @if($item->product)
+                            <small style="color: #64748b;">{{ $item->product->material ?? '' }} {{ $item->product->dimensions ? '('.$item->product->dimensions.')' : '' }}</small>
+                        @endif
                     </td>
                     <td class="col-price">Rp {{ number_format($item->product_price, 0, ',', '.') }}</td>
                     <td class="col-qty">{{ number_format($item->quantity, 0, ',', '.') }} pcs</td>
@@ -154,9 +160,52 @@
                         <td class="label">GRAND TOTAL</td>
                         <td>Rp {{ number_format($invoice->grand_total, 0, ',', '.') }}</td>
                     </tr>
+                    @php
+                        $dp = $invoice->down_payment_amount ?: ($invoice->order->down_payment_amount ?? 0);
+                        $remaining = $invoice->remaining_balance > 0 ? $invoice->remaining_balance : ($invoice->order->remaining_balance ?? max(0, $invoice->grand_total - $dp));
+                    @endphp
+                    @if($dp > 0 && $remaining > 0)
+                    <tr>
+                        <td class="label" style="color: #059669; font-weight: 600;">DP / Telah Dibayar</td>
+                        <td style="color: #059669; font-weight: 600;">Rp {{ number_format($dp, 0, ',', '.') }}</td>
+                    </tr>
+                    <tr class="bold" style="background: #fef2f2;">
+                        <td class="label" style="color: #dc2626;">SISA TAGIHAN PELUNASAN</td>
+                        <td style="color: #dc2626; font-size: 13px; font-weight: 800;">Rp {{ number_format($remaining, 0, ',', '.') }}</td>
+                    </tr>
+                    @endif
                 </table>
             </div>
         </div>
+
+        @if($remaining > 0 || $dp == 0)
+        <!-- Petunjuk Rekening Pembayaran Resmi Pabrik -->
+        <div style="margin-top: 14px; background: #fffdfa; border: 1.5px solid #fed7aa; border-left: 5px solid #ea580c; border-radius: 6px; padding: 10px 14px; font-size: 11px;">
+            <div style="color: #9a3412; font-weight: 800; text-transform: uppercase; font-size: 11px; margin-bottom: 4px; letter-spacing: 0.03em;">
+                Petunjuk Pembayaran & Rekening Resmi:
+            </div>
+            <div style="color: #334155; line-height: 1.5;">
+                Silakan melakukan transfer pembayaran / DP ke rekening resmi berikut:
+                <table style="margin-top: 4px; font-size: 11px; border-collapse: collapse;">
+                    <tr>
+                        <td style="padding: 2px 0; color: #64748b; width: 110px;">Bank Tujuan</td>
+                        <td style="padding: 2px 0; font-weight: 700; color: #0f172a;">: Bank BRI (Bank Rakyat Indonesia)</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 2px 0; color: #64748b;">Nomor Rekening</td>
+                        <td style="padding: 2px 0; font-weight: 800; font-family: monospace; font-size: 12.5px; color: #ea580c;">: 4356-01-009396-50-2 <span style="font-weight: normal; font-size: 10px; color: #64748b;">(435601009396502)</span></td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 2px 0; color: #64748b;">Atas Nama</td>
+                        <td style="padding: 2px 0; font-weight: 700; color: #0f172a;">: ABDUL HAMID</td>
+                    </tr>
+                </table>
+                <div style="margin-top: 4px; font-size: 10px; color: #9a3412; font-style: italic;">
+                    * Harap konfirmasikan bukti transfer ke WhatsApp resmi kami (0813-8970-9847) untuk penerbitan Kuitansi Resmi dan verifikasi antrean cetak pabrik.
+                </div>
+            </div>
+        </div>
+        @endif
 
         <!-- Signature & Stamp Section Resmi Pabrik -->
         <table style="width: 100%; margin-top: 30px; border-collapse: collapse; page-break-inside: avoid;">

@@ -127,6 +127,7 @@ if (app()->environment('local')) {
 
 // Invoice print route (secure authorization checked in controller)
 Route::get('/print/invoice/{invoice}', [PrintController::class, 'invoice'])->name('print.invoice');
+Route::get('/print/receipt/{payment}', [PrintController::class, 'receipt'])->name('print.receipt');
 
 // Print Routes for Admin Only
 Route::middleware(['web', 'auth'])->group(function () {

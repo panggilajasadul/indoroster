@@ -17,6 +17,9 @@ class Invoice extends Model
         'discount_amount',
         'tax_amount',
         'grand_total',
+        'payment_scheme',
+        'down_payment_amount',
+        'remaining_balance',
         'status',
         'notes',
         'paid_at',
@@ -32,6 +35,8 @@ class Invoice extends Model
             'discount_amount' => 'decimal:2',
             'tax_amount' => 'decimal:2',
             'grand_total' => 'decimal:2',
+            'down_payment_amount' => 'decimal:2',
+            'remaining_balance' => 'decimal:2',
             'paid_at' => 'datetime',
         ];
     }
@@ -45,6 +50,7 @@ class Invoice extends Model
         $month = now()->format('m');
         $lastInvoice = static::whereYear('created_at', $year)
             ->whereMonth('created_at', $month)
+            ->where('invoice_number', 'not like', 'INV-WA-%')
             ->orderByDesc('id')
             ->first();
 
@@ -53,6 +59,23 @@ class Invoice extends Model
             : 1;
 
         return 'INV/'.$year.'/'.$month.'/'.str_pad($sequence, 4, '0', STR_PAD_LEFT);
+    }
+
+    /**
+     * Generate unique invoice number for WhatsApp orders.
+     */
+    public static function generateWaInvoiceNumber(): string
+    {
+        $date = now()->format('Ymd');
+        $lastInvoice = static::where('invoice_number', 'like', 'INV-WA-'.$date.'-%')
+            ->orderByDesc('id')
+            ->first();
+
+        $sequence = $lastInvoice
+            ? (int) substr($lastInvoice->invoice_number, -4) + 1
+            : 1;
+
+        return 'INV-WA-'.$date.'-'.str_pad($sequence, 4, '0', STR_PAD_LEFT);
     }
 
     public function order(): BelongsTo

@@ -3,6 +3,7 @@
 namespace App\Livewire\Member;
 
 use App\Models\Order;
+use App\Models\SiteSetting;
 use App\Services\MidtransService;
 use Livewire\Component;
 
@@ -42,11 +43,38 @@ class OrderHistory extends Component
 
     public function render()
     {
-        $userId = auth()->id();
-        $baseQuery = Order::where('user_id', $userId);
+        $orderMode = SiteSetting::getValue('order_mode', 'midtrans');
+        $user = auth()->user();
+        $userId = $user->id;
+        $userPhone = $user->phone ? preg_replace('/[^0-9]/', '', $user->phone) : null;
+        $userEmail = $user->email;
+
+        $baseQuery = Order::query();
+
+        // Pisahkan строго sesuai mode transaksi yang aktif
+        if ($orderMode === 'whatsapp') {
+            $baseQuery->where('order_source', 'whatsapp');
+        } else {
+            $baseQuery->where(function ($q) {
+                $q->where('order_source', '!=', 'whatsapp')->orWhereNull('order_source');
+            });
+        }
+
+        $baseQuery->where(function ($q) use ($userId, $userPhone, $userEmail) {
+            $q->where('user_id', $userId);
+            if ($userPhone) {
+                $cleanPhone = str_starts_with($userPhone, '62') ? '0'.substr($userPhone, 2) : $userPhone;
+                $intlPhone = str_starts_with($userPhone, '0') ? '62'.substr($userPhone, 1) : $userPhone;
+                $q->orWhereIn('shipping_phone', array_unique(array_filter([$userPhone, $cleanPhone, $intlPhone])));
+            }
+            if ($userEmail) {
+                $q->orWhere('shipping_email', $userEmail);
+            }
+        });
 
         $tabCounts = [
             'semua' => (clone $baseQuery)->count(),
+            'penawaran' => (clone $baseQuery)->where('status', 'draft')->count(),
             'belum-bayar' => (clone $baseQuery)->where('status', 'pending_payment')->where('payment_status', '!=', 'paid')->count(),
             'diproses' => (clone $baseQuery)->whereIn('status', ['paid', 'processing'])->count(),
             'dikirim' => (clone $baseQuery)->whereIn('status', ['shipped', 'delivered'])->count(),
@@ -55,11 +83,14 @@ class OrderHistory extends Component
         ];
 
         $query = (clone $baseQuery)
-            ->with(['items.product.media', 'items.variant', 'invoice'])
+            ->with(['items.product.media', 'items.variant', 'invoice', 'payments', 'batches'])
             ->orderByDesc('created_at');
 
         // Apply Tab Filter
         switch ($this->activeTab) {
+            case 'penawaran':
+                $query->where('status', 'draft');
+                break;
             case 'belum-bayar':
                 $query->where('status', 'pending_payment')->where('payment_status', '!=', 'paid');
                 break;
@@ -82,6 +113,7 @@ class OrderHistory extends Component
         return view('livewire.member.order-history', [
             'orders' => $orders,
             'tabCounts' => $tabCounts,
-        ])->layout('components.layouts.app', ['title' => 'Riwayat Pesanan - Indoroster']);
+            'orderMode' => $orderMode,
+        ])->layout('components.layouts.app', ['title' => ($orderMode === 'whatsapp' ? 'Pesanan WhatsApp & Proyek - IndoRoster' : 'Riwayat Pesanan - IndoRoster')]);
     }
 }

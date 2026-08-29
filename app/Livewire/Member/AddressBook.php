@@ -6,6 +6,7 @@ use App\Models\Address;
 use Laravolt\Indonesia\Models\City;
 use Laravolt\Indonesia\Models\District;
 use Laravolt\Indonesia\Models\Province;
+use Laravolt\Indonesia\Models\Village;
 use Livewire\Component;
 
 class AddressBook extends Component
@@ -29,7 +30,11 @@ class AddressBook extends Component
 
     public $district_id;
 
+    public $village_id;
+
     public $postal_code;
+
+    public $postalCodes = [];
 
     public $full_address;
 
@@ -48,6 +53,8 @@ class AddressBook extends Component
 
     public $districts = [];
 
+    public $villages = [];
+
     protected $rules = [
         'label' => 'required|string|max:50',
         'recipient_name' => 'required|string|min:3',
@@ -55,6 +62,7 @@ class AddressBook extends Component
         'province_id' => 'required',
         'city_id' => 'required',
         'district_id' => 'required',
+        'village_id' => 'nullable',
         'postal_code' => 'required|string|max:10',
         'full_address' => 'required|string|min:10',
         'latitude' => 'nullable|numeric|between:-90,90',
@@ -88,23 +96,89 @@ class AddressBook extends Component
     public function updatedProvinceId($value)
     {
         if ($value) {
-            $this->cities = City::where('province_code', $value)->orderBy('name')->get();
+            $this->cities = City::where('province_code', $value)
+                ->select(['code', 'name'])
+                ->orderBy('name')
+                ->get()
+                ->map(fn ($c) => ['value' => $c->code, 'text' => $c->name])
+                ->toArray();
         } else {
             $this->cities = [];
         }
         $this->city_id = null;
         $this->district_id = null;
+        $this->village_id = null;
         $this->districts = [];
+        $this->villages = [];
+        $this->postalCodes = [];
     }
 
     public function updatedCityId($value)
     {
         if ($value) {
-            $this->districts = District::where('city_code', $value)->orderBy('name')->get();
+            $this->districts = District::where('city_code', $value)
+                ->select(['code', 'name'])
+                ->orderBy('name')
+                ->get()
+                ->map(fn ($d) => ['value' => $d->code, 'text' => $d->name])
+                ->toArray();
         } else {
             $this->districts = [];
         }
         $this->district_id = null;
+        $this->village_id = null;
+        $this->villages = [];
+        $this->postalCodes = [];
+    }
+
+    public function updatedDistrictId($value)
+    {
+        if ($value) {
+            $villagesList = Village::where('district_code', $value)
+                ->select(['code', 'name', 'meta'])
+                ->orderBy('name')
+                ->get();
+
+            $this->villages = $villagesList
+                ->map(fn ($v) => ['value' => $v->code, 'text' => $v->name])
+                ->toArray();
+            $this->village_id = null;
+
+            $codes = $villagesList->map(function ($v) {
+                $meta = is_string($v->meta) ? json_decode($v->meta, true) : $v->meta;
+
+                return $meta['pos'] ?? null;
+            })->filter()->unique()->values()->toArray();
+
+            $this->postalCodes = $codes;
+
+            if (! empty($codes)) {
+                // Auto-fill the detected postal code
+                $this->postal_code = (string) $codes[0];
+            }
+        } else {
+            $this->villages = [];
+            $this->village_id = null;
+            $this->postalCodes = [];
+        }
+    }
+
+    public function updatedVillageId($value)
+    {
+        if ($value) {
+            $village = Village::where('code', $value)->first();
+            if ($village) {
+                $meta = is_string($village->meta) ? json_decode($village->meta, true) : $village->meta;
+                if (! empty($meta['pos'])) {
+                    $this->postal_code = (string) $meta['pos'];
+                }
+            }
+        }
+    }
+
+    public function selectPostalCode($code)
+    {
+        $this->postal_code = (string) $code;
     }
 
     public function openCreateForm()
@@ -133,16 +207,48 @@ class AddressBook extends Component
         $prov = Province::where('name', 'like', $address->province)->first();
         if ($prov) {
             $this->province_id = $prov->code;
-            $this->cities = City::where('province_code', $prov->code)->orderBy('name')->get();
+            $this->cities = City::where('province_code', $prov->code)
+                ->select(['code', 'name'])
+                ->orderBy('name')
+                ->get()
+                ->map(fn ($c) => ['value' => $c->code, 'text' => $c->name])
+                ->toArray();
 
             $city = City::where('province_code', $prov->code)->where('name', 'like', $address->city)->first();
             if ($city) {
                 $this->city_id = $city->code;
-                $this->districts = District::where('city_code', $city->code)->orderBy('name')->get();
+                $this->districts = District::where('city_code', $city->code)
+                    ->select(['code', 'name'])
+                    ->orderBy('name')
+                    ->get()
+                    ->map(fn ($d) => ['value' => $d->code, 'text' => $d->name])
+                    ->toArray();
 
                 $dist = District::where('city_code', $city->code)->where('name', 'like', $address->district)->first();
                 if ($dist) {
                     $this->district_id = $dist->code;
+
+                    $villagesList = Village::where('district_code', $dist->code)
+                        ->select(['code', 'name', 'meta'])
+                        ->orderBy('name')
+                        ->get();
+
+                    $this->villages = $villagesList
+                        ->map(fn ($v) => ['value' => $v->code, 'text' => $v->name])
+                        ->toArray();
+
+                    if ($address->village) {
+                        $vill = Village::where('district_code', $dist->code)->where('name', 'like', $address->village)->first();
+                        if ($vill) {
+                            $this->village_id = $vill->code;
+                        }
+                    }
+
+                    $this->postalCodes = $villagesList->map(function ($v) {
+                        $meta = is_string($v->meta) ? json_decode($v->meta, true) : $v->meta;
+
+                        return $meta['pos'] ?? null;
+                    })->filter()->unique()->values()->toArray();
                 }
             }
         }
@@ -157,6 +263,7 @@ class AddressBook extends Component
         $provinceName = Province::where('code', $this->province_id)->first()?->name;
         $cityName = City::where('code', $this->city_id)->first()?->name;
         $districtName = District::where('code', $this->district_id)->first()?->name;
+        $villageName = $this->village_id ? Village::where('code', $this->village_id)->first()?->name : null;
 
         if (! $provinceName || ! $cityName || ! $districtName) {
             session()->flash('error', 'Pilihan wilayah tidak valid.');
@@ -177,6 +284,7 @@ class AddressBook extends Component
             'province' => $provinceName,
             'city' => $cityName,
             'district' => $districtName,
+            'village' => $villageName,
             'postal_code' => $this->postal_code,
             'full_address' => $this->full_address,
             'truck_access_notes' => $this->truck_access_notes,
@@ -241,7 +349,9 @@ class AddressBook extends Component
         $this->province_id = null;
         $this->city_id = null;
         $this->district_id = null;
+        $this->village_id = null;
         $this->postal_code = '';
+        $this->postalCodes = [];
         $this->full_address = '';
         $this->truck_access_notes = '';
         $this->latitude = null;
@@ -250,6 +360,7 @@ class AddressBook extends Component
 
         $this->cities = [];
         $this->districts = [];
+        $this->villages = [];
     }
 
     public function render()

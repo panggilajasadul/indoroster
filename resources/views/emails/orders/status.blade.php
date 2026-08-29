@@ -143,12 +143,38 @@ Kabar gembira! Pesanan Anda dengan nomor **{{ $order->order_number }}** telah se
 </x-mail::panel>
 
 @elseif($statusType === 'completed')
-Terima kasih telah berbelanja kebutuhan material bangunan di Indoroster! Pesanan Anda dengan nomor **{{ $order->order_number }}** telah ditandai **Selesai**. Kami harap Anda puas dengan produk dan layanan kami.
+Terima kasih telah berbelanja kebutuhan material bangunan di Pabrik IndoRoster Indonesia! Seluruh pesanan Anda dengan nomor **{{ $order->order_number }}** telah sukses diturunkan di lokasi proyek dan ditandai **SELESAI (100% LENGKAP)**. Kami harap Anda puas dengan kualitas produk roster dan layanan pengiriman kami.
 
-@if($order->delivery_photo_path)
+@if($order->fulfillment_type === 'po_batch' && $order->batches()->whereNotNull('delivery_photo_path')->exists())
 <x-mail::panel>
-### 📸 Bukti Pengiriman  
-<img src="{{ $message->embed(storage_path('app/public/' . $order->delivery_photo_path)) }}" alt="Bukti Pengiriman" style="max-width: 100%; border-radius: 8px;">
+### 📸 Rekapitulasi Lengkap Bukti Pembongkaran Seluruh Ritase ({{ $order->batches()->count() }} Rit Truk):
+
+@foreach($order->batches()->whereNotNull('delivery_photo_path')->get() as $b)
+#### 🚚 {{ $b->batch_name }} ({{ number_format($b->quantity, 0, ',', '.') }} pcs)
+- **Waktu Penerimaan:** {{ $b->actual_delivered_date ? $b->actual_delivered_date->format('d M Y H:i') : '-' }}
+- **Supir / Armada:** {{ $b->courier_name ?? 'Armada Pabrik IndoRoster' }}
+@if($b->tracking_number)
+- **No. Plat Truk:** `{{ $b->tracking_number }}`
+@endif
+
+@if(file_exists(storage_path('app/public/' . $b->delivery_photo_path)))
+<img src="{{ $message->embed(storage_path('app/public/' . $b->delivery_photo_path)) }}" alt="Bukti {{ $b->batch_name }}" style="max-width: 100%; border-radius: 8px; margin-top: 8px; margin-bottom: 12px;">
+@endif
+
+---
+@endforeach
+</x-mail::panel>
+@elseif($order->delivery_photo_path && file_exists(storage_path('app/public/' . $order->delivery_photo_path)))
+<x-mail::panel>
+### 📸 Bukti Pengiriman & Pembongkaran Material
+- **Kurir / Supir Armada:** {{ $order->courier ?? 'Armada Pabrik IndoRoster' }}
+- **No. Plat / Resi:** `{{ $order->tracking_number ?? '-' }}`
+@if($order->courier_phone)
+- **No. Kontak Supir:** {{ $order->courier_phone }}
+@endif
+- **Waktu Selesai:** {{ $order->completed_at ? $order->completed_at->format('d M Y H:i') : now()->format('d M Y H:i') }}
+
+<img src="{{ $message->embed(storage_path('app/public/' . $order->delivery_photo_path)) }}" alt="Bukti Pengiriman" style="max-width: 100%; border-radius: 8px; margin-top: 8px;">
 </x-mail::panel>
 @endif
 @endif

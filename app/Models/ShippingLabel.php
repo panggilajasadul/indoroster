@@ -49,6 +49,7 @@ class ShippingLabel extends Model
     {
         $date = now()->format('Ymd');
         $lastLabel = static::whereDate('created_at', today())
+            ->where('label_number', 'not like', 'SJ-WA-%')
             ->orderByDesc('id')
             ->first();
 
@@ -57,6 +58,23 @@ class ShippingLabel extends Model
             : 1;
 
         return 'SHP-'.$date.'-'.str_pad($sequence, 4, '0', STR_PAD_LEFT);
+    }
+
+    /**
+     * Generate unique shipping label number for WhatsApp orders.
+     */
+    public static function generateWaLabelNumber(): string
+    {
+        $date = now()->format('Ymd');
+        $lastLabel = static::where('label_number', 'like', 'SJ-WA-'.$date.'-%')
+            ->orderByDesc('id')
+            ->first();
+
+        $sequence = $lastLabel
+            ? (int) substr($lastLabel->label_number, -4) + 1
+            : 1;
+
+        return 'SJ-WA-'.$date.'-'.str_pad($sequence, 4, '0', STR_PAD_LEFT);
     }
 
     public function order(): BelongsTo

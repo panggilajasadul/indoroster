@@ -31,10 +31,12 @@ class OrderTracking extends Component
         $orderNumber = request()->query('order_number');
         $contact = request()->query('contact');
 
-        if ($orderNumber && $contact) {
+        if ($orderNumber) {
             $this->searchQuery = $orderNumber;
-            $this->contactQuery = $contact;
-            $this->track();
+            if ($contact) {
+                $this->contactQuery = $contact;
+                $this->track();
+            }
         }
     }
 
@@ -47,11 +49,20 @@ class OrderTracking extends Component
         $invoiceNum = trim($this->searchQuery);
         $contact = trim($this->contactQuery);
 
+        $rawPhone = preg_replace('/[^0-9]/', '', $contact);
+        $phone0 = str_starts_with($rawPhone, '62') ? '0'.substr($rawPhone, 2) : $rawPhone;
+        $phone62 = str_starts_with($rawPhone, '0') ? '62'.substr($rawPhone, 1) : $rawPhone;
+
         // Find order matching number and matching email OR phone
         $this->order = Order::where('order_number', $invoiceNum)
-            ->where(function ($q) use ($contact) {
+            ->where(function ($q) use ($contact, $rawPhone, $phone0, $phone62) {
                 $q->where('shipping_email', $contact)
-                    ->orWhere('shipping_phone', $contact);
+                    ->orWhere('shipping_phone', $contact)
+                    ->orWhere('shipping_phone', $phone0)
+                    ->orWhere('shipping_phone', $phone62);
+                if (! empty($rawPhone)) {
+                    $q->orWhereRaw("REPLACE(REPLACE(REPLACE(shipping_phone, '-', ''), ' ', ''), '+', '') = ?", [$rawPhone]);
+                }
             })
             ->with(['items.product.media', 'items.variant', 'invoice', 'batches'])
             ->first();

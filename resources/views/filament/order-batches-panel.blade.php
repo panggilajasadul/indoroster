@@ -9,7 +9,7 @@
     $totalCount = $batches->count();
 @endphp
 
-<div style="padding: 0 0 8px 0;">
+<div style="padding: 0 0 8px 0;" wire:poll.5s>
     {{-- ===== PROGRESS OVERVIEW ===== --}}
     <div style="background: linear-gradient(135deg, #1e293b, #0f172a); border-radius: 12px; padding: 20px; margin-bottom: 16px; border: 1px solid #334155;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
@@ -28,9 +28,18 @@
         <div style="background: #334155; border-radius: 999px; height: 10px; overflow: hidden;">
             <div style="background: linear-gradient(90deg, #f97316, #ea580c); height: 100%; border-radius: 999px; width: {{ $progressPct }}%; transition: width 0.5s ease;"></div>
         </div>
-        <div style="display: flex; justify-content: space-between; margin-top: 8px;">
-            <span style="color: #94a3b8; font-size: 0.72rem;">Sisa: {{ number_format($totalQty - $shippedQty, 0, ',', '.') }} pcs ({{ $totalCount - $shippedCount }} batch)</span>
-            <span style="color: #94a3b8; font-size: 0.72rem;">No. Pesanan: {{ $order->order_number }}</span>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px; padding-top: 10px; border-top: 1px dashed #475569; flex-wrap: wrap; gap: 8px;">
+            <span style="color: #94a3b8; font-size: 0.75rem;">Sisa Belum Kirim: <strong style="color: #cbd5e1;">{{ number_format($totalQty - $shippedQty, 0, ',', '.') }} pcs</strong> ({{ $totalCount - $shippedCount }} rit)</span>
+            <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                <a href="{{ $order->getWaBatchScheduleLink() }}" target="_blank"
+                   style="display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; background: #064e3b; border: 1px solid #059669; border-radius: 6px; color: #6ee7b7; font-size: 0.75rem; font-weight: 600; text-decoration: none;">
+                    💬 Kirim WA Jadwal ke Pelanggan
+                </a>
+                <a href="{{ route('print.order', $order) }}" target="_blank"
+                   style="display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; background: #1e293b; border: 1px solid #64748b; border-radius: 6px; color: #f8fafc; font-size: 0.75rem; font-weight: 600; text-decoration: none;">
+                    📋 Cetak Dokumen Jadwal (Untuk Pelanggan)
+                </a>
+            </div>
         </div>
     </div>
 
@@ -111,35 +120,45 @@
 
             {{-- Aksi per-batch --}}
             <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px;">
-                {{-- Cetak SJ (hanya yang sudah dikirim) --}}
-                @if($isShipped)
+                {{-- Cetak SJ Per-Rit Truk --}}
                 <a href="{{ route('print.order', ['order' => $order->id, 'batch_id' => $batch->id]) }}" target="_blank"
-                   style="display: inline-flex; align-items: center; gap: 5px; padding: 6px 14px; background: transparent; border: 1.5px solid #64748b; border-radius: 8px; color: #94a3b8; font-size: 0.75rem; font-weight: 600; text-decoration: none; cursor: pointer;">
-                    🖨️ Cetak Ulang Surat Jalan
+                   style="display: inline-flex; align-items: center; gap: 5px; padding: 6px 14px; background: transparent; border: 1.5px solid #64748b; border-radius: 8px; color: #cbd5e1; font-size: 0.75rem; font-weight: 600; text-decoration: none; cursor: pointer;">
+                    🖨️ Cetak Surat Jalan
                 </a>
-                @endif
 
                 {{-- Aksi transisi status: dihandle via Filament Action di ViewOrder --}}
                 @if($batch->status === 'pending_production')
-                <button wire:click="mountAction('batch_start_production_{{ $batch->id }}')"
+                <button type="button" wire:click.prevent="mountAction('batch_start_production_{{ $batch->id }}')"
                         style="display: inline-flex; align-items: center; gap: 5px; padding: 6px 14px; background: #78350f; border: 1.5px solid #d97706; border-radius: 8px; color: #fbbf24; font-size: 0.75rem; font-weight: 600; cursor: pointer;">
                     🔨 Mulai Produksi
                 </button>
+                <a href="{{ $order->getWaProductionStartedLink($batch) }}" target="_blank"
+                   style="display: inline-flex; align-items: center; gap: 5px; padding: 6px 14px; background: #064e3b; border: 1.5px solid #059669; border-radius: 8px; color: #6ee7b7; font-size: 0.75rem; font-weight: 600; text-decoration: none; cursor: pointer;">
+                    💬 Kirim WA Jadwal
+                </a>
                 @elseif($batch->status === 'producing')
-                <button wire:click="mountAction('batch_mark_ready_{{ $batch->id }}')"
+                <button type="button" wire:click.prevent="mountAction('batch_mark_ready_{{ $batch->id }}')"
                         style="display: inline-flex; align-items: center; gap: 5px; padding: 6px 14px; background: #1e3a5f; border: 1.5px solid #2563eb; border-radius: 8px; color: #60a5fa; font-size: 0.75rem; font-weight: 600; cursor: pointer;">
                     📦 Tandai Siap Dikirim
                 </button>
+                <a href="{{ $order->getWaReadyToShipLink($batch) }}" target="_blank"
+                   style="display: inline-flex; align-items: center; gap: 5px; padding: 6px 14px; background: #064e3b; border: 1.5px solid #059669; border-radius: 8px; color: #6ee7b7; font-size: 0.75rem; font-weight: 600; text-decoration: none; cursor: pointer;">
+                    💬 Kirim WA Siap Kirim
+                </a>
                 @elseif($batch->status === 'ready_to_ship')
-                <button wire:click="mountAction('batch_dispatch_{{ $batch->id }}')"
+                <button type="button" wire:click.prevent="mountAction('batch_dispatch_{{ $batch->id }}')"
                         style="display: inline-flex; align-items: center; gap: 5px; padding: 6px 14px; background: linear-gradient(135deg, #c2410c, #9a3412); border: none; border-radius: 8px; color: #fff; font-size: 0.75rem; font-weight: 700; cursor: pointer; box-shadow: 0 2px 8px rgba(234,88,12,0.4);">
                     🚚 Berangkatkan Truk
                 </button>
                 @elseif($batch->status === 'shipped')
-                <button wire:click="mountAction('batch_delivered_{{ $batch->id }}')"
+                <button type="button" wire:click.prevent="mountAction('batch_delivered_{{ $batch->id }}')"
                         style="display: inline-flex; align-items: center; gap: 5px; padding: 6px 14px; background: #14532d; border: 1.5px solid #16a34a; border-radius: 8px; color: #4ade80; font-size: 0.75rem; font-weight: 600; cursor: pointer;">
                     ✅ Tandai Diterima di Lokasi
                 </button>
+                <a href="{{ $order->getWaBatchShippedLink($batch) }}" target="_blank"
+                   style="display: inline-flex; align-items: center; gap: 5px; padding: 6px 14px; background: #064e3b; border: 1.5px solid #059669; border-radius: 8px; color: #6ee7b7; font-size: 0.75rem; font-weight: 600; text-decoration: none; cursor: pointer;">
+                    💬 Kirim WA Info Supir
+                </a>
                 @elseif($batch->status === 'delivered')
                 <span style="color: #16a34a; font-size: 0.75rem; font-weight: 600;">✅ Selesai — Diterima {{ $batch->actual_delivered_date?->format('d M Y') ?? '' }}</span>
                 @endif

@@ -42,6 +42,13 @@
         @endif
     </p>
 
+    @if(!$isBatch)
+    <div style="margin-bottom: 12px; padding: 10px; border-radius: 8px; background: rgba(30, 41, 59, 0.5); border: 1px solid #334155; font-size: 0.78rem;">
+        <div style="font-weight: 700; color: #f8fafc;">📦 Total Muatan: {{ number_format($record->total_ordered_quantity, 0, ',', '.') }} pcs</div>
+        <div style="color: #94a3b8; font-size: 0.72rem; margin-top: 2px;">Plat Truk: <span style="font-family: monospace; font-weight: 700; color: #f97316;">{{ $record->tracking_number ?? '-' }}</span></div>
+    </div>
+    @endif
+
     {{-- Untuk PO Batch: tampilkan batch yang jadi tanggung jawab kurir ini --}}
     @if($isBatch && $myBatches->isNotEmpty())
     <div class="courier-batch-box">

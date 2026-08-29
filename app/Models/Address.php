@@ -15,6 +15,7 @@ class Address extends Model
         'province',
         'city',
         'district',
+        'village',
         'postal_code',
         'full_address',
         'truck_access_notes',
@@ -42,7 +43,19 @@ class Address extends Model
      */
     public function getFormattedAddressAttribute(): string
     {
-        return "{$this->full_address}, {$this->district}, {$this->city}, {$this->province} {$this->postal_code}";
+        $parts = array_filter([
+            $this->full_address,
+            $this->village ? 'Kel. '.$this->village : null,
+            $this->district ? 'Kec. '.$this->district : null,
+            $this->city,
+            $this->province,
+        ]);
+        $str = implode(', ', $parts);
+        if ($this->postal_code) {
+            $str .= ' '.$this->postal_code;
+        }
+
+        return $str;
     }
 
     /**

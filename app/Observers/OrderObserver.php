@@ -52,14 +52,21 @@ class OrderObserver
     private function ensureInvoiceExists(Order $order): void
     {
         if (! $order->invoice()->exists()) {
+            $invoiceNumber = $order->order_source === 'whatsapp'
+                ? Invoice::generateWaInvoiceNumber()
+                : Invoice::generateInvoiceNumber();
+
             Invoice::create([
                 'order_id' => $order->id,
-                'invoice_number' => Invoice::generateInvoiceNumber(),
+                'invoice_number' => $invoiceNumber,
                 'invoice_date' => now(),
                 'subtotal' => $order->subtotal,
                 'shipping_cost' => $order->shipping_cost,
                 'discount_amount' => $order->discount_amount,
                 'grand_total' => $order->grand_total,
+                'payment_scheme' => $order->payment_scheme ?: 'full',
+                'down_payment_amount' => $order->down_payment_amount ?: 0,
+                'remaining_balance' => $order->remaining_balance ?: 0,
                 'status' => 'paid',
                 'paid_at' => now(),
             ]);
@@ -95,16 +102,20 @@ class OrderObserver
             $totalWeight = 0;
             $productList = [];
             foreach ($order->items()->with('product')->get() as $item) {
-                $weight = $item->product->weight ?? 0;
+                $weight = $item->product?->weight ?? 0;
                 $totalWeight += $weight * $item->quantity;
                 $variantName = $item->product_variant_name ? " ({$item->product_variant_name})" : '';
                 $productList[] = ($item->product_name ?? $item->product?->name ?? 'Produk').$variantName.' x'.$item->quantity;
             }
             $packageDesc = implode(', ', $productList);
 
+            $labelNumber = $order->order_source === 'whatsapp'
+                ? ShippingLabel::generateWaLabelNumber()
+                : ShippingLabel::generateLabelNumber();
+
             ShippingLabel::create(array_merge($sender, [
                 'order_id' => $order->id,
-                'label_number' => ShippingLabel::generateLabelNumber(),
+                'label_number' => $labelNumber,
                 'courier' => $order->courier ?? 'Armada Pabrik',
                 'tracking_number' => $order->tracking_number ?? 'TRK-'.strtoupper(Str::random(8)),
                 'recipient_name' => $order->shipping_name,

@@ -44,8 +44,8 @@
 
         <!-- Footer -->
         <div style="background: #f1f5f9; padding: 20px 24px; text-align: center; font-size: 12px; color: #64748b; border-top: 1px solid #e2e8f0;">
-            <p style="margin: 0 0 4px 0; font-weight: 600; color: #475569;">PT INDOROSTER NUSANTARA CEMERLANG</p>
-            <p style="margin: 0 0 8px 0;">Plered, Purwakarta, Jawa Barat | Website: <a href="https://indoroster.com" style="color: #ea580c; text-decoration: none;">indoroster.com</a></p>
+            <p style="margin: 0 0 4px 0; font-weight: 700; color: #0f172a;">PABRIK INDOROSTER INDONESIA</p>
+            <p style="margin: 0 0 8px 0;">Kp. Cicadas, Desa Cadasmekar, Purwakarta, Jawa Barat | Website: <a href="https://indoroster.com" style="color: #ea580c; text-decoration: none;">indoroster.com</a></p>
             <p style="margin: 0; font-size: 11px; color: #94a3b8;">Email ini dikirimkan resmi kepada Anda sebagai mitra/pelanggan terdaftar IndoRoster.</p>
         </div>
 

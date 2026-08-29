@@ -60,6 +60,8 @@ class Checkout extends Component
 
     public $postal_code;
 
+    public $postalCodes = [];
+
     public $latitude = null;
 
     public $longitude = null;
@@ -203,6 +205,7 @@ class Checkout extends Component
         $this->phone = auth()->check() ? auth()->user()->phone : '';
         $this->address = '';
         $this->postal_code = '';
+        $this->postalCodes = [];
         $this->latitude = null;
         $this->longitude = null;
         $this->province_id = null;
@@ -371,6 +374,7 @@ class Checkout extends Component
         $this->village_id = null;
         $this->districts = [];
         $this->villages = [];
+        $this->postalCodes = [];
         $this->calculateTotal();
     }
 
@@ -385,18 +389,51 @@ class Checkout extends Component
         $this->district_id = null;
         $this->village_id = null;
         $this->villages = [];
+        $this->postalCodes = [];
         $this->calculateTotal();
     }
 
     public function updatedDistrictId($value)
     {
-        $this->villages = Village::where('district_code', $value)
-            ->select(['code', 'name'])
+        $villagesList = Village::where('district_code', $value)
+            ->select(['code', 'name', 'meta'])
             ->orderBy('name')
-            ->get()
+            ->get();
+
+        $this->villages = $villagesList
             ->map(fn ($v) => ['value' => $v->code, 'text' => $v->name])
             ->toArray();
         $this->village_id = null;
+
+        $codes = $villagesList->map(function ($v) {
+            $meta = is_string($v->meta) ? json_decode($v->meta, true) : $v->meta;
+
+            return $meta['pos'] ?? null;
+        })->filter()->unique()->values()->toArray();
+
+        $this->postalCodes = $codes;
+
+        if (! empty($codes)) {
+            $this->postal_code = (string) $codes[0];
+        }
+    }
+
+    public function updatedVillageId($value)
+    {
+        if ($value) {
+            $village = Village::where('code', $value)->first();
+            if ($village) {
+                $meta = is_string($village->meta) ? json_decode($village->meta, true) : $village->meta;
+                if (! empty($meta['pos'])) {
+                    $this->postal_code = (string) $meta['pos'];
+                }
+            }
+        }
+    }
+
+    public function selectPostalCode($code)
+    {
+        $this->postal_code = (string) $code;
     }
 
     public function loadCart()

@@ -36,6 +36,17 @@ class OrderBatch extends Model
         'actual_delivered_date' => 'date',
     ];
 
+    protected static function booted()
+    {
+        static::saving(function ($batch) {
+            if (empty($batch->batch_number) || $batch->batch_number <= 1) {
+                if (preg_match('/\b(?:batch|rit|ke)\s*#?\s*(\d+)\b/i', $batch->batch_name ?? '', $m)) {
+                    $batch->batch_number = (int) $m[1];
+                }
+            }
+        });
+    }
+
     public function order(): BelongsTo
     {
         return $this->belongsTo(Order::class);
@@ -103,12 +114,15 @@ class OrderBatch extends Model
         };
     }
 
-    /** Total quantity shipped sebelum batch ini */
+    /** Total kuantitas terencana/terkirim pada batch-batch sebelum nomor batch ini */
     public function getPreviousShippedQuantityAttribute(): int
     {
+        if (! $this->order) {
+            return 0;
+        }
+
         return (int) $this->order->batches()
             ->where('batch_number', '<', $this->batch_number)
-            ->whereIn('status', ['shipped', 'delivered'])
             ->sum('quantity');
     }
 

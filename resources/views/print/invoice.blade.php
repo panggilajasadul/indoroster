@@ -60,7 +60,43 @@
         
         <hr class="header-divider">
 
-        <div class="title">INVOICE</div>
+        @php
+            $paymentStage = $paymentStage ?? null;
+            $order = $invoice->order;
+            $allPayments = $order ? $order->getValidPayments() : collect();
+            
+            if ($paymentStage) {
+                $payments = $allPayments->filter(fn($p) => $p->id <= $paymentStage->id);
+                $stagePaid = (float) $payments->sum('gross_amount');
+                $grandTotal = (float) $invoice->grand_total;
+                $dp = $stagePaid;
+                $remaining = max(0, $grandTotal - $stagePaid);
+                $isStageLunas = ($remaining <= 0);
+            } else {
+                $payments = $allPayments;
+                $dp = $invoice->down_payment_amount ?: ($order->down_payment_amount ?? 0);
+                $remaining = $invoice->remaining_balance > 0 ? $invoice->remaining_balance : ($order->remaining_balance ?? max(0, $invoice->grand_total - $dp));
+                $isStageLunas = ($remaining <= 0 || $invoice->status === 'paid' || ($order && $order->payment_status === 'paid'));
+            }
+        @endphp
+
+        <div class="title">
+            @if($paymentStage)
+                INVOICE {{ strtoupper($paymentStage->installment_title) }}
+            @elseif($isStageLunas)
+                INVOICE PELUNASAN RESMI
+            @elseif($allPayments->count() > 0 && $remaining > 0)
+                SURAT TAGIHAN PELUNASAN (SISA TERMIN)
+            @elseif($order && ($order->status === 'draft' || $order->status === 'pending_payment' || $invoice->status === 'unpaid'))
+                @if($order->payment_scheme !== 'full' && $dp > 0 && $dp < $invoice->grand_total)
+                    SURAT PENAWARAN & TAGIHAN PEMBAYARAN DP
+                @else
+                    SURAT PENAWARAN & PROFORMA INVOICE
+                @endif
+            @else
+                INVOICE RESMI
+            @endif
+        </div>
 
         <div class="details">
             <div class="details-col">
@@ -68,33 +104,50 @@
                 <strong style="color: #0f172a; font-size: 14px;">{{ $invoice->order->shipping_name }}</strong><br>
                 <span style="color: #475569; font-size: 12.5px; line-height: 1.5;">
                     {{ $invoice->order->shipping_address }}<br>
-                    {{ $invoice->order->shipping_city }}, {{ $invoice->order->shipping_province }} {{ $invoice->order->shipping_postal_code }}<br>
+                    {{ $invoice->order->shipping_village ? 'Kel. '.$invoice->order->shipping_village.', ' : '' }}{{ $invoice->order->shipping_district ? 'Kec. '.$invoice->order->shipping_district.', ' : '' }}{{ $invoice->order->shipping_city }}, {{ $invoice->order->shipping_province }} {{ $invoice->order->shipping_postal_code }}<br>
                     HP / WA: {{ $invoice->order->shipping_phone }}
                 </span>
             </div>
             <div class="details-col" style="padding-left: 20px;">
                 <div class="details-label">Informasi Invoice:</div>
                 <table style="width: 100%; font-size: 13px; line-height: 1.6;">
-                    <tr><td width="40%" style="color: #64748b;">No. Invoice</td><td>: <strong style="color: #0f172a;">{{ $invoice->invoice_number }}</strong></td></tr>
-                    <tr><td style="color: #64748b;">Tanggal</td><td>: {{ $invoice->invoice_date->format('d M Y') }}</td></tr>
+                    <tr><td width="40%" style="color: #64748b;">No. Invoice</td><td>: <strong style="color: #0f172a;">{{ $invoice->invoice_number }}{{ $paymentStage ? ' / ' . $paymentStage->receipt_number : '' }}</strong></td></tr>
+                    <tr><td style="color: #64748b;">Tanggal</td><td>: {{ $paymentStage && $paymentStage->paid_at ? $paymentStage->paid_at->format('d M Y') : $invoice->invoice_date->format('d M Y') }}</td></tr>
                     <tr><td style="color: #64748b;">No. Pesanan</td><td>: {{ $invoice->order->order_number }}</td></tr>
-                    @if($invoice->order->latestPayment)
+                    @if($paymentStage)
                     <tr>
                         <td style="color: #64748b;">Metode Bayar</td>
-                        <td>: {{ $invoice->order->latestPayment->payment_type_label }}
-                            @if($invoice->order->latestPayment->va_number)
-                                (VA: {{ $invoice->order->latestPayment->va_number }})
-                            @endif
-                        </td>
+                        <td>: {{ $paymentStage->payment_type_label }}</td>
+                    </tr>
+                    @elseif($invoice->order->latestPayment)
+                    <tr>
+                        <td style="color: #64748b;">Metode Bayar</td>
+                        <td>: {{ $invoice->order->latestPayment->payment_type_label }}</td>
                     </tr>
                     @endif
                     <tr>
                         <td style="color: #64748b;">Status</td>
                         <td>: 
-                            @if($invoice->status === 'paid')
-                                <span class="status status-paid">LUNAS</span>
+                            @if($paymentStage)
+                                @if($isStageLunas)
+                                    <span class="status status-paid">LUNAS (100%)</span>
+                                @else
+                                    <span class="status" style="background: #fef3c7; color: #b45309; border: 1px solid #fde68a;">{{ strtoupper($paymentStage->installment_title) }} TERVERIFIKASI</span>
+                                @endif
+                            @elseif($isStageLunas)
+                                <span class="status status-paid">LUNAS (100%)</span>
+                            @elseif($allPayments->count() > 0 && $remaining > 0)
+                                <span class="status" style="background: #fef2f2; color: #dc2626; border: 1px solid #fecaca;">MENUNGGU PELUNASAN SISA (Rp {{ number_format($remaining, 0, ',', '.') }})</span>
+                            @elseif($order && ($order->status === 'draft' || $order->status === 'pending_payment'))
+                                @if($order->payment_scheme !== 'full' && $dp > 0 && $dp < $invoice->grand_total)
+                                    <span class="status" style="background: #fef3c7; color: #b45309; border: 1px solid #fde68a;">MENUNGGU PEMBAYARAN DP (Rp {{ number_format($dp, 0, ',', '.') }})</span>
+                                @else
+                                    <span class="status" style="background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1;">DRAFT / PROFORMA PENAWARAN</span>
+                                @endif
+                            @elseif($dp > 0 && $remaining > 0)
+                                <span class="status" style="background: #fef3c7; color: #b45309; border: 1px solid #fde68a;">DP TERVERIFIKASI</span>
                             @else
-                                <span class="status status-unpaid">{{ strtoupper($invoice->status_label) }}</span>
+                                <span class="status status-unpaid">MENUNGGU PEMBAYARAN</span>
                             @endif
                         </td>
                     </tr>
@@ -116,10 +169,15 @@
                 <tr>
                     <td class="col-product">
                         <strong style="color: #0f172a;">{{ $item->product_name }}</strong><br>
-                        @if($item->variant)
-                            <small style="color: #64748b;">Varian: {{ $item->variant->name }}</small><br>
+                        @if($item->custom_variant_name || $item->variant)
+                            <small style="color: #64748b;">Varian: {{ $item->custom_variant_name ?: $item->variant?->name }}</small><br>
                         @endif
-                        <small style="color: #64748b;">{{ $item->product->material ?? '' }} {{ $item->product->dimensions ? '('.$item->product->dimensions.')' : '' }}</small>
+                        @if($item->product)
+                            <small style="color: #64748b;">{{ $item->product->material ?? '' }} {{ $item->product->dimensions ? '('.$item->product->dimensions.')' : '' }}</small><br>
+                        @endif
+                        @if($item->item_notes)
+                            <small style="color: #64748b; font-style: italic;">Catatan: {{ $item->item_notes }}</small>
+                        @endif
                     </td>
                     <td class="col-price">Rp {{ number_format($item->product_price, 0, ',', '.') }}</td>
                     <td class="col-qty">{{ number_format($item->quantity, 0, ',', '.') }} pcs</td>
@@ -162,9 +220,128 @@
                         <td class="label">GRAND TOTAL</td>
                         <td>Rp {{ number_format($invoice->grand_total, 0, ',', '.') }}</td>
                     </tr>
+                    @php
+                        $scheme = $invoice->order->payment_scheme ?? 'full';
+                        $grandTotalVal = (float) $invoice->grand_total;
+                    @endphp
+                    @if($dp > 0 && $remaining > 0)
+                    <tr>
+                        <td class="label" style="color: #059669; font-weight: 600;">{{ $paymentStage ? 'Total Masuk (s/d ' . $paymentStage->installment_title . ')' : 'Total DP / Telah Dibayar' }}</td>
+                        <td style="color: #059669; font-weight: 600;">Rp {{ number_format($dp, 0, ',', '.') }}</td>
+                    </tr>
+                    <tr class="bold" style="background: #fef2f2;">
+                        <td class="label" style="color: #dc2626;">SISA TAGIHAN PELUNASAN<br><small style="font-weight: normal; color: #64748b; font-size: 9px;">(Saat Barang Siap Dikirim)</small></td>
+                        <td style="color: #dc2626; font-size: 13px; font-weight: 800;">Rp {{ number_format($remaining, 0, ',', '.') }}</td>
+                    </tr>
+                    @elseif($isStageLunas && $dp > 0)
+                    <tr style="background: #f0fdf4;">
+                        <td class="label" style="color: #15803d; font-weight: 700;">TOTAL PEMBAYARAN MASUK (100%)</td>
+                        <td style="color: #15803d; font-weight: 800; font-size: 13px;">Rp {{ number_format($dp, 0, ',', '.') }}</td>
+                    </tr>
+                    <tr style="background: #f0fdf4;">
+                        <td class="label" style="color: #15803d; font-weight: 700;">SISA TAGIHAN</td>
+                        <td style="color: #15803d; font-weight: 800; font-size: 13px;">Rp 0 (LUNAS)</td>
+                    </tr>
+                    @elseif($dp == 0 && ($invoice->order->status === 'draft' || $invoice->order->status === 'pending_payment'))
+                        @if($scheme === 'dp_50_50')
+                        <tr style="background: #fffbeb;">
+                            <td class="label" style="color: #b45309; font-weight: 700;">Tagihan DP Awal (50%)<br><small style="font-weight: normal; color: #64748b; font-size: 9px;">(Untuk Konfirmasi Cetak Pabrik)</small></td>
+                            <td style="color: #b45309; font-weight: 800; font-size: 12px;">Rp {{ number_format(round($grandTotalVal * 0.5), 0, ',', '.') }}</td>
+                        </tr>
+                        <tr>
+                            <td class="label" style="color: #475569;">Sisa Pelunasan (50%)<br><small style="font-weight: normal; color: #64748b; font-size: 9px;">(Saat Barang Siap Dikirim)</small></td>
+                            <td style="color: #475569; font-weight: 600;">Rp {{ number_format(round($grandTotalVal * 0.5), 0, ',', '.') }}</td>
+                        </tr>
+                        @elseif($scheme === 'termin_3x')
+                        <tr style="background: #fffbeb;">
+                            <td class="label" style="color: #b45309; font-weight: 700;">Tagihan DP #1 (30%)</td>
+                            <td style="color: #b45309; font-weight: 800;">Rp {{ number_format(round($grandTotalVal * 0.3), 0, ',', '.') }}</td>
+                        </tr>
+                        <tr>
+                            <td class="label" style="color: #475569;">Termin #2 (40%) / Pelunasan #3 (30%)<br><small style="font-weight: normal; color: #64748b; font-size: 9px;">(Pelunasan Saat Barang Siap Dikirim)</small></td>
+                            <td style="color: #475569; font-weight: 600;">Rp {{ number_format(round($grandTotalVal * 0.7), 0, ',', '.') }}</td>
+                        </tr>
+                        @elseif($scheme === 'custom_dp' && ($invoice->order->down_payment_amount ?? 0) > 0)
+                        @php $customDp = (float) $invoice->order->down_payment_amount; @endphp
+                        <tr style="background: #fffbeb;">
+                            <td class="label" style="color: #b45309; font-weight: 700;">Tagihan DP Awal Disepakati</td>
+                            <td style="color: #b45309; font-weight: 800; font-size: 12px;">Rp {{ number_format($customDp, 0, ',', '.') }}</td>
+                        </tr>
+                        <tr>
+                            <td class="label" style="color: #475569;">Sisa Pelunasan<br><small style="font-weight: normal; color: #64748b; font-size: 9px;">(Saat Barang Siap Dikirim)</small></td>
+                            <td style="color: #475569; font-weight: 600;">Rp {{ number_format(max(0, $grandTotalVal - $customDp), 0, ',', '.') }}</td>
+                        </tr>
+                        @endif
+                    @endif
                 </table>
             </div>
         </div>
+
+        @if($payments->count() > 0)
+        <!-- Riwayat Pembayaran Bertahap Terhubung -->
+        <div style="margin-top: 15px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 14px;">
+            <div style="font-size: 11px; font-weight: 800; color: #1e293b; text-transform: uppercase; margin-bottom: 5px; letter-spacing: 0.03em;">
+                Rincian Pembayaran Masuk & Kuitansi Terhubung:
+            </div>
+            <table style="width: 100%; border-collapse: collapse; font-size: 10.5px;">
+                <thead>
+                    <tr style="border-bottom: 1px solid #cbd5e1; color: #64748b;">
+                        <th style="text-align: left; padding: 3px 0;">Tahap Pembayaran</th>
+                        <th style="text-align: left; padding: 3px 0;">Tanggal</th>
+                        <th style="text-align: left; padding: 3px 0;">No. Kuitansi</th>
+                        <th style="text-align: left; padding: 3px 0;">Metode Bank</th>
+                        <th style="text-align: right; padding: 3px 0;">Nominal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($payments as $idx => $p)
+                    <tr style="border-bottom: 1px dashed #e2e8f0; color: #334155;">
+                        <td style="padding: 3px 0; font-weight: 600;">{{ $p->installment_title }}</td>
+                        <td style="padding: 3px 0;">{{ $p->paid_at ? $p->paid_at->format('d/m/Y') : $p->created_at->format('d/m/Y') }}</td>
+                        <td style="padding: 3px 0; color: #ea580c; font-weight: 600;">{{ $p->receipt_number }}</td>
+                        <td style="padding: 3px 0;">{{ $p->payment_type_label }}</td>
+                        <td style="padding: 3px 0; text-align: right; font-weight: 700; color: #15803d;">Rp {{ number_format($p->gross_amount, 0, ',', '.') }}</td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+        @endif
+        @if($remaining > 0 || $dp == 0)
+        <!-- Petunjuk Rekening Pembayaran Resmi Pabrik -->
+        <div style="margin-top: 14px; background: #fffdfa; border: 1.5px solid #fed7aa; border-left: 5px solid #ea580c; border-radius: 6px; padding: 10px 14px; font-size: 11px;">
+            <div style="color: #9a3412; font-weight: 800; text-transform: uppercase; font-size: 11px; margin-bottom: 4px; letter-spacing: 0.03em;">
+                Petunjuk Pembayaran & Rekening Resmi:
+            </div>
+            <div style="color: #334155; line-height: 1.5;">
+                @if($scheme === 'full')
+                    Silakan melakukan transfer pembayaran penuh (100%) ke rekening resmi berikut:
+                @else
+                    Silakan melakukan transfer pembayaran / DP ke rekening resmi berikut:
+                @endif
+                <table style="margin-top: 4px; font-size: 11px; border-collapse: collapse;">
+                    <tr>
+                        <td style="padding: 2px 0; color: #64748b; width: 110px;">Bank Tujuan</td>
+                        <td style="padding: 2px 0; font-weight: 700; color: #0f172a;">: Bank BRI (Bank Rakyat Indonesia)</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 2px 0; color: #64748b;">Nomor Rekening</td>
+                        <td style="padding: 2px 0; font-weight: 800; font-family: monospace; font-size: 12.5px; color: #ea580c;">: 4356-01-009396-50-2 <span style="font-weight: normal; font-size: 10px; color: #64748b;">(435601009396502)</span></td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 2px 0; color: #64748b;">Atas Nama</td>
+                        <td style="padding: 2px 0; font-weight: 700; color: #0f172a;">: ABDUL HAMID</td>
+                    </tr>
+                </table>
+                <div style="margin-top: 5px; font-size: 10px; color: #9a3412; font-style: italic; line-height: 1.4;">
+                    @if($scheme !== 'full')
+                    * Sisa pelunasan diselesaikan saat material telah selesai diproduksi & siap dikirim dari pabrik.<br>
+                    @endif
+                    * Harap konfirmasikan bukti transfer ke WhatsApp resmi kami (0813-8970-9847) untuk penerbitan Kuitansi Resmi dan verifikasi pesanan.
+                </div>
+            </div>
+        </div>
+        @endif
 
         <!-- Signature & Stamp Section Resmi Pabrik -->
         <table style="width: 100%; margin-top: 30px; border-collapse: collapse; page-break-inside: avoid;">

@@ -7,10 +7,10 @@
                 <nav class="flex text-xs font-semibold text-slate-400 dark:text-slate-500 gap-1.5 mb-2 uppercase tracking-wider">
                     <a href="{{ route('home') }}" class="hover:text-slate-600 dark:hover:text-slate-300 transition-colors">Home</a>
                     <span>/</span>
-                    <span class="text-slate-600 dark:text-slate-300">Buku Alamat</span>
+                    <span class="text-slate-600 dark:text-slate-300">Alamat Saya</span>
                 </nav>
-                <h1 class="font-display text-fluid-h1 font-black text-slate-900 dark:text-white tracking-tight">Kelola Buku Alamat</h1>
-                <p class="text-slate-500 dark:text-slate-400 mt-1 text-sm">Simpan dan kelola alamat pengiriman serta titik koordinat GPS untuk kemudahan pengiriman.</p>
+                <h1 class="font-display text-fluid-h1 font-black text-slate-900 dark:text-white tracking-tight">Kelola Alamat Saya</h1>
+                <p class="text-slate-500 dark:text-slate-400 mt-1 text-sm">Simpan dan kelola alamat pengiriman serta titik koordinat GPS untuk kemudahan armada pengiriman pabrik.</p>
             </div>
             
             @if(!$isFormOpen)
@@ -73,7 +73,19 @@
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
                         <div>
                             <label class="font-display block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">Label Alamat</label>
-                            <input type="text" wire:model="label" placeholder="Contoh: Rumah, Kantor, Proyek" class="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-xl text-sm focus:border-terra-500 focus:ring-4 focus:ring-terra-500/10 focus:outline-none transition-all duration-200 shadow-xs">
+                            <div class="space-y-2">
+                                <select wire:model.live="label" class="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white rounded-xl text-sm focus:border-terra-500 focus:ring-4 focus:ring-terra-500/10 focus:outline-none transition-all duration-200 shadow-xs">
+                                    <option value="Rumah">🏠 Rumah / Tempat Tinggal</option>
+                                    <option value="Kantor">🏢 Kantor / Perusahaan</option>
+                                    <option value="Proyek">🏗️ Lokasi Proyek / Lapangan</option>
+                                    <option value="Gudang">🏬 Gudang / Workshop</option>
+                                    <option value="Toko">🏪 Toko / Ruko</option>
+                                    <option value="Lainnya">✏️ Kustom / Lainnya</option>
+                                </select>
+                                @if($label === 'Lainnya' || (!in_array($label, ['Rumah', 'Kantor', 'Proyek', 'Gudang', 'Toko']) && !empty($label)))
+                                    <input type="text" wire:model="label" placeholder="Ketik label alamat khusus..." class="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-xl text-xs focus:border-terra-500 focus:ring-4 focus:ring-terra-500/10 focus:outline-none transition-all duration-200 shadow-xs mt-1">
+                                @endif
+                            </div>
                             @error('label') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                         </div>
 
@@ -90,16 +102,40 @@
                         </div>
                     </div>
 
-                    <!-- 2. Wilayah (Provinsi, Kota, Kecamatan, Kode Pos) -->
+                    <!-- 2. Wilayah (Provinsi, Kota, Kecamatan, Kelurahan/Desa, Kode Pos) -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5 pt-2">
                         <div>
                             <label class="font-display block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">Provinsi</label>
-                            <select wire:model.live="province_id" class="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:border-terra-500 focus:ring-4 focus:ring-terra-500/10 focus:outline-none transition-all duration-200 bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs">
-                                <option value="">Pilih Provinsi</option>
-                                @foreach($provinces as $p)
-                                    <option value="{{ $p->code }}">{{ $p->name }}</option>
-                                @endforeach
-                            </select>
+                            <div wire:ignore x-data="{
+                                tom: null,
+                                init() {
+                                    this.tom = new TomSelect($refs.selectProvince, {
+                                        create: false,
+                                        openOnFocus: true,
+                                        placeholder: 'Pilih Provinsi'
+                                    });
+                                    if ($wire.province_id) {
+                                        this.tom.setValue($wire.province_id, true);
+                                    }
+                                    this.tom.on('change', (val) => {
+                                        $wire.set('province_id', val);
+                                    });
+                                    $watch('$wire.province_id', (val) => {
+                                        if (val && this.tom.getValue() !== val) {
+                                            this.tom.setValue(val, true);
+                                        } else if (!val) {
+                                            this.tom.clear(true);
+                                        }
+                                    });
+                                }
+                            }">
+                                <select x-ref="selectProvince" class="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white rounded-xl shadow-xs focus:border-terra-500 focus:ring focus:ring-terra-200 transition-shadow">
+                                    <option value="">Pilih Provinsi</option>
+                                    @foreach($provinces as $p)
+                                        <option value="{{ $p->code }}">{{ $p->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
                             @error('province_id') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                         </div>
 
@@ -108,12 +144,54 @@
                                 <span>Kota / Kab</span>
                                 <span wire:loading wire:target="province_id" class="text-[10px] text-terra-500 lowercase animate-pulse font-normal">Memuat...</span>
                             </label>
-                            <select wire:model.live="city_id" @disabled(!$province_id) class="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:border-terra-500 focus:ring-4 focus:ring-terra-500/10 focus:outline-none transition-all duration-200 bg-white dark:bg-slate-800 text-slate-900 dark:text-white disabled:bg-slate-50 dark:disabled:bg-slate-900 disabled:text-slate-400 dark:disabled:text-slate-600 shadow-xs">
-                                <option value="">Pilih Kota / Kab</option>
-                                @foreach($cities as $c)
-                                    <option value="{{ $c->code }}">{{ $c->name }}</option>
-                                @endforeach
-                            </select>
+                            <div wire:ignore x-data="{
+                                tom: null,
+                                init() {
+                                    this.tom = new TomSelect($refs.selectCity, {
+                                        create: false,
+                                        openOnFocus: true,
+                                        placeholder: 'Pilih Kota / Kab'
+                                    });
+                                    if (!$wire.cities || $wire.cities.length === 0) {
+                                        this.tom.disable();
+                                    } else {
+                                        $wire.cities.forEach(item => {
+                                            this.tom.addOption({ value: item.value, text: item.text });
+                                        });
+                                        this.tom.enable();
+                                        if ($wire.city_id) {
+                                            this.tom.setValue($wire.city_id, true);
+                                        }
+                                    }
+                                    this.tom.on('change', (val) => {
+                                        if (val) $wire.set('city_id', val);
+                                    });
+                                    $watch('$wire.cities', (items) => {
+                                        this.tom.clear(true);
+                                        this.tom.clearOptions();
+                                        if (!items || items.length === 0) {
+                                            this.tom.disable();
+                                            return;
+                                        }
+                                        items.forEach(item => {
+                                            this.tom.addOption({ value: item.value, text: item.text });
+                                        });
+                                        this.tom.enable();
+                                        this.tom.refreshOptions(false);
+                                    });
+                                    $watch('$wire.city_id', (val) => {
+                                        if (val && this.tom.getValue() !== val) {
+                                            this.tom.setValue(val, true);
+                                        } else if (!val) {
+                                            this.tom.clear(true);
+                                        }
+                                    });
+                                }
+                            }">
+                                <select x-ref="selectCity" class="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white rounded-xl shadow-xs focus:border-terra-500 focus:ring focus:ring-terra-200 transition-shadow disabled:bg-slate-50 dark:disabled:bg-slate-900">
+                                    <option value="">Pilih Kota / Kab</option>
+                                </select>
+                            </div>
                             @error('city_id') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                         </div>
 
@@ -122,20 +200,144 @@
                                 <span>Kecamatan</span>
                                 <span wire:loading wire:target="city_id" class="text-[10px] text-terra-500 lowercase animate-pulse font-normal">Memuat...</span>
                             </label>
-                            <select wire:model="district_id" @disabled(!$city_id) class="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:border-terra-500 focus:ring-4 focus:ring-terra-500/10 focus:outline-none transition-all duration-200 bg-white dark:bg-slate-800 text-slate-900 dark:text-white disabled:bg-slate-50 dark:disabled:bg-slate-900 disabled:text-slate-400 dark:disabled:text-slate-600 shadow-xs">
-                                <option value="">Pilih Kecamatan</option>
-                                @foreach($districts as $d)
-                                    <option value="{{ $d->code }}">{{ $d->name }}</option>
-                                @endforeach
-                            </select>
+                            <div wire:ignore x-data="{
+                                tom: null,
+                                init() {
+                                    this.tom = new TomSelect($refs.selectDistrict, {
+                                        create: false,
+                                        openOnFocus: true,
+                                        placeholder: 'Pilih Kecamatan'
+                                    });
+                                    if (!$wire.districts || $wire.districts.length === 0) {
+                                        this.tom.disable();
+                                    } else {
+                                        $wire.districts.forEach(item => {
+                                            this.tom.addOption({ value: item.value, text: item.text });
+                                        });
+                                        this.tom.enable();
+                                        if ($wire.district_id) {
+                                            this.tom.setValue($wire.district_id, true);
+                                        }
+                                    }
+                                    this.tom.on('change', (val) => {
+                                        if (val) $wire.set('district_id', val);
+                                    });
+                                    $watch('$wire.districts', (items) => {
+                                        this.tom.clear(true);
+                                        this.tom.clearOptions();
+                                        if (!items || items.length === 0) {
+                                            this.tom.disable();
+                                            return;
+                                        }
+                                        items.forEach(item => {
+                                            this.tom.addOption({ value: item.value, text: item.text });
+                                        });
+                                        this.tom.enable();
+                                        this.tom.refreshOptions(false);
+                                    });
+                                    $watch('$wire.district_id', (val) => {
+                                        if (val && this.tom.getValue() !== val) {
+                                            this.tom.setValue(val, true);
+                                        } else if (!val) {
+                                            this.tom.clear(true);
+                                        }
+                                    });
+                                }
+                            }">
+                                <select x-ref="selectDistrict" class="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white rounded-xl shadow-xs focus:border-terra-500 focus:ring focus:ring-terra-200 transition-shadow disabled:bg-slate-50 dark:disabled:bg-slate-900">
+                                    <option value="">Pilih Kecamatan</option>
+                                </select>
+                            </div>
                             @error('district_id') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                         </div>
 
                         <div>
-                            <label class="font-display block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">Kode Pos</label>
-                            <input type="text" wire:model="postal_code" placeholder="Contoh: 41165" class="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-xl text-sm focus:border-terra-500 focus:ring-4 focus:ring-terra-500/10 focus:outline-none transition-all duration-200 shadow-xs">
-                            @error('postal_code') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                            <label class="font-display block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2 flex justify-between">
+                                <span>Kelurahan / Desa</span>
+                                <span wire:loading wire:target="district_id" class="text-[10px] text-terra-500 lowercase animate-pulse font-normal">Memuat...</span>
+                            </label>
+                            <div wire:ignore x-data="{
+                                tom: null,
+                                init() {
+                                    this.tom = new TomSelect($refs.selectVillage, {
+                                        create: false,
+                                        openOnFocus: true,
+                                        placeholder: 'Pilih Kelurahan / Desa'
+                                    });
+                                    if (!$wire.villages || $wire.villages.length === 0) {
+                                        this.tom.disable();
+                                    } else {
+                                        $wire.villages.forEach(item => {
+                                            this.tom.addOption({ value: item.value, text: item.text });
+                                        });
+                                        this.tom.enable();
+                                        if ($wire.village_id) {
+                                            this.tom.setValue($wire.village_id, true);
+                                        }
+                                    }
+                                    this.tom.on('change', (val) => {
+                                        if (val) $wire.set('village_id', val);
+                                    });
+                                    $watch('$wire.villages', (items) => {
+                                        this.tom.clear(true);
+                                        this.tom.clearOptions();
+                                        if (!items || items.length === 0) {
+                                            this.tom.disable();
+                                            return;
+                                        }
+                                        items.forEach(item => {
+                                            this.tom.addOption({ value: item.value, text: item.text });
+                                        });
+                                        this.tom.enable();
+                                        this.tom.refreshOptions(false);
+                                    });
+                                    $watch('$wire.village_id', (val) => {
+                                        if (val && this.tom.getValue() !== val) {
+                                            this.tom.setValue(val, true);
+                                        } else if (!val) {
+                                            this.tom.clear(true);
+                                        }
+                                    });
+                                }
+                            }">
+                                <select x-ref="selectVillage" class="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white rounded-xl shadow-xs focus:border-terra-500 focus:ring focus:ring-terra-200 transition-shadow disabled:bg-slate-50 dark:disabled:bg-slate-900">
+                                    <option value="">Pilih Kelurahan / Desa</option>
+                                </select>
+                            </div>
+                            @error('village_id') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                         </div>
+                    </div>
+
+                    <!-- Kode Pos dengan Rekomendasi Peka -->
+                    <div class="pt-1">
+                        <label class="font-display block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2 flex justify-between items-center">
+                            <span>Kode Pos</span>
+                            <span wire:loading wire:target="district_id,village_id" class="text-[10px] text-terra-500 lowercase animate-pulse font-normal">Cek kode pos...</span>
+                        </label>
+                        <div class="relative max-w-sm">
+                            <input type="text" wire:model="postal_code" list="postal-codes-list" placeholder="Contoh: 41165" class="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 rounded-xl text-sm focus:border-terra-500 focus:ring-4 focus:ring-terra-500/10 focus:outline-none transition-all duration-200 shadow-xs">
+                            <datalist id="postal-codes-list">
+                                @foreach($postalCodes as $code)
+                                    <option value="{{ $code }}">{{ $code }}</option>
+                                @endforeach
+                            </datalist>
+                        </div>
+                        @if(count($postalCodes) > 1)
+                            <div class="mt-1.5 flex flex-wrap items-center gap-1.5">
+                                <span class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Pilihan:</span>
+                                @foreach($postalCodes as $code)
+                                    <button type="button" wire:click="selectPostalCode('{{ $code }}')" class="px-2.5 py-0.5 text-xs font-semibold rounded-lg transition-all cursor-pointer {{ $postal_code == $code ? 'bg-terra-500 text-white shadow-xs' : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-terra-100 dark:hover:bg-slate-600' }}">
+                                        {{ $code }}
+                                    </button>
+                                @endforeach
+                            </div>
+                        @elseif(count($postalCodes) === 1 && $postal_code)
+                            <p class="text-[11px] text-emerald-600 dark:text-emerald-400 mt-1 flex items-center gap-1">
+                                <svg class="w-3.5 h-3.5 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                Kode pos terdeteksi otomatis
+                            </p>
+                        @endif
+                        @error('postal_code') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                     </div>
 
                     <!-- 3. Alamat Lengkap & Patokan -->
@@ -454,13 +656,22 @@ function addressBookMapHandler(latRef, lngRef) {
         },
         syncFromAddressInput() {
             const fullAddr = this.$wire.get('full_address') || '';
-            const provSelect = document.querySelector('select[wire\\:model\\.live="province_id"]');
-            const citySelect = document.querySelector('select[wire\\:model\\.live="city_id"]');
-            const distSelect = document.querySelector('select[wire\\:model="district_id"]') || document.querySelector('select[wire\\:model\\.live="district_id"]');
+            const getSelectText = (refName) => {
+                const el = document.querySelector(`select[x-ref="${refName}"]`);
+                if (!el) return '';
+                if (el.tomselect) {
+                    const val = el.tomselect.getValue();
+                    if (!val) return '';
+                    const option = el.tomselect.options[val];
+                    return option ? (option.text || option.name || '') : '';
+                }
+                return el.selectedIndex > 0 ? el.options[el.selectedIndex].text : '';
+            };
 
-            const provName = provSelect && provSelect.selectedIndex > 0 ? provSelect.options[provSelect.selectedIndex].text.replace(/^(PROVINSI|DKI|DI)\s+/i, '').trim() : '';
-            const cityName = citySelect && citySelect.selectedIndex > 0 ? citySelect.options[citySelect.selectedIndex].text.replace(/^(KABUPATEN|KOTA|KAB\.)\s+/i, '').trim() : '';
-            const distName = distSelect && distSelect.selectedIndex > 0 ? distSelect.options[distSelect.selectedIndex].text.replace(/^(KECAMATAN|KEC\.)\s+/i, '').trim() : '';
+            const provName = getSelectText('selectProvince').replace(/^(PROVINSI|DKI|DI)\s+/i, '').trim();
+            const cityName = getSelectText('selectCity').replace(/^(KABUPATEN|KOTA|KAB\.)\s+/i, '').trim();
+            const distName = getSelectText('selectDistrict').replace(/^(KECAMATAN|KEC\.)\s+/i, '').trim();
+            const selectedVillage = getSelectText('selectVillage').replace(/^(DESA|KELURAHAN|KEL\.|DS\.)\s+/i, '').trim();
             const postalCode = (this.$wire.get('postal_code') || document.querySelector('input[wire\\:model="postal_code"]')?.value || '').trim();
 
             // Ekstrak nama desa / kampung / jalan utama dari alamat lengkap tanpa memotong teks
@@ -475,7 +686,7 @@ function addressBookMapHandler(latRef, lngRef) {
                 .trim();
 
             const desaMatch = fullAddr.match(/(desa|kelurahan|kel|kp|kampung|jl|jalan)\.?\s*([a-z0-9\s]+?)(,|$)/i);
-            const desaName = (desaMatch && desaMatch[2]) ? desaMatch[2].trim() : '';
+            const desaName = selectedVillage || ((desaMatch && desaMatch[2]) ? desaMatch[2].trim() : '');
 
             // Gabungan lengkap dari seluruh data form
             const completeAddressText = [

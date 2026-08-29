@@ -344,9 +344,34 @@
                             @error('village_id') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
                         </div>
                         <div>
-                            <label class="font-display block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Kode Pos</label>
-                            <input type="text" wire:model="postal_code" @disabled($isProcessing) class="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white rounded-xl shadow-xs focus:border-terra-500 focus:ring-4 focus:ring-terra-500/10 focus:outline-none transition-all duration-200 disabled:bg-slate-50 dark:disabled:bg-slate-900 disabled:text-slate-500">
-                            @error('postal_code') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
+                            <label class="font-display block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 flex justify-between items-center">
+                                <span>Kode Pos</span>
+                                <span wire:loading wire:target="district_id,village_id" class="text-[10px] text-terra-500 lowercase animate-pulse font-normal">Cek kode pos...</span>
+                            </label>
+                            <div class="relative">
+                                <input type="text" wire:model="postal_code" list="checkout-postal-codes-list" placeholder="Contoh: 41165" @disabled($isProcessing) class="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white rounded-xl shadow-xs focus:border-terra-500 focus:ring-4 focus:ring-terra-500/10 focus:outline-none transition-all duration-200 disabled:bg-slate-50 dark:disabled:bg-slate-900 disabled:text-slate-500">
+                                <datalist id="checkout-postal-codes-list">
+                                    @foreach($postalCodes as $code)
+                                        <option value="{{ $code }}">{{ $code }}</option>
+                                    @endforeach
+                                </datalist>
+                            </div>
+                            @if(count($postalCodes) > 1)
+                                <div class="mt-1.5 flex flex-wrap items-center gap-1.5">
+                                    <span class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Pilihan:</span>
+                                    @foreach($postalCodes as $code)
+                                        <button type="button" wire:click="selectPostalCode('{{ $code }}')" class="px-2.5 py-0.5 text-xs font-semibold rounded-lg transition-all cursor-pointer {{ $postal_code == $code ? 'bg-terra-500 text-white shadow-xs' : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-terra-100 dark:hover:bg-slate-600' }}">
+                                            {{ $code }}
+                                        </button>
+                                    @endforeach
+                                </div>
+                            @elseif(count($postalCodes) === 1 && $postal_code)
+                                <p class="text-[11px] text-emerald-600 dark:text-emerald-400 mt-1 flex items-center gap-1">
+                                    <svg class="w-3.5 h-3.5 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                    Kode pos terdeteksi otomatis
+                                </p>
+                            @endif
+                            @error('postal_code') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                         </div>
 
                         <!-- Map Picker untuk Checkout Manual -->

@@ -20,7 +20,7 @@
     $isCompleted = ($status === 'completed');
 @endphp
 
-<div class="p-5" style="background: #0f172a; border-radius: 12px; border: 1px solid #1e293b; color: #f8fafc; font-family: inherit;">
+<div class="p-5" wire:poll.5s style="background: #0f172a; border-radius: 12px; border: 1px solid #1e293b; color: #f8fafc; font-family: inherit;">
     <div style="display: flex; flex-direction: column; gap: 20px;">
         
         <!-- Step 1: Lunas -->
@@ -64,23 +64,52 @@
                 </div>
                 <div style="width: 2px; height: 40px; background: {{ $isStep3Active || $isStep3Completed ? '#22c55e' : '#334155' }};"></div>
             </div>
-            <div>
-                <h4 style="margin: 0; font-size: 0.95rem; font-weight: bold; color: {{ ($isStep2Active || $isStep2Completed) ? '#f8fafc' : '#64748b' }};">
-                    @if($type === 'po_single')
-                        {{ $isStep2Completed ? '✓ Produksi Pre-Order (PO) Selesai' : ($prodStatus === 'producing' ? '🔨 Sedang Diproduksi (PO)' : '🔨 Menunggu Produksi (PO)') }}
-                    @else
-                        📦 Penyiapan Barang di Gudang (Ready Stock)
-                    @endif
-                </h4>
-                <p style="margin: 4px 0 0 0; font-size: 0.78rem; color: #94a3b8; line-height: 1.5;">
-                    @if($type === 'po_single')
-                        Tanggal Mulai Produksi: <strong>{{ $record->production_start_date ? $record->production_start_date->format('d M Y') : '-' }}</strong> <br>
-                        Estimasi Siap Kirim: <strong>{{ $record->ready_shipping_date ? $record->ready_shipping_date->format('d M Y') : '-' }}</strong> <br>
-                        Status Produksi: <strong style="color: {{ $prodStatus === 'producing' ? '#eab308' : ($isStep2Completed ? '#22c55e' : '#94a3b8') }};">{{ $prodStatus === 'producing' ? 'Sedang Diproduksi' : ($isStep2Completed ? 'Selesai & Siap Kirim' : 'Menunggu Produksi') }}</strong>
-                    @else
-                        Estimasi Siap Kirim: <strong>{{ $record->ready_shipping_date ? $record->ready_shipping_date->format('d M Y') : '-' }}</strong>
-                    @endif
-                </p>
+            <div style="flex: 1;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 8px;">
+                    <div>
+                        <h4 style="margin: 0; font-size: 0.95rem; font-weight: bold; color: {{ ($isStep2Active || $isStep2Completed) ? '#f8fafc' : '#64748b' }};">
+                            @if($type === 'po_single')
+                                {{ $isStep2Completed ? '✓ Produksi Pre-Order (PO) Selesai' : ($prodStatus === 'producing' ? '🔨 Sedang Diproduksi di Pabrik (PO)' : '🔨 Menunggu Produksi (PO)') }}
+                            @else
+                                📦 Penyiapan Barang di Gudang (Ready Stock)
+                            @endif
+                        </h4>
+                        <p style="margin: 4px 0 0 0; font-size: 0.78rem; color: #94a3b8; line-height: 1.5;">
+                            @if($type === 'po_single')
+                                {{ $prodStatus === 'producing' || $isStep2Completed ? 'Mulai Produksi (Aktif):' : 'Estimasi Mulai Produksi:' }} 
+                                <strong style="color: #ffffff;">{{ $record->production_start_date ? $record->production_start_date->format('d M Y') : '-' }}</strong> <br>
+                                Estimasi Siap Kirim: <strong style="color: #ffffff;">{{ $record->ready_shipping_date ? $record->ready_shipping_date->format('d M Y') : '-' }}</strong> <br>
+                                Status Produksi: <strong style="color: {{ $prodStatus === 'producing' ? '#eab308' : ($isStep2Completed ? '#22c55e' : '#94a3b8') }};">{{ $prodStatus === 'producing' ? 'Sedang Diproduksi' : ($isStep2Completed ? 'Selesai & Siap Kirim' : 'Menunggu Produksi') }}</strong>
+                            @else
+                                Estimasi Siap Kirim: <strong style="color: #ffffff;">{{ $record->ready_shipping_date ? $record->ready_shipping_date->format('d M Y') : '-' }}</strong>
+                            @endif
+                        </p>
+                    </div>
+
+                    {{-- Tombol Aksi Step 2 --}}
+                    <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                        @if($type === 'po_single')
+                            @if($prodStatus === 'pending' || !$prodStatus)
+                            <button type="button" wire:click.prevent="mountAction('single_start_production')"
+                                    style="display: inline-flex; align-items: center; gap: 5px; padding: 6px 12px; background: #d97706; border: 1.5px solid #f59e0b; border-radius: 8px; color: #ffffff; font-size: 0.75rem; font-weight: 700; cursor: pointer;">
+                                🔨 Mulai Produksi Sekarang
+                            </button>
+                            @elseif($prodStatus === 'producing')
+                            <button type="button" wire:click.prevent="mountAction('single_ready_to_ship')"
+                                    style="display: inline-flex; align-items: center; gap: 5px; padding: 6px 12px; background: #0284c7; border: 1.5px solid #38bdf8; border-radius: 8px; color: #ffffff; font-size: 0.75rem; font-weight: 700; cursor: pointer;">
+                                📦 Tandai Selesai & Siap Kirim
+                            </button>
+                            @endif
+                        @else
+                            @if(!$isStep2Completed && $status !== 'shipped' && $status !== 'completed')
+                            <button type="button" wire:click.prevent="mountAction('single_ready_to_ship')"
+                                    style="display: inline-flex; align-items: center; gap: 5px; padding: 6px 12px; background: #0284c7; border: 1.5px solid #38bdf8; border-radius: 8px; color: #ffffff; font-size: 0.75rem; font-weight: 700; cursor: pointer;">
+                                📦 Siapkan & Tandai Siap Kirim
+                            </button>
+                            @endif
+                        @endif
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -107,19 +136,42 @@
                 </div>
                 <div style="width: 2px; height: 40px; background: {{ $isCompleted ? '#22c55e' : '#334155' }};"></div>
             </div>
-            <div>
-                <h4 style="margin: 0; font-size: 0.95rem; font-weight: bold; color: {{ $isStep3Active ? '#f8fafc' : '#64748b' }};">🚚 Pengiriman Armada</h4>
-                @if($isStep3Active)
-                <p style="margin: 4px 0 0 0; font-size: 0.78rem; color: #94a3b8; line-height: 1.5;">
-                    Supir/Ekspedisi: <strong>{{ $record->courier ?? '-' }}</strong> <br>
-                    No. Plat Truk/Resi: <strong style="color: #f97316; font-family: monospace;">{{ $record->tracking_number ?? '-' }}</strong> <br>
-                    Waktu Berangkat: {{ $record->shipped_at ? $record->shipped_at->format('d M Y H:i') : '-' }}
-                </p>
-                @else
-                <p style="margin: 4px 0 0 0; font-size: 0.78rem; color: #64748b;">
-                    Armada belum diberangkatkan.
-                </p>
-                @endif
+            <div style="flex: 1;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 8px;">
+                    <div>
+                        <h4 style="margin: 0; font-size: 0.95rem; font-weight: bold; color: {{ $isStep3Active ? '#f8fafc' : '#64748b' }};">🚚 Pengiriman Armada</h4>
+                        @if($isStep3Active)
+                        <p style="margin: 4px 0 0 0; font-size: 0.78rem; color: #94a3b8; line-height: 1.5;">
+                            Supir/Ekspedisi: <strong>{{ $record->courier ?? '-' }}</strong> <br>
+                            No. Plat Truk/Resi: <strong style="color: #f97316; font-family: monospace;">{{ $record->tracking_number ?? '-' }}</strong> <br>
+                            Waktu Berangkat: {{ $record->shipped_at ? $record->shipped_at->format('d M Y H:i') : '-' }}
+                        </p>
+                        @else
+                        <p style="margin: 4px 0 0 0; font-size: 0.78rem; color: #64748b;">
+                            Armada belum diberangkatkan.
+                        </p>
+                        @endif
+                    </div>
+
+                    {{-- Tombol Aksi Step 3 --}}
+                    <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                        @if(($prodStatus === 'ready_to_ship' || $type === 'ready_stock') && $status !== 'shipped' && $status !== 'completed')
+                        <button type="button" wire:click.prevent="mountAction('single_dispatch')"
+                                style="display: inline-flex; align-items: center; gap: 5px; padding: 6px 12px; background: #dc2626; border: 1.5px solid #ef4444; border-radius: 8px; color: #ffffff; font-size: 0.75rem; font-weight: 700; cursor: pointer;">
+                            🚚 Berangkatkan Truk
+                        </button>
+                        @elseif($status === 'shipped')
+                        <a href="{{ route('print.order', $record) }}" target="_blank"
+                           style="display: inline-flex; align-items: center; gap: 5px; padding: 5px 10px; background: #0f172a; border: 1px solid #475569; border-radius: 6px; color: #cbd5e1; font-size: 0.72rem; font-weight: 600; text-decoration: none;">
+                            🖨️ Cetak Surat Jalan
+                        </a>
+                        <button type="button" wire:click.prevent="mountAction('single_delivered')"
+                                style="display: inline-flex; align-items: center; gap: 5px; padding: 6px 12px; background: #059669; border: 1.5px solid #10b981; border-radius: 8px; color: #ffffff; font-size: 0.75rem; font-weight: 700; cursor: pointer;">
+                            ✅ Konfirmasi Tiba & Selesai
+                        </button>
+                        @endif
+                    </div>
+                </div>
             </div>
         </div>
 
