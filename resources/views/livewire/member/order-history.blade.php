@@ -343,11 +343,33 @@
                                         📄 {{ $docLabel }}
                                     </a>
 
-                                    {{-- Kuitansi Pembayaran (jika sudah ada cicilan/DP masuk) --}}
-                                    @if($order->latestPayment)
-                                        <a href="{{ route('print.receipt', ['payment' => $order->latestPayment->id]) }}" target="_blank" class="group inline-flex items-center justify-center border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 text-xs font-bold px-3.5 py-2.5 rounded-xl shadow-2xs transition-all duration-200 gap-1.5 cursor-pointer">
-                                            🖨️ Kuitansi DP
-                                        </a>
+                                    {{-- Kuitansi Pembayaran Lengkap (DP, Termin, Pelunasan) --}}
+                                    @php
+                                        $validPayments = $order->getValidPayments();
+                                    @endphp
+                                    @if($validPayments->isNotEmpty())
+                                        @foreach($validPayments as $idx => $payment)
+                                            @php
+                                                $payTitle = $payment->installment_title;
+                                                if (empty($payTitle) || $payTitle === 'Pembayaran #'.$payment->id) {
+                                                    if ($validPayments->count() === 1) {
+                                                        $payTitle = ($order->payment_status === 'paid' || (float)$payment->gross_amount >= (float)$order->grand_total) ? 'Lunas' : 'DP';
+                                                    } elseif ($idx === 0) {
+                                                        $payTitle = 'DP';
+                                                    } elseif ($idx === $validPayments->count() - 1 && ($order->payment_status === 'paid' || (float)$order->remaining_balance <= 0)) {
+                                                        $payTitle = 'Pelunasan';
+                                                    } else {
+                                                        $payTitle = 'Tahap ' . ($idx + 1);
+                                                    }
+                                                }
+                                            @endphp
+                                            <a href="{{ route('print.receipt', ['payment' => $payment->id]) }}" target="_blank" class="group inline-flex items-center justify-center border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 text-xs font-bold px-3 py-2.5 rounded-xl shadow-2xs transition-all duration-200 gap-1.5 cursor-pointer whitespace-nowrap" title="Cetak Kuitansi {{ $payTitle }} - Rp {{ number_format((float)$payment->gross_amount, 0, ',', '.') }}">
+                                                <svg class="w-4 h-4 text-emerald-600 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                                </svg>
+                                                🧾 Kuitansi {{ $payTitle }}
+                                            </a>
+                                        @endforeach
                                     @endif
                                 </div>
                             </div>
