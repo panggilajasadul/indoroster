@@ -52,8 +52,11 @@ class PrintController extends Controller
      */
     public function order(Order $order, Request $request)
     {
-        if (! auth()->check() || ! auth()->user()->isAdmin()) {
-            abort(403, 'Akses ditolak. Anda tidak memiliki izin untuk mencetak pesanan ini.');
+        $isAdmin = auth()->check() && auth()->user()->isAdmin();
+        $hasValidSignature = $request->hasValidSignature();
+
+        if (! $isAdmin && ! $hasValidSignature) {
+            abort(403, 'Akses ditolak. Anda tidak memiliki izin untuk mencetak pesanan / surat jalan ini.');
         }
 
         $order->load(['items.product', 'items.variant', 'user', 'batches']);

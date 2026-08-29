@@ -125,13 +125,13 @@ if (app()->environment('local')) {
     });
 }
 
-// Invoice print route (secure authorization checked in controller)
+// Invoice & Order Print Routes (secure authorization checked in controller)
 Route::get('/print/invoice/{invoice}', [PrintController::class, 'invoice'])->name('print.invoice');
 Route::get('/print/receipt/{payment}', [PrintController::class, 'receipt'])->name('print.receipt');
+Route::get('/print/order/{order}', [PrintController::class, 'order'])->name('print.order');
 
 // Print Routes for Admin Only
 Route::middleware(['web', 'auth'])->group(function () {
-    Route::get('/print/order/{order}', [PrintController::class, 'order'])->name('print.order');
     Route::get('/print/shipping-label/{shippingLabel}', [PrintController::class, 'shippingLabel'])->name('print.shipping-label');
     Route::get('/print/manual-document/{document}', [PrintController::class, 'manualDocument'])->name('print.manual-document');
     Route::get('/print/template-test/{template}', [PrintController::class, 'templateTest'])->name('print.template-test');

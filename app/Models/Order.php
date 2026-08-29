@@ -177,6 +177,10 @@ class Order extends Model
      */
     public function getTotalOrderedQuantityAttribute(): int
     {
+        if ($this->relationLoaded('items')) {
+            return (int) $this->items->sum('quantity');
+        }
+
         return (int) $this->items()->sum('quantity');
     }
 
@@ -310,6 +314,7 @@ class Order extends Model
     public function getStatusLabelAttribute(): string
     {
         return match ($this->status) {
+            'draft' => 'Draft / Penawaran',
             'pending_payment' => 'Menunggu Pembayaran',
             'paid' => 'Dibayar',
             'processing' => 'Diproses',
@@ -317,7 +322,7 @@ class Order extends Model
             'delivered' => 'Diterima',
             'completed' => 'Selesai',
             'cancelled' => 'Dibatalkan',
-            default => $this->status,
+            default => $this->status ?: 'Draft',
         };
     }
 
