@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Category;
+use App\Models\Page;
 use App\Models\Product;
 use App\Models\SeoLocation;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -47,28 +48,28 @@ class NationalSeoAndB2bTest extends TestCase
             'intro_content' => 'Layanan pengiriman roster beton minimalis untuk proyek di Bandung Raya dengan kualitas cetak padat presisi.',
         ]);
 
-        \App\Models\Page::create([
+        Page::create([
             'title' => 'Khusus Kontraktor Proyek',
             'slug' => 'untuk-kontraktor',
             'content' => [],
             'is_active' => true,
         ]);
 
-        \App\Models\Page::create([
+        Page::create([
             'title' => 'Pengadaan Developer',
             'slug' => 'untuk-developer',
             'content' => [],
             'is_active' => true,
         ]);
 
-        \App\Models\Page::create([
+        Page::create([
             'title' => 'Katalog Teknis Arsitek',
             'slug' => 'untuk-arsitek',
             'content' => [],
             'is_active' => true,
         ]);
 
-        \App\Models\Page::create([
+        Page::create([
             'title' => 'Grosir Toko Bangunan',
             'slug' => 'supplier-roster-beton',
             'content' => [],
