@@ -118,8 +118,17 @@
                     <tr><td>No. HP Supir</td><td>: {{ $batch->courier_phone }}</td></tr>
                     @endif
                     @else
-                    <tr><td>Metode Pemenuhan</td><td>: <strong>Pengiriman Bertahap ({{ $order->batch_count ?: 1 }} Rit Truk)</strong></td></tr>
+                    <tr><td>Metode Pemenuhan</td><td>: <strong>{{ $order->fulfillment_type === 'po_batch' ? 'Pengiriman Bertahap (' . ($order->batch_count ?: 1) . ' Rit Truk)' : ($order->fulfillment_type === 'po_single' ? 'Pre-Order Tunggal (1 Kali Pengiriman)' : 'Pengiriman Langsung (Ready Stock)') }}</strong></td></tr>
                     <tr><td>Status Pesanan</td><td>: <strong>{{ strtoupper($order->status_label) }}</strong></td></tr>
+                    @if($order->courier)
+                    <tr><td>Armada / Supir</td><td>: <strong>{{ $order->courier }}</strong></td></tr>
+                    @endif
+                    @if($order->tracking_number)
+                    <tr><td>No. Plat Truk</td><td>: <strong>{{ $order->tracking_number }}</strong></td></tr>
+                    @endif
+                    @if($order->courier_phone)
+                    <tr><td>No. HP Supir</td><td>: {{ $order->courier_phone }}</td></tr>
+                    @endif
                     @endif
                 </table>
             </div>
