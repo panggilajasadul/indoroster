@@ -17,9 +17,16 @@ class QrCodeHelper
      */
     public static function imgTag(string $data, int $size = 80, string $alt = 'QR Code'): string
     {
-        $src = self::pngBase64($data);
+        try {
+            $src = self::pngBase64($data);
+            if (empty($src)) {
+                return '';
+            }
 
-        return "<img src=\"{$src}\" width=\"{$size}\" height=\"{$size}\" alt=\"{$alt}\" style=\"display: block; margin: 0 auto; border: 0;\">";
+            return "<img src=\"{$src}\" width=\"{$size}\" height=\"{$size}\" alt=\"{$alt}\" style=\"display: block; margin: 0 auto; border: 0;\">";
+        } catch (\Throwable $e) {
+            return '';
+        }
     }
 
     /**
@@ -39,8 +46,16 @@ class QrCodeHelper
 
             return $qrcode->render($data);
         } catch (\Throwable $e) {
-            // Fallback default QRCode rendering
-            return (new QRCode)->render($data);
+            try {
+                $svg = (new QRCode)->render($data);
+                if (str_starts_with($svg, 'data:')) {
+                    return $svg;
+                }
+
+                return 'data:image/svg+xml;base64,'.base64_encode($svg);
+            } catch (\Throwable $e2) {
+                return '';
+            }
         }
     }
 

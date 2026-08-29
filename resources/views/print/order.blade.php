@@ -71,7 +71,11 @@
         <table class="header">
             <tr>
                 <td class="logo-cell">
-                    <img src="{{ public_path('assets/logo_indoroster-text.png') }}" style="max-height: 90px;">
+                    @if(file_exists(public_path('assets/logo_indoroster-text.png')))
+                        <img src="{{ public_path('assets/logo_indoroster-text.png') }}" style="max-height: 90px;">
+                    @else
+                        <strong style="color: #c2410c; font-size: 22px; font-weight: bold;">INDOROSTER</strong>
+                    @endif
                 </td>
                 <td class="company-info">
                     <strong style="color: #c2410c; font-size: 15px;">INDOROSTER INDONESIA</strong><br>
@@ -105,7 +109,7 @@
                 <div class="details-label">Informasi Dokumen:</div>
                 <table style="width: 100%; font-size: 12px;">
                     <tr><td width="42%">No. Pesanan</td><td>: <strong>{{ $order->order_number }}</strong></td></tr>
-                    <tr><td>Tanggal Pesanan</td><td>: {{ $order->created_at->format('d M Y') }}</td></tr>
+                    <tr><td>Tanggal Pesanan</td><td>: {{ $order->created_at ? $order->created_at->format('d M Y') : now()->format('d M Y') }}</td></tr>
                     @if(isset($batch))
                     <tr><td>Tgl Keberangkatan</td><td>: <strong>{{ $batch->actual_dispatch_date ? $batch->actual_dispatch_date->format('d M Y') : now()->format('d M Y') }}</strong></td></tr>
                     <tr><td>Armada / Supir</td><td>: <strong>{{ $batch->courier_name ?: ($order->courier ?: 'Armada Pabrik') }}</strong></td></tr>
@@ -114,7 +118,7 @@
                     <tr><td>No. HP Supir</td><td>: {{ $batch->courier_phone }}</td></tr>
                     @endif
                     @else
-                    <tr><td>Metode Pemenuhan</td><td>: <strong>Pengiriman Bertahap ({{ $order->batch_count }} Rit Truk)</strong></td></tr>
+                    <tr><td>Metode Pemenuhan</td><td>: <strong>Pengiriman Bertahap ({{ $order->batch_count ?: 1 }} Rit Truk)</strong></td></tr>
                     <tr><td>Status Pesanan</td><td>: <strong>{{ strtoupper($order->status_label) }}</strong></td></tr>
                     @endif
                 </table>
@@ -124,10 +128,10 @@
         @php
             $destLat = $order->shipping_latitude;
             $destLng = $order->shipping_longitude;
-            if ($destLat && $destLng) {
+            if (!empty($destLat) && !empty($destLng)) {
                 $navUrl = "https://maps.google.com/?q={$destLat},{$destLng}";
             } else {
-                $navUrl = "https://maps.google.com/?q=" . urlencode($order->shipping_address . ', ' . $order->shipping_city);
+                $navUrl = "https://maps.google.com/?q=" . urlencode(($order->shipping_address ?: '') . ', ' . ($order->shipping_city ?: ''));
             }
         @endphp
 
@@ -138,9 +142,9 @@
                     <div style="font-size: 11px; font-weight: bold; color: #c2410c; text-transform: uppercase; margin-bottom: 3px;">
                         TITIK KOORDINAT GPS LOKASI BONGKAR:
                     </div>
-                    @if($destLat && $destLng)
+                    @if(!empty($destLat) && !empty($destLng))
                     <div style="font-family: monospace; font-size: 14px; font-weight: bold; color: #0f172a; margin-bottom: 4px;">
-                        {{ number_format($destLat, 7) }}, {{ number_format($destLng, 7) }}
+                        {{ number_format((float) $destLat, 7) }}, {{ number_format((float) $destLng, 7) }}
                     </div>
                     @else
                     <div style="font-size: 12px; color: #64748b; margin-bottom: 4px;">
@@ -152,10 +156,24 @@
                     </div>
                 </td>
                 <td style="width: 110px; text-align: center; vertical-align: middle; padding: 10px; border-left: 1px dashed #cbd5e1; background: #ffffff;">
-                    {!! \App\Helpers\QrCodeHelper::imgTag($navUrl, 82) !!}
-                    <div style="font-size: 7.5px; font-weight: bold; color: #1e293b; margin-top: 4px; text-transform: uppercase; line-height: 1.1;">
-                        SCAN GOOGLE MAPS
-                    </div>
+                    @php
+                        $qrTagHtml = '';
+                        try {
+                            $qrTagHtml = \App\Helpers\QrCodeHelper::imgTag($navUrl, 82);
+                        } catch (\Throwable $e) {
+                            $qrTagHtml = '';
+                        }
+                    @endphp
+                    @if(!empty($qrTagHtml))
+                        {!! $qrTagHtml !!}
+                        <div style="font-size: 7.5px; font-weight: bold; color: #1e293b; margin-top: 4px; text-transform: uppercase; line-height: 1.1;">
+                            SCAN GOOGLE MAPS
+                        </div>
+                    @else
+                        <div style="font-size: 9px; font-weight: bold; color: #c2410c; padding: 10px 0;">
+                            MAPS LOKASI
+                        </div>
+                    @endif
                 </td>
             </tr>
         </table>
@@ -205,23 +223,23 @@
             <table class="batch-table">
                 <tr>
                     <td width="60%">• Total Keseluruhan Pesanan Pelanggan</td>
-                    <td class="val">{{ number_format($order->total_ordered_quantity, 0, ',', '.') }} pcs</td>
+                    <td class="val">{{ number_format((int) $order->total_ordered_quantity, 0, ',', '.') }} pcs</td>
                 </tr>
                 <tr>
                     <td>• Total Terkirim pada Batch-Batch Sebelumnya</td>
-                    <td class="val" style="color: #475569;">{{ number_format($batch->previous_shipped_quantity, 0, ',', '.') }} pcs</td>
+                    <td class="val" style="color: #475569;">{{ number_format((int) $batch->previous_shipped_quantity, 0, ',', '.') }} pcs</td>
                 </tr>
                 <tr style="border-top: 1px dashed #fdba74; border-bottom: 1px dashed #fdba74;">
                     <td style="padding: 5px 0; color: #c2410c; font-weight: bold;">• MUATAN DIKIRIM (TRUK TAHAP INI)</td>
-                    <td class="val" style="color: #c2410c; font-size: 14px;">{{ number_format($batch->quantity, 0, ',', '.') }} pcs</td>
+                    <td class="val" style="color: #c2410c; font-size: 14px;">{{ number_format((int) $batch->quantity, 0, ',', '.') }} pcs</td>
                 </tr>
                 <tr>
                     <td style="padding-top: 4px;">• Total Akumulasi Terkirim s/d Tahap Ini</td>
-                    <td class="val" style="padding-top: 4px; color: #166534;">{{ number_format($batch->cumulative_shipped_quantity, 0, ',', '.') }} pcs ({{ $order->total_ordered_quantity > 0 ? round(($batch->cumulative_shipped_quantity / $order->total_ordered_quantity) * 100, 1) : 100 }}%)</td>
+                    <td class="val" style="padding-top: 4px; color: #166534;">{{ number_format((int) $batch->cumulative_shipped_quantity, 0, ',', '.') }} pcs ({{ (int) $order->total_ordered_quantity > 0 ? round(((int) $batch->cumulative_shipped_quantity / (int) $order->total_ordered_quantity) * 100, 1) : 100 }}%)</td>
                 </tr>
                 <tr>
                     <td>• SISA PESANAN YANG BELUM TERKIRIM</td>
-                    <td class="val" style="color: #dc2626;">{{ number_format($batch->remaining_quantity_after_this_batch, 0, ',', '.') }} pcs</td>
+                    <td class="val" style="color: #dc2626;">{{ number_format((int) $batch->remaining_quantity_after_this_batch, 0, ',', '.') }} pcs</td>
                 </tr>
             </table>
         </div>
