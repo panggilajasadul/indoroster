@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- IndoRoster Sitemap | Generated: 2026-08-30 02:20:28 WIB | Total URLs: 182 | Base: http://127.0.0.1:8000 -->
+<!-- IndoRoster Sitemap | Generated: 2026-08-30 03:12:30 WIB | Total URLs: 183 | Base: http://127.0.0.1:8000 -->
 <?xml-stylesheet type="text/xsl" href="/sitemap.xsl"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">
     <url>
     <loc>http://127.0.0.1:8000/</loc>
-    <lastmod>2026-08-30T02:20:27+07:00</lastmod>
+    <lastmod>2026-08-30T03:12:30+07:00</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
             </url>
     <url>
     <loc>http://127.0.0.1:8000/katalog</loc>
-    <lastmod>2026-08-30T02:20:27+07:00</lastmod>
+    <lastmod>2026-08-30T03:12:30+07:00</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
     <image:image>
@@ -982,73 +982,73 @@
         </url>
     <url>
     <loc>http://127.0.0.1:8000/artikel</loc>
-    <lastmod>2026-08-30T02:20:28+07:00</lastmod>
+    <lastmod>2026-08-30T03:12:30+07:00</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
             </url>
     <url>
     <loc>http://127.0.0.1:8000/untuk-kontraktor</loc>
-    <lastmod>2026-08-30T02:20:28+07:00</lastmod>
+    <lastmod>2026-08-30T03:12:30+07:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
             </url>
     <url>
     <loc>http://127.0.0.1:8000/untuk-developer</loc>
-    <lastmod>2026-08-30T02:20:28+07:00</lastmod>
+    <lastmod>2026-08-30T03:12:30+07:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
             </url>
     <url>
     <loc>http://127.0.0.1:8000/untuk-arsitek</loc>
-    <lastmod>2026-08-30T02:20:28+07:00</lastmod>
+    <lastmod>2026-08-30T03:12:30+07:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
             </url>
     <url>
     <loc>http://127.0.0.1:8000/supplier-roster-beton</loc>
-    <lastmod>2026-08-30T02:20:28+07:00</lastmod>
+    <lastmod>2026-08-30T03:12:30+07:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
             </url>
     <url>
     <loc>http://127.0.0.1:8000/roster-beton-proyek</loc>
-    <lastmod>2026-08-30T02:20:28+07:00</lastmod>
+    <lastmod>2026-08-30T03:12:30+07:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
             </url>
     <url>
     <loc>http://127.0.0.1:8000/kalkulator-roster</loc>
-    <lastmod>2026-08-30T02:20:28+07:00</lastmod>
+    <lastmod>2026-08-30T03:12:30+07:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
             </url>
     <url>
     <loc>http://127.0.0.1:8000/lokasi</loc>
-    <lastmod>2026-08-30T02:20:28+07:00</lastmod>
+    <lastmod>2026-08-30T03:12:30+07:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
             </url>
     <url>
     <loc>http://127.0.0.1:8000/video-inspirasi</loc>
-    <lastmod>2026-08-30T02:20:28+07:00</lastmod>
+    <lastmod>2026-08-30T03:12:30+07:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
             </url>
     <url>
     <loc>http://127.0.0.1:8000/proses-produksi</loc>
-    <lastmod>2026-08-30T02:20:28+07:00</lastmod>
+    <lastmod>2026-08-30T03:12:30+07:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
             </url>
     <url>
     <loc>http://127.0.0.1:8000/tentang-kami</loc>
-    <lastmod>2026-08-30T02:20:28+07:00</lastmod>
+    <lastmod>2026-08-30T03:12:30+07:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
             </url>
     <url>
     <loc>http://127.0.0.1:8000/kontak</loc>
-    <lastmod>2026-08-30T02:20:28+07:00</lastmod>
+    <lastmod>2026-08-30T03:12:30+07:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
             </url>
@@ -1838,6 +1838,12 @@
     <image:title>Solusi Ruang Cuci Jemur (Laundry Room) Anti Pengap dan Tetap Estetik dengan Roster Ventilasi</image:title>
 </image:image>
         </url>
+    <url>
+    <loc>http://127.0.0.1:8000/page/kalkulator-roster</loc>
+    <lastmod>2026-08-30T03:12:28+07:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+            </url>
     <url>
     <loc>http://127.0.0.1:8000/page/proses-produksi</loc>
     <lastmod>2026-08-27T17:42:51+07:00</lastmod>
