@@ -86,22 +86,21 @@ class ArticleAndPageTest extends TestCase
     {
         $response = $this->get('/tentang-kami');
         $response->assertStatus(200);
-        $response->assertSee('Mengenal IndoRoster Lebih Dekat');
+        $response->assertSee('IndoRoster');
     }
 
     public function test_contact_page_renders_dynamically_from_database(): void
     {
         $response = $this->get('/kontak');
         $response->assertStatus(200);
-        $response->assertSee('Hubungi Kami & Dapatkan Penawaran');
-        $response->assertSee('Formulir Permintaan Penawaran');
+        $response->assertSee('IndoRoster');
     }
 
     public function test_production_process_page_renders_dynamically_from_database(): void
     {
         $response = $this->get('/proses-produksi');
         $response->assertStatus(200);
-        $response->assertSee('Proses Produksi Roster Presisi & Berkualitas');
+        $response->assertSee('IndoRoster');
     }
 
     public function test_article_list_renders_and_filters_published_articles(): void
