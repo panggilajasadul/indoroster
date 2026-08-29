@@ -78,18 +78,8 @@ class WaOrderResource extends Resource
 
                         Forms\Components\Select::make('user_id')
                             ->label('Hubungkan ke Akun Pelanggan Terdaftar (Opsional)')
+                            ->options(fn () => User::where('role', 'customer')->orderBy('name')->pluck('name', 'id'))
                             ->searchable()
-                            ->getSearchResultsUsing(fn (string $search): array => User::where('role', 'customer')
-                                ->where(function ($q) use ($search) {
-                                    $q->where('name', 'like', "%{$search}%")
-                                        ->orWhere('phone', 'like', "%{$search}%")
-                                        ->orWhere('email', 'like', "%{$search}%");
-                                })
-                                ->limit(20)
-                                ->pluck('name', 'id')
-                                ->toArray()
-                            )
-                            ->getOptionLabelUsing(fn ($value): ?string => User::find($value)?->name)
                             ->live()
                             ->afterStateUpdated(function ($state, Set $set) {
                                 if ($state) {
@@ -310,14 +300,8 @@ class WaOrderResource extends Resource
                                 // PILIHAN DARI DATABASE (Tampil HANYA saat is_custom_item == 0)
                                 Forms\Components\Select::make('product_id')
                                     ->label('Pilih Produk dari Katalog')
+                                    ->options(fn () => Product::where('is_active', true)->orderBy('name')->pluck('name', 'id'))
                                     ->searchable()
-                                    ->getSearchResultsUsing(fn (string $search): array => Product::where('is_active', true)
-                                        ->where('name', 'like', "%{$search}%")
-                                        ->limit(25)
-                                        ->pluck('name', 'id')
-                                        ->toArray()
-                                    )
-                                    ->getOptionLabelUsing(fn ($value): ?string => Product::find($value)?->name)
                                     ->live()
                                     ->columnSpan(2)
                                     ->visible(fn (Get $get) => (int) $get('is_custom_item') === 0)
