@@ -570,26 +570,37 @@ class PageResource extends Resource
                                 ]),
 
                             Forms\Components\Builder\Block::make('why_us')
-                                ->label('[3. Pabrik] 💎 Kenapa Memilih Kami (Why Us)')
+                                ->label('[3. Pabrik] 💎 Kenapa Memilih Kami (Why Choose Us - Multi Poin & Desain)')
                                 ->icon('heroicon-o-hand-thumb-up')
                                 ->schema([
-                                    Forms\Components\TextInput::make('title')->label('Judul')->default('Kenapa Memilih Roster Pabrik Kami?'),
-                                    Forms\Components\Textarea::make('description')->label('Deskripsi')->default('Kami mengedepankan kualitas cetakan, kecepatan pengiriman armada mandiri, dan transparansi harga pabrik tangan pertama.'),
+                                    Forms\Components\TextInput::make('badge')->label('Teks Badge Atas')->default('💎 KEUNGGULAN KOMPETITIF'),
+                                    Forms\Components\TextInput::make('title')->label('Judul Utama')->default('Kenapa Memilih Roster Pabrik Kami?')->required(),
+                                    Forms\Components\Textarea::make('description')->label('Sub-judul / Narasi Pengantar')->rows(2)->default('Kami mengedepankan kualitas cetakan mutu K-200, kepresisian sudut 90°, armada mandiri tepat waktu, dan transparansi harga tangan pertama.'),
+                                    Forms\Components\Select::make('layout_style')
+                                        ->label('Format Tata Letak (Layout Style)')
+                                        ->options([
+                                            'grid' => '🔲 Grid Kartu Elegan (3 - 4 Kolom Penuh)',
+                                            'split' => '🖼️ 2 Kolom (Poin Kiri + Media/Foto/Video Kanan)',
+                                        ])
+                                        ->default('grid'),
                                     static::alignmentSelect('center'),
                                     static::bgThemeSelect('dark'),
                                     Forms\Components\Repeater::make('items')
+                                        ->label('Daftar Poin-Poin Keunggulan')
                                         ->schema([
-                                            Forms\Components\TextInput::make('title')->label('Judul Poin'),
-                                            Forms\Components\Textarea::make('content')->label('Isi Poin'),
+                                            Forms\Components\TextInput::make('icon')->label('Emoji / Icon')->placeholder('Contoh: 🏭, 🛡️, 📐, 🚚, 📑, 💎')->default('💎'),
+                                            Forms\Components\TextInput::make('title')->label('Judul Poin')->required(),
+                                            Forms\Components\Textarea::make('description')->label('Deskripsi / Penjelasan Poin')->rows(2)->required(),
                                         ])
-                                        ->columns(2)
+                                        ->columns(3)
                                         ->default([
-                                            ['title' => 'Pabrik Tangan Pertama', 'content' => 'Harga langsung dari produsen tanpa perantara agen atau toko material retail.'],
-                                            ['title' => 'Garansi Pecah Ganti Baru', 'content' => 'Setiap keping roster yang rusak atau pecah saat proses pengiriman armada kami ganti 100% tanpa biaya tambahan.'],
-                                            ['title' => 'Armada Truk Khusus', 'content' => 'Pengiriman tepat waktu terjadwal menggunakan truk boks dan armada khusus material.'],
-                                            ['title' => 'Motif Terlengkap', 'content' => 'Lebih dari 150+ variasi motif modern minimalis, klasik, bunga, dan geometris.'],
+                                            ['icon' => '🏭', 'title' => 'Pabrik Produsen Tangan Pertama', 'description' => 'Harga langsung dari sentra Plered Purwakarta tanpa markup calo atau toko perantara.'],
+                                            ['icon' => '🛡️', 'title' => 'Garansi 100% Bebas Pecah', 'description' => 'Setiap keping yang rusak atau sompel saat proses pengiriman armada langsung kami ganti baru.'],
+                                            ['icon' => '📐', 'title' => 'Sudut Siku 90° & Mutu K-200', 'description' => 'Dipadatkan dengan hidrolik bertenaga tinggi, pori-pori rapat, dan presisi saat dipasang tukang.'],
+                                            ['icon' => '🚚', 'title' => 'Armada Truk Logistik Harian', 'description' => 'Pengiriman rutin terjadwal menjangkau Jabodetabek, Bandung, Banten, dan seluruh Jawa Barat.'],
                                         ]),
                                     Forms\Components\Repeater::make('videos')
+                                        ->label('Media Samping (Foto / Video - Khusus Mode 2 Kolom)')
                                         ->schema([
                                             Forms\Components\FileUpload::make('video_upload')
                                                 ->label('Upload Media (Foto/Video)')
@@ -1192,15 +1203,51 @@ class PageResource extends Resource
                                 ]),
 
                             Forms\Components\Builder\Block::make('cta')
-                                ->label('[7. Kontak] 🚀 Call To Action Banner Konsultasi (CTA)')
+                                ->label('[7. Kontak] 🚀 Call To Action Multi-Tombol (CTA Banner)')
                                 ->icon('heroicon-o-cursor-arrow-rays')
                                 ->schema([
-                                    Forms\Components\TextInput::make('badge')->label('Badge')->default('KONSULTASI GRATIS'),
-                                    Forms\Components\TextInput::make('title')->label('Judul Utama')->default('Wujudkan Rumah Impian dengan Sentuhan Roster Modern'),
+                                    Forms\Components\TextInput::make('badge')->label('Teks Badge Atas')->default('KONSULTASI GRATIS & PENAWARAN'),
+                                    Forms\Components\TextInput::make('title')->label('Judul Utama CTA')->default('Wujudkan Rumah Impian & Fasad Megah dengan Sentuhan Roster Modern')->required(),
+                                    Forms\Components\Textarea::make('subtitle')->label('Sub-judul / Narasi Penjelasan')->rows(2)->default('Dapatkan harga pabrik tangan pertama, sampel produk fisik gratis, dan perhitungan kebutuhan presisi langsung dari spesialis pabrik IndoRoster.'),
                                     static::alignmentSelect('center'),
-                                    Forms\Components\TextInput::make('button_text')->label('Teks Tombol WA')->default('Hubungi Kami via WhatsApp'),
-                                    Forms\Components\TextInput::make('button_url')->label('Link Tombol (Kosongkan untuk WA Otomatis)')->default('https://wa.me/6281389709847'),
-                                    static::bgThemeSelect('white'),
+                                    static::bgThemeSelect('dark'),
+                                    Forms\Components\Repeater::make('buttons')
+                                        ->label('Daftar Tombol Aksi (Bisa Tambah Berbagai Tombol)')
+                                        ->schema([
+                                            Forms\Components\TextInput::make('text')->label('Teks Tombol')->required(),
+                                            Forms\Components\TextInput::make('url')->label('Link Target (URL)')->placeholder('Contoh: https://wa.me/... atau /katalog atau /register')->required(),
+                                            Forms\Components\Select::make('style')
+                                                ->label('Gaya Warna Tombol')
+                                                ->options([
+                                                    'primary' => '🔥 Oranye / Terra (Warna Utama)',
+                                                    'whatsapp' => '💬 Hijau WhatsApp (Menonjol)',
+                                                    'secondary' => '⚪ Outline / Border Elegan',
+                                                    'dark' => '🌑 Hitam / Slate Pekat',
+                                                    'white' => '✨ Putih Kontras',
+                                                ])
+                                                ->default('primary'),
+                                            Forms\Components\Select::make('icon')
+                                                ->label('Icon Tombol')
+                                                ->options([
+                                                    'none' => 'Tanpa Icon',
+                                                    'whatsapp' => 'WhatsApp',
+                                                    'catalog' => 'Katalog / Grid',
+                                                    'user' => 'User / Daftar Akun',
+                                                    'truck' => 'Truk / Pengiriman',
+                                                    'calculator' => 'Kalkulator',
+                                                    'arrow' => 'Panah Kanan (→)',
+                                                    'phone' => 'Telepon',
+                                                ])
+                                                ->default('none'),
+                                            Forms\Components\Toggle::make('is_new_tab')->label('Buka di Tab Baru (_blank)')->default(false),
+                                        ])
+                                        ->columns(2)
+                                        ->default([
+                                            ['text' => 'Konsultasi Sales via WhatsApp', 'url' => 'https://wa.me/6281389709847', 'style' => 'whatsapp', 'icon' => 'whatsapp', 'is_new_tab' => true],
+                                            ['text' => 'Lihat Katalog Produk', 'url' => '/katalog', 'style' => 'secondary', 'icon' => 'catalog', 'is_new_tab' => false],
+                                        ]),
+                                    Forms\Components\TextInput::make('button_text')->label('Fallback Teks Tombol')->hidden(),
+                                    Forms\Components\TextInput::make('button_url')->label('Fallback Link Tombol')->hidden(),
                                 ]),
 
                             Forms\Components\Builder\Block::make('rich_text')
