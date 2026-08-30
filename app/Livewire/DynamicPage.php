@@ -37,7 +37,9 @@ class DynamicPage extends Component
         ];
 
         if (isset($dedicatedRoutes[$normalizedSlug])) {
-            return redirect($dedicatedRoutes[$normalizedSlug], 301);
+            $this->redirect($dedicatedRoutes[$normalizedSlug], navigate: false);
+
+            return;
         }
 
         // 1. Coba cari langsung dengan slug yang diminta
@@ -69,10 +71,16 @@ class DynamicPage extends Component
 
     public function render()
     {
+        if (empty($this->page)) {
+            return '<div></div>';
+        }
+
         $metaTitle = $this->page->meta_title ?: ($this->page->title.' - IndoRoster Indonesia');
         $metaDesc = $this->page->meta_description ?: ($this->page->title.' - Informasi resmi dari Pabrik Roster Beton IndoRoster.');
 
-        return view('livewire.dynamic-page')->layout('components.layouts.app', [
+        return view('livewire.dynamic-page', [
+            'page' => $this->page,
+        ])->layout('components.layouts.app', [
             'title' => $metaTitle,
             'description' => $metaDesc,
             'canonicalOverride' => route('dynamic.page', $this->page->slug),

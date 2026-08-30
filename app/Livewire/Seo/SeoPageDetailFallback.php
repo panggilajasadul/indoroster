@@ -56,7 +56,9 @@ class SeoPageDetailFallback extends Component
         ];
 
         if (isset($dedicatedRoutes[$normalizedSlug])) {
-            return redirect($dedicatedRoutes[$normalizedSlug], 301);
+            $this->redirect($dedicatedRoutes[$normalizedSlug], navigate: false);
+
+            return;
         }
 
         // ── 1. Cek SeoPage published (prioritas utama) ──
@@ -110,7 +112,11 @@ class SeoPageDetailFallback extends Component
             return $this->renderSeoPage();
         }
 
-        return $this->renderCmsPage();
+        if ($this->mode === 'cms' && $this->cmsPage) {
+            return $this->renderCmsPage();
+        }
+
+        return '<div></div>';
     }
 
     // ──────────────────────────────────────────────
@@ -140,26 +146,23 @@ class SeoPageDetailFallback extends Component
             $explorerQuery->whereHas('category', fn ($q) => $q->where('slug', $this->selectedCategory));
         }
 
-        $explorerProducts = $explorerQuery->orderByDesc('is_featured')->latest()->take(12)->get();
+        $explorerProducts = $explorerQuery->limit(24)->get();
 
-        // Level 3: Related Pages (Silo internal linking)
+        // Level 3: Internal Linking (Related Pages)
         $relatedPages = $page->getRelatedPages(6);
-        $categories = Category::where('is_active', true)->orderBy('sort_order')->get();
-        $waUrl = $page->buildWhatsAppUrl();
+
+        $categories = Category::orderBy('name')->get();
+        $sections = $page->sections()->where('is_visible', true)->orderBy('sort_order')->get();
+        $faqSections = $sections->where('section_type', 'faq');
 
         $rawWa = SiteSetting::getValue('whatsapp_number', '0813-8970-9847');
         $waNumber = preg_replace('/[^0-9]/', '', $rawWa);
         if (str_starts_with($waNumber, '0')) {
             $waNumber = '62'.substr($waNumber, 1);
         }
+        $waUrl = $page->buildWhatsAppUrl();
 
-        $sections = $page->sections->where('is_visible', true)->sortBy('sort_order');
-        $faqSections = $sections->where('section_type', 'faq');
-
-        $keywords = $page->primary_keyword;
-        if (! empty($page->secondary_keywords)) {
-            $keywords .= ', '.implode(', ', $page->secondary_keywords);
-        }
+        $keywords = $page->keywords->pluck('keyword')->implode(', ');
 
         return view('livewire.seo.seo-page-detail', [
             'page' => $page,
@@ -186,11 +189,17 @@ class SeoPageDetailFallback extends Component
 
     private function renderCmsPage()
     {
+        if (! $this->cmsPage) {
+            return '<div></div>';
+        }
+
         $page = $this->cmsPage;
         $metaTitle = $page->meta_title ?: ($page->title.' - IndoRoster Indonesia');
         $metaDesc = $page->meta_description ?: ($page->title.' - Informasi resmi dari Pabrik Roster Beton IndoRoster.');
 
-        return view('livewire.dynamic-page')->layout('components.layouts.app', [
+        return view('livewire.dynamic-page', [
+            'page' => $page,
+        ])->layout('components.layouts.app', [
             'title' => $metaTitle,
             'description' => $metaDesc,
             'canonicalOverride' => route('dynamic.page', $page->slug),
