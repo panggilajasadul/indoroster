@@ -6,7 +6,93 @@
     activePhotoId: @entangle('activePhotoId'), 
     photos: @entangle('photos'),
     showToast: false,
-    toastMessage: ''
+    toastMessage: '',
+    // Zoom & Pan state
+    zoomScale: 1,
+    zoomIn() {
+        if (this.zoomScale < 3.5) this.zoomScale = parseFloat((this.zoomScale + 0.4).toFixed(1));
+    },
+    zoomOut() {
+        if (this.zoomScale > 0.8) this.zoomScale = parseFloat((this.zoomScale - 0.4).toFixed(1));
+    },
+    resetZoom() {
+        this.zoomScale = 1;
+    },
+    toggleZoom() {
+        this.zoomScale = this.zoomScale > 1.1 ? 1 : 2.2;
+    },
+    // Mobile Touch / Swipe Vertical Navigation (TikTok/Reels style)
+    touchStartY: 0,
+    touchStartX: 0,
+    touchEndY: 0,
+    touchEndX: 0,
+    initialPinchDistance: 0,
+    handleTouchStart(e) {
+        if (e.touches.length === 1) {
+            this.touchStartY = e.touches[0].clientY;
+            this.touchStartX = e.touches[0].clientX;
+        } else if (e.touches.length === 2) {
+            this.initialPinchDistance = Math.hypot(
+                e.touches[0].clientX - e.touches[1].clientX,
+                e.touches[0].clientY - e.touches[1].clientY
+            );
+        }
+    },
+    handleTouchMove(e) {
+        if (e.touches.length === 2 && this.initialPinchDistance > 0) {
+            const currentDist = Math.hypot(
+                e.touches[0].clientX - e.touches[1].clientX,
+                e.touches[0].clientY - e.touches[1].clientY
+            );
+            const factor = currentDist / this.initialPinchDistance;
+            let newScale = this.zoomScale * factor;
+            if (newScale >= 0.9 && newScale <= 3.8) {
+                this.zoomScale = parseFloat(newScale.toFixed(2));
+            }
+            this.initialPinchDistance = currentDist;
+        }
+    },
+    handleTouchEnd(e) {
+        if (this.zoomScale > 1.15) {
+            // When zoomed in, user is inspecting details, skip swipe change
+            return;
+        }
+        if (e.changedTouches.length === 1) {
+            this.touchEndY = e.changedTouches[0].clientY;
+            this.touchEndX = e.changedTouches[0].clientX;
+            const diffY = this.touchStartY - this.touchEndY;
+            const diffX = this.touchStartX - this.touchEndX;
+
+            // Vertical swipe dominant (Swipe Up / Scroll Down for next, Swipe Down for prev)
+            if (Math.abs(diffY) > Math.abs(diffX) && Math.abs(diffY) > 40) {
+                if (diffY > 0) {
+                    this.nextPhoto();
+                } else {
+                    this.prevPhoto();
+                }
+            } else if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 40) {
+                if (diffX > 0) {
+                    this.nextPhoto();
+                } else {
+                    this.prevPhoto();
+                }
+            }
+        }
+    },
+    nextPhoto() {
+        if (this.photos && this.photos.length > 0) {
+            this.activeIndex = (this.activeIndex + 1) % this.photos.length;
+            this.activePhotoId = this.photos[this.activeIndex].id;
+            this.resetZoom();
+        }
+    },
+    prevPhoto() {
+        if (this.photos && this.photos.length > 0) {
+            this.activeIndex = (this.activeIndex - 1 + this.photos.length) % this.photos.length;
+            this.activePhotoId = this.photos[this.activeIndex].id;
+            this.resetZoom();
+        }
+    }
 }" x-init="
     $watch('activePhotoId', id => {
         if (id && photos) {
@@ -21,6 +107,7 @@
         }
     });
     $watch('fullSizeModal', isOpen => {
+        resetZoom();
         if (isOpen && photos && photos[activeIndex]) {
             const slug = photos[activeIndex].slug || photos[activeIndex].id;
             history.replaceState(null, '', '{{ url('/gallery') }}/' + slug);
@@ -29,6 +116,7 @@
         }
     });
     $watch('activeIndex', idx => {
+        resetZoom();
         if (fullSizeModal && photos && photos[idx]) {
             const slug = photos[idx].slug || photos[idx].id;
             history.replaceState(null, '', '{{ url('/gallery') }}/' + slug);
@@ -254,28 +342,65 @@
         <div class="w-full h-full flex flex-col md:flex-row relative">
             
             <!-- Left Side: Image Container & Navigation (75% width on desktop) -->
-            <div class="flex-1 h-full flex items-center justify-center relative bg-black/20 p-4">
+            <div 
+                class="flex-1 h-full flex items-center justify-center relative bg-black/30 p-2 sm:p-4 overflow-hidden"
+                @touchstart="handleTouchStart($event)"
+                @touchmove="handleTouchMove($event)"
+                @touchend="handleTouchEnd($event)"
+            >
+                <!-- Desktop Zoom Control Toolbar (Top-Left) -->
+                <div class="hidden md:flex items-center gap-1.5 absolute top-4 left-4 z-[115] bg-slate-900/85 backdrop-blur-md px-3 py-1.5 rounded-2xl border border-white/10 shadow-xl">
+                    <button 
+                        @click.stop="zoomIn()" 
+                        class="p-1.5 rounded-xl hover:bg-white/10 text-white/80 hover:text-white transition-colors cursor-pointer" 
+                        title="Perbesar (+)">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7"/></svg>
+                    </button>
+                    <button 
+                        @click.stop="zoomOut()" 
+                        class="p-1.5 rounded-xl hover:bg-white/10 text-white/80 hover:text-white transition-colors cursor-pointer" 
+                        title="Perkecil (-)">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM13 10H7"/></svg>
+                    </button>
+                    <button 
+                        @click.stop="resetZoom()" 
+                        class="px-2 py-1 rounded-xl hover:bg-white/10 text-[11px] font-bold text-white/90 transition-colors cursor-pointer" 
+                        title="Reset Ukuran Normal (100%)">
+                        <span x-text="Math.round(zoomScale * 100) + '%'"></span>
+                    </button>
+                    <span class="text-[10px] text-white/40 border-l border-white/10 pl-2 ml-1 hidden lg:inline">Klik 2x / Scroll</span>
+                </div>
+
+                <!-- Mobile Swipe Hint (TikTok / Reels Style) -->
+                <div class="md:hidden absolute top-4 left-4 z-[115] bg-black/50 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 text-[10px] text-white/80 flex items-center gap-1.5 pointer-events-none">
+                    <svg class="w-3.5 h-3.5 text-terra-400 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M7 11l5-5m0 0l5 5m-5-5v12"/></svg>
+                    <span>Geser atas/bawah</span>
+                </div>
                 
-                <!-- Navigation: Previous -->
+                <!-- Navigation: Previous (Desktop) -->
                 <button 
-                    @click.stop="activeIndex = (activeIndex - 1 + photos.length) % photos.length; activePhotoId = photos[activeIndex].id" 
-                    class="absolute left-4 z-[110] p-3 bg-black/40 hover:bg-black/60 backdrop-blur-md rounded-full text-white transition-all focus:outline-none border border-white/10 shadow-xl">
+                    @click.stop="prevPhoto()" 
+                    class="hidden md:flex absolute left-4 z-[110] p-3 bg-black/40 hover:bg-black/60 backdrop-blur-md rounded-full text-white transition-all focus:outline-none border border-white/10 shadow-xl cursor-pointer">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
                     </svg>
                 </button>
 
-                <!-- Photo Element -->
-                <img 
-                    :src="photos[activeIndex]?.url" 
-                    :alt="photos[activeIndex]?.title" 
-                    class="max-h-[85vh] max-w-full object-contain rounded-xl shadow-2xl transition-all duration-350"
-                />
+                <!-- Photo Element with Zoom & Double-Tap Support -->
+                <div class="w-full h-full flex items-center justify-center overflow-hidden">
+                    <img 
+                        :src="photos[activeIndex]?.url" 
+                        :alt="photos[activeIndex]?.title" 
+                        @dblclick="toggleZoom()"
+                        :style="'transform: scale(' + zoomScale + '); transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1); transform-origin: center center;'"
+                        class="max-h-[85vh] max-w-full object-contain rounded-xl shadow-2xl select-none cursor-zoom-in"
+                    />
+                </div>
 
-                <!-- Navigation: Next -->
+                <!-- Navigation: Next (Desktop) -->
                 <button 
-                    @click.stop="activeIndex = (activeIndex + 1) % photos.length; activePhotoId = photos[activeIndex].id" 
-                    class="absolute right-4 z-[110] p-3 bg-black/40 hover:bg-black/60 backdrop-blur-md rounded-full text-white transition-all focus:outline-none border border-white/10 shadow-xl">
+                    @click.stop="nextPhoto()" 
+                    class="hidden md:flex absolute right-4 z-[110] p-3 bg-black/40 hover:bg-black/60 backdrop-blur-md rounded-full text-white transition-all focus:outline-none border border-white/10 shadow-xl cursor-pointer">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
                     </svg>
