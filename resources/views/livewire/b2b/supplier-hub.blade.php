@@ -3,6 +3,8 @@
         <div class="relative rounded-3xl overflow-hidden bg-gradient-to-br from-white via-slate-50 to-emerald-50/20 dark:from-slate-900 dark:via-slate-900 dark:to-slate-900 border border-slate-200/80 dark:border-slate-800 text-slate-900 dark:text-white p-8 sm:p-12 lg:p-16 shadow-soft-xl dark:shadow-2xl">
             <div class="absolute -right-20 -bottom-20 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
             <div class="relative z-10 max-w-3xl">
+                <x-breadcrumb :items="[['label' => 'Grosir & Suplier Toko Bangunan']]" class="!px-0 !py-0 mb-6" />
+
                 <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-xs font-bold uppercase tracking-wider mb-6 shadow-xs">
                     <span>🏪</span> Program Grosir Toko Bangunan & Agen Material
                 </div>

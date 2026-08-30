@@ -2,6 +2,8 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Header -->
         <div class="text-center max-w-3xl mx-auto mb-14">
+            <x-breadcrumb :items="[['label' => 'Area Layanan Pengiriman']]" class="!px-0 !py-0 mb-6 justify-center" />
+
             <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-terra-500/10 border border-terra-500/30 text-terra-500 text-xs font-semibold uppercase tracking-wider mb-4">
                 <span>📍</span> Jangkauan Distribusi Nasional
             </div>
