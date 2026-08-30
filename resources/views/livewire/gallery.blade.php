@@ -284,12 +284,13 @@
                 <!-- Mobile Floating Controls & Brand Overlay (Only visible on mobile) -->
                 <div class="absolute bottom-6 left-4 right-16 z-[110] text-left md:hidden pointer-events-none">
                     <div class="flex items-center gap-2 mb-2 pointer-events-auto">
-                        <div class="w-8 h-8 rounded-full border border-white/40 flex items-center justify-center shadow-lg bg-terra-500">
+                        <div class="w-8 h-8 rounded-full border border-white/40 flex items-center justify-center shadow-lg bg-terra-500 shrink-0">
                             <span class="text-[8px] font-black text-white" x-text="photos[activeIndex]?.type === 'gallery' ? 'INDO' : (photos[activeIndex]?.reviewer_name?.charAt(0) || 'U')"></span>
                         </div>
                         <span class="text-white text-xs font-bold tracking-widest uppercase drop-shadow-md" style="text-shadow: 1px 1px 3px rgba(0,0,0,0.6);" x-text="photos[activeIndex]?.reviewer_name || 'INDOROSTER OFFICIAL'"></span>
                     </div>
-                    <h2 class="font-display text-white text-sm font-normal drop-shadow-lg line-clamp-2" style="text-shadow: 1px 1px 3px rgba(0,0,0,0.8);" x-text="photos[activeIndex]?.title"></h2>
+                    <h2 class="font-display text-white text-sm font-bold drop-shadow-lg line-clamp-1" style="text-shadow: 1px 1px 3px rgba(0,0,0,0.8);" x-text="photos[activeIndex]?.title"></h2>
+                    <p class="text-white/90 text-xs mt-1 line-clamp-2 leading-relaxed drop-shadow" style="text-shadow: 1px 1px 2px rgba(0,0,0,0.8);" x-show="photos[activeIndex]?.description || photos[activeIndex]?.caption" x-text="photos[activeIndex]?.description || photos[activeIndex]?.caption"></p>
                     <p class="text-white/70 text-[10px] mt-1 flex items-center gap-1 drop-shadow" x-show="photos[activeIndex]?.location">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-terra-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
@@ -373,17 +374,17 @@
 
             <!-- Right Side: Details & Comments Panel (380px width, hidden on mobile) -->
             <div class="hidden md:flex w-[380px] h-full bg-slate-900 border-l border-white/10 flex-col relative z-20">
-                <!-- Header / Author Info -->
-                <div class="p-6 border-b border-white/10">
-                    <div class="flex items-center gap-3 mb-4">
-                        <div class="w-10 h-10 rounded-full border border-white/40 flex items-center justify-center shadow-lg relative overflow-hidden"
+                <!-- Header / Author Info & Story Caption -->
+                <div class="p-6 border-b border-white/10 max-h-[350px] overflow-y-auto no-scrollbar">
+                    <div class="flex items-center gap-3 mb-3.5">
+                        <div class="w-10 h-10 rounded-full border border-white/40 flex items-center justify-center shadow-lg relative overflow-hidden shrink-0"
                              :class="photos[activeIndex]?.type === 'gallery' ? 'bg-terra-500' : 'bg-slate-700'">
                             <span class="text-xs font-black text-white" x-text="photos[activeIndex]?.type === 'gallery' ? 'INDO' : (photos[activeIndex]?.reviewer_name?.charAt(0) || 'U')"></span>
                         </div>
-                        <div class="text-left">
-                            <p class="text-white text-xs font-bold uppercase tracking-widest" x-text="photos[activeIndex]?.reviewer_name || 'INDOROSTER OFFICIAL'"></p>
+                        <div class="text-left min-w-0">
+                            <p class="text-white text-xs font-bold uppercase tracking-widest truncate" x-text="photos[activeIndex]?.reviewer_name || 'INDOROSTER OFFICIAL'"></p>
                             <p class="text-white/60 text-[10px] mt-0.5 flex items-center gap-1" x-show="photos[activeIndex]?.location">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-terra-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-terra-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                                 </svg>
@@ -391,7 +392,14 @@
                             </p>
                         </div>
                     </div>
-                    <h3 class="font-display text-white text-sm font-normal leading-relaxed text-left" x-text="photos[activeIndex]?.title"></h3>
+
+                    <!-- Judul Proyek / Post -->
+                    <h3 class="font-display text-white text-sm font-bold leading-snug text-left mb-2.5" x-text="photos[activeIndex]?.title"></h3>
+
+                    <!-- Caption & Cerita Pemasangan Lengkap -->
+                    <div class="text-slate-300 text-xs leading-relaxed whitespace-pre-line text-left space-y-1.5" x-show="photos[activeIndex]?.description || photos[activeIndex]?.caption">
+                        <p x-text="photos[activeIndex]?.description || photos[activeIndex]?.caption"></p>
+                    </div>
                 </div>
 
                 <!-- Shoppable Product Link (Desktop) -->

@@ -86,9 +86,10 @@ class GalleryResource extends Resource
                         ->default(0)
                         ->required(),
                     Forms\Components\Textarea::make('description')
-                        ->label('Caption / Cerita Pemasangan Proyek (Tampil di Samping Foto & Komentar)')
+                        ->label('Caption & Cerita Pemasangan Proyek (Tampil di Samping Foto & Komentar)')
                         ->placeholder('Ceritakan detail pemasangan roster ini, motif yang digunakan, dan keunggulan desainnya agar calon pembeli terinspirasi...')
-                        ->rows(3)
+                        ->helperText('Teks cerita, motif roster yang dipakai, dan ulasan proyek ini akan muncul tepat di samping foto & kolom komentar.')
+                        ->rows(4)
                         ->columnSpanFull(),
                     Forms\Components\Toggle::make('is_active')
                         ->label('Status Publikasi Aktif')
@@ -227,7 +228,8 @@ class GalleryResource extends Resource
                                 ])->columnSpan(1),
 
                             Forms\Components\TextInput::make('caption')
-                                ->label('Keterangan (Caption)')
+                                ->label('Keterangan Khusus Foto Ini (Opsional)')
+                                ->placeholder('Catatan khusus untuk foto ini saja...')
                                 ->maxLength(255)
                                 ->columnSpan(1),
                             Forms\Components\TextInput::make('alt_text')

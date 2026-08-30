@@ -160,6 +160,7 @@ class Gallery extends Component
                         'rating' => null,
                         'type' => 'gallery',
                         'description' => $gallery->description ?: '',
+                        'caption' => $media->caption ?: '',
                         'meta_title' => $gallery->meta_title ?: '',
                         'meta_description' => $gallery->meta_description ?: '',
                         'focus_keyword' => $gallery->focus_keyword ?: '',
