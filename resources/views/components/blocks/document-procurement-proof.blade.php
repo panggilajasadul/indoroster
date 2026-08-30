@@ -257,61 +257,16 @@
             </div>
         </div>
 
-        {{-- Interactive Filter Categories --}}
-        <div class="flex items-center justify-center flex-wrap gap-2 mb-12">
-            <button 
-                @click="activeFilter = 'all'" 
-                :class="activeFilter === 'all' ? 'bg-terra-500 text-white shadow-md shadow-terra-500/20' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'"
-                class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer">
-                📑 Semua Dokumen ({{ count($documents) }})
-            </button>
-            <button 
-                @click="activeFilter = 'surat-jalan'" 
-                :class="activeFilter === 'surat-jalan' ? 'bg-amber-600 text-white shadow-md shadow-amber-600/20' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'"
-                class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer">
-                🚚 Surat Jalan / DO
-            </button>
-            <button 
-                @click="activeFilter = 'invoice'" 
-                :class="activeFilter === 'invoice' ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'"
-                class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer">
-                🧾 Invoice Resmi
-            </button>
-            <button 
-                @click="activeFilter = 'receipt'" 
-                :class="activeFilter === 'receipt' ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'"
-                class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer">
-                💰 Kwitansi Lunas
-            </button>
-            <button 
-                @click="activeFilter = 'tender'" 
-                :class="activeFilter === 'tender' ? 'bg-purple-600 text-white shadow-md shadow-purple-600/20' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'"
-                class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer">
-                📝 SPH Penawaran
-            </button>
-            <button 
-                @click="activeFilter = 'uji-lab'" 
-                :class="activeFilter === 'uji-lab' ? 'bg-rose-600 text-white shadow-md shadow-rose-600/20' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'"
-                class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer">
-                🔬 Uji Kuat Tekan SNI
-            </button>
-        </div>
-
-        {{-- Document Sheet Grid (Realistic Document Presentation) --}}
+        {{-- Document Sheet Grid (Realistic Document Presentation - Tanpa Tab Filter) --}}
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             @foreach($documents as $idx => $doc)
             @php
-                $category = $doc['category'] ?? 'general';
                 $sampleUpload = $doc['sample_image_upload'] ?? null;
                 $sampleUrl = $doc['sample_image_url'] ?? null;
                 $hasCustomImage = !empty($sampleUpload) || !empty($sampleUrl);
                 $finalImgSrc = !empty($sampleUpload) ? asset('storage/'.$sampleUpload) : $sampleUrl;
             @endphp
             <div 
-                x-show="activeFilter === 'all' || activeFilter === '{{ $category }}'"
-                x-transition:enter="transition ease-out duration-300"
-                x-transition:enter-start="opacity-0 translate-y-4"
-                x-transition:enter-end="opacity-100 translate-y-0"
                 class="flex flex-col justify-between group cursor-pointer"
                 @click="openModal({{ json_encode($doc) }})">
                 

@@ -1455,7 +1455,7 @@ class PageResource extends Resource
                                         ->schema([
                                             Forms\Components\Grid::make(3)->schema([
                                                 Forms\Components\Select::make('category')
-                                                    ->label('Kategori Filter Tab')
+                                                    ->label('Tipe Dokumen (Opsional)')
                                                     ->options([
                                                         'surat-jalan' => '🚚 Surat Jalan / Delivery Order (DO)',
                                                         'invoice' => '🧾 Invoice Penjualan & Tagihan',
@@ -1463,9 +1463,10 @@ class PageResource extends Resource
                                                         'bast' => '📋 Berita Acara Serah Terima (BAST)',
                                                         'tender' => '📝 Surat Penawaran Harga (SPH / Quotation)',
                                                         'uji-lab' => '🔬 Sertifikat Uji Kuat Tekan Lab SNI',
+                                                        'faktur-pajak' => '📑 Faktur Pajak PPN / PPh',
+                                                        'custom' => '📄 Dokumen Lainnya / Bebas',
                                                     ])
-                                                    ->default('surat-jalan')
-                                                    ->required(),
+                                                    ->default('surat-jalan'),
                                                 Forms\Components\TextInput::make('type_badge')
                                                     ->label('Label Badge Dokumen')
                                                     ->default('SURAT JALAN RESMI')
@@ -1557,16 +1558,17 @@ class PageResource extends Resource
                                         ->schema([
                                             Forms\Components\Grid::make(3)->schema([
                                                 Forms\Components\Select::make('category')
-                                                    ->label('Kategori Filter Tab')
+                                                    ->label('Tipe Dokumen (Opsional)')
                                                     ->options([
                                                         'surat-jalan' => '🚚 Surat Jalan Asli',
                                                         'kwitansi' => '💰 Kwitansi Bermaterai',
                                                         'uji-lab' => '🔬 Uji Kuat Tekan Lab',
                                                         'bast' => '📋 BAST Lapangan',
                                                         'sph' => '📝 SPH Penawaran',
+                                                        'faktur' => '📑 Faktur Pajak / Invoice',
+                                                        'custom' => '📄 Scan Dokumen Lainnya',
                                                     ])
-                                                    ->default('surat-jalan')
-                                                    ->required(),
+                                                    ->default('surat-jalan'),
                                                 Forms\Components\TextInput::make('tag')
                                                     ->label('Badge Tag di Foto')
                                                     ->default('✓ STEMPEL QC BASAH')
