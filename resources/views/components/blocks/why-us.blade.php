@@ -96,7 +96,7 @@
                     <div class="relative rounded-3xl overflow-hidden aspect-square border-4 border-slate-800/80 bg-slate-900 shadow-luxury flex flex-col items-center justify-center p-8 text-center text-white">
                         <span class="text-6xl mb-4">🏭</span>
                         <h3 class="text-2xl font-black mb-2">Sentra Pabrikasi Plered</h3>
-                        <p class="text-sm text-slate-300">Kapasitas suplai harian ribuan pieces roster beton tumbuk padat mutu K-200 bergaransi.</p>
+                        <p class="text-sm text-slate-300">Kapasitas produksi 10.000 pcs per bulan dengan roster beton tumbuk padat mutu K-200 bergaransi.</p>
                     </div>
                 @endif
             </div>

@@ -13,7 +13,7 @@
                     Pusat Suplai Roster Beton untuk <span class="text-terra-500">Proyek & Kontraktor</span>
                 </h1>
                 <p class="text-base sm:text-lg text-slate-600 dark:text-slate-300 mb-8 leading-relaxed">
-                    Kapasitas produksi pabrik ribuan keping per hari, sudut siku 90° presisi untuk kecepatan pasang tukang di lapangan, garansi bebas pecah di jalan, dan kelengkapan dokumen pengadaan resmi.
+                    Kapasitas produksi pabrik 10.000 pcs per bulan, sudut siku 90° presisi untuk kecepatan pasang tukang di lapangan, garansi bebas pecah di jalan, dan kelengkapan dokumen pengadaan resmi.
                 </p>
                 <div class="flex flex-wrap items-center gap-4">
                     <a href="{{ $waUrl }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center gap-2.5 px-7 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm sm:text-base shadow-lg shadow-emerald-600/25 transition-all hover:scale-[1.02]">
@@ -67,7 +67,7 @@
                     Katalog Lengkap Roster Beton untuk Proyek & Kontraktor
                 </h2>
                 <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
-                    Pilihan terfavorit pemborong bangunan dengan kapasitas produksi ribuan pcs/hari dan siku presisi 90°.
+                    Pilihan terfavorit pemborong bangunan dengan kapasitas produksi 10.000 pcs/bulan dan siku presisi 90°.
                 </p>
             </div>
 

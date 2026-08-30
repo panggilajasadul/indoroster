@@ -32,6 +32,7 @@ use App\Livewire\OrderTracking;
 use App\Livewire\ProductCatalog;
 use App\Livewire\ProductDetail;
 use App\Livewire\ProductionProcess;
+use App\Livewire\Seo\SeoPageDetailFallback;
 use App\Livewire\Tools\RosterCalculator;
 use App\Livewire\VideoInspiration;
 use App\Mail\InvoiceMail;
@@ -161,5 +162,6 @@ Route::middleware(['web', 'auth'])->group(function () {
     Route::get('/print/template-test/{template}', [PrintController::class, 'templateTest'])->name('print.template-test');
 });
 
-// Fallback Direct URL untuk Landing Page SEO (misal: /katalog-produk-roster-minimalis-di-jabodetabek)
-Route::get('/{slug}', DynamicPage::class)->where('slug', '^[a-zA-Z0-9\-_]+$')->name('dynamic.page.direct');
+// SEO Page Factory — Prioritas: SeoPage published > DynamicPage CMS
+// SeoPageDetailFallback menangani dispatch tanpa redirect loop
+Route::get('/{slug}', SeoPageDetailFallback::class)->where('slug', '^[a-zA-Z0-9\-_]+$')->name('dynamic.page.direct');

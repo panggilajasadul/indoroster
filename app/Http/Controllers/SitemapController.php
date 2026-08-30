@@ -8,6 +8,7 @@ use App\Models\Gallery;
 use App\Models\Page;
 use App\Models\Product;
 use App\Models\SeoLocation;
+use App\Models\SeoPage;
 use Carbon\Carbon;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Schema;
@@ -254,6 +255,31 @@ class SitemapController extends Controller
                         ->setLastModificationDate($page->updated_at ?? Carbon::now())
                         ->setChangeFrequency(Url::CHANGE_FREQUENCY_MONTHLY)
                         ->setPriority(0.6)
+                );
+            }
+        }
+
+        // 8. SEO Page Factory Commercial Landing Pages (/{slug})
+        if (Schema::hasTable('seo_pages')) {
+            $seoPages = SeoPage::where('status', 'published')
+                ->where('noindex', false)
+                ->orderBy('updated_at', 'desc')
+                ->get(['slug', 'page_type', 'updated_at']);
+
+            foreach ($seoPages as $seoPage) {
+                $priority = match ($seoPage->page_type) {
+                    'pillar' => 0.9,
+                    'buyer', 'project' => 0.85,
+                    'usecase', 'product_landing' => 0.8,
+                    'location' => 0.75,
+                    default => 0.7,
+                };
+
+                $sitemap->add(
+                    Url::create($baseUrl.'/'.trim($seoPage->slug))
+                        ->setLastModificationDate($seoPage->updated_at ?? Carbon::now())
+                        ->setChangeFrequency(Url::CHANGE_FREQUENCY_WEEKLY)
+                        ->setPriority($priority)
                 );
             }
         }

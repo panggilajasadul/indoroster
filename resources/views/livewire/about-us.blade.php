@@ -252,7 +252,7 @@
                     <div class="p-6">
                         <h3 class="font-display font-bold text-base text-slate-900 dark:text-white mb-2">Sentra Produksi Plered</h3>
                         <p class="text-slate-600 dark:text-slate-400 text-xs leading-relaxed">
-                            Kapasitas cetak ribuan pcs per hari dengan kontrol kualitas yang teliti di setiap proses pengeringan.
+                            Kapasitas produksi 10.000 pcs per bulan dengan kontrol kualitas yang teliti di setiap proses pengeringan.
                         </p>
                     </div>
                 </div>

@@ -142,7 +142,7 @@
                         <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-accent/20 rounded-full blur-3xl"></div>
                         <h4 class="font-display text-2xl font-black mb-3 text-white">PRODUKSI LANGSUNG PABRIK</h4>
                         <p class="text-slate-300 dark:text-slate-400 leading-relaxed text-sm">
-                            Kapasitas produksi ribuan pcs per hari dengan teknik cetak tumbuk padat alat pres khusus, siap melayani pesanan retail hunian maupun proyek komersial skala besar ke seluruh Indonesia.
+                            Kapasitas produksi 10.000 pcs per bulan dengan teknik cetak tumbuk padat alat pres khusus, siap melayani pesanan retail hunian maupun proyek komersial skala besar ke seluruh Indonesia.
                         </p>
                     </div>
                 </div>

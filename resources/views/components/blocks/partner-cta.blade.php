@@ -45,7 +45,7 @@
                 </div>
                 <h3 class="font-display text-lg font-black mb-2 {{ $theme->cardTitle }}">Kontraktor & Pemborong</h3>
                 <p class="text-xs leading-relaxed {{ $theme->cardDesc }} mb-4">
-                    Pricelist grosir tangan pertama, kapasitas produksi ribuan keping, serta dokumen surat jalan & faktur resmi.
+                    Pricelist grosir tangan pertama, kapasitas produksi 10.000 pcs/bulan, serta dokumen surat jalan & faktur resmi.
                 </p>
                 <div class="flex items-center gap-1.5 text-xs font-bold text-terra-600 dark:text-terra-400">
                     <span>✓ Mutu Beton K-200</span>

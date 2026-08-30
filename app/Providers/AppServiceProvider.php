@@ -10,6 +10,7 @@ use App\Models\Order;
 use App\Models\Page;
 use App\Models\Product;
 use App\Models\SeoLocation;
+use App\Models\SeoPage;
 use App\Models\SiteSetting;
 use App\Observers\OrderObserver;
 use Illuminate\Auth\Notifications\ResetPassword;
@@ -106,6 +107,8 @@ class AppServiceProvider extends ServiceProvider
         Article::deleted($sitemapGenerator);
         SeoLocation::saved($sitemapGenerator);
         SeoLocation::deleted($sitemapGenerator);
+        SeoPage::saved($sitemapGenerator);
+        SeoPage::deleted($sitemapGenerator);
 
         // Custom professional verification email narrative
         VerifyEmail::toMailUsing(function (object $notifiable, string $url) {
