@@ -223,11 +223,14 @@ class SeoPage extends Model
         }
 
         // 4. Default Curated Top Motifs: MMC, Petir, Nako Sipit, Nako LS, JaboL, PCL, Arrow, Batman
-        $topMotifIds = [12, 6, 10, 8, 2, 4, 18, 40];
-        $topProducts = Product::whereIn('id', $topMotifIds)
-            ->where('is_active', true)
+        $topMotifKeywords = ['MMC', 'Petir', 'Nako Sipit', 'Nako LS', 'JaboL', 'PCL', 'Arrow', 'Batman'];
+        $topProducts = Product::where('is_active', true)
+            ->where(function ($q) use ($topMotifKeywords) {
+                foreach ($topMotifKeywords as $kw) {
+                    $q->orWhere('name', 'like', "%{$kw}%");
+                }
+            })
             ->with(['media', 'variants', 'category'])
-            ->orderByRaw('FIELD(id, 12, 6, 10, 8, 2, 4, 18, 40)')
             ->limit($limit)
             ->get();
 

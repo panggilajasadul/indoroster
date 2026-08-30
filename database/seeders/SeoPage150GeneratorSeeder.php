@@ -24,12 +24,27 @@ class SeoPage150GeneratorSeeder extends Seeder
 
         $this->command->info('Memulai pembuatan '.count($pages).' Halaman SEO Komersial IndoRoster dengan konten narasi mendalam...');
 
-        foreach ($pages as $index => $data) {
-            $sections = $data['sections'] ?? [];
-            if (empty($sections)) {
-                $sections = $this->generateHardcoreSections($data);
+        $targetMotifs = ['mmc', 'petir', 'nako sipit', 'nako ls', 'jabol', 'pcl', 'arrow', 'batman'];
+        $flagshipProductIds = collect();
+        foreach ($targetMotifs as $motif) {
+            $found = Product::where('is_active', true)
+                ->where(function ($q) use ($motif) {
+                    $q->where('name', 'like', "%{$motif}%")
+                        ->orWhere('slug', 'like', "%{$motif}%");
+                })->first();
+            if ($found) {
+                $flagshipProductIds->push($found->id);
             }
-            unset($data['sections']);
+        }
+
+        if ($flagshipProductIds->isEmpty()) {
+            $flagshipProductIds = Product::where('is_active', true)->limit(8)->pluck('id');
+        }
+
+        $validProductIds = Product::whereIn('id', $flagshipProductIds)->pluck('id')->toArray();
+
+        foreach ($pages as $index => $data) {
+            $sections = $this->generateHardcoreSections($data);
 
             // 1. Simpan atau Update record SeoPage
             $seoPage = SeoPage::updateOrCreate(
@@ -55,8 +70,10 @@ class SeoPage150GeneratorSeeder extends Seeder
                 ]);
             }
 
-            // 3. Hubungkan relasi 8 motif unggulan (MMC, Petir, Nako Sipit, Nako LS, JaboL, PCL, Arrow, Batman) ke pivot
-            $seoPage->products()->sync([12, 6, 10, 8, 2, 4, 18, 40]);
+            // 3. Hubungkan relasi motif unggulan ke pivot (hanya ID yang benar-benar ada di tabel products)
+            if (! empty($validProductIds)) {
+                $seoPage->products()->sync($validProductIds);
+            }
 
             // 4. Hitung Quality Score Otomatis
             $scorer->scoreAndSave($seoPage);
