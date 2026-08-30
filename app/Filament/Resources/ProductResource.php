@@ -437,6 +437,13 @@ class ProductResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\ImageColumn::make('primary_image')
+                    ->label('Foto Motif')
+                    ->getStateUsing(fn (Product $record): ?string => $record->primary_image)
+                    ->square()
+                    ->size(52)
+                    ->extraImgAttributes(['class' => 'rounded-xl object-cover ring-1 ring-slate-200 dark:ring-slate-700 shadow-xs'])
+                    ->defaultImageUrl(asset('images/placeholder.png')),
                 Tables\Columns\TextColumn::make('name')
                     ->label('Nama Produk')
                     ->searchable()
@@ -588,6 +595,11 @@ class ProductResource extends Resource
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()->with(['category', 'media', 'variants']);
     }
 
     public static function getRelations(): array
