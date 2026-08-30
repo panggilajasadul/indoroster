@@ -157,13 +157,39 @@
             @endforeach
         </div>
 
-        <!-- Load More Button -->
+        <!-- Infinite Scroll Trigger / Auto Reveal Sentinel -->
         @if($products->hasMorePages())
-        <div class="mt-12 text-center">
-            <button wire:click="loadMore" class="px-8 py-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 hover:border-terra-500 text-xs sm:text-sm font-bold shadow-sm transition hover:scale-105">
-                Tampilkan Lebih Banyak Produk &darr;
-            </button>
-        </div>
+            <div 
+                x-data="{
+                    observer: null,
+                    isLoading: false,
+                    init() {
+                        this.observer = new IntersectionObserver((entries) => {
+                            entries.forEach(entry => {
+                                if (entry.isIntersecting && !this.isLoading) {
+                                    this.isLoading = true;
+                                    $wire.loadMore().then(() => {
+                                        this.isLoading = false;
+                                    });
+                                }
+                            });
+                        }, { rootMargin: '350px' });
+                        this.observer.observe(this.$el);
+                    },
+                    destroy() {
+                        if (this.observer) this.observer.disconnect();
+                    }
+                }"
+                class="w-full flex flex-col items-center justify-center py-10"
+            >
+                <div class="inline-flex items-center gap-2.5 px-6 py-3 rounded-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-soft-xs text-slate-700 dark:text-slate-300 text-xs font-semibold">
+                    <svg class="animate-spin h-4 w-4 text-terra-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                    </svg>
+                    <span>Memuat Produk Selanjutnya...</span>
+                </div>
+            </div>
         @endif
 
         @else
