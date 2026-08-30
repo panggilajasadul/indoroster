@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Product;
 use App\Models\SeoPage;
 use App\Models\SeoPageSection;
 use App\Services\SeoQualityScorer;
