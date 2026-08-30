@@ -83,33 +83,12 @@
 @php
     $catalogGridCols = \App\Models\SiteSetting::getValue('catalog_product_grid_columns', '4');
     $catalogGridClass = match($catalogGridCols) {
-        '3' => 'grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4 sm:gap-6',
-        '5' => 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3.5 sm:gap-5',
+        '3' => 'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 gap-5 sm:gap-6',
+        '5' => 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 gap-3.5 sm:gap-5',
         '6' => 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4',
-        default => 'grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6',
+        default => 'grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4 sm:gap-6',
     };
 @endphp
-
-        <!-- Viral Products Section (When not searching) -->
-        @if(!$search && !$categorySlug && isset($viralProducts) && $viralProducts->count() > 0)
-            <div class="mb-10 bg-gradient-to-br from-amber-50/50 dark:from-amber-950/20 via-white dark:via-slate-900 to-orange-50/30 dark:to-orange-950/20 rounded-3xl border border-amber-200/60 dark:border-amber-900/40 shadow-soft-xs p-5 sm:p-7 relative overflow-hidden">
-                <div class="flex items-center justify-between mb-5">
-                    <div class="flex items-center gap-2.5">
-                        <span class="w-8 h-8 rounded-xl bg-amber-500/15 dark:bg-amber-500/25 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold text-sm">🔥</span>
-                        <div>
-                            <h2 class="font-display text-lg sm:text-xl font-black text-slate-900 dark:text-white tracking-tight">Motif Roster Terpopuler & Viral</h2>
-                            <p class="text-xs text-slate-500 dark:text-slate-400">Pilihan roster beton terfavorit arsitek dan kontraktor.</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="{{ $catalogGridClass }}">
-                    @foreach($viralProducts as $product)
-                        <x-product-card :product="$product" :badgeText="'#' . $loop->iteration . ' Hot'" />
-                    @endforeach
-                </div>
-            </div>
-        @endif
 
         <!-- Main Product Grid -->
         <div>
