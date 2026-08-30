@@ -570,37 +570,30 @@ class PageResource extends Resource
                                 ]),
 
                             Forms\Components\Builder\Block::make('why_us')
-                                ->label('[3. Pabrik] 💎 Kenapa Memilih Kami (Why Choose Us - Multi Poin & Desain)')
+                                ->label('[3. Pabrik] 💎 Kenapa Memilih Kami (Why Us — Split Video/Media)')
                                 ->icon('heroicon-o-hand-thumb-up')
                                 ->schema([
-                                    Forms\Components\TextInput::make('badge')->label('Teks Badge Atas')->default('💎 KEUNGGULAN KOMPETITIF'),
-                                    Forms\Components\TextInput::make('title')->label('Judul Utama')->default('Kenapa Memilih Roster Pabrik Kami?')->required(),
-                                    Forms\Components\Textarea::make('description')->label('Sub-judul / Narasi Pengantar')->rows(2)->default('Kami mengedepankan kualitas cetakan mutu K-200, kepresisian sudut 90°, armada mandiri tepat waktu, dan transparansi harga tangan pertama.'),
-                                    Forms\Components\Select::make('layout_style')
-                                        ->label('Format Tata Letak (Layout Style)')
-                                        ->options([
-                                            'grid' => '🔲 Grid Kartu Elegan (3 - 4 Kolom Penuh)',
-                                            'split' => '🖼️ 2 Kolom (Poin Kiri + Media/Foto/Video Kanan)',
-                                        ])
-                                        ->default('grid'),
+                                    Forms\Components\TextInput::make('badge')->label('Teks Badge Atas')->default('Keunggulan Kompetitif'),
+                                    Forms\Components\TextInput::make('title')->label('Judul')->default('Kenapa Memilih Roster Pabrik Kami?')->required(),
+                                    Forms\Components\Textarea::make('description')->label('Deskripsi')->default('Kami mengedepankan kualitas cetakan, kecepatan pengiriman armada mandiri, dan transparansi harga pabrik tangan pertama.'),
                                     static::alignmentSelect('center'),
                                     static::bgThemeSelect('dark'),
                                     Forms\Components\Repeater::make('items')
-                                        ->label('Daftar Poin-Poin Keunggulan')
+                                        ->label('Daftar Poin Keunggulan (List Kiri)')
                                         ->schema([
-                                            Forms\Components\TextInput::make('icon')->label('Emoji / Icon')->placeholder('Contoh: 🏭, 🛡️, 📐, 🚚, 📑, 💎')->default('💎'),
+                                            Forms\Components\TextInput::make('icon')->label('Icon/Emoji')->placeholder('Contoh: 🏭, 🛡️, 📐, 🚚')->default('💎'),
                                             Forms\Components\TextInput::make('title')->label('Judul Poin')->required(),
-                                            Forms\Components\Textarea::make('description')->label('Deskripsi / Penjelasan Poin')->rows(2)->required(),
+                                            Forms\Components\Textarea::make('content')->label('Isi Poin')->required(),
                                         ])
                                         ->columns(3)
                                         ->default([
-                                            ['icon' => '🏭', 'title' => 'Pabrik Produsen Tangan Pertama', 'description' => 'Harga langsung dari sentra Plered Purwakarta tanpa markup calo atau toko perantara.'],
-                                            ['icon' => '🛡️', 'title' => 'Garansi 100% Bebas Pecah', 'description' => 'Setiap keping yang rusak atau sompel saat proses pengiriman armada langsung kami ganti baru.'],
-                                            ['icon' => '📐', 'title' => 'Sudut Siku 90° & Mutu K-200', 'description' => 'Dipadatkan dengan hidrolik bertenaga tinggi, pori-pori rapat, dan presisi saat dipasang tukang.'],
-                                            ['icon' => '🚚', 'title' => 'Armada Truk Logistik Harian', 'description' => 'Pengiriman rutin terjadwal menjangkau Jabodetabek, Bandung, Banten, dan seluruh Jawa Barat.'],
+                                            ['icon' => '🏭', 'title' => 'Pabrik Tangan Pertama', 'content' => 'Harga langsung dari produsen tanpa perantara agen atau toko material retail.'],
+                                            ['icon' => '🛡️', 'title' => 'Garansi Pecah Ganti Baru', 'content' => 'Setiap keping roster yang rusak atau pecah saat proses pengiriman armada kami ganti 100% tanpa biaya tambahan.'],
+                                            ['icon' => '🚚', 'title' => 'Armada Truk Khusus', 'content' => 'Pengiriman tepat waktu terjadwal menggunakan truk boks dan armada khusus material.'],
+                                            ['icon' => '📐', 'title' => 'Motif Terlengkap', 'content' => 'Lebih dari 150+ variasi motif modern minimalis, klasik, bunga, dan geometris.'],
                                         ]),
                                     Forms\Components\Repeater::make('videos')
-                                        ->label('Media Samping (Foto / Video - Khusus Mode 2 Kolom)')
+                                        ->label('Media Video / Foto Samping (Kanan)')
                                         ->schema([
                                             Forms\Components\FileUpload::make('video_upload')
                                                 ->label('Upload Media (Foto/Video)')
@@ -615,6 +608,39 @@ class PageResource extends Resource
                                                 ->label('Atau URL Media Eksternal (Foto/Video)')
                                                 ->live(),
                                             static::mediaPreview('video_upload', 'url'),
+                                        ]),
+                                ]),
+
+                            Forms\Components\Builder\Block::make('why_choose_us_cards')
+                                ->label('[3. Pabrik] 🧱 Poin Keunggulan & Fitur Grid (Why Choose Us — Card Grid Box)')
+                                ->icon('heroicon-o-squares-2x2')
+                                ->schema([
+                                    Forms\Components\TextInput::make('badge')->label('Teks Badge Atas')->default('💎 KEUNGGULAN KOMPETITIF'),
+                                    Forms\Components\TextInput::make('title')->label('Judul Utama')->default('Kenapa Memilih Roster Pabrik Kami?')->required(),
+                                    Forms\Components\Textarea::make('description')->label('Sub-judul / Narasi Pengantar')->rows(2)->default('Kami mengedepankan kualitas cetakan mutu K-200, kepresisian sudut 90°, armada mandiri tepat waktu, dan transparansi harga tangan pertama.'),
+                                    Forms\Components\Select::make('columns')
+                                        ->label('Jumlah Kolom Grid')
+                                        ->options([
+                                            '2' => '2 Kolom (Besar)',
+                                            '3' => '3 Kolom (Sedang)',
+                                            '4' => '4 Kolom (Simetris)',
+                                        ])
+                                        ->default('4'),
+                                    static::alignmentSelect('center'),
+                                    static::bgThemeSelect('dark'),
+                                    Forms\Components\Repeater::make('items')
+                                        ->label('Daftar Kartu Poin Keunggulan')
+                                        ->schema([
+                                            Forms\Components\TextInput::make('icon')->label('Emoji / Icon')->placeholder('Contoh: 🏭, 🛡️, 📐, 🚚, 📑, 💎')->default('💎'),
+                                            Forms\Components\TextInput::make('title')->label('Judul Poin')->required(),
+                                            Forms\Components\Textarea::make('description')->label('Deskripsi / Penjelasan Poin')->rows(2)->required(),
+                                        ])
+                                        ->columns(3)
+                                        ->default([
+                                            ['icon' => '🏭', 'title' => 'Pabrik Produsen Tangan Pertama', 'description' => 'Harga langsung dari sentra Plered Purwakarta tanpa markup calo atau toko perantara.'],
+                                            ['icon' => '🛡️', 'title' => 'Garansi 100% Bebas Pecah', 'description' => 'Setiap keping yang rusak atau sompel saat proses pengiriman armada langsung kami ganti baru.'],
+                                            ['icon' => '📐', 'title' => 'Sudut Siku 90° & Mutu K-200', 'description' => 'Dipadatkan dengan hidrolik bertenaga tinggi, pori-pori rapat, dan presisi saat dipasang tukang.'],
+                                            ['icon' => '🚚', 'title' => 'Armada Truk Logistik Harian', 'description' => 'Pengiriman rutin terjadwal menjangkau Jabodetabek, Bandung, Banten, dan seluruh Jawa Barat.'],
                                         ]),
                                 ]),
 
