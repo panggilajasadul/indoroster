@@ -790,22 +790,51 @@ class PageResource extends Resource
                                 ]),
 
                             Forms\Components\Builder\Block::make('faq')
-                                ->label('[6. Fitur] ❓ Tanya Jawab Seputar Roster (FAQ Accordion)')
+                                ->label('[6. Fitur] ❓ Tanya Jawab Seputar Roster (FAQ Accordion - Kustom / Database)')
                                 ->icon('heroicon-o-question-mark-circle')
                                 ->schema([
-                                    Forms\Components\Placeholder::make('hint')
-                                        ->label('')
-                                        ->content('Tips: Data FAQ dikelola melalui menu "FAQ" di sidebar kiri. Blok ini akan mengambil data FAQ secara otomatis.'),
+                                    Forms\Components\TextInput::make('badge')->label('Teks Badge Atas')->default('❓ PUSAT INFORMASI & FAQ'),
                                     Forms\Components\TextInput::make('title')
                                         ->label('Judul Seksi')
-                                        ->default('Pertanyaan yang Sering Diajukan'),
-                                    Forms\Components\Textarea::make('description')->label('Deskripsi'),
+                                        ->default('Pertanyaan yang Sering Diajukan (FAQ)')
+                                        ->required(),
+                                    Forms\Components\Textarea::make('description')->label('Deskripsi / Narasi Pengantar')->rows(2)->default('Jawaban lengkap dan transparan seputar spesifikasi roster beton, pengiriman armada pabrik, dan klaim garansi.'),
                                     static::alignmentSelect('center'),
-                                    Forms\Components\TextInput::make('limit')
-                                        ->label('Jumlah FAQ Ditampilkan')
-                                        ->numeric()
-                                        ->default(10),
                                     static::bgThemeSelect('slate'),
+                                    Forms\Components\Radio::make('source_type')
+                                        ->label('Sumber Data Tanya Jawab (FAQ)')
+                                        ->options([
+                                            'custom' => '✍️ Tulis Kustom Sendiri (Pertanyaan & Jawaban Khusus Halaman Ini)',
+                                            'database' => '🌐 Ambil Otomatis dari Database Global FAQ (Menu Sidebar)',
+                                        ])
+                                        ->default('custom')
+                                        ->live(),
+                                    Forms\Components\Repeater::make('custom_faqs')
+                                        ->label('Daftar Tanya Jawab Kustom')
+                                        ->visible(fn (Forms\Get $get) => ($get('source_type') ?? 'custom') === 'custom')
+                                        ->schema([
+                                            Forms\Components\TextInput::make('question')->label('Pertanyaan')->required(),
+                                            Forms\Components\Textarea::make('answer')->label('Jawaban')->rows(3)->required(),
+                                        ])
+                                        ->default([
+                                            [
+                                                'question' => 'Berapa berat rata-rata per keping roster beton?',
+                                                'answer' => 'Rata-rata berat per keping roster beton ukuran standar 20x20x10 cm adalah sekitar 4.0 hingga 4.5 kg karena diproduksi dengan teknik cetak tumbuk padat mutu K-200 tanpa rongga rapuh.',
+                                            ],
+                                            [
+                                                'question' => 'Apakah ada minimal order untuk pengiriman luar kota?',
+                                                'answer' => 'Tidak ada minimal order khusus. Anda bisa memesan sesuai kebutuhan proyek. Namun untuk efisiensi ongkos kirim armada truk pabrik, disarankan menggabungkan pesanan atau memanfaatkan rute pengiriman berkala kami.',
+                                            ],
+                                            [
+                                                'question' => 'Bagaimana jika ada roster yang pecah saat tiba di lokasi proyek?',
+                                                'answer' => 'IndoRoster memberikan Garansi Bebas Pecah 100%. Cukup foto keping yang rusak saat serah terima barang bersama supir kami, dan unit pengganti baru akan segera kami kirimkan gratis tanpa biaya tambahan.',
+                                            ],
+                                        ]),
+                                    Forms\Components\TextInput::make('limit')
+                                        ->label('Jumlah FAQ Ditampilkan dari Database')
+                                        ->numeric()
+                                        ->default(10)
+                                        ->visible(fn (Forms\Get $get) => $get('source_type') === 'database'),
                                 ]),
 
                             Forms\Components\Builder\Block::make('promo_banner')
