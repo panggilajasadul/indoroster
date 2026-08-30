@@ -96,64 +96,6 @@
                 <div class="{{ $catalogGridClass }}">
                     @foreach($products as $product)
                         <x-product-card :product="$product" wire:key="product-{{ $product->id }}" />
-
-                        <!-- In-Feed Promotional & Regional Voucher Banner (Diselipkan di sela grid produk) -->
-                        @if($loop->iteration == 6 && isset($vouchers) && $vouchers->count() > 0)
-                            <div class="col-span-full my-4 bg-gradient-to-br from-amber-500/10 via-terra-500/5 to-amber-500/15 dark:from-slate-900/90 dark:via-slate-900 dark:to-slate-900/90 rounded-3xl border border-amber-300/60 dark:border-slate-800 p-5 sm:p-7 shadow-soft-xs relative overflow-hidden" x-data="{ copiedCode: null }">
-                                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-5">
-                                    <div>
-                                        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/20 text-amber-900 dark:text-amber-300 text-[11px] font-black uppercase tracking-wider mb-1.5 border border-amber-500/30">
-                                            <span>🏷️</span>
-                                            <span>Voucher Pengiriman & Promo Wilayah</span>
-                                        </div>
-                                        <h3 class="font-display text-lg sm:text-xl font-black text-slate-900 dark:text-white tracking-tight">
-                                            Klaim Promo Armada Pabrik Sesuai Wilayah Proyek Anda
-                                        </h3>
-                                        <p class="text-xs text-slate-600 dark:text-slate-400">Gunakan kode voucher saat checkout atau sebutkan kode saat konsultasi ke Admin WhatsApp:</p>
-                                    </div>
-                                    <a href="https://wa.me/6281389709847?text=Halo%20Admin%20IndoRoster,%20saya%20ingin%20tanya%20klaim%20promo%20ongkir%20pabrik" target="_blank" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-terra-500 hover:bg-terra-600 text-white font-bold text-xs shadow-xs transition-all shrink-0">
-                                        <span>💬 Konsultasi Admin Pabrik</span>
-                                    </a>
-                                </div>
-
-                                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4">
-                                    @foreach($vouchers as $voucher)
-                                        <div class="bg-white dark:bg-slate-800/90 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 flex flex-col justify-between shadow-2xs group hover:border-terra-400 dark:hover:border-terra-500 transition-all">
-                                            <div>
-                                                <div class="flex items-center justify-between gap-2 mb-3">
-                                                    <span class="px-2.5 py-1 rounded-md bg-amber-50 dark:bg-amber-500/15 text-amber-900 dark:text-amber-300 text-[10px] sm:text-[11px] font-black uppercase tracking-wider border border-amber-300/80 dark:border-amber-500/30">
-                                                        {{ $voucher->badge_text ?: 'Promo Spesial' }}
-                                                    </span>
-                                                    <span class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded-md border border-emerald-200/60 dark:border-emerald-900/30">
-                                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                                                        Aktif
-                                                    </span>
-                                                </div>
-                                                <h4 class="font-bold text-xs sm:text-sm text-slate-900 dark:text-white mb-1.5 group-hover:text-terra-600 dark:group-hover:text-terra-400 transition-colors">
-                                                    {{ $voucher->name }}
-                                                </h4>
-                                                <p class="text-[11px] text-slate-600 dark:text-slate-300 leading-snug mb-3">
-                                                    {{ $voucher->description }}
-                                                </p>
-                                            </div>
-
-                                            <div class="pt-3 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between gap-2">
-                                                <div class="font-mono text-xs font-black tracking-wider text-slate-900 dark:text-amber-300 bg-slate-100 dark:bg-slate-950 px-2.5 py-1.5 rounded-lg border border-dashed border-slate-300 dark:border-slate-700">
-                                                    {{ $voucher->code }}
-                                                </div>
-                                                <button 
-                                                    type="button" 
-                                                    @click="navigator.clipboard.writeText('{{ $voucher->code }}'); copiedCode = '{{ $voucher->code }}'; setTimeout(() => copiedCode = null, 2500)"
-                                                    class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold text-terra-600 dark:text-white bg-terra-50 dark:bg-terra-600 hover:bg-terra-500 hover:text-white dark:hover:bg-terra-500 transition-all cursor-pointer border border-terra-200/60 dark:border-transparent"
-                                                >
-                                                    <span x-text="copiedCode === '{{ $voucher->code }}' ? '✓ Tersalin!' : 'Salin Kode'"></span>
-                                                </button>
-                                            </div>
-                                        </div>
-                                    @endforeach
-                                </div>
-                            </div>
-                        @endif
                     @endforeach
                 </div>
                 
