@@ -440,6 +440,7 @@ class ProductResource extends Resource
                 Tables\Columns\ImageColumn::make('primary_image')
                     ->label('Foto Motif')
                     ->getStateUsing(fn (Product $record): ?string => $record->primary_image)
+                    ->checkFileExistence(false)
                     ->square()
                     ->size(52)
                     ->extraImgAttributes(['class' => 'rounded-xl object-cover ring-1 ring-slate-200 dark:ring-slate-700 shadow-xs'])
