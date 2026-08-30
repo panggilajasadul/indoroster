@@ -73,7 +73,8 @@ class ThemeSettings extends Page implements HasForms
             'trust_bar_item4_title' => $settings['trust_bar_item4_title'] ?? 'Harga Terbaik Buat Kamu',
             'trust_bar_item4_desc' => $settings['trust_bar_item4_desc'] ?? 'Dapatkan harga pabrik paling transparan untuk pemesanan partai kecil hingga ribuan keping roster cetak padat presisi.',
 
-            // Foto 3 vs Foto 4: Tata Letak Grid Produk Beranda
+            // Tata Letak Grid Produk Katalog & Beranda
+            'catalog_product_grid_columns' => $settings['catalog_product_grid_columns'] ?? '4',
             'home_product_grid_columns' => $settings['home_product_grid_columns'] ?? '4',
         ]);
     }
@@ -204,6 +205,33 @@ class ThemeSettings extends Page implements HasForms
                                 TextInput::make('trust_bar_item4_title')->label('Judul Singkat')->default('Harga Terbaik Buat Kamu')->required(),
                                 Textarea::make('trust_bar_item4_desc')->label('Teks Penjelasan Tooltip')->rows(2)->default('Dapatkan harga pabrik paling transparan untuk pemesanan partai kecil hingga ribuan keping roster cetak padat presisi.')->required(),
                             ]),
+                    ])->columns(2),
+
+                Section::make('🏬 Ukuran Card & Tata Letak Grid Produk (Katalog & Beranda)')
+                    ->description('Sesuaikan ukuran kartu produk dan jumlah kolom tampilan di halaman Katalog (/katalog) dan Beranda (/).')
+                    ->schema([
+                        Select::make('catalog_product_grid_columns')
+                            ->label('Ukuran Card Halaman Katalog (/katalog)')
+                            ->options([
+                                '4' => '🖼️ 4 Kolom (Ukuran Besar & Lega — Standar Foto 2)',
+                                '5' => '📐 5 Kolom (Ukuran Sedang Proporsional)',
+                                '6' => '🔲 6 Kolom (Ukuran Kompak / Grid Padat — Foto 1)',
+                                '3' => '🔍 3 Kolom (Ukuran Ekstra Besar)',
+                            ])
+                            ->default('4')
+                            ->helperText('Semakin sedikit kolom (misal 4 kolom), ukuran kartu dan foto produk akan semakin besar & lega.')
+                            ->required(),
+
+                        Select::make('home_product_grid_columns')
+                            ->label('Ukuran Card Halaman Beranda (/)')
+                            ->options([
+                                '4' => '🖼️ 4 Kolom (Ukuran Besar & Lega)',
+                                '5' => '📐 5 Kolom (Ukuran Sedang)',
+                                '6' => '🔲 6 Kolom (Ukuran Kompak)',
+                            ])
+                            ->default('4')
+                            ->helperText('Jumlah kolom produk di halaman utama / beranda.')
+                            ->required(),
                     ])->columns(2),
 
                 Section::make('Palet Warna Aksen Signature')

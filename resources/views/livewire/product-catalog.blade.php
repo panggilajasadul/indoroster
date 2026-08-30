@@ -80,6 +80,16 @@
             </div>
         </div>
 
+@php
+    $catalogGridCols = \App\Models\SiteSetting::getValue('catalog_product_grid_columns', '4');
+    $catalogGridClass = match($catalogGridCols) {
+        '3' => 'grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-5 sm:gap-6',
+        '5' => 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3.5 sm:gap-5',
+        '6' => 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4',
+        default => 'grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6',
+    };
+@endphp
+
         <!-- Viral Products Section (When not searching) -->
         @if(!$search && !$categorySlug && isset($viralProducts) && $viralProducts->count() > 0)
             <div class="mb-10 bg-gradient-to-br from-amber-50/50 dark:from-amber-950/20 via-white dark:via-slate-900 to-orange-50/30 dark:to-orange-950/20 rounded-3xl border border-amber-200/60 dark:border-amber-900/40 shadow-soft-xs p-5 sm:p-7 relative overflow-hidden">
@@ -93,7 +103,7 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+                <div class="{{ $catalogGridClass }}">
                     @foreach($viralProducts as $product)
                         <x-product-card :product="$product" :badgeText="'#' . $loop->iteration . ' Hot'" />
                     @endforeach
@@ -104,7 +114,7 @@
         <!-- Main Product Grid -->
         <div>
             @if($products->count() > 0)
-                <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+                <div class="{{ $catalogGridClass }}">
                     @foreach($products as $product)
                         <x-product-card :product="$product" wire:key="product-{{ $product->id }}" />
 
