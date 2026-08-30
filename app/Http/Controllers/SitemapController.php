@@ -45,8 +45,13 @@ class SitemapController extends Controller
             return;
         }
 
-        // Gunakan parameter jika ada, fallback ke APP_URL (sudah benar di .env)
-        $baseUrl = rtrim($customBaseUrl ?? config('app.url', 'https://indoroster.com'), '/');
+        // Gunakan domain resmi https://indoroster.com jika tidak ada custom base URL atau jika berjalan di local
+        $rawUrl = $customBaseUrl ?? config('app.url', 'https://indoroster.com');
+        if (empty($customBaseUrl) || str_contains($rawUrl, '127.0.0.1') || str_contains($rawUrl, 'localhost')) {
+            $baseUrl = 'https://indoroster.com';
+        } else {
+            $baseUrl = rtrim($rawUrl, '/');
+        }
 
         $sitemap = Sitemap::create();
 
