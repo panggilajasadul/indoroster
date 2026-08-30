@@ -118,7 +118,7 @@
                 </button>
                 <div x-show="activeAccordion === {{ $index }}" x-collapse style="display: none;">
                     <div class="px-5 sm:px-6 pb-6 pt-1 {{ $theme->cardDesc }} prose prose-base max-w-none {{ $theme->isDark ? 'prose-invert' : 'prose-slate' }} leading-relaxed border-t border-slate-200/40 dark:border-slate-800/60 mt-1">
-                        {!! nl2br(e($faq['answer'])) !!}
+                        {!! str_contains($faq['answer'], '<') ? $faq['answer'] : nl2br(e($faq['answer'])) !!}
                     </div>
                 </div>
             </div>
