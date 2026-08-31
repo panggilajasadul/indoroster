@@ -2,24 +2,29 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
-    use WithoutModelEvents;
-
     /**
      * Seed the application's database.
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        $this->command->info('🚀 Memulai pengisian database IndoRoster...');
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        // 1. Lokasi & Wilayah Ekspedisi Pabrik (101 Halaman Lokasi & Kawasan)
+        $this->call(SeoLocationSeeder::class);
+
+        // 2. Artikel & Panduan Edukasi Roster
+        $this->call(SkillArticlesSeeder::class);
+
+        // 3. Master Keyword Universe
+        $this->call(SeoKeywordBatch1Seeder::class);
+
+        // 4. 150 Halaman SEO Komersial (Kontraktor, Developer, Fasad, dll)
+        $this->call(SeoPage150GeneratorSeeder::class);
+
+        $this->command->info('✅ Seluruh halaman baru & master SEO berhasil diterbitkan 100%!');
     }
 }
