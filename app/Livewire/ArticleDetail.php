@@ -5,7 +5,6 @@ namespace App\Livewire;
 use App\Models\Article;
 use App\Models\Product;
 use App\Services\LegacyUrlRedirectService;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Livewire\Component;
 
@@ -114,9 +113,6 @@ class ArticleDetail extends Component
             ->take(4)
             ->get();
 
-        // Injeksi foto produk asli dari database secara dinamis ke dalam konten artikel
-        $this->article->content = $this->injectRealProductPhotos($this->article->content);
-
         $metaTitle = $this->article->meta_title ?: ($this->article->title.' - IndoRoster');
         $metaDescription = $this->article->meta_description ?: ($this->article->excerpt ?: Str::limit(strip_tags($this->article->content), 155));
         $metaKeywords = $this->article->meta_keywords ?: 'roster beton, fasad minimalis, roster plered, arsitektur tropis, indoroster';
@@ -132,58 +128,5 @@ class ArticleDetail extends Component
             'keywords' => $metaKeywords,
             'canonicalOverride' => route('article.detail', $this->article->slug),
         ]);
-    }
-
-    /**
-     * Injeksi foto produk asli dari tabel product_media secara dinamis saat render.
-     * Hanya mengganti src <img> yang berisi placeholder (pexels / localhost) dengan
-     * foto asli dari database — AMAN, tidak mengubah struktur HTML sama sekali.
-     */
-    private function injectRealProductPhotos(string $content): string
-    {
-        // Bangun map: slug -> URL foto primary (1 query untuk semua produk)
-        static $photoMap = null;
-        if ($photoMap === null) {
-            $photoMap = DB::table('product_media as pm')
-                ->join('products as p', 'p.id', '=', 'pm.product_id')
-                ->where('p.is_active', true)
-                ->where('pm.is_primary', true)
-                ->select('p.slug', 'pm.media_url')
-                ->pluck('pm.media_url', 'p.slug')
-                ->toArray();
-        }
-
-        if (empty($photoMap)) {
-            return $content;
-        }
-
-        // Pecah konten per blok kartu produk (outer white card)
-        $parts = preg_split('/(?=<div class="my-10 p-6 sm:p-8 bg-slate-50)/', $content);
-
-        $rebuilt = '';
-        foreach ($parts as $part) {
-            if (str_contains($part, '/produk/') && preg_match('|href="[^"]*?/produk/([^"?#/]+)"|i', $part, $m)) {
-                $slug = rtrim($m[1], '/');
-                if (!empty($photoMap[$slug])) {
-                    $realImg = $photoMap[$slug];
-                    // Ganti hanya src img yang berisi pexels atau localhost — struktur HTML tidak disentuh
-                    $part = preg_replace_callback(
-                        '/<img([^>]*?)src="([^"]*?)"([^>]*?)>/i',
-                        function ($matches) use ($realImg) {
-                            $src = $matches[2];
-                            if (str_contains($src, 'pexels') || str_contains($src, '127.0.0.1') || empty($src)) {
-                                return '<img' . $matches[1] . 'src="' . $realImg . '"' . $matches[3] . '>';
-                            }
-                            return $matches[0];
-                        },
-                        $part,
-                        1
-                    );
-                }
-            }
-            $rebuilt .= $part;
-        }
-
-        return $rebuilt;
     }
 }
