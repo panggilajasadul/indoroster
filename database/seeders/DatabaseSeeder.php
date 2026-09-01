@@ -25,15 +25,11 @@ class DatabaseSeeder extends Seeder
         $this->command->info('3️⃣ Seeding 110 Negara Ekspor Global Dinamis & Page Builder...');
         $this->call(ExportPagesSeeder::class);
 
-        // 4. Master Keyword Universe & 150 Halaman Komersial B2B
-        $this->command->info('4️⃣ Seeding Halaman B2B Kontraktor & Developer...');
-        $this->call(SeoPage150GeneratorSeeder::class);
+        // 4. Sinkronisasi Seluruh 4.777 Halaman SEO Page Factory (Pillar, Usecase, Intent, Lokasi)
+        $this->command->info('4️⃣ Sinkronisasi 4.777 Halaman Master SEO Page Factory...');
+        $this->call(FullSeoPageSyncSeeder::class);
 
-        // 5. 800 Halaman Master SEO Transaksional (100% Clean URL)
-        $this->command->info('5️⃣ Seeding 800 Halaman Master Geo-Transactional SEO...');
-        $this->call(MassGeoTransactionalSeoSeeder::class);
-
-        $this->command->info('✅ Seluruh database (Ekspor, Artikel, Lokasi, dan Ribuan Halaman SEO) berhasil disinkronkan 100%!');
+        $this->command->info('✅ Seluruh database (Ekspor, Artikel, Lokasi, dan 4.777 Halaman SEO) berhasil disinkronkan 100%!');
     }
 }
 
