@@ -13,6 +13,36 @@ class RestoredSitemapArticlesSeeder extends Seeder
 {
     public function run(): void
     {
+        $gzPath = database_path('data/articles.json.gz');
+        if (file_exists($gzPath)) {
+            $json = gzdecode(file_get_contents($gzPath));
+            $articles = json_decode($json, true) ?? [];
+            $total = count($articles);
+            $this->command->info("Memproses {$total} artikel bersih berfoto asli dari dataset...");
+
+            $chunks = array_chunk($articles, 50);
+            foreach ($chunks as $chunk) {
+                $upsertData = array_map(function ($item) {
+                    unset($item['id']);
+                    return $item;
+                }, $chunk);
+
+                \Illuminate\Support\Facades\DB::table('articles')->upsert(
+                    $upsertData,
+                    ['slug'],
+                    [
+                        'article_category_id', 'title', 'thumbnail', 'thumbnail_alt',
+                        'excerpt', 'content', 'tags', 'author_name', 'views_count',
+                        'reading_time', 'is_published', 'is_featured', 'published_at',
+                        'meta_title', 'meta_description', 'meta_keywords', 'updated_at'
+                    ]
+                );
+            }
+
+            $this->command->info("✅ Berhasil menyinkronkan {$total} artikel dengan foto produk asli & card rapi!");
+            return;
+        }
+
         $jsonPath = database_path('crawled_articles.json');
         if (! file_exists($jsonPath)) {
             $this->command->error('File crawled_articles.json tidak ditemukan.');
