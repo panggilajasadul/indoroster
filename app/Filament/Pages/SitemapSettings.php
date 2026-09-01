@@ -89,7 +89,7 @@ class SitemapSettings extends FilamentPage
                 'badge' => 'Prioritas 0.80',
             ],
             [
-                'name' => '2.375 Halaman SEO Page Factory (Pillar & Usecase)',
+                'name' => 'Halaman SEO Page Factory (Pillar, Intent, Lokasi & Proyek)',
                 'filename' => 'sitemap-seopages.xml',
                 'url' => url('/sitemap-seopages.xml'),
                 'icon' => 'heroicon-o-sparkles',
