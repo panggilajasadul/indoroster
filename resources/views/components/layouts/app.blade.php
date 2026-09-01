@@ -121,6 +121,7 @@
 
     <!-- Primary SEO Meta -->
     <meta name="google-site-verification" content="{{ \App\Models\SiteSetting::getValue('google_site_verification', '5T-7RFSLMEwCNdq2lx93GU5S5BckFBgjFPf5B-HlT1Y') }}" />
+    <meta name="yandex-verification" content="{{ \App\Models\SiteSetting::getValue('yandex_verification', 'd74c403698ee3929') }}" />
     <meta name="description" content="{{ $pageDesc }}">
     <meta name="keywords" content="{{ $keywordsMeta }}">
     <meta name="author" content="Indoroster">

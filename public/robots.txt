@@ -17,6 +17,12 @@ Allow: /
 User-agent: deepseek-ai
 Allow: /
 
+User-agent: YandexBot
+Allow: /
+
+User-agent: Yandex
+Allow: /
+
 # Blokir halaman transaksi & akun pribadi
 Disallow: /keranjang
 Disallow: /checkout
