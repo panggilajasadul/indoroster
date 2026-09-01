@@ -508,8 +508,9 @@ class SitemapController extends Controller
                 ->get(['slug', 'priority_score', 'updated_at']);
 
             foreach ($seoPages as $sp) {
-                $prio = round(($sp->priority_score ?? 80) / 100, 2);
-                $prio = max(0.5, min(1.0, $prio));
+                $rawScore = ($sp->priority_score && $sp->priority_score > 0) ? $sp->priority_score : 85;
+                $prio = round($rawScore / 100, 2);
+                $prio = max(0.70, min(1.0, $prio));
                 $sitemapSeo->add(
                     Url::create($baseUrl.'/'.trim($sp->slug))
                         ->setLastModificationDate($sp->updated_at ?? Carbon::now())
