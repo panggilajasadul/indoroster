@@ -54,7 +54,7 @@ return new class extends Migration
             [
                 'key' => 'google_analytics_id',
                 'name' => 'Google Analytics Measurement ID (GA4)',
-                'value' => 'G-XXXXXXXXXX',
+                'value' => 'G-GZQXJ03B4C',
                 'group' => 'seo',
                 'type' => 'text',
                 'description' => 'Kode tracking Google Analytics 4 (GA4) untuk melacak trafik pengunjung organik.',

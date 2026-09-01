@@ -6,6 +6,38 @@
 @endphp
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-smooth {{ $isDarkInitial ? 'dark' : '' }}">
 <head>
+    <!-- Google tag (gtag.js) -->
+    @php
+        $gaId = \App\Models\SiteSetting::getValue('google_analytics_id', 'G-GZQXJ03B4C');
+        if (empty($gaId) || $gaId === 'G-XXXXXXXXXX') {
+            $gaId = 'G-GZQXJ03B4C';
+        }
+    @endphp
+    @if(!empty($gaId))
+    <script async src="https://www.googletagmanager.com/gtag/js?id={{ $gaId }}"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', '{{ $gaId }}');
+      @if($gaId !== 'G-E7GQNHMDCZ')
+      gtag('config', 'G-E7GQNHMDCZ');
+      @endif
+
+      // Livewire SPA Navigation Pageview Tracking
+      document.addEventListener('livewire:navigated', function() {
+        if (typeof gtag === 'function') {
+          gtag('event', 'page_view', {
+            page_title: document.title,
+            page_location: window.location.href,
+            page_path: window.location.pathname + window.location.search
+          });
+        }
+      });
+    </script>
+    @endif
+
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
