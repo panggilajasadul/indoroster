@@ -158,115 +158,118 @@
 
             <div class="container content">
                 <div class="card">
-                    <!-- SITEMAP INDEX VIEW -->
-                    <xsl:if test="sitemap:sitemapindex">
-                        <div class="stats-bar">
-                            <div>
-                                <span>Master Sitemap Index: </span>
-                                <span class="stats-badge"><xsl:value-of select="count(sitemap:sitemapindex/sitemap:sitemap)"/> Sub-Sitemap</span>
+                    <!-- CONDITIONAL VIEW: SITEMAP INDEX VS URLSET -->
+                    <xsl:choose>
+                        <!-- SITEMAP INDEX VIEW -->
+                        <xsl:when test="sitemap:sitemapindex or //sitemap:sitemapindex">
+                            <div class="stats-bar">
+                                <div>
+                                    <span>Master Sitemap Index: </span>
+                                    <span class="stats-badge"><xsl:value-of select="count(sitemap:sitemapindex/sitemap:sitemap | //sitemap:sitemap)"/> Sub-Sitemap</span>
+                                </div>
+                                <div>
+                                    <span>Format: </span>
+                                    <span style="color: #0f172a;">Google Sitemap Index XML v0.9</span>
+                                </div>
                             </div>
-                            <div>
-                                <span>Format: </span>
-                                <span style="color: #0f172a;">Google Sitemap Index XML v0.9</span>
-                            </div>
-                        </div>
 
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th style="width: 70%;">Sub-Sitemap XML</th>
-                                    <th style="width: 30%; text-align: right;">Terakhir Diperbarui</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <xsl:for-each select="sitemap:sitemapindex/sitemap:sitemap">
+                            <table>
+                                <thead>
                                     <tr>
-                                        <td>
-                                            <xsl:variable name="subURL" select="sitemap:loc"/>
-                                            <a href="{$subURL}" target="_blank" style="font-weight: 600;">
-                                                <xsl:value-of select="sitemap:loc"/>
-                                            </a>
-                                        </td>
-                                        <td style="text-align: right; color: #64748b; font-size: 12px;">
-                                            <xsl:value-of select="concat(substring(sitemap:lastmod, 1, 10), ' ', substring(sitemap:lastmod, 12, 5))"/>
-                                        </td>
+                                        <th style="width: 70%;">Sub-Sitemap XML</th>
+                                        <th style="width: 30%; text-align: right;">Terakhir Diperbarui</th>
                                     </tr>
-                                </xsl:for-each>
-                            </tbody>
-                        </table>
-                    </xsl:if>
+                                </thead>
+                                <tbody>
+                                    <xsl:for-each select="sitemap:sitemapindex/sitemap:sitemap | //sitemap:sitemap">
+                                        <tr>
+                                            <td>
+                                                <xsl:variable name="subURL" select="sitemap:loc"/>
+                                                <a href="{$subURL}" target="_blank" style="font-weight: 600;">
+                                                    <xsl:value-of select="sitemap:loc"/>
+                                                </a>
+                                            </td>
+                                            <td style="text-align: right; color: #64748b; font-size: 12px;">
+                                                <xsl:value-of select="concat(substring(sitemap:lastmod, 1, 10), ' ', substring(sitemap:lastmod, 12, 5))"/>
+                                            </td>
+                                        </tr>
+                                    </xsl:for-each>
+                                </tbody>
+                            </table>
+                        </xsl:when>
 
-                    <!-- URLSET VIEW -->
-                    <xsl:if test="sitemap:urlset">
-                        <div class="stats-bar">
-                            <div>
-                                <span>Total URL Terdaftar: </span>
-                                <span class="stats-badge"><xsl:value-of select="count(sitemap:urlset/sitemap:url)"/> Halaman</span>
+                        <!-- URLSET VIEW -->
+                        <xsl:otherwise>
+                            <div class="stats-bar">
+                                <div>
+                                    <span>Total URL Terdaftar: </span>
+                                    <span class="stats-badge"><xsl:value-of select="count(sitemap:urlset/sitemap:url | //sitemap:url)"/> Halaman</span>
+                                </div>
+                                <div>
+                                    <span>Format: </span>
+                                    <span style="color: #0f172a;">Google Sitemaps XML v0.9 (Standard)</span>
+                                </div>
                             </div>
-                            <div>
-                                <span>Format: </span>
-                                <span style="color: #0f172a;">Google Sitemaps XML v0.9 (Standard)</span>
-                            </div>
-                        </div>
 
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th style="width: 50%;">Alamat URL Halaman</th>
-                                    <th style="width: 10%; text-align: center;">Gambar</th>
-                                    <th style="width: 10%; text-align: center;">Prioritas</th>
-                                    <th style="width: 12%; text-align: center;">Frekuensi</th>
-                                    <th style="width: 18%; text-align: right;">Terakhir Diperbarui</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <xsl:for-each select="sitemap:urlset/sitemap:url">
+                            <table>
+                                <thead>
                                     <tr>
-                                        <td>
-                                            <xsl:variable name="itemURL" select="sitemap:loc"/>
-                                            <a href="{$itemURL}" target="_blank">
-                                                <xsl:value-of select="sitemap:loc"/>
-                                            </a>
-                                        </td>
-                                        <td style="text-align: center;">
-                                            <xsl:variable name="imgCount" select="count(image:image)"/>
-                                            <xsl:choose>
-                                                <xsl:when test="$imgCount &gt; 0">
-                                                    <span style="font-weight: 700; color: #ea580c; background: #fff7ed; padding: 2px 8px; border-radius: 9999px; font-size: 11px; border: 1px solid #fed7aa;">
-                                                        <xsl:value-of select="$imgCount"/>
-                                                    </span>
-                                                </xsl:when>
-                                                <xsl:otherwise>
-                                                    <span style="color: #94a3b8; font-size: 12px;">0</span>
-                                                </xsl:otherwise>
-                                            </xsl:choose>
-                                        </td>
-                                        <td style="text-align: center;">
-                                            <xsl:variable name="prioVal" select="sitemap:priority"/>
-                                            <xsl:choose>
-                                                <xsl:when test="$prioVal &gt;= 0.8">
-                                                    <span class="priority-tag priority-high">
-                                                        <xsl:value-of select="concat(sitemap:priority * 100, '%')"/>
-                                                    </span>
-                                                </xsl:when>
-                                                <xsl:otherwise>
-                                                    <span class="priority-tag">
-                                                        <xsl:value-of select="concat(sitemap:priority * 100, '%')"/>
-                                                    </span>
-                                                </xsl:otherwise>
-                                            </xsl:choose>
-                                        </td>
-                                        <td style="text-align: center; text-transform: capitalize; color: #64748b; font-size: 12px;">
-                                            <xsl:value-of select="sitemap:changefreq"/>
-                                        </td>
-                                        <td style="text-align: right; color: #64748b; font-size: 12px;">
-                                            <xsl:value-of select="concat(substring(sitemap:lastmod, 1, 10), ' ', substring(sitemap:lastmod, 12, 5))"/>
-                                        </td>
+                                        <th style="width: 50%;">Alamat URL Halaman</th>
+                                        <th style="width: 10%; text-align: center;">Gambar</th>
+                                        <th style="width: 10%; text-align: center;">Prioritas</th>
+                                        <th style="width: 12%; text-align: center;">Frekuensi</th>
+                                        <th style="width: 18%; text-align: right;">Terakhir Diperbarui</th>
                                     </tr>
-                                </xsl:for-each>
-                            </tbody>
-                        </table>
-                    </xsl:if>
+                                </thead>
+                                <tbody>
+                                    <xsl:for-each select="sitemap:urlset/sitemap:url | //sitemap:url">
+                                        <tr>
+                                            <td>
+                                                <xsl:variable name="itemURL" select="sitemap:loc"/>
+                                                <a href="{$itemURL}" target="_blank">
+                                                    <xsl:value-of select="sitemap:loc"/>
+                                                </a>
+                                            </td>
+                                            <td style="text-align: center;">
+                                                <xsl:variable name="imgCount" select="count(image:image)"/>
+                                                <xsl:choose>
+                                                    <xsl:when test="$imgCount &gt; 0">
+                                                        <span style="font-weight: 700; color: #ea580c; background: #fff7ed; padding: 2px 8px; border-radius: 9999px; font-size: 11px; border: 1px solid #fed7aa;">
+                                                            <xsl:value-of select="$imgCount"/>
+                                                        </span>
+                                                    </xsl:when>
+                                                    <xsl:otherwise>
+                                                        <span style="color: #94a3b8; font-size: 12px;">0</span>
+                                                    </xsl:otherwise>
+                                                </xsl:choose>
+                                            </td>
+                                            <td style="text-align: center;">
+                                                <xsl:variable name="prioVal" select="sitemap:priority"/>
+                                                <xsl:choose>
+                                                    <xsl:when test="$prioVal &gt;= 0.8">
+                                                        <span class="priority-tag priority-high">
+                                                            <xsl:value-of select="concat(sitemap:priority * 100, '%')"/>
+                                                        </span>
+                                                    </xsl:when>
+                                                    <xsl:otherwise>
+                                                        <span class="priority-tag">
+                                                            <xsl:value-of select="concat(sitemap:priority * 100, '%')"/>
+                                                        </span>
+                                                    </xsl:otherwise>
+                                                </xsl:choose>
+                                            </td>
+                                            <td style="text-align: center; color: #64748b; font-size: 12px;">
+                                                <xsl:value-of select="sitemap:changefreq"/>
+                                            </td>
+                                            <td style="text-align: right; color: #64748b; font-size: 12px;">
+                                                <xsl:value-of select="concat(substring(sitemap:lastmod, 1, 10), ' ', substring(sitemap:lastmod, 12, 5))"/>
+                                            </td>
+                                        </tr>
+                                    </xsl:for-each>
+                                </tbody>
+                            </table>
+                        </xsl:otherwise>
+                    </xsl:choose>
                 </div>
 
                 <div class="footer">
