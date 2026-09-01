@@ -18,7 +18,11 @@ class ExportCountryService
             return static::$cachedDefaults;
         }
 
-        $jsonPath = base_path('scratch/export_defaults.json');
+        $jsonPath = database_path('data/export_defaults.json');
+        if (! File::exists($jsonPath)) {
+            $jsonPath = base_path('scratch/export_defaults.json');
+        }
+
         if (File::exists($jsonPath)) {
             static::$cachedDefaults = json_decode(File::get($jsonPath), true) ?? [];
         } else {

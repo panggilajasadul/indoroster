@@ -14,9 +14,13 @@ class ExportPagesSeeder extends Seeder
      */
     public function run(): void
     {
-        $jsonPath = base_path('scratch/export_defaults.json');
+        $jsonPath = database_path('data/export_defaults.json');
         if (! File::exists($jsonPath)) {
-            $this->command->error("File {$jsonPath} tidak ditemukan.");
+            $jsonPath = base_path('scratch/export_defaults.json');
+        }
+
+        if (! File::exists($jsonPath)) {
+            $this->command->error("File export_defaults.json tidak ditemukan.");
 
             return;
         }
