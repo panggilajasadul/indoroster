@@ -167,13 +167,9 @@ class SitemapController extends Controller
         $staticPages = [
             ['url' => '/katalog', 'priority' => 0.9, 'freq' => Url::CHANGE_FREQUENCY_DAILY],
             ['url' => '/artikel', 'priority' => 0.85, 'freq' => Url::CHANGE_FREQUENCY_DAILY],
-            ['url' => '/roster-beton', 'priority' => 0.95, 'freq' => Url::CHANGE_FREQUENCY_WEEKLY],
-            ['url' => '/roster-minimalis', 'priority' => 0.95, 'freq' => Url::CHANGE_FREQUENCY_WEEKLY],
-            ['url' => '/roster-beton-minimalis', 'priority' => 0.95, 'freq' => Url::CHANGE_FREQUENCY_WEEKLY],
             ['url' => '/untuk-kontraktor', 'priority' => 0.9, 'freq' => Url::CHANGE_FREQUENCY_WEEKLY],
             ['url' => '/untuk-developer', 'priority' => 0.9, 'freq' => Url::CHANGE_FREQUENCY_WEEKLY],
             ['url' => '/untuk-arsitek', 'priority' => 0.9, 'freq' => Url::CHANGE_FREQUENCY_WEEKLY],
-            ['url' => '/supplier-roster-beton', 'priority' => 0.9, 'freq' => Url::CHANGE_FREQUENCY_WEEKLY],
             ['url' => '/roster-beton-proyek', 'priority' => 0.9, 'freq' => Url::CHANGE_FREQUENCY_WEEKLY],
             ['url' => '/kalkulator-roster', 'priority' => 0.85, 'freq' => Url::CHANGE_FREQUENCY_MONTHLY],
             ['url' => '/lokasi', 'priority' => 0.85, 'freq' => Url::CHANGE_FREQUENCY_WEEKLY],
