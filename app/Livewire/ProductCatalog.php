@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Models\Category;
 use App\Models\Page;
 use App\Models\Product;
+use App\Models\SeoLocation;
 use App\Models\Voucher;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -133,6 +134,11 @@ class ProductCatalog extends Component
             $robotsMeta = 'index, follow';
         }
 
+        $topLocations = SeoLocation::where('seo_enabled', true)
+            ->orderBy('priority', 'asc')
+            ->take(8)
+            ->get();
+
         return view('livewire.product-catalog', [
             'page' => $page,
             'products' => $query->paginate($this->perPage),
@@ -140,6 +146,7 @@ class ProductCatalog extends Component
             'viralProducts' => $viralProducts,
             'activeCategory' => $activeCategory,
             'vouchers' => $vouchers,
+            'topLocations' => $topLocations,
         ])->layout('components.layouts.app', [
             'title' => $metaTitle,
             'description' => $metaDescription,

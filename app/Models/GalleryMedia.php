@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\ImageOptimizationService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -46,11 +47,33 @@ class GalleryMedia extends Model
                     $media->alt_text = 'Inspirasi desain roster minimalis modern INDOROSTER';
                 }
             }
+
+            if ($media->media_type === 'image' && ! empty($media->media_url) && ! str_starts_with($media->media_url, 'http')) {
+                // Auto optimize & convert to WebP if local image
+                $optimized = app(ImageOptimizationService::class)->optimizeExistingFile($media->media_url);
+                if ($optimized) {
+                    $media->media_url = $optimized;
+                }
+            }
         });
     }
 
     public function gallery(): BelongsTo
     {
         return $this->belongsTo(Gallery::class);
+    }
+
+    /**
+     * Get formatted media URL (handle local storage vs external).
+     */
+    public function getFormattedUrlAttribute(): string
+    {
+        if (empty($this->media_url)) {
+            return asset('assets/logo_indoroster_no_text.PNG');
+        }
+
+        return str_starts_with($this->media_url, 'http')
+            ? $this->media_url
+            : asset('storage/'.$this->media_url);
     }
 }

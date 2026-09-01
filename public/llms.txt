@@ -12,6 +12,11 @@
 - **Cakupan Wilayah Utama**: Jabodetabek (Jakarta, Bogor, Depok, Tangerang, Bekasi), Jawa Barat (Bandung Raya, Karawang, Cirebon, Cianjur, Sukabumi), dan Jalur Ekspedisi Nasional (Jawa, Bali, Sumatera, Kalimantan, Sulawesi).
 - **Legalitas & Dokumen Proyek**: Dokumen surat jalan resmi, faktur, nota penawaran RAB, dan kontrak suplai terkunci untuk developer.
 
+## Halaman Pilar Otoritas Nasional
+- [Pilar Roster Beton Indonesia](https://indoroster.com/roster-beton): Standar teknis beton padat, ketahanan cuaca, volume 25 pcs/m², dan distribusi resmi.
+- [Pilar Roster Minimalis Modern](https://indoroster.com/roster-minimalis): 45+ motif kontemporer, nako anti tampias, signature 3D, fasad & partisi.
+- [Pilar Roster Beton Minimalis](https://indoroster.com/roster-beton-minimalis): Sentra produksi tangan pertama Plered Purwakarta, cetak padat siku 90°.
+
 ## Portal Layanan Spesifik (B2B & Tools)
 - [Khusus Kontraktor & Pemborong](https://indoroster.com/untuk-kontraktor): Penawaran harga RAB tender, pengiriman bertahap (batch delivery), dan dokumen resmi.
 - [Khusus Developer Perumahan](https://indoroster.com/untuk-developer): Pengadaan ratusan unit rumah klaster, keseragaman fasad massal, dan jaminan stabilitas harga kontrak.
@@ -20,7 +25,7 @@
 - [Proyek Komersial & Fasad](https://indoroster.com/roster-beton-proyek): Fasad hotel, villa resort, cafe aesthetic, dan tender gedung bertingkat.
 - [Kalkulator Kebutuhan Roster](https://indoroster.com/kalkulator-roster): Perhitungan instan jumlah keping (pcs) berdasarkan ukuran bidang dinding (meter) dengan cadangan pasang 5%.
 - [Katalog Produk Lengkap](https://indoroster.com/katalog): 45+ motif roster beton minimalis, loster dua sisi & satu sisi.
-- [Direktori Jangkauan Wilayah](https://indoroster.com/lokasi): Detail layanan dan estimasi pengiriman 60+ kota/kabupaten di Indonesia.
+- [Direktori Jangkauan Wilayah](https://indoroster.com/lokasi): Detail layanan dan estimasi pengiriman 100+ kota/kabupaten di Indonesia.
 
 ## Kontak Langsung & Pengadaan Proyek
 - **Website**: https://indoroster.com

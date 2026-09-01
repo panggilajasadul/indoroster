@@ -1,15 +1,15 @@
 @php
-    $siteName    = 'Indoroster';
-    $siteUrl     = config('app.url');
+    $siteName    = 'IndoRoster';
+    $siteUrl     = config('app.url', 'https://indoroster.com');
     $logoUrl     = asset('assets/logo_indoroster_no_text.PNG');
     $address     = \App\Models\SiteSetting::getValue('factory_address', 'Kp. Cicadas, RT 05 RW 03, Desa Cadasmekar, Kec. Tegalwaru, Kab. Purwakarta, Jawa Barat, 41165');
-    $phone       = \App\Models\SiteSetting::getValue('whatsapp_number', '+62 812-3456-7890');
+    $phone       = \App\Models\SiteSetting::getValue('whatsapp_number', '+62 813-8970-9847');
     $email       = \App\Models\SiteSetting::getValue('contact_email', 'hello@indoroster.com');
-    $instagram   = \App\Models\SiteSetting::getValue('instagram_url', '');
-    $tiktok      = \App\Models\SiteSetting::getValue('tiktok_url', '');
+    $instagram   = \App\Models\SiteSetting::getValue('instagram_url', 'https://www.instagram.com/indoroster.official');
+    $tiktok      = \App\Models\SiteSetting::getValue('tiktok_url', 'https://www.tiktok.com/@indoroster');
     $youtube     = \App\Models\SiteSetting::getValue('youtube_url', '');
 
-    $sameAs = array_filter([$instagram, $tiktok, $youtube]);
+    $sameAs = array_values(array_unique(array_filter([$instagram, $tiktok, $youtube])));
 @endphp
 
 <!-- Organization Schema (Local & Global Export) -->
@@ -96,7 +96,7 @@
             "closes": "17:00"
         }
     ],
-    "priceRange": "Rp / Grosir Proyek",
+    "priceRange": "Rp12.000 - Rp15.000",
     "currenciesAccepted": "IDR, USD",
     "paymentAccepted": "Cash, Transfer Bank, QRIS, Invoice Proyek",
     "hasOfferCatalog": {

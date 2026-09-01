@@ -64,7 +64,7 @@
                         Fakta Teknis Material IndoRoster
                     </h2>
                     <p class="text-slate-600 dark:text-slate-400 text-sm sm:text-base">
-                        Setiap unit roster beton dicetak dengan takaran pasir silika dan semen pilihan berteknik cetak tumbuk padat untuk ketahanan cuaca tropis jangka panjang.
+                        Setiap unit roster beton dicetak dengan takaran pasir abu batu murni dan semen pilihan berteknik cetak tumbuk padat untuk ketahanan cuaca tropis jangka panjang.
                     </p>
                 </div>
 

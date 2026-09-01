@@ -5,37 +5,129 @@
 
     RewriteEngine On
 
-    # Force HTTPS (Redirect HTTP to HTTPS for live domain)
+    # 1. Single-Hop Canonical HTTPS & Domain Normalization (Avoid Multiple Redirects)
     RewriteCond %{HTTP_HOST} !^(localhost|127\.0\.0\.1)(:\d+)?$ [NC]
     RewriteCond %{HTTPS} off
     RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
-    # Handle Authorization Header
+    # 2. Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 
-    # Handle X-XSRF-Token Header
+    # 3. Handle X-XSRF-Token Header
     RewriteCond %{HTTP:x-xsrf-token} .
     RewriteRule .* - [E=HTTP_X_XSRF_TOKEN:%{HTTP:X-XSRF-Token}]
 
-    # Redirect Trailing Slashes If Not A Folder...
+    # 4. Redirect Trailing Slashes If Not A Folder...
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_URI} (.+)/$
     RewriteRule ^ %1 [L,R=301]
 
-    # Send Requests To Front Controller...
+    # 5. Send Requests To Front Controller...
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
 </IfModule>
 
-# Handle HTML5 Video Range Requests & Streaming (Fix 412 Precondition Failed)
-<IfModule mod_headers.c>
-    Header set Accept-Ranges bytes
+# ══════════════════════════════════════════════════════════════
+# GZIP & DEFLATE COMPRESSION (Reduce Network Payloads)
+# ══════════════════════════════════════════════════════════════
+<IfModule mod_deflate.c>
+    # Compress HTML, CSS, JavaScript, Text, XML and fonts
+    AddOutputFilterByType DEFLATE application/javascript
+    AddOutputFilterByType DEFLATE application/rss+xml
+    AddOutputFilterByType DEFLATE application/vnd.ms-fontobject
+    AddOutputFilterByType DEFLATE application/x-font
+    AddOutputFilterByType DEFLATE application/x-font-opentype
+    AddOutputFilterByType DEFLATE application/x-font-otf
+    AddOutputFilterByType DEFLATE application/x-font-truetype
+    AddOutputFilterByType DEFLATE application/x-font-ttf
+    AddOutputFilterByType DEFLATE application/x-javascript
+    AddOutputFilterByType DEFLATE application/xhtml+xml
+    AddOutputFilterByType DEFLATE application/xml
+    AddOutputFilterByType DEFLATE application/json
+    AddOutputFilterByType DEFLATE application/ld+json
+    AddOutputFilterByType DEFLATE font/opentype
+    AddOutputFilterByType DEFLATE font/otf
+    AddOutputFilterByType DEFLATE font/ttf
+    AddOutputFilterByType DEFLATE image/svg+xml
+    AddOutputFilterByType DEFLATE image/x-icon
+    AddOutputFilterByType DEFLATE text/css
+    AddOutputFilterByType DEFLATE text/html
+    AddOutputFilterByType DEFLATE text/javascript
+    AddOutputFilterByType DEFLATE text/plain
+    AddOutputFilterByType DEFLATE text/xml
+
+    # Remove browser bugs for older browsers
+    BrowserMatch ^Mozilla/4 gzip-only-text/html
+    BrowserMatch ^Mozilla/4\.0[678] no-gzip
+    BrowserMatch \bMSIE !no-gzip !gzip-only-text/html
+    Header append Vary User-Agent env=!dont-vary
+
+    # Exclude already compressed videos
+    SetEnvIfNoCase Request_URI \.(?:og[gv]|mp4|m4v|webm|mov|avi|mkv|3gp)$ no-gzip dont-vary
 </IfModule>
 
-<IfModule mod_deflate.c>
-    SetEnvIfNoCase Request_URI \.(?:og[gv]|mp4|m4v|webm|mov|avi|mkv|3gp)$ no-gzip dont-vary
+# ══════════════════════════════════════════════════════════════
+# BROWSER CACHING (Expires & Cache-Control Lifetimes)
+# ══════════════════════════════════════════════════════════════
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresDefault "access plus 1 month"
+
+    # CSS & JavaScript (Vite versioned chunks)
+    ExpiresByType text/css "access plus 1 year"
+    ExpiresByType application/javascript "access plus 1 year"
+    ExpiresByType text/javascript "access plus 1 year"
+    ExpiresByType application/x-javascript "access plus 1 year"
+
+    # Images & Media
+    ExpiresByType image/webp "access plus 1 year"
+    ExpiresByType image/avif "access plus 1 year"
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/jpg "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/gif "access plus 1 year"
+    ExpiresByType image/svg+xml "access plus 1 year"
+    ExpiresByType image/x-icon "access plus 1 year"
+
+    # Fonts
+    ExpiresByType font/ttf "access plus 1 year"
+    ExpiresByType font/otf "access plus 1 year"
+    ExpiresByType font/woff "access plus 1 year"
+    ExpiresByType font/woff2 "access plus 1 year"
+    ExpiresByType application/font-woff "access plus 1 year"
+    ExpiresByType application/font-woff2 "access plus 1 year"
+
+    # Documents, XML & Feeds
+    ExpiresByType application/pdf "access plus 1 month"
+    ExpiresByType text/xml "access plus 1 day"
+    ExpiresByType application/xml "access plus 1 day"
+    ExpiresByType application/json "access plus 1 day"
+</IfModule>
+
+# ══════════════════════════════════════════════════════════════
+# SECURITY & CACHE HEADERS
+# ══════════════════════════════════════════════════════════════
+<IfModule mod_headers.c>
+    # 1 Year immutable cache for build assets
+    <FilesMatch "\.(css|js|woff2|woff|ttf|otf|webp|avif|png|jpg|jpeg|svg|ico)$">
+        Header set Cache-Control "public, max-age=31536000, immutable"
+    </FilesMatch>
+
+    # HTML & Dynamic pages - revalidate
+    <FilesMatch "\.(html|htm|php)$">
+        Header set Cache-Control "max-age=0, must-revalidate, public"
+    </FilesMatch>
+
+    # Video streaming byte ranges
+    Header set Accept-Ranges bytes
+
+    # Security headers
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-XSS-Protection "1; mode=block"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
 </IfModule>
 
 <FilesMatch "\.(mp4|webm|ogg|mov|m4v|avi|mkv|3gp)$">
@@ -44,3 +136,4 @@
         Header unset ETag
     </IfModule>
 </FilesMatch>
+

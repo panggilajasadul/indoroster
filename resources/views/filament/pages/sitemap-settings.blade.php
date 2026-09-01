@@ -179,13 +179,33 @@
                         </span>
                     </div>
 
+                    <div class="flex items-center justify-between p-3.5 bg-gray-50/50 dark:bg-gray-800/30">
+                        <div class="flex items-center gap-2.5">
+                            <x-heroicon-o-globe-alt class="w-4 h-4 text-amber-500" />
+                            <span class="font-medium text-gray-700 dark:text-gray-300">Portal & 110 Negara Ekspor Global</span>
+                        </div>
+                        <span class="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300">
+                            {{ $stats['active_export_pages'] + 3 }} Halaman Ekspor (Prioritas 0.85 – 0.95)
+                        </span>
+                    </div>
+
                     <div class="flex items-center justify-between p-3.5 bg-white dark:bg-gray-900">
                         <div class="flex items-center gap-2.5">
+                            <x-heroicon-o-sparkles class="w-4 h-4 text-emerald-500" />
+                            <span class="font-medium text-gray-700 dark:text-gray-300">Halaman SEO Page Factory (Pillar, Intent & Proyek)</span>
+                        </div>
+                        <span class="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300">
+                            {{ $stats['active_seo_pages'] }} Halaman SEO Factory (Prioritas 0.80 – 1.0)
+                        </span>
+                    </div>
+
+                    <div class="flex items-center justify-between p-3.5 bg-gray-50/50 dark:bg-gray-800/30">
+                        <div class="flex items-center gap-2.5">
                             <x-heroicon-o-document-duplicate class="w-4 h-4 text-gray-500" />
-                            <span class="font-medium text-gray-700 dark:text-gray-300">Halaman Statis & B2B Portal</span>
+                            <span class="font-medium text-gray-700 dark:text-gray-300">Halaman Statis, Kalkulator & B2B Portal</span>
                         </div>
                         <span class="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300">
-                            Homepage, Katalog, B2B Kontraktor/Developer/Arsitek, Kontak
+                            Homepage, Katalog, B2B Kontraktor/Developer/Arsitek, Kalkulator
                         </span>
                     </div>
 
@@ -193,11 +213,36 @@
                     <div class="flex items-center justify-between p-3.5 bg-primary-50/60 dark:bg-primary-950/20 border-t-2 border-primary-200 dark:border-primary-900">
                         <div class="flex items-center gap-2.5">
                             <x-heroicon-m-check-badge class="w-4 h-4 text-primary-600 dark:text-primary-400" />
-                            <span class="font-bold text-primary-700 dark:text-primary-300">Total URL di Sitemap.xml (Aktual)</span>
+                            <span class="font-bold text-primary-700 dark:text-primary-300">Total Keseluruhan URL Terindeks di Seluruh Sub-Sitemap</span>
                         </div>
                         <span class="px-3 py-1 text-xs font-black rounded-full bg-primary-600 text-white shadow">
-                            {{ number_format($stats['url_count']) }} URL Terindeks
+                            {{ number_format($stats['url_count']) }} URL Aktif
                         </span>
+                    </div>
+                </div>
+
+                {{-- Sub-Sitemaps Index Breakdown --}}
+                <div class="pt-4 space-y-3">
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                        📁 Daftar 8 Sub-Sitemap Spesifik (Google Sitemap Index v0.9)
+                    </h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        @foreach($stats['sub_sitemaps'] as $sub)
+                        <div class="p-3.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/40 flex items-center justify-between gap-3">
+                            <div class="min-w-0">
+                                <div class="font-bold text-xs text-gray-800 dark:text-gray-200 truncate">{{ $sub['name'] }}</div>
+                                <div class="text-[11px] font-mono text-gray-500 dark:text-gray-400">{{ $sub['filename'] }}</div>
+                            </div>
+                            <div class="flex items-center gap-2 flex-shrink-0">
+                                <span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300">
+                                    {{ $sub['url_count'] }} URL
+                                </span>
+                                <a href="{{ $sub['url'] }}" target="_blank" class="p-1.5 rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-orange-500 hover:text-white transition text-gray-600 dark:text-gray-300" title="Buka {{ $sub['filename'] }}">
+                                    <x-heroicon-o-arrow-top-right-on-square class="w-3.5 h-3.5" />
+                                </a>
+                            </div>
+                        </div>
+                        @endforeach
                     </div>
                 </div>
             </div>

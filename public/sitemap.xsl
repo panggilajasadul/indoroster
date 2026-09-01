@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xsl:stylesheet version="2.0" 
+<xsl:stylesheet version="1.0" 
     xmlns:html="http://www.w3.org/TR/REC-html40"
     xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
     xmlns:sitemap="http://www.sitemaps.org/schemas/sitemap/0.9"
@@ -11,8 +11,6 @@
             <title>XML Sitemap - IndoRoster Indonesia</title>
             <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
             <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-            <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-            <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
             <style type="text/css">
                 body {
                     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -120,30 +118,28 @@
                     word-break: break-all;
                 }
                 a:hover {
-                    color: #ea580c;
+                    color: #0369a1;
                     text-decoration: underline;
                 }
                 .priority-tag {
                     display: inline-block;
                     padding: 2px 8px;
                     border-radius: 6px;
-                    font-size: 11px;
-                    font-weight: 700;
-                    background: #e0f2fe;
-                    color: #0369a1;
+                    font-size: 11.5px;
+                    font-weight: 600;
+                    background-color: #f1f5f9;
+                    color: #475569;
                 }
                 .priority-high {
-                    background: #dcfce7;
-                    color: #15803d;
+                    background-color: #ecfdf5;
+                    color: #059669;
+                    border: 1px solid #a7f3d0;
                 }
                 .footer {
                     text-align: center;
                     padding: 24px;
                     color: #94a3b8;
                     font-size: 12px;
-                }
-                .footer a {
-                    color: #64748b;
                 }
             </style>
         </head>
@@ -155,90 +151,127 @@
                         <span style="font-size: 18px; font-weight: 400; opacity: 0.85;">| XML Sitemap</span>
                     </h1>
                     <p>
-                        Peta situs XML resmi ini dibuat otomatis untuk mesin pencari seperti <strong>Google Search</strong>, <strong>Bing</strong>, dan <strong>Yandex</strong> agar seluruh katalog produk roster, artikel, dan halaman lokal terindeks dengan cepat dan optimal.
+                        Peta situs XML resmi ini dibuat otomatis untuk mesin pencari seperti <strong>Google Search</strong>, <strong>Bing</strong>, dan <strong>Yandex</strong> agar seluruh katalog produk roster, artikel, halaman lokal, dan portal ekspor terindeks dengan optimal.
                     </p>
                 </div>
             </div>
 
             <div class="container content">
                 <div class="card">
-                    <div class="stats-bar">
-                        <div>
-                            <span>Total URL Terdaftar: </span>
-                            <span class="stats-badge"><xsl:value-of select="count(sitemap:urlset/sitemap:url)"/> Halaman</span>
+                    <!-- SITEMAP INDEX VIEW -->
+                    <xsl:if test="sitemap:sitemapindex">
+                        <div class="stats-bar">
+                            <div>
+                                <span>Master Sitemap Index: </span>
+                                <span class="stats-badge"><xsl:value-of select="count(sitemap:sitemapindex/sitemap:sitemap)"/> Sub-Sitemap</span>
+                            </div>
+                            <div>
+                                <span>Format: </span>
+                                <span style="color: #0f172a;">Google Sitemap Index XML v0.9</span>
+                            </div>
                         </div>
-                        <div>
-                            <span>Format: </span>
-                            <span style="color: #0f172a;">Google Sitemaps XML v0.9 (Standard)</span>
-                        </div>
-                    </div>
 
-                    <table>
-                        <thead>
-                            <tr>
-                                <th style="width: 50%;">Alamat URL Halaman</th>
-                                <th style="width: 10%; text-align: center;">Gambar</th>
-                                <th style="width: 10%; text-align: center;">Prioritas</th>
-                                <th style="width: 12%; text-align: center;">Frekuensi</th>
-                                <th style="width: 18%; text-align: right;">Terakhir Diperbarui</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <xsl:for-each select="sitemap:urlset/sitemap:url">
+                        <table>
+                            <thead>
                                 <tr>
-                                    <td>
-                                        <xsl:variable name="itemURL">
-                                            <xsl:value-of select="sitemap:loc"/>
-                                        </xsl:variable>
-                                        <a href="{$itemURL}" target="_blank">
-                                            <xsl:value-of select="sitemap:loc"/>
-                                        </a>
-                                    </td>
-                                    <td style="text-align: center;">
-                                        <xsl:variable name="imgCount" select="count(image:image)"/>
-                                        <xsl:choose>
-                                            <xsl:when test="$imgCount &gt; 0">
-                                                <span style="font-weight: 700; color: #ea580c; background: #fff7ed; padding: 2px 8px; border-radius: 9999px; font-size: 11px; border: 1px solid #fed7aa;">
-                                                    <xsl:value-of select="$imgCount"/>
-                                                </span>
-                                            </xsl:when>
-                                            <xsl:otherwise>
-                                                <span style="color: #94a3b8; font-size: 12px;">0</span>
-                                            </xsl:otherwise>
-                                        </xsl:choose>
-                                    </td>
-                                    <td style="text-align: center;">
-                                        <xsl:variable name="prioVal">
-                                            <xsl:value-of select="sitemap:priority"/>
-                                        </xsl:variable>
-                                        <xsl:choose>
-                                            <xsl:when test="$prioVal &gt;= 0.8">
-                                                <span class="priority-tag priority-high">
-                                                    <xsl:value-of select="concat(sitemap:priority * 100, '%')"/>
-                                                </span>
-                                            </xsl:when>
-                                            <xsl:otherwise>
-                                                <span class="priority-tag">
-                                                    <xsl:value-of select="concat(sitemap:priority * 100, '%')"/>
-                                                </span>
-                                            </xsl:otherwise>
-                                        </xsl:choose>
-                                    </td>
-                                    <td style="text-align: center; text-transform: capitalize; color: #64748b; font-size: 12px;">
-                                        <xsl:value-of select="sitemap:changefreq"/>
-                                    </td>
-                                    <td style="text-align: right; color: #64748b; font-size: 12px;">
-                                        <xsl:value-of select="concat(substring(sitemap:lastmod, 1, 10), ' ', substring(sitemap:lastmod, 12, 5))"/>
-                                    </td>
+                                    <th style="width: 70%;">Sub-Sitemap XML</th>
+                                    <th style="width: 30%; text-align: right;">Terakhir Diperbarui</th>
                                 </tr>
-                            </xsl:for-each>
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                <xsl:for-each select="sitemap:sitemapindex/sitemap:sitemap">
+                                    <tr>
+                                        <td>
+                                            <xsl:variable name="subURL" select="sitemap:loc"/>
+                                            <a href="{$subURL}" target="_blank" style="font-weight: 600;">
+                                                <xsl:value-of select="sitemap:loc"/>
+                                            </a>
+                                        </td>
+                                        <td style="text-align: right; color: #64748b; font-size: 12px;">
+                                            <xsl:value-of select="concat(substring(sitemap:lastmod, 1, 10), ' ', substring(sitemap:lastmod, 12, 5))"/>
+                                        </td>
+                                    </tr>
+                                </xsl:for-each>
+                            </tbody>
+                        </table>
+                    </xsl:if>
+
+                    <!-- URLSET VIEW -->
+                    <xsl:if test="sitemap:urlset">
+                        <div class="stats-bar">
+                            <div>
+                                <span>Total URL Terdaftar: </span>
+                                <span class="stats-badge"><xsl:value-of select="count(sitemap:urlset/sitemap:url)"/> Halaman</span>
+                            </div>
+                            <div>
+                                <span>Format: </span>
+                                <span style="color: #0f172a;">Google Sitemaps XML v0.9 (Standard)</span>
+                            </div>
+                        </div>
+
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th style="width: 50%;">Alamat URL Halaman</th>
+                                    <th style="width: 10%; text-align: center;">Gambar</th>
+                                    <th style="width: 10%; text-align: center;">Prioritas</th>
+                                    <th style="width: 12%; text-align: center;">Frekuensi</th>
+                                    <th style="width: 18%; text-align: right;">Terakhir Diperbarui</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <xsl:for-each select="sitemap:urlset/sitemap:url">
+                                    <tr>
+                                        <td>
+                                            <xsl:variable name="itemURL" select="sitemap:loc"/>
+                                            <a href="{$itemURL}" target="_blank">
+                                                <xsl:value-of select="sitemap:loc"/>
+                                            </a>
+                                        </td>
+                                        <td style="text-align: center;">
+                                            <xsl:variable name="imgCount" select="count(image:image)"/>
+                                            <xsl:choose>
+                                                <xsl:when test="$imgCount &gt; 0">
+                                                    <span style="font-weight: 700; color: #ea580c; background: #fff7ed; padding: 2px 8px; border-radius: 9999px; font-size: 11px; border: 1px solid #fed7aa;">
+                                                        <xsl:value-of select="$imgCount"/>
+                                                    </span>
+                                                </xsl:when>
+                                                <xsl:otherwise>
+                                                    <span style="color: #94a3b8; font-size: 12px;">0</span>
+                                                </xsl:otherwise>
+                                            </xsl:choose>
+                                        </td>
+                                        <td style="text-align: center;">
+                                            <xsl:variable name="prioVal" select="sitemap:priority"/>
+                                            <xsl:choose>
+                                                <xsl:when test="$prioVal &gt;= 0.8">
+                                                    <span class="priority-tag priority-high">
+                                                        <xsl:value-of select="concat(sitemap:priority * 100, '%')"/>
+                                                    </span>
+                                                </xsl:when>
+                                                <xsl:otherwise>
+                                                    <span class="priority-tag">
+                                                        <xsl:value-of select="concat(sitemap:priority * 100, '%')"/>
+                                                    </span>
+                                                </xsl:otherwise>
+                                            </xsl:choose>
+                                        </td>
+                                        <td style="text-align: center; text-transform: capitalize; color: #64748b; font-size: 12px;">
+                                            <xsl:value-of select="sitemap:changefreq"/>
+                                        </td>
+                                        <td style="text-align: right; color: #64748b; font-size: 12px;">
+                                            <xsl:value-of select="concat(substring(sitemap:lastmod, 1, 10), ' ', substring(sitemap:lastmod, 12, 5))"/>
+                                        </td>
+                                    </tr>
+                                </xsl:for-each>
+                            </tbody>
+                        </table>
+                    </xsl:if>
                 </div>
 
                 <div class="footer">
                     <p>
-                        © <xsl:value-of select="substring(sitemap:urlset/sitemap:url[1]/sitemap:lastmod, 1, 4)"/> IndoRoster.com — Pabrik Roster Beton &amp; Bata Tempel Berkualitas.
+                        © 2026 IndoRoster Indonesia. Produsen Roster Beton, Loster Arsitektural, Bata Expose &amp; Eksportir Global.
                     </p>
                 </div>
             </div>

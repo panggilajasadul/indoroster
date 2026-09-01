@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Http\Controllers\SitemapController;
 use App\Models\Article;
 use App\Models\Category;
+use App\Models\ExportPage;
 use App\Models\Gallery;
 use App\Models\Order;
 use App\Models\Page;
@@ -109,6 +110,8 @@ class AppServiceProvider extends ServiceProvider
         SeoLocation::deleted($sitemapGenerator);
         SeoPage::saved($sitemapGenerator);
         SeoPage::deleted($sitemapGenerator);
+        ExportPage::saved($sitemapGenerator);
+        ExportPage::deleted($sitemapGenerator);
 
         // Custom professional verification email narrative
         VerifyEmail::toMailUsing(function (object $notifiable, string $url) {

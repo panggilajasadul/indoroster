@@ -23,6 +23,7 @@
                      alt="{{ $displayMedia->alt_text ?: $product->name }}" 
                      class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
                      loading="lazy"
+                     decoding="async"
                      onerror="this.onerror=null; this.src='{{ asset('assets/logo_indoroster_no_text.PNG') }}';">
             @endif
         @elseif($product->primary_image)
@@ -30,6 +31,7 @@
                  alt="{{ $product->name }}" 
                  class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
                  loading="lazy"
+                 decoding="async"
                  onerror="this.onerror=null; this.src='{{ asset('assets/logo_indoroster_no_text.PNG') }}';">
         @else
             <div class="w-full h-full flex flex-col items-center justify-center text-slate-400 p-2 text-center">
@@ -104,6 +106,17 @@
                     Rp{{ number_format($product->original_price, 0, ',', '.') }}
                 </div>
                 @endif
+            </div>
+
+            <!-- Tax & Origin Badges (E-Commerce Trust Signals) -->
+            <div class="flex items-center justify-between gap-1 mt-1.5 pt-1 border-t border-slate-50 dark:border-slate-800/60 text-[9px]">
+                <span class="inline-flex items-center gap-0.5 text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-1.5 py-0.5 rounded font-bold border border-emerald-200/50 dark:border-emerald-800/40">
+                    <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                    Termasuk Pajak
+                </span>
+                <span class="text-slate-400 dark:text-slate-500 flex items-center gap-0.5">
+                    <span>📍</span> Purwakarta
+                </span>
             </div>
         </div>
     </div>

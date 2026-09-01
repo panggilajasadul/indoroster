@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\ImageOptimizationService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
@@ -40,6 +41,15 @@ class Category extends Model
         static::updating(function (Category $category) {
             if (! empty($category->slug)) {
                 $category->slug = Str::slug($category->slug);
+            }
+        });
+
+        static::saving(function (Category $category) {
+            if (! empty($category->image_url) && ! str_starts_with($category->image_url, 'http')) {
+                $optimized = app(ImageOptimizationService::class)->optimizeExistingFile($category->image_url);
+                if ($optimized) {
+                    $category->image_url = $optimized;
+                }
             }
         });
     }

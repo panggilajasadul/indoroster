@@ -1,3 +1,7 @@
+@push('seo')
+<x-ecommerce-itemlist-schema name="Katalog Roster Beton Arsitektur & Desain Interior-Eksterior" description="Koleksi motif roster beton minimalis presisi tinggi untuk arsitek, konsultan perencana, dan desainer interior." :products="$products" />
+@endpush
+
 <div class="min-h-screen bg-slate-50 dark:bg-slate-950 py-10">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
         <div class="relative rounded-3xl overflow-hidden bg-gradient-to-br from-white via-slate-50 to-purple-50/20 dark:from-slate-900 dark:via-slate-900 dark:to-slate-900 border border-slate-200/80 dark:border-slate-800 text-slate-900 dark:text-white p-8 sm:p-12 lg:p-16 shadow-soft-xl dark:shadow-2xl">
@@ -191,5 +195,26 @@
             <p class="text-slate-500 dark:text-slate-400 text-sm">Tidak ada motif produk yang cocok dengan pencarian Anda.</p>
         </div>
         @endif
+    </div>
+
+    <!-- Order Scale Section (Eceran, Borongan, Partai Besar, Kontrak Rutin) -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
+        <x-b2b-scale-section segment="arsitek" highlight-scale="eceran" />
+        <x-b2b-city-links title="Jangkauan Pengiriman Proyek Arsitek & Desainer" :cities="['jakarta-selatan', 'bandung', 'tangerang-selatan', 'bogor', 'jakarta-barat', 'cimahi']" />
+    </div>
+
+    <!-- Direct CTA Banner -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="rounded-3xl bg-terra-500 text-white p-8 sm:p-12 text-center relative overflow-hidden shadow-xl shadow-terra-500/20">
+            <div class="relative z-10 max-w-2xl mx-auto">
+                <h2 class="text-2xl sm:text-4xl font-extrabold mb-4">Request Sampel Fisik & Konsultasi Teknis Arsitek</h2>
+                <p class="text-terra-100 text-sm sm:text-base mb-8">
+                    Kirimkan detail rancangan atau mintalah sampel kepingan fisik langsung ke studio arsitektur Anda untuk review material presisi.
+                </p>
+                <a href="{{ $waUrl }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2.5 px-8 py-4 rounded-xl bg-slate-900 hover:bg-slate-850 text-white font-bold text-base shadow-2xl transition hover:scale-105">
+                    <span>💬</span> Hubungi Konsultan Teknis via WhatsApp
+                </a>
+            </div>
+        </div>
     </div>
 </div>

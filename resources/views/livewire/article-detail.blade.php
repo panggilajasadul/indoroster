@@ -70,15 +70,6 @@
         ];
     @endphp
 
-    @push('seo')
-    <script type="application/ld+json">
-    {!! json_encode($articleSchema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
-    </script>
-    <script type="application/ld+json">
-    {!! json_encode($breadcrumbList, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
-    </script>
-    @endpush
-
     <article class="bg-white dark:bg-slate-950 min-h-screen py-10 sm:py-16">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             
@@ -163,7 +154,7 @@
             @endif
 
             <!-- Article Body Content -->
-            <div class="prose prose-lg prose-slate dark:prose-invert max-w-none article-content font-sans">
+            <div class="prose prose-lg prose-slate dark:prose-invert max-w-none article-content font-sans prose-a:no-underline [&_a]:no-underline [&_a]:hover:no-underline [&_a.bg-emerald-600]:!text-white [&_a.bg-emerald-600_*]:!text-white [&_a.bg-emerald-600_svg]:!fill-white [&_a.bg-emerald-600_svg]:!text-white [&_.btn-variant]:!text-slate-800 dark:[&_.btn-variant]:!text-slate-100 [&_.btn-variant]:hover:!text-slate-900">
                 {!! $article->content !!}
             </div>
 
@@ -215,10 +206,10 @@
                 <div class="flex flex-col sm:flex-row items-start sm:items-center gap-6">
                     <img src="{{ asset('assets/logo_indoroster_no_text.PNG') }}" alt="IndoRoster Logo" class="w-16 h-16 object-contain p-2 bg-white dark:bg-slate-800 rounded-2xl border border-terra-200 dark:border-slate-700 shadow-sm shrink-0">
                     <div class="flex-grow">
-                        <span class="text-[11px] font-bold uppercase tracking-wider text-terra-600 dark:text-terra-400">Konsultasi Roster Gratis</span>
-                        <h3 class="font-display text-xl font-bold text-slate-900 dark:text-white mb-2">Ingin Mengaplikasikan Roster Ini di Proyek Anda?</h3>
+                        <span class="text-[11px] font-bold uppercase tracking-wider text-terra-600 dark:text-terra-400">Konsultasi Produsen & Pabrik Roster</span>
+                        <h3 class="font-display text-xl font-bold text-slate-900 dark:text-white mb-2">Butuh Suplai Roster Langsung dari Pabrik?</h3>
                         <p class="text-slate-600 dark:text-slate-300 text-xs sm:text-sm leading-relaxed mb-4">
-                            Tim teknis dan arsitek kami siap membantu menghitung kebutuhan keping roster, rekomendasi motif, serta simulasi ongkir langsung dari pabrik Plered Purwakarta.
+                            Sebagai produsen dan supplier tangan pertama, tim teknis pabrik kami siap membantu menghitung estimasi kebutuhan keping roster, rekomendasi motif yang presisi, serta simulasi ongkir langsung dari sentra produksi Plered Purwakarta ke lokasi proyek Anda.
                         </p>
                         @php
                             $rawWa = \App\Models\SiteSetting::getValue('whatsapp_number', '0813-8970-9847');
@@ -240,6 +231,64 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Core Pillar Hubs & Tools (Silo Inbound Links) -->
+            <div class="mt-12 p-6 rounded-3xl bg-slate-50 dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800">
+                <span class="text-xs font-bold uppercase tracking-wider text-terra-600 dark:text-terra-400 block mb-2">Panduan Pilar & Katalog Terkait</span>
+                <h3 class="text-base font-bold text-slate-900 dark:text-white mb-4">Eksplorasi Roster & Alat Desain IndoRoster</h3>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                    <a href="/roster-beton" class="p-3 rounded-xl bg-white dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700 hover:border-terra-500 text-xs font-bold text-slate-800 dark:text-slate-200 hover:text-terra-600 transition flex items-center gap-1.5 shadow-2xs">
+                        <span>🧱</span>
+                        <span class="truncate">Roster Beton</span>
+                    </a>
+                    <a href="/roster-minimalis" class="p-3 rounded-xl bg-white dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700 hover:border-terra-500 text-xs font-bold text-slate-800 dark:text-slate-200 hover:text-terra-600 transition flex items-center gap-1.5 shadow-2xs">
+                        <span>✨</span>
+                        <span class="truncate">Roster Minimalis</span>
+                    </a>
+                    <a href="/roster-beton-minimalis" class="p-3 rounded-xl bg-white dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700 hover:border-terra-500 text-xs font-bold text-slate-800 dark:text-slate-200 hover:text-terra-600 transition flex items-center gap-1.5 shadow-2xs">
+                        <span>🏭</span>
+                        <span class="truncate">Pabrik Plered</span>
+                    </a>
+                    <a href="{{ route('tools.calculator') }}" class="p-3 rounded-xl bg-white dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700 hover:border-terra-500 text-xs font-bold text-slate-800 dark:text-slate-200 hover:text-terra-600 transition flex items-center gap-1.5 shadow-2xs">
+                        <span>🧮</span>
+                        <span class="truncate">Kalkulator m²</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Recommended Products Section -->
+            @if(isset($featuredProducts) && $featuredProducts->count() > 0)
+            <div class="mt-12 pt-10 border-t border-slate-200 dark:border-slate-800">
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <span class="text-xs font-bold uppercase tracking-wider text-terra-600 dark:text-terra-400">Rekomendasi Material</span>
+                        <h3 class="font-display text-xl font-bold text-slate-900 dark:text-white">Motif Roster Beton Terpopuler</h3>
+                    </div>
+                    <a href="{{ route('catalog') }}" class="text-xs font-bold text-terra-600 dark:text-terra-400 hover:underline">
+                        Lihat Katalog Lengkap &rarr;
+                    </a>
+                </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+                    @foreach($featuredProducts as $prod)
+                    @php
+                        $media = $prod->primary_media;
+                        $img = ($media && $media->media_type === 'image') ? $media->formatted_url : ($prod->primary_image ?: asset('assets/logo_indoroster_no_text.PNG'));
+                    @endphp
+                    <a href="{{ route('product.detail', $prod->slug) }}" class="group bg-slate-50 dark:bg-slate-900 p-3 rounded-2xl border border-slate-200/80 dark:border-slate-800 hover:border-terra-500 transition-all flex flex-col justify-between shadow-2xs">
+                        <div class="aspect-square rounded-xl overflow-hidden bg-slate-200 dark:bg-slate-800 mb-2.5">
+                            <img src="{{ $img }}" alt="{{ $prod->name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy">
+                        </div>
+                        <div>
+                            <span class="text-[10px] text-terra-600 dark:text-terra-400 font-bold block mb-0.5">{{ $prod->category->name ?? 'Roster Beton' }}</span>
+                            <h4 class="font-bold text-xs text-slate-900 dark:text-white line-clamp-1 group-hover:text-terra-600 transition-colors">{{ $prod->name }}</h4>
+                            <div class="text-xs font-black text-[#ee4d2d] dark:text-terra-400 mt-1">{{ $prod->formatted_price_range }}</div>
+                        </div>
+                    </a>
+                    @endforeach
+                </div>
+            </div>
+            @endif
 
             <!-- Related Articles -->
             @if($relatedArticles->count() > 0)
@@ -285,4 +334,13 @@
 
         </div>
     </article>
+
+    @push('seo')
+    <script type="application/ld+json">
+    {!! json_encode($articleSchema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
+    </script>
+    <script type="application/ld+json">
+    {!! json_encode($breadcrumbList, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
+    </script>
+    @endpush
 </div>

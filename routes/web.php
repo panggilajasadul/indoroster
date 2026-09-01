@@ -3,6 +3,8 @@
 use App\Http\Controllers\PrintController;
 use App\Http\Controllers\SitemapController;
 use App\Livewire\AboutUs;
+use App\Livewire\Application\ApplicationDetail;
+use App\Livewire\Application\ApplicationHub;
 use App\Livewire\ArticleDetail;
 use App\Livewire\ArticleList;
 use App\Livewire\Auth\ForgotPassword;
@@ -19,6 +21,10 @@ use App\Livewire\Cart;
 use App\Livewire\Checkout;
 use App\Livewire\Contact;
 use App\Livewire\DynamicPage;
+use App\Livewire\Export\ExportCatalog;
+use App\Livewire\Export\ExportCountry;
+use App\Livewire\Export\ExportGallery;
+use App\Livewire\Export\ExportHub;
 use App\Livewire\Gallery;
 use App\Livewire\Home;
 use App\Livewire\Location\LocationDetail;
@@ -41,8 +47,18 @@ use App\Notifications\CompleteAddressNotification;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Support\Facades\Route;
 
-// Sitemap
+// Sitemap Master Index & Sub-Sitemaps
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
+Route::get('/sitemap.xsl', [SitemapController::class, 'xsl'])->name('sitemap.xsl');
+Route::get('/sitemap-pages.xml', [SitemapController::class, 'pages'])->name('sitemap.pages');
+Route::get('/sitemap-applications.xml', [SitemapController::class, 'applications'])->name('sitemap.applications');
+Route::get('/sitemap-exports.xml', [SitemapController::class, 'exports'])->name('sitemap.exports');
+Route::get('/sitemap-seopages.xml', [SitemapController::class, 'seopages'])->name('sitemap.seopages');
+Route::get('/sitemap-categories.xml', [SitemapController::class, 'categories'])->name('sitemap.categories');
+Route::get('/sitemap-products.xml', [SitemapController::class, 'products'])->name('sitemap.products');
+Route::get('/sitemap-locations.xml', [SitemapController::class, 'locations'])->name('sitemap.locations');
+Route::get('/sitemap-articles.xml', [SitemapController::class, 'articles'])->name('sitemap.articles');
+Route::get('/sitemap-galleries.xml', [SitemapController::class, 'galleries'])->name('sitemap.galleries');
 
 // Frontend Routes (publik, bisa diakses siapa saja)
 Route::get('/', Home::class)->name('home');
@@ -53,6 +69,10 @@ Route::get('/produk/{slug}', ProductDetail::class)->name('product.detail');
 Route::get('/keranjang', Cart::class)->name('cart');
 
 // Artikel & Blog CMS Routes
+Route::redirect('/blog', '/artikel', 301);
+Route::get('/blog/{slug}', function ($slug) {
+    return redirect('/artikel/'.$slug, 301);
+});
 Route::get('/artikel', ArticleList::class)->name('article.index');
 Route::get('/artikel/{slug}', ArticleDetail::class)->name('article.detail');
 
@@ -124,9 +144,19 @@ Route::get('/roster-beton-proyek', ProjectHub::class)->name('b2b.project');
 // Interactive Tools & Calculation Engine
 Route::get('/kalkulator-roster', RosterCalculator::class)->name('tools.calculator');
 
+// Architectural Use-Case Landing Pages
+Route::get('/aplikasi', ApplicationHub::class)->name('application.index');
+Route::get('/aplikasi/{slug}', ApplicationDetail::class)->name('application.detail');
+
 // Scalable Multi-City Location Engine Routes
 Route::get('/lokasi', LocationHub::class)->name('location.index');
 Route::get('/lokasi/{slug}', LocationDetail::class)->name('location.detail');
+
+// International Export Gateway (Singapore, Malaysia, Brunei)
+Route::get('/export', ExportHub::class)->name('export.hub');
+Route::get('/export/gallery', ExportGallery::class)->name('export.gallery');
+Route::get('/export/catalog', ExportCatalog::class)->name('export.catalog');
+Route::get('/export/{countrySlug}', ExportCountry::class)->name('export.country');
 
 // Dynamic Pages (/page/{slug} as requested, /halaman/{slug} redirects with 301)
 Route::get('/page/{slug}', DynamicPage::class)->name('dynamic.page');

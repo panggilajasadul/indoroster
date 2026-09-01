@@ -1,3 +1,120 @@
+@php
+    // Structured Data JSON-LD
+    $breadcrumbSchema = [
+        '@context' => 'https://schema.org',
+        '@type' => 'BreadcrumbList',
+        'itemListElement' => [
+            [
+                '@type' => 'ListItem',
+                'position' => 1,
+                'name' => 'Beranda',
+                'item' => route('home'),
+            ],
+            [
+                '@type' => 'ListItem',
+                'position' => 2,
+                'name' => 'Area Layanan',
+                'item' => route('location.index'),
+            ],
+            [
+                '@type' => 'ListItem',
+                'position' => 3,
+                'name' => $location->name,
+                'item' => route('location.detail', $location->slug),
+            ],
+        ],
+    ];
+
+    $faqList = !empty($location->custom_faqs) ? $location->custom_faqs : [
+        [
+            'q' => "Bagaimana cara pesan roster beton untuk area {$location->name}?",
+            'a' => "Pilih motif roster yang Anda inginkan di katalog online IndoRoster, lalu hubungi tim sales kami via WhatsApp untuk mendapatkan total estimasi harga pabrik dan jadwal pengiriman armada langsung.",
+        ],
+        [
+            'q' => "Berapa lama estimasi pengiriman roster ke {$location->name}?",
+            'a' => "Pengiriman ke wilayah {$location->name} memakan waktu sekitar " . ($location->estimated_delivery_time ?: '1-2 hari kerja') . " via rute " . ($location->delivery_route_info ?: 'armada truk pabrik langsung') . ".",
+        ],
+        [
+            'q' => "Apakah ada garansi jika roster pecah saat dikirim ke {$location->name}?",
+            'a' => "Ada. IndoRoster memberikan Garansi 100% Ganti Baru di tempat untuk setiap keping roster yang rusak atau pecah selama pengiriman oleh armada pabrik kami.",
+        ],
+    ];
+
+    $faqSchema = [
+        '@context' => 'https://schema.org',
+        '@type' => 'FAQPage',
+        'mainEntity' => array_map(function ($item) {
+            return [
+                '@type' => 'Question',
+                'name' => $item['q'],
+                'acceptedAnswer' => [
+                    '@type' => 'Answer',
+                    'text' => $item['a'],
+                ],
+            ];
+        }, $faqList),
+    ];
+
+    $serviceSchema = [
+        '@context' => 'https://schema.org',
+        '@type' => 'Service',
+        'name' => "Pengiriman & Supply Roster Beton {$location->name}",
+        'serviceType' => 'Suplai Roster Beton Minimalis & Material Arsitektural',
+        'provider' => [
+            '@type' => 'Organization',
+            'name' => 'IndoRoster',
+            'url' => route('home'),
+            'logo' => asset('assets/logo_indoroster_no_text.PNG'),
+        ],
+        'areaServed' => [
+            '@type' => 'City',
+            'name' => $location->name,
+        ],
+        'hasOfferCatalog' => [
+            '@type' => 'OfferCatalog',
+            'name' => "Katalog Roster Beton {$location->name}",
+            'itemListElement' => [
+                [
+                    '@type' => 'Offer',
+                    'itemOffered' => [
+                        '@type' => 'Product',
+                        'name' => 'Roster Beton Minimalis Presisi',
+                        'description' => "Roster beton cetak tumbuk padat plat baja presisi untuk wilayah {$location->name}.",
+                    ],
+                ],
+            ],
+        ],
+        'description' => $location->intro_content ?: "Layanan pengadaan dan pengiriman langsung pabrik roster beton presisi untuk wilayah {$location->name}.",
+    ];
+
+    if ($location->latitude && $location->longitude) {
+        $serviceSchema['areaServed']['geo'] = [
+            '@type' => 'GeoCoordinates',
+            'latitude' => (float) $location->latitude,
+            'longitude' => (float) $location->longitude,
+        ];
+    }
+@endphp
+
+@push('seo')
+    @if($location->latitude && $location->longitude)
+    <meta name="geo.position" content="{{ $location->latitude }};{{ $location->longitude }}">
+    <meta name="ICBM" content="{{ $location->latitude }}, {{ $location->longitude }}">
+    @endif
+    <meta name="geo.placename" content="{{ $location->name }}, Indonesia">
+
+    <script type="application/ld+json">
+    {!! json_encode($breadcrumbSchema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
+    </script>
+    <script type="application/ld+json">
+    {!! json_encode($faqSchema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
+    </script>
+    <script type="application/ld+json">
+    {!! json_encode($serviceSchema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
+    </script>
+    <x-ecommerce-itemlist-schema :name="'Katalog Roster Beton Area ' . $location->name" :description="'Daftar motif roster beton minimalis presisi siap kirim ke wilayah ' . $location->name" :products="$products" />
+@endpush
+
 <div class="min-h-screen bg-slate-50 dark:bg-slate-950 py-10">
     <!-- Hero Section with Local Narrative -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12">
@@ -102,7 +219,7 @@
             @endphp
             <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 overflow-hidden shadow-soft-xs hover:shadow-soft-lg hover:border-terra-400/90 dark:hover:border-terra-500 transition-all duration-300 group flex flex-col justify-between">
                 <a href="{{ route('product.detail', $product->slug) }}" class="block aspect-square relative bg-slate-100 dark:bg-slate-800 overflow-hidden">
-                    <img src="{{ $imgUrl }}" alt="{{ $displayMedia->alt_text ?? $product->name }}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy">
+                    <img src="{{ $imgUrl }}" alt="Roster Beton Minimalis {{ $product->name }} — Pengiriman Wilayah {{ $location->name }} IndoRoster" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy">
                     <span class="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-slate-900/80 text-white text-[9px] sm:text-[10px] font-semibold backdrop-blur-xs z-10">
                         {{ $product->dimensions ?: '20×20×10 cm' }}
                     </span>
@@ -233,5 +350,75 @@
             </div>
         </div>
     </div>
-</div>
 
+    <!-- Nearby Locations / Kawasan Terkait (Silo Internal Linking) -->
+    @if(isset($nearbyLocations) && $nearbyLocations->count() > 0)
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
+        <div class="bg-white dark:bg-slate-900 p-6 sm:p-10 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-soft-xs">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                <div>
+                    <h3 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+                        Cakupan Kawasan & Area Pengiriman Terkait
+                    </h3>
+                    <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+                        Armada pabrik IndoRoster juga melayani pengiriman langsung ke kawasan proyek dan wilayah sekitar {{ $location->name }}:
+                    </p>
+                </div>
+                <a href="{{ route('location.index') }}" class="inline-flex items-center gap-1.5 text-xs font-bold text-terra-600 dark:text-terra-400 hover:underline whitespace-nowrap">
+                    Lihat Semua Area &rarr;
+                </a>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+                @foreach($nearbyLocations as $nearby)
+                <a href="{{ route('location.detail', $nearby->slug) }}" class="group p-3.5 sm:p-4 rounded-2xl bg-slate-50/80 dark:bg-slate-800/50 hover:bg-white dark:hover:bg-slate-800 border border-slate-200/70 dark:border-slate-700/60 hover:border-terra-500 dark:hover:border-terra-500 hover:shadow-soft-md transition-all duration-300 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center gap-1.5 text-[11px] font-bold text-terra-600 dark:text-terra-400 mb-1">
+                            <span>📍</span>
+                            <span class="truncate">{{ $nearby->type === 'cluster' ? 'Kawasan Klaster' : 'Wilayah / Kota' }}</span>
+                        </div>
+                        <h4 class="font-bold text-slate-800 dark:text-slate-200 text-xs sm:text-sm group-hover:text-terra-600 dark:group-hover:text-terra-400 transition-colors line-clamp-1">
+                            {{ $nearby->name }}
+                        </h4>
+                        <p class="text-[10px] text-slate-500 dark:text-slate-400 line-clamp-2 mt-1 leading-snug">
+                            {{ $nearby->meta_description ?: 'Suplai roster beton presisi harga pabrik langsung ke lokasi proyek ' . $nearby->name . '.' }}
+                        </p>
+                    </div>
+                    <div class="mt-3 pt-2 border-t border-slate-200/50 dark:border-slate-700/50 flex items-center justify-between text-[10px] font-semibold text-slate-500 dark:text-slate-400 group-hover:text-terra-600 dark:group-hover:text-terra-400">
+                        <span>Jual Roster Beton</span>
+                        <span class="transform group-hover:translate-x-1 transition-transform">&rarr;</span>
+                    </div>
+                </a>
+                @endforeach
+            </div>
+        </div>
+    </div>
+    @endif
+
+    <!-- B2B Segment & Use-Case Cross Links -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
+        <div class="p-8 sm:p-10 rounded-3xl bg-slate-900 text-white border border-slate-800 shadow-xl flex flex-col md:flex-row items-center justify-between gap-6">
+            <div>
+                <span class="text-xs font-bold text-terra-400 uppercase tracking-widest block mb-2">Layanan Khusus B2B & Proyek</span>
+                <h3 class="text-xl sm:text-2xl font-black mb-2">Punya Proyek Konstruksi di {{ $location->name }}?</h3>
+                <p class="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed">
+                    Kami menyediakan penawaran khusus RAB, faktur pajak resmi, dan jadwal pengiriman bertahap untuk rekan kontraktor, developer perumahan, arsitek, dan pemilik toko bangunan di {{ $location->name }}.
+                </p>
+            </div>
+            <div class="flex flex-wrap gap-2.5 shrink-0">
+                <a href="{{ route('b2b.contractor') }}" class="px-4 py-2 rounded-xl bg-white/10 hover:bg-terra-500 text-white text-xs font-bold transition border border-white/15">
+                    🏗️ Untuk Kontraktor
+                </a>
+                <a href="{{ route('b2b.developer') }}" class="px-4 py-2 rounded-xl bg-white/10 hover:bg-terra-500 text-white text-xs font-bold transition border border-white/15">
+                    🏘️ Untuk Developer
+                </a>
+                <a href="{{ route('b2b.architect') }}" class="px-4 py-2 rounded-xl bg-white/10 hover:bg-terra-500 text-white text-xs font-bold transition border border-white/15">
+                    📐 Untuk Arsitek
+                </a>
+                <a href="{{ route('catalog') }}" class="px-4 py-2 rounded-xl bg-terra-500 hover:bg-terra-600 text-white text-xs font-bold transition shadow-md">
+                    Lihat Katalog &rarr;
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

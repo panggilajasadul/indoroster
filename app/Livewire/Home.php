@@ -16,8 +16,8 @@ class Home extends Component
     {
         $page = Page::where('slug', 'home')->first();
 
-        $metaTitle = $page?->meta_title ?: 'Pabrik Roster Beton Minimalis | Supplier Proyek Kirim Jabodetabek, Bandung & Seluruh Indonesia — IndoRoster';
-        $metaDescription = $page?->meta_description ?: 'Produsen resmi roster beton minimalis, loster arsitektural, dan bata expose kualitas cetak padat presisi harga pabrik. Melayani pengiriman partai kecil & proyek ribuan pcs ke Jakarta, Bogor, Depok, Tangerang, Bekasi, Bandung, Karawang, Cianjur, Cirebon & seluruh Indonesia.';
+        $metaTitle = $page?->meta_title ?: 'Produsen & Supplier Roster Beton No. 1 di Indonesia — IndoRoster';
+        $metaDescription = $page?->meta_description ?: 'Pabrik & produsen roster beton minimalis terbesar di Indonesia. Supplier loster cetak padat presisi harga pabrik Plered Purwakarta, siap kirim partai kecil & proyek ke seluruh Indonesia.';
 
         return view('livewire.home', [
             'page' => $page,

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Http\Controllers\SitemapController;
+use App\Services\ImageOptimizationService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
@@ -70,6 +71,15 @@ class Article extends Model
             if (empty($article->reading_time)) {
                 $wordCount = str_word_count(strip_tags($article->content ?? ''));
                 $article->reading_time = max(1, (int) ceil($wordCount / 180));
+            }
+        });
+
+        static::saving(function (Article $article) {
+            if (! empty($article->thumbnail) && ! str_starts_with($article->thumbnail, 'http')) {
+                $optimized = app(ImageOptimizationService::class)->optimizeExistingFile($article->thumbnail);
+                if ($optimized) {
+                    $article->thumbnail = $optimized;
+                }
             }
         });
 

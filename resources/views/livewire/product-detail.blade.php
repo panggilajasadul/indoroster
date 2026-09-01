@@ -7,7 +7,7 @@
         <!-- Breadcrumb Navigation -->
         @php
             $productBreadcrumbs = [
-                ['label' => 'Katalog', 'url' => route('catalog')],
+                ['label' => 'Roster Beton', 'url' => url('/roster-beton')],
             ];
             if ($product->category) {
                 $productBreadcrumbs[] = ['label' => $product->category->name, 'url' => route('catalog', ['category' => $product->category->slug])];
@@ -160,6 +160,11 @@
                                 <span class="text-xs font-bold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 border border-red-100 dark:border-red-900/40 px-1.5 py-0.5 rounded">-{{ $discountPercentage }}%</span>
                             @endif
                         @endif
+
+                        <span class="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800/80 px-2 py-0.5 rounded-md shadow-2xs">
+                            <svg class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                            Termasuk Pajak (Bisa Faktur Pajak)
+                        </span>
                     </div>
 
                     <!-- Variants Selection -->
@@ -364,6 +369,26 @@
                         </div>
                     @endif
 
+                    <!-- Quick Tools & Pillar Silo Links -->
+                    <div class="pt-4 border-t border-slate-100 dark:border-slate-800 flex flex-wrap items-center gap-2">
+                        <a href="{{ route('tools.calculator') }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-[11px] font-bold text-slate-700 dark:text-slate-300 transition">
+                            <span>🧮</span>
+                            <span>Hitung Kebutuhan m²</span>
+                        </a>
+                        <a href="/roster-beton" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-[11px] font-bold text-slate-700 dark:text-slate-300 transition">
+                            <span>🧱</span>
+                            <span>Pilar Roster Beton</span>
+                        </a>
+                        <a href="/roster-minimalis" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-[11px] font-bold text-slate-700 dark:text-slate-300 transition">
+                            <span>✨</span>
+                            <span>Katalog Minimalis</span>
+                        </a>
+                        <a href="{{ route('location.index') }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-[11px] font-bold text-slate-700 dark:text-slate-300 transition">
+                            <span>🚚</span>
+                            <span>Area Kirim Pabrik</span>
+                        </a>
+                    </div>
+
                 </div>
             </div>
         </div>
@@ -477,6 +502,66 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <!-- Rekomendasi Aplikasi Desain Arsitektural -->
+        <div class="mt-16 bg-gradient-to-br from-slate-900 via-slate-850 to-slate-900 text-white rounded-3xl p-6 sm:p-10 border border-slate-800 shadow-xl">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                <div>
+                    <span class="text-xs font-bold text-terra-400 uppercase tracking-widest block mb-1">Inspirasi Pengaplikasian Motif</span>
+                    <h2 class="font-display text-xl sm:text-2xl font-black tracking-tight">Aplikasi Ideal untuk {{ $product->name }}</h2>
+                    <p class="text-xs sm:text-sm text-slate-300 mt-1">Motif ini sangat cocok dan banyak diaplikasikan pada bidang arsitektur berikut:</p>
+                </div>
+                <a href="{{ route('application.index') }}" class="inline-flex items-center gap-1 text-xs font-bold text-terra-400 hover:text-terra-300 transition-colors whitespace-nowrap">
+                    <span>Lihat Semua 10 Panduan Aplikasi</span>
+                    <span>→</span>
+                </a>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+                <a href="{{ route('application.detail', 'pagar-rumah') }}" class="p-3.5 rounded-2xl bg-white/10 hover:bg-terra-500 text-white border border-white/15 transition-all duration-300 flex flex-col justify-between group">
+                    <div>
+                        <span class="text-lg mb-1 block">🏡</span>
+                        <h3 class="text-xs font-bold leading-tight">Pagar Rumah</h3>
+                    </div>
+                    <span class="text-[10px] text-terra-300 group-hover:text-white mt-2 block font-medium">Lihat Inspirasi &rarr;</span>
+                </a>
+                <a href="{{ route('application.detail', 'fasad-rumah') }}" class="p-3.5 rounded-2xl bg-white/10 hover:bg-terra-500 text-white border border-white/15 transition-all duration-300 flex flex-col justify-between group">
+                    <div>
+                        <span class="text-lg mb-1 block">🏛️</span>
+                        <h3 class="text-xs font-bold leading-tight">Fasad Rumah</h3>
+                    </div>
+                    <span class="text-[10px] text-terra-300 group-hover:text-white mt-2 block font-medium">Lihat Inspirasi &rarr;</span>
+                </a>
+                <a href="{{ route('application.detail', 'ventilasi-dinding') }}" class="p-3.5 rounded-2xl bg-white/10 hover:bg-terra-500 text-white border border-white/15 transition-all duration-300 flex flex-col justify-between group">
+                    <div>
+                        <span class="text-lg mb-1 block">💨</span>
+                        <h3 class="text-xs font-bold leading-tight">Ventilasi Dinding</h3>
+                    </div>
+                    <span class="text-[10px] text-terra-300 group-hover:text-white mt-2 block font-medium">Lihat Inspirasi &rarr;</span>
+                </a>
+                <a href="{{ route('application.detail', 'partisi-ruangan') }}" class="p-3.5 rounded-2xl bg-white/10 hover:bg-terra-500 text-white border border-white/15 transition-all duration-300 flex flex-col justify-between group">
+                    <div>
+                        <span class="text-lg mb-1 block">🚪</span>
+                        <h3 class="text-xs font-bold leading-tight">Partisi Ruangan</h3>
+                    </div>
+                    <span class="text-[10px] text-terra-300 group-hover:text-white mt-2 block font-medium">Lihat Inspirasi &rarr;</span>
+                </a>
+                <a href="{{ route('application.detail', 'void-tangga') }}" class="p-3.5 rounded-2xl bg-white/10 hover:bg-terra-500 text-white border border-white/15 transition-all duration-300 flex flex-col justify-between group">
+                    <div>
+                        <span class="text-lg mb-1 block">🪜</span>
+                        <h3 class="text-xs font-bold leading-tight">Void Tangga</h3>
+                    </div>
+                    <span class="text-[10px] text-terra-300 group-hover:text-white mt-2 block font-medium">Lihat Inspirasi &rarr;</span>
+                </a>
+                <a href="{{ route('application.detail', 'fasad-cafe') }}" class="p-3.5 rounded-2xl bg-white/10 hover:bg-terra-500 text-white border border-white/15 transition-all duration-300 flex flex-col justify-between group">
+                    <div>
+                        <span class="text-lg mb-1 block">☕</span>
+                        <h3 class="text-xs font-bold leading-tight">Fasad Cafe</h3>
+                    </div>
+                    <span class="text-[10px] text-terra-300 group-hover:text-white mt-2 block font-medium">Lihat Inspirasi &rarr;</span>
+                </a>
             </div>
         </div>
 

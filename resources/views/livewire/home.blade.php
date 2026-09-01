@@ -669,6 +669,33 @@
                 <h2 class="font-display text-fluid-h2 font-bold text-slate-900 mb-4">Kata Pelanggan Kami</h2>
                 <div class="w-24 h-1 bg-accent mx-auto rounded-full"></div>
             </div>
+
+            <!-- SEO Schema Markup for Testimonials (Reviews) -->
+            <script type="application/ld+json">
+            {
+              "@@context": "https://schema.org",
+              "@@type": "Organization",
+              "name": "IndoRoster",
+              "url": "{{ config('app.url', 'https://indoroster.com') }}",
+              "review": [
+                @foreach($testimonials as $index => $t)
+                {
+                  "@@type": "Review",
+                  "author": {
+                    "@@type": "Person",
+                    "name": "{{ e($t->customer_name) }}"
+                  },
+                  "reviewRating": {
+                    "@@type": "Rating",
+                    "ratingValue": "{{ $t->rating ?: 5 }}",
+                    "bestRating": "5"
+                  },
+                  "reviewBody": "{{ e(strip_tags($t->content)) }}"
+                }{{ !$loop->last ? ',' : '' }}
+                @endforeach
+              ]
+            }
+            </script>
             
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 @foreach($testimonials as $testimoni)

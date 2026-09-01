@@ -40,3 +40,5 @@ seperti kode di sekitarnya.
   adalah dump DB yang di-commit sebagai referensi
 - Git: conventional commits (`feat:`, `fix:`…) di `main`. Jangan pernah push ke GitHub — owner
   menangani deploy/push secara manual. Hanya commit jika diminta secara eksplisit
+- Aturan Konten & Kejujuran Produk: Roster IndoRoster adalah **cetak tumbuk padat plat baja presisi oleh pengrajin Plered Purwakarta** menggunakan **pasir abu batu murni** (BUKAN pasir silika). DILARANG menggunakan kata "K-200" / "K200", DILARANG mengklaim "mesin hidrolik", DILARANG menyebut "pasir silika", dan DILARANG menyebut produk sendiri sebagai "produk cor". Panduan lengkap ada di `indoroster-content/PANDUAN_KONTEN_DAN_DESAIN_PREMIUM.md`.
+

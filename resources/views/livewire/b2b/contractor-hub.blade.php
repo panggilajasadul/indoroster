@@ -1,3 +1,7 @@
+@push('seo')
+<x-ecommerce-itemlist-schema name="Katalog Roster Beton Khusus Kontraktor & Pemborong" description="Daftar motif roster beton minimalis harga grosir pabrik untuk rekan kontraktor dan proyek tender." :products="$products" />
+@endpush
+
 <div class="min-h-screen bg-slate-50 dark:bg-slate-950 py-10">
     <!-- Hero Section -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
@@ -197,6 +201,12 @@
             <p class="text-slate-500 dark:text-slate-400 text-sm">Tidak ada motif produk yang cocok dengan pencarian Anda.</p>
         </div>
         @endif
+    </div>
+
+    <!-- Order Scale Section (Eceran, Borongan, Partai Besar, Kontrak Rutin) -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <x-b2b-scale-section segment="kontraktor" highlight-scale="borongan" />
+        <x-b2b-city-links title="Distribusi Roster Proyek Kontraktor ke Kota Utama" :cities="['jakarta', 'bandung', 'bekasi', 'tangerang', 'karawang', 'cikarang']" />
     </div>
 
     <!-- Direct CTA Banner -->

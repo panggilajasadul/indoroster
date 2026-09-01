@@ -3,10 +3,13 @@
 namespace App\Livewire\Seo;
 
 use App\Models\Category;
+use App\Models\GalleryMedia;
 use App\Models\Page;
 use App\Models\Product;
+use App\Models\SeoLocation;
 use App\Models\SeoPage;
 use App\Models\SiteSetting;
+use App\Services\LegacyUrlRedirectService;
 use Livewire\Component;
 
 /**
@@ -102,7 +105,15 @@ class SeoPageDetailFallback extends Component
             return;
         }
 
-        // ── 3. Tidak ditemukan ──
+        // ── 3. Cek Legacy URL Redirect dari Website Lama (301 Permanent Redirect) ──
+        $legacyRedirect = LegacyUrlRedirectService::resolveRedirect($normalizedSlug);
+        if ($legacyRedirect) {
+            $this->redirect($legacyRedirect, navigate: false);
+
+            return;
+        }
+
+        // ── 4. Tidak ditemukan ──
         abort(404);
     }
 
@@ -146,7 +157,7 @@ class SeoPageDetailFallback extends Component
             $explorerQuery->whereHas('category', fn ($q) => $q->where('slug', $this->selectedCategory));
         }
 
-        $explorerProducts = $explorerQuery->limit(24)->get();
+        $explorerProducts = $explorerQuery->limit(8)->get();
 
         // Level 3: Internal Linking (Related Pages)
         $relatedPages = $page->getRelatedPages(6);
@@ -164,11 +175,26 @@ class SeoPageDetailFallback extends Component
 
         $keywords = $page->keywords->pluck('keyword')->implode(', ');
 
+        // Top Location Hubs for Silo Linking
+        $topLocations = SeoLocation::where('seo_enabled', true)
+            ->orderBy('priority', 'asc')
+            ->take(12)
+            ->get();
+
+        // Dynamic Random Installation Photos from Gallery
+        $randomGalleryMedia = GalleryMedia::with('gallery')
+            ->where('media_type', 'image')
+            ->inRandomOrder()
+            ->limit(6)
+            ->get();
+
         return view('livewire.seo.seo-page-detail', [
             'page' => $page,
             'featuredProducts' => $featuredProducts,
             'explorerProducts' => $explorerProducts,
             'relatedPages' => $relatedPages,
+            'topLocations' => $topLocations,
+            'randomGalleryMedia' => $randomGalleryMedia,
             'categories' => $categories,
             'sections' => $sections,
             'faqSections' => $faqSections,

@@ -105,15 +105,19 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-    <!-- Google Fonts: Inter, Outfit, Poppins, Jost, Urbanist, Plus Jakarta Sans -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300..800&family=Jost:ital,wght@0,300..900;1,300..900&family=Outfit:wght@300..900&family=Plus+Jakarta+Sans:wght@300..800&family=Poppins:ital,wght@0,300..900;1,300..900&family=Urbanist:ital,wght@0,300..900;1,300..900&display=swap">
+    <!-- Google Fonts: Non-blocking async loading with font-display swap -->
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@500;700;800&family=Plus+Jakarta+Sans:wght@500;700;800&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@500;700;800&family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" media="print" onload="this.media='all'">
+    <noscript>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@500;700;800&family=Plus+Jakarta+Sans:wght@500;700;800&display=swap">
+    </noscript>
 
     <!-- TomSelect CSS (non-blocking) -->
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet" media="print" onload="this.media='all'">
 
-    <!-- Leaflet Maps CSS & JS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <!-- Leaflet Maps CSS & JS (non-blocking deferred) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" media="print" onload="this.media='all'" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="" defer></script>
 
     <!-- Primary SEO Meta -->
     <meta name="google-site-verification" content="{{ \App\Models\SiteSetting::getValue('google_site_verification', '5T-7RFSLMEwCNdq2lx93GU5S5BckFBgjFPf5B-HlT1Y') }}" />

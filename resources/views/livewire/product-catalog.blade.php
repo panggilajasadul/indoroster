@@ -162,6 +162,58 @@
             </div>
         @endif
 
+        <!-- Silo Pillar Navigation & Quick Tools -->
+        <div class="mt-14 p-6 sm:p-8 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-soft-xs">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                <div>
+                    <span class="text-xs font-bold uppercase tracking-wider text-terra-600 dark:text-terra-400">Pusat Otoritas & Panduan</span>
+                    <h3 class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mt-0.5">Panduan Memilih Material & Fasilitas Proyek</h3>
+                </div>
+                <div class="flex items-center gap-2">
+                    <a href="{{ route('tools.calculator') }}" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-xs font-bold rounded-xl transition">
+                        🧮 Kalkulator Dinding
+                    </a>
+                    <a href="{{ route('b2b.contractor') }}" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition">
+                        👷 Layanan B2B Proyek
+                    </a>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+                <a href="/roster-beton" class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/70 dark:border-slate-700/70 hover:border-terra-500 transition group">
+                    <div class="text-2xl mb-1">🧱</div>
+                    <h4 class="font-bold text-sm text-slate-900 dark:text-white group-hover:text-terra-600 transition-colors">Pilar Roster Beton</h4>
+                    <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">Spesifikasi mutu K-200, cetak tumbuk padat Plered & garansi bebas pecah.</p>
+                </a>
+                <a href="/roster-minimalis" class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/70 dark:border-slate-700/70 hover:border-terra-500 transition group">
+                    <div class="text-2xl mb-1">✨</div>
+                    <h4 class="font-bold text-sm text-slate-900 dark:text-white group-hover:text-terra-600 transition-colors">Pilar Roster Minimalis</h4>
+                    <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">45+ motif modern, pola nako anti tampias, dan desain signature 3D timbul.</p>
+                </a>
+                <a href="/roster-beton-minimalis" class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/70 dark:border-slate-700/70 hover:border-terra-500 transition group">
+                    <div class="text-2xl mb-1">🏭</div>
+                    <h4 class="font-bold text-sm text-slate-900 dark:text-white group-hover:text-terra-600 transition-colors">Pabrik Tangan Pertama</h4>
+                    <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">Harga grosir pabrik Plered Purwakarta untuk eceran & partai besar.</p>
+                </a>
+            </div>
+
+            @if(isset($topLocations) && $topLocations->count() > 0)
+            <div class="pt-5 border-t border-slate-100 dark:border-slate-800">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">🚚 Pengiriman Cepat Armada Pabrik:</span>
+                    <a href="{{ route('location.index') }}" class="text-[11px] font-bold text-terra-600 dark:text-terra-400 hover:underline">Semua Area &rarr;</a>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    @foreach($topLocations as $tLoc)
+                    <a href="{{ route('location.detail', $tLoc->slug) }}" class="px-3 py-1.5 rounded-lg bg-slate-100/80 dark:bg-slate-800/80 hover:bg-terra-50 hover:text-terra-600 dark:hover:bg-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-300 transition">
+                        📍 {{ $tLoc->name }}
+                    </a>
+                    @endforeach
+                </div>
+            </div>
+            @endif
+        </div>
+
         <!-- Section: Metode Pembayaran & Jasa Pengiriman Resmi (seperti Toco) -->
         <x-trust-payment-shipping />
         
