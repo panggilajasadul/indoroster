@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Models\Article;
 use App\Models\Product;
 use App\Services\LegacyUrlRedirectService;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Livewire\Component;
 
@@ -135,15 +136,15 @@ class ArticleDetail extends Component
 
     /**
      * Injeksi foto produk asli dari tabel product_media secara dinamis saat render.
-     * Merekonstruksi seluruh kotak foto di setiap kartu produk agar selalu sinkron
-     * dengan database — tidak bergantung pada HTML yang tersimpan di konten artikel.
+     * Hanya mengganti src <img> yang berisi placeholder (pexels / localhost) dengan
+     * foto asli dari database — AMAN, tidak mengubah struktur HTML sama sekali.
      */
     private function injectRealProductPhotos(string $content): string
     {
         // Bangun map: slug -> URL foto primary (1 query untuk semua produk)
         static $photoMap = null;
         if ($photoMap === null) {
-            $photoMap = \Illuminate\Support\Facades\DB::table('product_media as pm')
+            $photoMap = DB::table('product_media as pm')
                 ->join('products as p', 'p.id', '=', 'pm.product_id')
                 ->where('p.is_active', true)
                 ->where('pm.is_primary', true)
@@ -161,39 +162,23 @@ class ArticleDetail extends Component
 
         $rebuilt = '';
         foreach ($parts as $part) {
-            if (str_contains($part, '/produk/')) {
-                if (preg_match('|href="[^"]*?/produk/([^"?#/]+)"|i', $part, $m)) {
-                    $slug = rtrim($m[1], '/');
-                    $realImg = $photoMap[$slug] ?? null;
-
-                    if ($realImg) {
-                        $altText = htmlspecialchars(str_replace('-', ' ', ucwords($slug, '-')));
-
-                        // Kotak foto bersih yang direkonstruksi penuh
-                        $cleanPhotoBox = '<div class="w-56 h-56 sm:w-64 sm:h-64 shrink-0 rounded-2xl overflow-hidden shadow-xl border-2 border-terra-500/50 bg-slate-100 dark:bg-slate-800 relative group aspect-square flex items-center justify-center">'
-                            . '<img src="' . $realImg . '" alt="' . $altText . '" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />'
-                            . '<span class="absolute bottom-2 left-2 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider bg-slate-900/80 text-white rounded-lg border border-slate-700">Pabrik Plered</span>'
-                            . '</div>';
-
-                        // Ganti seluruh kotak foto (w-56 h-56 ...) beserta isi yang rusak/nested
-                        // dengan kotak foto bersih — hingga sebelum div konten produk (flex-1)
-                        $part = preg_replace(
-                            '/<div class="w-56 h-56[^"]*"[^>]*>.*?(?=<div class="flex-1)/si',
-                            $cleanPhotoBox,
-                            $part,
-                            1
-                        );
-
-                        // Handle kartu dark gradient (my-8 p-6 bg-gradient) — ada w-36 h-36
-                        $part = preg_replace(
-                            '/<div class="w-36 h-36[^"]*"[^>]*>.*?<\/div>/si',
-                            '<div class="w-36 h-36 shrink-0 rounded-xl overflow-hidden shadow-lg border-2 border-terra-500 bg-slate-800 flex items-center justify-center">'
-                                . '<img src="' . $realImg . '" alt="' . $altText . '" class="w-full h-full object-cover" loading="lazy" />'
-                                . '</div>',
-                            $part,
-                            1
-                        );
-                    }
+            if (str_contains($part, '/produk/') && preg_match('|href="[^"]*?/produk/([^"?#/]+)"|i', $part, $m)) {
+                $slug = rtrim($m[1], '/');
+                if (!empty($photoMap[$slug])) {
+                    $realImg = $photoMap[$slug];
+                    // Ganti hanya src img yang berisi pexels atau localhost — struktur HTML tidak disentuh
+                    $part = preg_replace_callback(
+                        '/<img([^>]*?)src="([^"]*?)"([^>]*?)>/i',
+                        function ($matches) use ($realImg) {
+                            $src = $matches[2];
+                            if (str_contains($src, 'pexels') || str_contains($src, '127.0.0.1') || empty($src)) {
+                                return '<img' . $matches[1] . 'src="' . $realImg . '"' . $matches[3] . '>';
+                            }
+                            return $matches[0];
+                        },
+                        $part,
+                        1
+                    );
                 }
             }
             $rebuilt .= $part;
