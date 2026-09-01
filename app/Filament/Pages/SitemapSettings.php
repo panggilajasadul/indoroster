@@ -132,16 +132,56 @@ class SitemapSettings extends FilamentPage
             $totalImages = substr_count($content, '<image:image>') + substr_count($content, '<image:loc>');
         }
 
-        $activeProducts = Product::where('is_active', true)->count();
-        $activeCategories = Category::where('is_active', true)->count();
-        $publishedArticles = class_exists(Article::class) ? Article::where('is_published', true)->count() : 0;
-        $activeGalleries = class_exists(Gallery::class) ? Gallery::where('is_active', true)->count() : 0;
-        $activePages = class_exists(Page::class) ? Page::where('is_active', true)->count() : 0;
-        $activeExportPages = class_exists(ExportPage::class) ? ExportPage::where('is_active', true)->count() : 0;
-        $activeSeoPages = class_exists(SeoPage::class) ? SeoPage::where('status', 'published')->where('noindex', false)->count() : 0;
-        $activeSeoLocations = class_exists(SeoLocation::class)
-            ? SeoLocation::where('seo_enabled', true)->where('seo_score', '>=', 75)->count()
-            : 0;
+        $activeProducts = 0;
+        $activeCategories = 0;
+        $publishedArticles = 0;
+        $activeGalleries = 0;
+        $activePages = 0;
+        $activeExportPages = 0;
+        $activeSeoPages = 0;
+        $activeSeoLocations = 0;
+
+        try {
+            $activeProducts = Product::where('is_active', true)->count();
+        } catch (\Throwable $e) {
+        }
+
+        try {
+            $activeCategories = Category::where('is_active', true)->count();
+        } catch (\Throwable $e) {
+        }
+
+        try {
+            $publishedArticles = class_exists(Article::class) ? Article::where('is_published', true)->count() : 0;
+        } catch (\Throwable $e) {
+        }
+
+        try {
+            $activeGalleries = class_exists(Gallery::class) ? Gallery::where('is_active', true)->count() : 0;
+        } catch (\Throwable $e) {
+        }
+
+        try {
+            $activePages = class_exists(Page::class) ? Page::where('is_active', true)->count() : 0;
+        } catch (\Throwable $e) {
+        }
+
+        try {
+            $activeExportPages = class_exists(ExportPage::class) ? ExportPage::where('is_active', true)->count() : 0;
+        } catch (\Throwable $e) {
+        }
+
+        try {
+            $activeSeoPages = class_exists(SeoPage::class) ? SeoPage::where('status', 'published')->where('noindex', false)->count() : 0;
+        } catch (\Throwable $e) {
+        }
+
+        try {
+            $activeSeoLocations = class_exists(SeoLocation::class)
+                ? SeoLocation::where('seo_enabled', true)->where('seo_score', '>=', 75)->count()
+                : 0;
+        } catch (\Throwable $e) {
+        }
 
         $sitemapUrl = url('/sitemap.xml');
 
