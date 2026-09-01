@@ -457,7 +457,7 @@ html {
    ========================================================================== */
 
 /* Images in Articles & Rich Text */
-.prose img, .article-content img {
+.prose img:not(.not-prose img), .article-content img:not(.not-prose img) {
     margin-top: 1.75em !important;
     margin-bottom: 1.75em !important;
     border-radius: 1.25rem !important;
@@ -466,8 +466,13 @@ html {
     height: auto !important;
     display: block !important;
 }
-.dark .prose img, .dark .article-content img {
+.dark .prose img:not(.not-prose img), .dark .article-content img:not(.not-prose img) {
     box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5) !important;
+}
+
+.not-prose img {
+    margin: 0 !important;
+    box-shadow: none !important;
 }
 
 /* Trix & File Attachment Formatting (Clean Minimalist Media) */
