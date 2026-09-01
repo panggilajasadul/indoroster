@@ -35,7 +35,9 @@ class FullSeoPageSyncSeeder extends Seeder
         }
 
         $total = count($records);
-        $this->command->info("Memulai sinkronisasi cepat {$total} Halaman Master SEO...");
+        $this->command->info("Membersihkan catatan -vol- lawas dan memulai sinkronisasi {$total} Halaman Master SEO...");
+
+        DB::table('seo_pages')->whereRaw("slug REGEXP '-vol-[0-9]+$' OR slug REGEXP '-vol[0-9]+$'")->delete();
 
         $chunks = array_chunk($records, 250);
         $inserted = 0;

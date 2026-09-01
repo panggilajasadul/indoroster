@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- IndoRoster Exports Sitemap | Generated: 2026-09-02 00:51:25 WIB | Total URLs: 113 | Base: https://indoroster.com -->
+<!-- IndoRoster Exports Sitemap | Generated: 2026-09-02 00:58:38 WIB | Total URLs: 113 | Base: https://indoroster.com -->
 <?xml-stylesheet type="text/xsl" href="/sitemap.xsl?v=1.1"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">
     <url>
     <loc>https://indoroster.com/export</loc>
-    <lastmod>2026-09-02T00:51:25+07:00</lastmod>
+    <lastmod>2026-09-02T00:58:38+07:00</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
             </url>
     <url>
     <loc>https://indoroster.com/export/catalog</loc>
-    <lastmod>2026-09-02T00:51:25+07:00</lastmod>
+    <lastmod>2026-09-02T00:58:38+07:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
             </url>
     <url>
     <loc>https://indoroster.com/export/gallery</loc>
-    <lastmod>2026-09-02T00:51:25+07:00</lastmod>
+    <lastmod>2026-09-02T00:58:38+07:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
             </url>
