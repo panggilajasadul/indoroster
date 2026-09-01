@@ -112,7 +112,9 @@ class SitemapController extends Controller
 
         return response($content, 200, [
             'Content-Type' => 'text/xsl; charset=utf-8',
-            'Cache-Control' => 'public, max-age=86400',
+            'Cache-Control' => 'no-cache, no-store, must-revalidate',
+            'Pragma' => 'no-cache',
+            'Expires' => '0',
         ]);
     }
 
@@ -537,7 +539,7 @@ class SitemapController extends Controller
         $indexXml = str_replace(['/generate_sitemap.php', '/test_sitemap.php'], '', $indexXml);
 
         if (! str_contains($indexXml, 'xml-stylesheet')) {
-            $xslTag = '<?xml-stylesheet type="text/xsl" href="/sitemap.xsl"?>'."\n";
+            $xslTag = '<?xml-stylesheet type="text/xsl" href="/sitemap.xsl?v=1.1"?>'."\n";
             $indexXml = preg_replace('/(<\?xml[^>]+>\s*)/', '$1'.$xslTag, $indexXml, 1);
         }
 
@@ -560,7 +562,7 @@ class SitemapController extends Controller
         $xmlContent = str_replace(['/generate_sitemap.php', '/test_sitemap.php'], '', $xmlContent);
 
         if (! str_contains($xmlContent, 'xml-stylesheet')) {
-            $xslTag = '<?xml-stylesheet type="text/xsl" href="/sitemap.xsl"?>'."\n";
+            $xslTag = '<?xml-stylesheet type="text/xsl" href="/sitemap.xsl?v=1.1"?>'."\n";
             $xmlContent = preg_replace('/(<\?xml[^>]+>\s*)/', '$1'.$xslTag, $xmlContent, 1);
         }
 

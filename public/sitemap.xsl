@@ -161,7 +161,7 @@
                     <!-- CONDITIONAL VIEW: SITEMAP INDEX VS URLSET -->
                     <xsl:choose>
                         <!-- SITEMAP INDEX VIEW -->
-                        <xsl:when test="/*[local-name()='sitemapindex']">
+                        <xsl:when test="count(//*[local-name()='sitemap']) &gt; 0">
                             <div class="stats-bar">
                                 <div>
                                     <span>Master Sitemap Index: </span>
