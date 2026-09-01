@@ -134,13 +134,13 @@ class ArticleDetail extends Component
     }
 
     /**
-     * Injeksi foto produk asli dari tabel product_media secara dinamis.
-     * Untuk setiap blok kartu produk dalam konten artikel, cari slug produk
-     * dari atribut href, lalu ganti src <img> dengan foto primary produk dari DB.
+     * Injeksi foto produk asli dari tabel product_media secara dinamis saat render.
+     * Merekonstruksi seluruh kotak foto di setiap kartu produk agar selalu sinkron
+     * dengan database — tidak bergantung pada HTML yang tersimpan di konten artikel.
      */
     private function injectRealProductPhotos(string $content): string
     {
-        // Bangun map: slug -> URL foto primary
+        // Bangun map: slug -> URL foto primary (1 query untuk semua produk)
         static $photoMap = null;
         if ($photoMap === null) {
             $photoMap = \Illuminate\Support\Facades\DB::table('product_media as pm')
@@ -156,23 +156,42 @@ class ArticleDetail extends Component
             return $content;
         }
 
-        // Pecah konten per blok kartu produk
+        // Pecah konten per blok kartu produk (outer white card)
         $parts = preg_split('/(?=<div class="my-10 p-6 sm:p-8 bg-slate-50)/', $content);
 
         $rebuilt = '';
         foreach ($parts as $part) {
-            // Hanya proses blok yang memiliki link ke produk
             if (str_contains($part, '/produk/')) {
                 if (preg_match('|href="[^"]*?/produk/([^"?#/]+)"|i', $part, $m)) {
                     $slug = rtrim($m[1], '/');
-                    if (isset($photoMap[$slug])) {
-                        $realImg = $photoMap[$slug];
-                        // Ganti src <img> pertama di blok ini dengan foto asli
+                    $realImg = $photoMap[$slug] ?? null;
+
+                    if ($realImg) {
+                        $altText = htmlspecialchars(str_replace('-', ' ', ucwords($slug, '-')));
+
+                        // Kotak foto bersih yang direkonstruksi penuh
+                        $cleanPhotoBox = '<div class="w-56 h-56 sm:w-64 sm:h-64 shrink-0 rounded-2xl overflow-hidden shadow-xl border-2 border-terra-500/50 bg-slate-100 dark:bg-slate-800 relative group aspect-square flex items-center justify-center">'
+                            . '<img src="' . $realImg . '" alt="' . $altText . '" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />'
+                            . '<span class="absolute bottom-2 left-2 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider bg-slate-900/80 text-white rounded-lg border border-slate-700">Pabrik Plered</span>'
+                            . '</div>';
+
+                        // Ganti seluruh kotak foto (w-56 h-56 ...) beserta isi yang rusak/nested
+                        // dengan kotak foto bersih — hingga sebelum div konten produk (flex-1)
                         $part = preg_replace(
-                            '/<img([^>]*?)src="[^"]*?"([^>]*?)>/i',
-                            '<img$1src="' . $realImg . '"$2>',
+                            '/<div class="w-56 h-56[^"]*"[^>]*>.*?(?=<div class="flex-1)/si',
+                            $cleanPhotoBox,
                             $part,
-                            1  // hanya ganti 1 (foto utama kartu)
+                            1
+                        );
+
+                        // Handle kartu dark gradient (my-8 p-6 bg-gradient) — ada w-36 h-36
+                        $part = preg_replace(
+                            '/<div class="w-36 h-36[^"]*"[^>]*>.*?<\/div>/si',
+                            '<div class="w-36 h-36 shrink-0 rounded-xl overflow-hidden shadow-lg border-2 border-terra-500 bg-slate-800 flex items-center justify-center">'
+                                . '<img src="' . $realImg . '" alt="' . $altText . '" class="w-full h-full object-cover" loading="lazy" />'
+                                . '</div>',
+                            $part,
+                            1
                         );
                     }
                 }
