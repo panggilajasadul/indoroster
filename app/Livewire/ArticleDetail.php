@@ -113,6 +113,9 @@ class ArticleDetail extends Component
             ->take(4)
             ->get();
 
+        // Injeksi foto produk asli dari database secara dinamis ke dalam konten artikel
+        $this->article->content = $this->injectRealProductPhotos($this->article->content);
+
         $metaTitle = $this->article->meta_title ?: ($this->article->title.' - IndoRoster');
         $metaDescription = $this->article->meta_description ?: ($this->article->excerpt ?: Str::limit(strip_tags($this->article->content), 155));
         $metaKeywords = $this->article->meta_keywords ?: 'roster beton, fasad minimalis, roster plered, arsitektur tropis, indoroster';
@@ -128,5 +131,55 @@ class ArticleDetail extends Component
             'keywords' => $metaKeywords,
             'canonicalOverride' => route('article.detail', $this->article->slug),
         ]);
+    }
+
+    /**
+     * Injeksi foto produk asli dari tabel product_media secara dinamis.
+     * Untuk setiap blok kartu produk dalam konten artikel, cari slug produk
+     * dari atribut href, lalu ganti src <img> dengan foto primary produk dari DB.
+     */
+    private function injectRealProductPhotos(string $content): string
+    {
+        // Bangun map: slug -> URL foto primary
+        static $photoMap = null;
+        if ($photoMap === null) {
+            $photoMap = \Illuminate\Support\Facades\DB::table('product_media as pm')
+                ->join('products as p', 'p.id', '=', 'pm.product_id')
+                ->where('p.is_active', true)
+                ->where('pm.is_primary', true)
+                ->select('p.slug', 'pm.media_url')
+                ->pluck('pm.media_url', 'p.slug')
+                ->toArray();
+        }
+
+        if (empty($photoMap)) {
+            return $content;
+        }
+
+        // Pecah konten per blok kartu produk
+        $parts = preg_split('/(?=<div class="my-10 p-6 sm:p-8 bg-slate-50)/', $content);
+
+        $rebuilt = '';
+        foreach ($parts as $part) {
+            // Hanya proses blok yang memiliki link ke produk
+            if (str_contains($part, '/produk/')) {
+                if (preg_match('|href="[^"]*?/produk/([^"?#/]+)"|i', $part, $m)) {
+                    $slug = rtrim($m[1], '/');
+                    if (isset($photoMap[$slug])) {
+                        $realImg = $photoMap[$slug];
+                        // Ganti src <img> pertama di blok ini dengan foto asli
+                        $part = preg_replace(
+                            '/<img([^>]*?)src="[^"]*?"([^>]*?)>/i',
+                            '<img$1src="' . $realImg . '"$2>',
+                            $part,
+                            1  // hanya ganti 1 (foto utama kartu)
+                        );
+                    }
+                }
+            }
+            $rebuilt .= $part;
+        }
+
+        return $rebuilt;
     }
 }
