@@ -23,6 +23,13 @@ Allow: /
 User-agent: Yandex
 Allow: /
 
+# Bing & Microsoft Copilot
+User-agent: Bingbot
+Allow: /
+
+User-agent: msnbot
+Allow: /
+
 # Blokir halaman transaksi & akun pribadi
 Disallow: /keranjang
 Disallow: /checkout
