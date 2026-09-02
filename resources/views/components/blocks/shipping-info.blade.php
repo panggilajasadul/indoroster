@@ -37,9 +37,31 @@
                 
                 <h2 class="text-2xl sm:text-3xl md:text-4xl font-black font-display {{ $theme->headingColor }} tracking-tight leading-tight mb-5">{!! $title !!}</h2>
                 
-                <p class="text-sm sm:text-base {{ $theme->subColor }} mb-8 leading-relaxed">
+                <p class="text-sm sm:text-base {{ $theme->subColor }} mb-6 leading-relaxed">
                     {!! $content !!}
                 </p>
+
+                @php
+                    $blockLocations = class_exists(\App\Models\SeoLocation::class)
+                        ? \App\Models\SeoLocation::where('seo_enabled', true)->orderBy('priority', 'asc')->take(16)->get()
+                        : collect();
+                @endphp
+
+                @if($blockLocations->count() > 0)
+                <div class="mb-8">
+                    <span class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider block mb-3">📍 Wilayah Layanan Pengiriman Cepat:</span>
+                    <div class="flex flex-wrap items-center gap-2">
+                        @foreach($blockLocations as $tLoc)
+                            <a href="{{ route('location.detail', $tLoc->slug) }}" class="px-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-terra-500 hover:text-terra-600 dark:hover:text-terra-400 rounded-lg text-xs font-medium text-slate-700 dark:text-slate-300 transition shadow-sm">
+                                Roster {{ $tLoc->name }}
+                            </a>
+                        @endforeach
+                        <a href="{{ route('location.index') }}" class="px-3 py-1.5 bg-terra-50 dark:bg-terra-950/40 text-terra-600 dark:text-terra-400 hover:bg-terra-500 hover:text-white rounded-lg text-xs font-bold transition">
+                            Semua Wilayah &rarr;
+                        </a>
+                    </div>
+                </div>
+                @endif
 
                 <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
                     <a href="{{ $buttonUrl }}" target="_blank" class="inline-flex items-center justify-center gap-2.5 px-7 py-3.5 rounded-xl font-bold text-sm transition-all shadow-md group {{ $theme->btnPrimary }}">
