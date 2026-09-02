@@ -1,4 +1,11 @@
 <div>
+@push('seo')
+    <x-ecommerce-itemlist-schema 
+        name="Katalog Roster Beton Minimalis IndoRoster" 
+        description="Pabrik & produsen roster beton minimalis presisi harga tangan pertama Plered Purwakarta, siap kirim partai kecil & proyek ke seluruh Indonesia." 
+        :products="$featuredProducts" 
+    />
+@endpush
 @php
     $rawWa = \App\Models\SiteSetting::getValue('whatsapp_number', '0813-8970-9847');
     $waNumber = preg_replace('/[^0-9]/', '', $rawWa);
@@ -251,7 +258,7 @@
                 
                 @foreach(array_merge($showcaseImages, $showcaseImages) as $img)
                 <div class="w-[300px] md:w-[450px] aspect-[4/3] rounded-none overflow-hidden shrink-0 shadow-lg border border-slate-100">
-                    <img src="{{ $img }}" class="w-full h-full object-cover" loading="lazy">
+                    <img src="{{ $img }}" alt="Inspirasi Desain Dinding dan Fasad Roster Beton Minimalis IndoRoster Plered" class="w-full h-full object-cover" loading="lazy">
                 </div>
                 @endforeach
             </div>
@@ -378,25 +385,29 @@
                     </div>
 
                     <!-- Info Section -->
-                    <div class="p-2 flex flex-col flex-grow">
+                    <div class="p-2.5 flex flex-col flex-grow">
                         <div class="text-xs text-slate-800 leading-snug mb-1 line-clamp-2 font-medium group-hover:text-terra-600 transition-colors">
                             {{ $product->name }}
                         </div>
                         
                         <div class="mt-auto">
-                            <div class="flex items-center justify-between gap-1 mb-0.5">
-                                <span class="text-sm font-bold text-[#ee4d2d] leading-none">{{ $product->formatted_price_range }}</span>
+                            <!-- Star Rating & Terjual ala Marketplace -->
+                            <div class="flex items-center gap-1 mb-1.5">
+                                <div class="flex text-amber-400">
+                                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
+                                </div>
+                                <span class="text-[10px] font-bold text-slate-700">{{ $product->average_rating }}</span>
+                                <span class="text-[10px] text-slate-300">|</span>
+                                <span class="text-[9px] text-slate-500 whitespace-nowrap">
+                                    {{ $product->total_sold > 0 ? $product->formatted_total_sold . ' terjual' : '50+ terjual' }}
+                                </span>
                             </div>
 
-                            <div class="flex items-center justify-between">
+                            <div class="flex items-center justify-between gap-1 mb-0.5">
+                                <span class="text-sm font-bold text-[#ee4d2d] leading-none">{{ $product->formatted_price_range }}</span>
                                 @if($product->has_discount)
                                     <span class="text-[9px] text-slate-400 line-through leading-none">Rp{{ number_format($product->original_price, 0, ',', '.') }}</span>
-                                @else
-                                    <span></span>
                                 @endif
-                                <span class="text-[9px] text-slate-500 whitespace-nowrap">
-                                    {{ $product->total_sold > 0 ? $product->formatted_total_sold . ' terjual' : '' }}
-                                </span>
                             </div>
                         </div>
                     </div>
@@ -517,8 +528,8 @@
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                             </div>
                             <div>
-                                <h3 class="text-xl font-bold mb-2">Kualitas Premium</h3>
-                                <p class="text-slate-400 leading-relaxed">Campuran semen dan pasir pilihan, diproses dengan mesin press hidrolik tinggi menghasilkan roster yang sangat kuat dan presisi.</p>
+                                <h3 class="text-xl font-bold mb-2">Kualitas Cetak Tumbuk Padat</h3>
+                                <p class="text-slate-400 leading-relaxed">Racikan semen pilihan dan pasir abu batu murni berkualitas, dicetak dengan teknik tumbuk padat plat baja presisi oleh pengrajin berpengalaman Plered Purwakarta untuk menghasilkan roster padat, kokoh, dan berpenampilan rapi.</p>
                             </div>
                         </div>
                         <div class="flex items-start gap-4">
@@ -568,9 +579,26 @@
                         Pengiriman Seluruh Indonesia
                     </div>
                     <h2 class="font-display text-fluid-h2 font-bold text-slate-900 mb-6">Pusat Jual Roster Beton Murah Jabodetabek & Nasional</h2>
-                    <p class="text-lg text-slate-600 mb-8 leading-relaxed">
-                        Sebagai pusat produksi tangan pertama di <strong>Plered, Purwakarta</strong>, armada truk kami siap mengirimkan pesanan partai kecil maupun besar langsung ke lokasi proyek Anda di <strong>Jakarta, Bogor, Depok, Tangerang, Bekasi (Jabodetabek)</strong>, Bandung, Cirebon, hingga pengiriman via ekspedisi khusus ke seluruh wilayah Indonesia dengan garansi aman sampai tujuan.
+                    <p class="text-lg text-slate-600 mb-6 leading-relaxed">
+                        Sebagai pusat produksi tangan pertama di <strong>Plered, Purwakarta</strong>, armada truk kami siap mengirimkan pesanan partai kecil maupun besar langsung ke lokasi proyek Anda di <strong>Jabodetabek, Jawa Barat, hingga seluruh Indonesia</strong> dengan garansi aman sampai tujuan.
                     </p>
+
+                    @if(isset($topLocations) && $topLocations->count() > 0)
+                    <div class="mb-8">
+                        <span class="text-xs font-bold text-slate-700 uppercase tracking-wider block mb-3">📍 Wilayah Layanan Pengiriman Cepat:</span>
+                        <div class="flex flex-wrap items-center gap-2">
+                            @foreach($topLocations as $tLoc)
+                                <a href="{{ route('location.detail', $tLoc->slug) }}" class="px-3 py-1.5 bg-white border border-slate-200 hover:border-terra-500 hover:text-terra-600 rounded-lg text-xs font-medium text-slate-700 transition shadow-sm">
+                                    Roster {{ $tLoc->name }}
+                                </a>
+                            @endforeach
+                            <a href="{{ route('location.index') }}" class="px-3 py-1.5 bg-terra-50 text-terra-600 hover:bg-terra-500 hover:text-white rounded-lg text-xs font-bold transition">
+                                Semua Wilayah &rarr;
+                            </a>
+                        </div>
+                    </div>
+                    @endif
+
                     <a href="https://wa.me/{{ $waNumber }}" target="_blank" class="inline-flex items-center gap-2 bg-accent hover:bg-accent/90 text-black px-6 py-3 rounded-md font-bold transition-colors">
                         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
                         Cek Ongkir ke Lokasi Saya

@@ -7,6 +7,7 @@ use App\Models\Article;
 use App\Models\ArticleCategory;
 use App\Models\Product;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class RestoredSitemapArticlesSeeder extends Seeder
@@ -24,22 +25,24 @@ class RestoredSitemapArticlesSeeder extends Seeder
             foreach ($chunks as $chunk) {
                 $upsertData = array_map(function ($item) {
                     unset($item['id']);
+
                     return $item;
                 }, $chunk);
 
-                \Illuminate\Support\Facades\DB::table('articles')->upsert(
+                DB::table('articles')->upsert(
                     $upsertData,
                     ['slug'],
                     [
                         'article_category_id', 'title', 'thumbnail', 'thumbnail_alt',
                         'excerpt', 'content', 'tags', 'author_name', 'views_count',
                         'reading_time', 'is_published', 'is_featured', 'published_at',
-                        'meta_title', 'meta_description', 'meta_keywords', 'updated_at'
+                        'meta_title', 'meta_description', 'meta_keywords', 'updated_at',
                     ]
                 );
             }
 
             $this->command->info("✅ Berhasil menyinkronkan {$total} artikel dengan foto produk asli & card rapi!");
+
             return;
         }
 

@@ -25,12 +25,14 @@ class FullSeoPageSyncSeeder extends Seeder
 
         if (! $json) {
             $this->command->error('File database/data/seo_pages.json.gz tidak ditemukan.');
+
             return;
         }
 
         $records = json_decode($json, true);
         if (! is_array($records)) {
             $this->command->error('Gagal membaca data JSON seo_pages.');
+
             return;
         }
 
@@ -46,6 +48,7 @@ class FullSeoPageSyncSeeder extends Seeder
             // Hilangkan kolom 'id' agar auto-increment atau gunakan upsert berdasarkan slug
             $upsertData = array_map(function ($item) {
                 unset($item['id']);
+
                 return $item;
             }, $chunk);
 
@@ -60,7 +63,7 @@ class FullSeoPageSyncSeeder extends Seeder
                     'unique_evidence', 'unique_angle', 'cta_type', 'cta_text', 'cta_wa_message',
                     'product_matching_rule', 'product_ids', 'parent_page_id', 'related_page_ids',
                     'structured_data_type', 'priority_score', 'quality_score', 'quality_details',
-                    'status', 'published_at', 'last_reviewed_at', 'updated_at'
+                    'status', 'published_at', 'last_reviewed_at', 'updated_at',
                 ]
             );
 

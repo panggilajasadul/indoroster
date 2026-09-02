@@ -20,7 +20,7 @@ class ExportPagesSeeder extends Seeder
         }
 
         if (! File::exists($jsonPath)) {
-            $this->command->error("File export_defaults.json tidak ditemukan.");
+            $this->command->error('File export_defaults.json tidak ditemukan.');
 
             return;
         }

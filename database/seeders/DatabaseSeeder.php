@@ -32,4 +32,3 @@ class DatabaseSeeder extends Seeder
         $this->command->info('✅ Seluruh database (Ekspor, Artikel, Lokasi, dan 4.777 Halaman SEO) berhasil disinkronkan 100%!');
     }
 }
-

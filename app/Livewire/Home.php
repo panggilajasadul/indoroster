@@ -7,6 +7,7 @@ use App\Models\Category;
 use App\Models\Faq;
 use App\Models\Page;
 use App\Models\Product;
+use App\Models\SeoLocation;
 use App\Models\Testimonial;
 use Livewire\Component;
 
@@ -19,6 +20,10 @@ class Home extends Component
         $metaTitle = $page?->meta_title ?: 'Produsen & Supplier Roster Beton No. 1 di Indonesia — IndoRoster';
         $metaDescription = $page?->meta_description ?: 'Pabrik & produsen roster beton minimalis terbesar di Indonesia. Supplier loster cetak padat presisi harga pabrik Plered Purwakarta, siap kirim partai kecil & proyek ke seluruh Indonesia.';
 
+        $topLocations = class_exists(SeoLocation::class)
+            ? SeoLocation::where('seo_enabled', true)->orderBy('priority', 'asc')->take(16)->get()
+            : collect();
+
         return view('livewire.home', [
             'page' => $page,
             'banners' => Banner::where('is_active', true)->orderBy('sort_order')->get(),
@@ -27,6 +32,7 @@ class Home extends Component
             'viralProducts' => Product::viral()->take(6)->get(),
             'testimonials' => Testimonial::where('is_active', true)->orderBy('sort_order')->take(6)->get(),
             'faqs' => Faq::where('is_active', true)->orderBy('sort_order')->get(),
+            'topLocations' => $topLocations,
         ])->layout('components.layouts.app', [
             'title' => $metaTitle,
             'description' => $metaDescription,

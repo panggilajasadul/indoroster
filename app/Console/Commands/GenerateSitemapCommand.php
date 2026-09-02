@@ -51,7 +51,8 @@ class GenerateSitemapCommand extends Command
 
             return Command::SUCCESS;
         } catch (\Throwable $e) {
-            $this->error('❌ Gagal meng-generate sitemap: ' . $e->getMessage());
+            $this->error('❌ Gagal meng-generate sitemap: '.$e->getMessage());
+
             return Command::FAILURE;
         }
     }
@@ -65,7 +66,7 @@ class GenerateSitemapCommand extends Command
             $filename = basename($file);
             $content = File::get($file);
             $count = substr_count($content, '<loc>');
-            $rows[] = [$filename, number_format($count) . ' URL', 'Aktif & Siap Diindeks'];
+            $rows[] = [$filename, number_format($count).' URL', 'Aktif & Siap Diindeks'];
         }
 
         return $rows;
