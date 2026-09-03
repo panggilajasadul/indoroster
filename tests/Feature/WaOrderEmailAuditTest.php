@@ -85,7 +85,7 @@ class WaOrderEmailAuditTest extends TestCase
         $mail1 = new OrderStatusMail($order, 'created');
         $rendered1 = $mail1->render();
         $this->assertStringContainsString('PENAWARAN', $rendered1);
-        $this->assertStringContainsString('0075-01-001962-30-8', $rendered1);
+        $this->assertStringContainsString('4356-01-009396-50-2', $rendered1);
         Mail::to($order->shipping_email)->send($mail1);
 
         // 2. Test Stage 2: Payment Received (DP)

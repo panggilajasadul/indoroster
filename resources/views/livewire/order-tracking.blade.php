@@ -740,105 +740,126 @@
                 truckMarker: null,
                 animFrame: null,
                 initMap() {
-                    setTimeout(() => {
+                    const tryInit = (attempts = 0) => {
                         const mapEl = document.getElementById('tracking-live-map');
-                        if (!mapEl || typeof L === 'undefined') return;
+                        if (!mapEl) return;
+
+                        if (typeof L === 'undefined') {
+                            if (attempts < 25) {
+                                setTimeout(() => tryInit(attempts + 1), 100);
+                            }
+                            return;
+                        }
 
                         if (this.map) {
-                            this.map.remove();
+                            try {
+                                this.map.remove();
+                            } catch (e) {}
                             this.map = null;
                         }
 
-                        this.map = L.map('tracking-live-map', {
-                            zoomControl: true,
-                            attributionControl: false
-                        });
-
-                        const streetLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-                            maxZoom: 19,
-                            subdomains: 'abcd'
-                        });
-
-                        const satTiles = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-                            maxZoom: 19
-                        });
-                        const satLabels = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', {
-                            maxZoom: 19
-                        });
-                        const satelliteLayer = L.layerGroup([satTiles, satLabels]);
-
-                        // Default Peta Jalan untuk Lacak Rute Antar Kota
-                        streetLayer.addTo(this.map);
-
-                        L.control.layers({
-                            "🗺️ Peta Jalan": streetLayer,
-                            "🛰️ Satelit (Atap Rumah)": satelliteLayer
-                        }, null, { position: 'topright' }).addTo(this.map);
-
-                        const origin = [this.originLat, this.originLng];
-                        const dest = [this.destLat, this.destLng];
-
-                        const makeIcon = (emoji, bg, border, size) => {
-                            const html = '<div style="width:' + size + 'px;height:' + size + 'px;background:' + bg + ';border:2px solid ' + border + ';color:#fff;border-radius:9999px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 6px rgba(0,0,0,0.3);font-size:' + (size > 36 ? 18 : 16) + 'px;">' + emoji + '<' + '/div>';
-                            return L.divIcon({
-                                className: 'custom-map-icon',
-                                html: html,
-                                iconSize: [size, size],
-                                iconAnchor: [size / 2, size / 2]
+                        try {
+                            this.map = L.map('tracking-live-map', {
+                                zoomControl: true,
+                                attributionControl: false
                             });
-                        };
 
-                        const factoryIcon = makeIcon('🏭', '#0f172a', '#fbbf24', 36);
-                        const destIcon = makeIcon('📍', '#ea580c', '#ffffff', 36);
-                        const truckIcon = makeIcon('🚚', '#f59e0b', '#ffffff', 40);
+                            const streetLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                                maxZoom: 19,
+                                attribution: '&copy; OpenStreetMap'
+                            });
 
-                        L.marker(origin, { icon: factoryIcon }).addTo(this.map)
-                            .bindPopup('Pabrik Indoroster (Purwakarta, Jawa Barat)');
+                            const satTiles = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                                maxZoom: 19
+                            });
+                            const satLabels = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', {
+                                maxZoom: 19
+                            });
+                            const satelliteLayer = L.layerGroup([satTiles, satLabels]);
 
-                        L.marker(dest, { icon: destIcon }).addTo(this.map)
-                            .bindPopup('Tujuan: ' + this.destCity);
+                            // Default Peta Jalan untuk Lacak Rute Antar Kota
+                            streetLayer.addTo(this.map);
 
-                        const polyline = L.polyline([origin, dest], {
-                            color: '#f97316',
-                            weight: 4,
-                            opacity: 0.85,
-                            dashArray: '8, 8'
-                        }).addTo(this.map);
+                            L.control.layers({
+                                "🗺️ Peta Jalan": streetLayer,
+                                "🛰️ Satelit (Atap Rumah)": satelliteLayer
+                            }, null, { position: 'topright' }).addTo(this.map);
 
-                        this.map.fitBounds(polyline.getBounds(), { padding: [40, 40] });
+                            const origin = [parseFloat(this.originLat) || -6.6689917, parseFloat(this.originLng) || 107.3619295];
+                            const dest = [parseFloat(this.destLat) || -6.2088, parseFloat(this.destLng) || 106.8456];
 
-                        let progress = 0;
-                        if (this.status === 'delivered' || this.status === 'completed') {
-                            progress = 1.0;
-                        } else if (this.status === 'shipped') {
-                            progress = 0.5;
-                        } else {
-                            progress = 0.05;
-                        }
-
-                        const currentLat = origin[0] + (dest[0] - origin[0]) * progress;
-                        const currentLng = origin[1] + (dest[1] - origin[1]) * progress;
-
-                        this.truckMarker = L.marker([currentLat, currentLng], { icon: truckIcon }).addTo(this.map);
-                        this.truckMarker.bindPopup('Armada Pabrik: ' + (this.status === 'shipped' ? 'Sedang Dalam Perjalanan' : (this.status === 'delivered' || this.status === 'completed' ? 'Tiba di Lokasi' : 'Dipersiapkan di Pabrik')));
-
-                        if (this.status === 'shipped') {
-                            let step = 0;
-                            const animate = () => {
-                                step = (step + 0.003) % 1;
-                                const lat = origin[0] + (dest[0] - origin[0]) * step;
-                                const lng = origin[1] + (dest[1] - origin[1]) * step;
-                                if (this.truckMarker) {
-                                    this.truckMarker.setLatLng([lat, lng]);
-                                }
-                                this.animFrame = requestAnimationFrame(animate);
+                            const makeIcon = (emoji, bg, border, size) => {
+                                const html = '<div style="width:' + size + 'px;height:' + size + 'px;background:' + bg + ';border:2px solid ' + border + ';color:#fff;border-radius:9999px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 6px rgba(0,0,0,0.3);font-size:' + (size > 36 ? 18 : 16) + 'px;">' + emoji + '<' + '/div>';
+                                return L.divIcon({
+                                    className: 'custom-map-icon',
+                                    html: html,
+                                    iconSize: [size, size],
+                                    iconAnchor: [size / 2, size / 2]
+                                });
                             };
-                            this.animFrame = requestAnimationFrame(animate);
-                        }
 
-                        this.map.invalidateSize();
-                        setTimeout(() => { if (this.map) this.map.invalidateSize(); }, 300);
-                    }, 150);
+                            const factoryIcon = makeIcon('🏭', '#0f172a', '#fbbf24', 36);
+                            const destIcon = makeIcon('📍', '#ea580c', '#ffffff', 36);
+                            const truckIcon = makeIcon('🚚', '#f59e0b', '#ffffff', 40);
+
+                            L.marker(origin, { icon: factoryIcon }).addTo(this.map)
+                                .bindPopup('<strong>Pabrik Indoroster</strong><br>Purwakarta, Jawa Barat');
+
+                            L.marker(dest, { icon: destIcon }).addTo(this.map)
+                                .bindPopup('<strong>Tujuan Pengiriman</strong><br>' + this.destCity);
+
+                            const isSameLocation = Math.abs(origin[0] - dest[0]) < 0.005 && Math.abs(origin[1] - dest[1]) < 0.005;
+
+                            if (!isSameLocation) {
+                                const polyline = L.polyline([origin, dest], {
+                                    color: '#f97316',
+                                    weight: 4,
+                                    opacity: 0.85,
+                                    dashArray: '8, 8'
+                                }).addTo(this.map);
+
+                                this.map.fitBounds(polyline.getBounds(), { padding: [40, 40], maxZoom: 14 });
+                            } else {
+                                this.map.setView(origin, 13);
+                            }
+
+                            let progress = 0;
+                            if (this.status === 'delivered' || this.status === 'completed') {
+                                progress = 1.0;
+                            } else if (this.status === 'shipped') {
+                                progress = 0.5;
+                            } else {
+                                progress = 0.08;
+                            }
+
+                            const currentLat = origin[0] + (dest[0] - origin[0]) * progress;
+                            const currentLng = origin[1] + (dest[1] - origin[1]) * progress;
+
+                            this.truckMarker = L.marker([currentLat, currentLng], { icon: truckIcon }).addTo(this.map);
+                            this.truckMarker.bindPopup('<strong>Posisi Armada Pabrik:</strong><br>' + (this.status === 'shipped' ? 'Sedang Dalam Perjalanan' : (this.status === 'delivered' || this.status === 'completed' ? 'Tiba di Lokasi Proyek' : 'Dipersiapkan di Gudang Pabrik')));
+
+                            if (this.status === 'shipped' && !isSameLocation) {
+                                let step = 0;
+                                const animate = () => {
+                                    step = (step + 0.003) % 1;
+                                    const lat = origin[0] + (dest[0] - origin[0]) * step;
+                                    const lng = origin[1] + (dest[1] - origin[1]) * step;
+                                    if (this.truckMarker) {
+                                        this.truckMarker.setLatLng([lat, lng]);
+                                    }
+                                    this.animFrame = requestAnimationFrame(animate);
+                                };
+                                this.animFrame = requestAnimationFrame(animate);
+                            }
+
+                            this.map.invalidateSize();
+                            setTimeout(() => { if (this.map) this.map.invalidateSize(); }, 300);
+                        } catch (err) {
+                            console.error('Leaflet map error:', err);
+                        }
+                    };
+
+                    setTimeout(() => tryInit(0), 100);
                 }
             };
         }
@@ -852,20 +873,26 @@
                     window.location.href = '/checkout/success?order_id=' + order_id;
                 };
 
-                snap.pay(token, {
-                    onSuccess: function(result) {
-                        redirectToVerification();
-                    },
-                    onPending: function(result) {
-                        redirectToVerification();
-                    },
-                    onError: function(result) {
-                        alert('Pembayaran gagal! Silakan coba lagi.');
-                    },
-                    onClose: function() {
-                        redirectToVerification();
-                    }
-                });
+                if (typeof snap !== 'undefined') {
+                    snap.pay(token, {
+                        onSuccess: function(result) {
+                            redirectToVerification();
+                        },
+                        onPending: function(result) {
+                            redirectToVerification();
+                        },
+                        onError: function(result) {
+                            alert('Pembayaran gagal! Silakan coba lagi.');
+                        },
+                        onClose: function() {
+                            redirectToVerification();
+                        }
+                    });
+                } else {
+                    alert('Sistem pembayaran sedang memuat, silakan coba beberapa saat lagi.');
+                }
+            });
+
             @if(isset($order) && $order && ($order->order_source === 'whatsapp') && (request()->query('open_wa') == 1 || session('new_wa_order')))
                 // Auto trigger WhatsApp jika baru selesai checkout
                 setTimeout(() => {
