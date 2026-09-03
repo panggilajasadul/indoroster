@@ -78,7 +78,7 @@ class WaOrderResource extends Resource
 
                         Forms\Components\Select::make('user_id')
                             ->label('Hubungkan ke Akun Pelanggan Terdaftar (Opsional)')
-                            ->options(fn () => User::where('role', 'customer')->orderBy('name')->pluck('name', 'id'))
+                            ->options(fn () => User::orderBy('name')->get()->mapWithKeys(fn ($u) => [$u->id => "{$u->name} (".($u->phone ?: $u->email).($u->role === 'admin' ? ' - Admin' : '').')']))
                             ->searchable()
                             ->live()
                             ->afterStateUpdated(function ($state, Set $set) {
@@ -145,21 +145,26 @@ class WaOrderResource extends Resource
 
                         Forms\Components\Select::make('shipping_city')
                             ->label('Kota / Kabupaten')
-                            ->options(function (Get $get) {
-                                $provName = $get('shipping_province');
+                            ->options(function (Get $get, ?Order $record) {
+                                $provName = $get('shipping_province') ?: $record?->shipping_province;
                                 if (! $provName) {
-                                    return [];
+                                    return $record?->shipping_city ? [$record->shipping_city => $record->shipping_city] : [];
                                 }
-                                $prov = Province::where('name', $provName)->first();
+                                $prov = Province::where('name', $provName)->first() ?: Province::whereRaw('LOWER(name) = ?', [strtolower($provName)])->first();
                                 if (! $prov) {
-                                    return [];
+                                    return $record?->shipping_city ? [$record->shipping_city => $record->shipping_city] : [];
                                 }
 
-                                return City::where('province_code', $prov->code)->orderBy('name')->pluck('name', 'name');
+                                $options = City::where('province_code', $prov->code)->orderBy('name')->pluck('name', 'name')->toArray();
+                                if ($record?->shipping_city && ! isset($options[$record->shipping_city])) {
+                                    $options[$record->shipping_city] = $record->shipping_city;
+                                }
+
+                                return $options;
                             })
                             ->searchable()
                             ->live()
-                            ->disabled(fn (Get $get) => empty($get('shipping_province')))
+                            ->disabled(fn (Get $get, ?Order $record) => empty($get('shipping_province')) && empty($record?->shipping_province))
                             ->afterStateUpdated(function (Set $set) {
                                 $set('shipping_district', null);
                                 $set('shipping_village', null);
@@ -169,27 +174,32 @@ class WaOrderResource extends Resource
 
                         Forms\Components\Select::make('shipping_district')
                             ->label('Kecamatan')
-                            ->options(function (Get $get) {
-                                $cityName = $get('shipping_city');
+                            ->options(function (Get $get, ?Order $record) {
+                                $cityName = $get('shipping_city') ?: $record?->shipping_city;
                                 if (! $cityName) {
-                                    return [];
+                                    return $record?->shipping_district ? [$record->shipping_district => $record->shipping_district] : [];
                                 }
-                                $city = City::where('name', $cityName)->first();
+                                $city = City::where('name', $cityName)->first() ?: City::whereRaw('LOWER(name) = ?', [strtolower($cityName)])->first();
                                 if (! $city) {
-                                    return [];
+                                    return $record?->shipping_district ? [$record->shipping_district => $record->shipping_district] : [];
                                 }
 
-                                return District::where('city_code', $city->code)->orderBy('name')->pluck('name', 'name');
+                                $options = District::where('city_code', $city->code)->orderBy('name')->pluck('name', 'name')->toArray();
+                                if ($record?->shipping_district && ! isset($options[$record->shipping_district])) {
+                                    $options[$record->shipping_district] = $record->shipping_district;
+                                }
+
+                                return $options;
                             })
                             ->searchable()
                             ->live()
-                            ->disabled(fn (Get $get) => empty($get('shipping_city')))
+                            ->disabled(fn (Get $get, ?Order $record) => empty($get('shipping_city')) && empty($record?->shipping_city))
                             ->afterStateUpdated(function ($state, Set $set, Get $get) {
                                 $set('shipping_village', null);
                                 if ($state) {
                                     $cityName = $get('shipping_city');
-                                    $city = $cityName ? City::where('name', $cityName)->first() : null;
-                                    $distQuery = District::where('name', $state);
+                                    $city = $cityName ? (City::where('name', $cityName)->first() ?: City::whereRaw('LOWER(name) = ?', [strtolower($cityName)])->first()) : null;
+                                    $distQuery = District::where('name', $state)->orWhereRaw('LOWER(name) = ?', [strtolower($state)]);
                                     if ($city) {
                                         $distQuery->where('city_code', $city->code);
                                     }
@@ -209,37 +219,42 @@ class WaOrderResource extends Resource
 
                         Forms\Components\Select::make('shipping_village')
                             ->label('Kelurahan / Desa')
-                            ->options(function (Get $get) {
-                                $cityName = $get('shipping_city');
-                                $distName = $get('shipping_district');
+                            ->options(function (Get $get, ?Order $record) {
+                                $cityName = $get('shipping_city') ?: $record?->shipping_city;
+                                $distName = $get('shipping_district') ?: $record?->shipping_district;
                                 if (! $distName) {
-                                    return [];
+                                    return $record?->shipping_village ? [$record->shipping_village => $record->shipping_village] : [];
                                 }
-                                $distQuery = District::where('name', $distName);
+                                $distQuery = District::where('name', $distName)->orWhereRaw('LOWER(name) = ?', [strtolower($distName)]);
                                 if ($cityName) {
-                                    $city = City::where('name', $cityName)->first();
+                                    $city = City::where('name', $cityName)->first() ?: City::whereRaw('LOWER(name) = ?', [strtolower($cityName)])->first();
                                     if ($city) {
                                         $distQuery->where('city_code', $city->code);
                                     }
                                 }
                                 $dist = $distQuery->first();
                                 if (! $dist) {
-                                    return [];
+                                    return $record?->shipping_village ? [$record->shipping_village => $record->shipping_village] : [];
                                 }
 
-                                return Village::where('district_code', $dist->code)->orderBy('name')->pluck('name', 'name');
+                                $options = Village::where('district_code', $dist->code)->orderBy('name')->pluck('name', 'name')->toArray();
+                                if ($record?->shipping_village && ! isset($options[$record->shipping_village])) {
+                                    $options[$record->shipping_village] = $record->shipping_village;
+                                }
+
+                                return $options;
                             })
                             ->searchable()
                             ->live()
-                            ->disabled(fn (Get $get) => empty($get('shipping_district')))
+                            ->disabled(fn (Get $get, ?Order $record) => empty($get('shipping_district')) && empty($record?->shipping_district))
                             ->afterStateUpdated(function ($state, Set $set, Get $get) {
                                 if ($state) {
                                     $cityName = $get('shipping_city');
                                     $distName = $get('shipping_district');
-                                    $city = $cityName ? City::where('name', $cityName)->first() : null;
+                                    $city = $cityName ? (City::where('name', $cityName)->first() ?: City::whereRaw('LOWER(name) = ?', [strtolower($cityName)])->first()) : null;
                                     $dist = null;
                                     if ($distName) {
-                                        $distQuery = District::where('name', $distName);
+                                        $distQuery = District::where('name', $distName)->orWhereRaw('LOWER(name) = ?', [strtolower($distName)]);
                                         if ($city) {
                                             $distQuery->where('city_code', $city->code);
                                         }
@@ -293,19 +308,26 @@ class WaOrderResource extends Resource
                                         0 => '📦 Pilih dari Katalog Database IndoRoster',
                                         1 => '✏️ Ketik Manual / Motif Custom Khusus',
                                     ])
-                                    ->default(1)
+                                    ->formatStateUsing(function ($state, $record) {
+                                        if ($record) {
+                                            return empty($record->product_id) ? 1 : 0;
+                                        }
+
+                                        return $state !== null ? (int) $state : 0;
+                                    })
+                                    ->default(0)
                                     ->live()
                                     ->inline(),
 
                                 // PILIHAN DARI DATABASE (Tampil HANYA saat is_custom_item == 0)
                                 Forms\Components\Select::make('product_id')
                                     ->label('Pilih Produk dari Katalog')
-                                    ->options(fn () => Product::where('is_active', true)->orderBy('name')->pluck('name', 'id'))
+                                    ->options(fn () => Product::orderBy('name')->pluck('name', 'id'))
                                     ->searchable()
                                     ->live()
                                     ->columnSpan(2)
-                                    ->visible(fn (Get $get) => (int) $get('is_custom_item') === 0)
-                                    ->required(fn (Get $get) => (int) $get('is_custom_item') === 0)
+                                    ->visible(fn (Get $get, $record) => (int) ($get('is_custom_item') ?? ($record && empty($record->product_id) ? 1 : 0)) === 0)
+                                    ->required(fn (Get $get, $record) => (int) ($get('is_custom_item') ?? ($record && empty($record->product_id) ? 1 : 0)) === 0)
                                     ->afterStateUpdated(function ($state, Set $set, Get $get) {
                                         if ($state) {
                                             $prod = Product::find($state);
@@ -326,8 +348,8 @@ class WaOrderResource extends Resource
 
                                 Forms\Components\Select::make('product_variant_id')
                                     ->label('Pilih Varian Motif')
-                                    ->options(function (Get $get) {
-                                        $prodId = $get('product_id');
+                                    ->options(function (Get $get, $record) {
+                                        $prodId = $get('product_id') ?: ($record?->product_id);
                                         if (! $prodId) {
                                             return [];
                                         }
@@ -337,7 +359,7 @@ class WaOrderResource extends Resource
                                     ->searchable()
                                     ->live()
                                     ->columnSpan(1)
-                                    ->visible(fn (Get $get) => (int) $get('is_custom_item') === 0)
+                                    ->visible(fn (Get $get, $record) => (int) ($get('is_custom_item') ?? ($record && empty($record->product_id) ? 1 : 0)) === 0)
                                     ->afterStateUpdated(function ($state, Set $set, Get $get) {
                                         if ($state) {
                                             $var = ProductVariant::find($state);
@@ -358,14 +380,14 @@ class WaOrderResource extends Resource
                                 Forms\Components\TextInput::make('product_name')
                                     ->label('Nama Produk / Roster')
                                     ->placeholder('Contoh: Roster Custom Motif Kawung 20x20 Abu')
-                                    ->visible(fn (Get $get) => (int) $get('is_custom_item') === 1)
-                                    ->required(fn (Get $get) => (int) $get('is_custom_item') === 1)
+                                    ->visible(fn (Get $get, $record) => (int) ($get('is_custom_item') ?? ($record && empty($record->product_id) ? 1 : 0)) === 1)
+                                    ->required(fn (Get $get, $record) => (int) ($get('is_custom_item') ?? ($record && empty($record->product_id) ? 1 : 0)) === 1)
                                     ->columnSpan(2),
 
                                 Forms\Components\TextInput::make('custom_variant_name')
                                     ->label('Varian / Warna / Spek Custom')
                                     ->placeholder('Contoh: Abu Natural / Putih Teraso / Merah Terakota')
-                                    ->visible(fn (Get $get) => (int) $get('is_custom_item') === 1)
+                                    ->visible(fn (Get $get, $record) => (int) ($get('is_custom_item') ?? ($record && empty($record->product_id) ? 1 : 0)) === 1)
                                     ->columnSpan(1),
 
                                 Forms\Components\TextInput::make('product_price')
