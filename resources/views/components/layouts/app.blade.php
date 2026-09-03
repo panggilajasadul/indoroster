@@ -126,11 +126,10 @@
         [x-cloak] { display: none !important; }
     </style>
 
-    <!-- Favicon & Brand Icons (Bing, Google, Apple & Modern Browsers) -->
+    <!-- Favicon & Brand Icons (Google, Bing, Yandex, Apple & Modern Browsers) -->
+    <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="any">
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
     <link rel="shortcut icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
-    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('assets/logo_indoroster_no_text.PNG') }}">
-    <link rel="icon" type="image/png" sizes="192x192" href="{{ asset('assets/logo_indoroster_no_text.PNG') }}">
     <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('assets/logo_indoroster_no_text.PNG') }}">
 
     <!-- DNS Prefetch & Preconnect -->
