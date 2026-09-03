@@ -170,7 +170,19 @@ class Order extends Model
             return $paymentsSum;
         }
 
-        return (float) ($this->down_payment_amount ?: ($this->payment_status === 'paid' ? $this->grand_total : 0));
+        if ($this->payment_status === 'paid') {
+            return (float) $this->grand_total;
+        }
+
+        if ($this->payment_status === 'unpaid') {
+            if ($this->payment_scheme === 'full' || $this->payment_scheme === 'quotation') {
+                return 0.0;
+            }
+
+            return (float) ($this->down_payment_amount ?? 0);
+        }
+
+        return (float) ($this->down_payment_amount ?? 0);
     }
 
     /**
@@ -178,10 +190,6 @@ class Order extends Model
      */
     public function getTotalOrderedQuantityAttribute(): int
     {
-        if ($this->relationLoaded('items')) {
-            return (int) $this->items->sum('quantity');
-        }
-
         return (int) $this->items()->sum('quantity');
     }
 

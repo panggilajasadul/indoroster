@@ -78,8 +78,16 @@ class WaOrderResource extends Resource
 
                         Forms\Components\Select::make('user_id')
                             ->label('Hubungkan ke Akun Pelanggan Terdaftar (Opsional)')
-                            ->options(fn () => User::orderBy('name')->get()->mapWithKeys(fn ($u) => [$u->id => "{$u->name} (".($u->phone ?: $u->email).($u->role === 'admin' ? ' - Admin' : '').')']))
                             ->searchable()
+                            ->getSearchResultsUsing(fn (string $search): array => User::where('name', 'like', "%{$search}%")
+                                ->orWhere('phone', 'like', "%{$search}%")
+                                ->orWhere('email', 'like', "%{$search}%")
+                                ->limit(25)
+                                ->get()
+                                ->mapWithKeys(fn ($u) => [$u->id => "{$u->name} (".($u->phone ?: $u->email).($u->role === 'admin' ? ' - Admin' : '').')'])
+                                ->toArray()
+                            )
+                            ->getOptionLabelUsing(fn ($value): ?string => ($u = User::find($value)) ? "{$u->name} (".($u->phone ?: $u->email).($u->role === 'admin' ? ' - Admin' : '').')' : null)
                             ->live()
                             ->afterStateUpdated(function ($state, Set $set) {
                                 if ($state) {

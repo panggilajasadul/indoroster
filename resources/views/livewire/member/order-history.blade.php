@@ -203,10 +203,10 @@
 
                         <!-- Skema & Rincian Pembayaran Proyek -->
                         @php
-                            $totalPaid = $order->total_paid_amount;
                             $grandTotal = (float) $order->grand_total;
-                            $remaining = max(0, $grandTotal - $totalPaid);
-                            $payPct = $grandTotal > 0 ? min(100, round(($totalPaid / $grandTotal) * 100)) : 0;
+                            $totalPaid = (float) $order->total_paid_amount;
+                            $remaining = $order->payment_status === 'paid' ? 0.0 : max(0, $grandTotal - $totalPaid);
+                            $payPct = ($order->payment_status === 'paid') ? 100 : ($grandTotal > 0 ? min(100, round(($totalPaid / $grandTotal) * 100)) : 0);
                         @endphp
                         <div class="mx-6 mb-4 p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-700/60">
                             <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
@@ -223,14 +223,14 @@
                                     </span>
                                 </div>
                                 <div class="text-xs font-bold">
-                                    @if($remaining <= 0 || $order->payment_status === 'paid')
+                                    @if($order->payment_status === 'paid')
                                         <span class="text-emerald-600 dark:text-emerald-400 font-black">✅ LUNAS 100%</span>
-                                    @elseif($totalPaid > 0)
+                                    @elseif($totalPaid > 0 && $order->payment_status !== 'unpaid')
                                         <span class="text-amber-600 dark:text-amber-400 font-bold">Terbayar {{ $payPct }}% (Sisa Rp {{ number_format($remaining, 0, ',', '.') }})</span>
                                     @elseif($order->status === 'draft' || $order->payment_scheme === 'quotation')
                                         <span class="text-slate-500 dark:text-slate-400">Tahap Penawaran</span>
                                     @else
-                                        <span class="text-rose-600 dark:text-rose-400 font-bold">Menunggu Pembayaran (Rp {{ number_format($order->down_payment_amount ?: $grandTotal, 0, ',', '.') }})</span>
+                                        <span class="text-rose-600 dark:text-rose-400 font-bold">Menunggu Pembayaran (Rp {{ number_format($remaining ?: $grandTotal, 0, ',', '.') }})</span>
                                     @endif
                                 </div>
                             </div>
