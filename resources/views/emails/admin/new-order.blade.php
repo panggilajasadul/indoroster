@@ -6,41 +6,62 @@
     <div style="display: table-cell; vertical-align: middle; width: 50%; text-align: right;">
         <div style="margin-bottom: 8px; font-size: 16px; font-weight: bold; color: #1f2937;">Notifikasi Admin</div>
         <div style="text-align: right;">
-            <div style="display: inline-block; background-color: #dbeafe; color: #1e40af; padding: 6px 14px; border-radius: 9999px; font-weight: bold; font-size: 14px;">
-                <span style="margin-right: 4px;">🔔</span> ORDER BARU
+            <div style="display: inline-block; background-color: #dcfce7; color: #15803d; padding: 6px 14px; border-radius: 9999px; font-weight: bold; font-size: 14px;">
+                <span style="margin-right: 4px;">🟢</span> ORDER WA BARU
             </div>
         </div>
     </div>
 </div>
-# 🔔 Pesanan Baru Menunggu!
 
-Halo **Admin Keuangan**,  
-Ada pesanan baru masuk ke dalam sistem. Menunggu pembeli melakukan pembayaran via Midtrans.
+# 🟢 Pesanan WhatsApp Baru Masuk!
+
+Halo **Admin IndoRoster**,
+Ada pesanan baru dari website melalui jalur **WhatsApp Order**. Pembeli telah mengirimkan detail pesanan via WA dan pesanan sudah tercatat di sistem.
 
 <x-mail::panel>
 ### 👤 Info Pembeli
 - **Nama:** {{ $order->shipping_name }}
-- **Email:** {{ $order->shipping_email ?? '-' }}
-- **No. HP:** {{ $order->shipping_phone }}
+- **No. WhatsApp:** {{ $order->shipping_phone }}
+- **Email:** {{ $order->shipping_email ?? '(tidak ada email)' }}
 - **Waktu Order:** {{ $order->created_at->translatedFormat('d F Y, H:i') }} WIB
 </x-mail::panel>
 
-### 💰 Nominal Tagihan
-<div style="background-color: #fef08a; padding: 15px; border-radius: 8px; font-size: 24px; font-weight: bold; color: #854d0e; text-align: center; margin-bottom: 20px; border: 1px solid #eab308;">
-Rp {{ number_format($order->grand_total, 0, ',', '.') }}
-</div>
-
-### 🛒 Rincian Pesanan
+<x-mail::panel>
+### 📦 Rincian Pesanan
+- **No. Pesanan:** `{{ $order->order_number }}`
+- **Skema Bayar:** {{ match($order->payment_scheme ?? 'full') { 'dp_50_50' => 'DP 50% + Pelunasan 50%', 'termin_3x' => 'Termin 3x (30%+40%+30%)', 'custom_dp' => 'Kustom DP', default => 'Lunas Langsung (100%)' } }}
 @foreach($order->items as $item)
-- {{ $item->quantity }}x {{ $item->product_name }} {{ $item->product_variant_name ? '('.$item->product_variant_name.')' : '' }}
+- {{ $item->quantity }}x **{{ $item->product_name }}** {{ $item->product_variant_name ? '('.$item->product_variant_name.')' : '' }}
 @endforeach
 - *Ongkos Kirim: Rp {{ number_format($order->shipping_cost, 0, ',', '.') }}*
 @if($order->discount_amount > 0)
 - *Diskon: -Rp {{ number_format($order->discount_amount, 0, ',', '.') }}*
 @endif
+</x-mail::panel>
 
-<x-mail::button :url="config('app.url') . '/admin/orders/' . $order->id">
-Buka Dashboard Admin Sekarang
+### 💰 Total Tagihan
+<div style="background-color: #fef08a; padding: 15px; border-radius: 8px; font-size: 24px; font-weight: bold; color: #854d0e; text-align: center; margin-bottom: 20px; border: 1px solid #eab308;">
+Rp {{ number_format($order->grand_total, 0, ',', '.') }}
+</div>
+
+<x-mail::panel>
+### 📍 Alamat Pengiriman / Titik Proyek
+**{{ $order->shipping_name }}**
+{{ $order->shipping_address }}
+@if($order->shipping_village) Kel. {{ $order->shipping_village }},@endif
+@if($order->shipping_district) Kec. {{ $order->shipping_district }},@endif
+{{ $order->shipping_city }}, {{ $order->shipping_province }} {{ $order->shipping_postal_code }}
+@if($order->shipping_latitude && $order->shipping_longitude)
+📌 **GPS:** [{{ $order->shipping_latitude }}, {{ $order->shipping_longitude }}](https://maps.google.com/?q={{ $order->shipping_latitude }},{{ $order->shipping_longitude }})
+@endif
+@if($order->notes)
+
+💬 **Catatan Pesanan:** {{ $order->notes }}
+@endif
+</x-mail::panel>
+
+<x-mail::button :url="config('app.url') . '/admin/wa-orders/' . $order->id">
+🟢 Buka Detail Pesanan WA di Panel Admin
 </x-mail::button>
 
 ---

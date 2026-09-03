@@ -32,7 +32,7 @@ class AdminNewOrderMail extends Mailable
         $formattedTotal = 'Rp '.number_format((float) ($this->order->grand_total ?? 0), 0, ',', '.');
 
         return new Envelope(
-            subject: '🔔 ORDER BARU MASUK! '.$formattedTotal.' ('.$this->order->shipping_name.')',
+            subject: '🟢 [WA ORDER BARU] '.$formattedTotal.' — '.$this->order->shipping_name.' ('.$this->order->order_number.')',
         );
     }
 

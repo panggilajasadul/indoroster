@@ -1088,12 +1088,22 @@
             Livewire.on('open-wa-order', (payload) => {
                 const data = Array.isArray(payload) ? (payload[0] || {}) : (payload || {});
                 if (data && data.waUrl) {
-                    window.open(data.waUrl, '_blank');
+                    try {
+                        const waLink = document.createElement('a');
+                        waLink.href = data.waUrl;
+                        waLink.target = '_blank';
+                        waLink.rel = 'noopener noreferrer';
+                        document.body.appendChild(waLink);
+                        waLink.click();
+                        document.body.removeChild(waLink);
+                    } catch (e) {
+                        window.open(data.waUrl, '_blank');
+                    }
                 }
                 if (data && data.trackingUrl) {
                     setTimeout(() => {
                         window.location.href = data.trackingUrl;
-                    }, 120);
+                    }, 400);
                 }
             });
 

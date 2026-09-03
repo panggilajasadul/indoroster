@@ -71,8 +71,8 @@ Terima kasih atas pesanan Anda di Pabrik Roster Beton **IndoRoster Indonesia**. 
 Silakan lakukan pembayaran transfer ke rekening resmi IndoRoster berikut:
 
 - **Nama Bank:** **Bank Rakyat Indonesia (BRI)**
-- **Nomor Rekening:** `0075-01-001962-30-8`
-- **Atas Nama:** **PT INDOROSTER CIPTA KREASI**
+- **Nomor Rekening:** `4356-01-009396-50-2`
+- **Atas Nama:** **ABDUL HAMID**
 
 <div style="font-size: 12px; color: #6b7280; margin-top: 8px;">
 <em>Setelah melakukan transfer, mohon kirimkan bukti transfer melalui WhatsApp Admin kami atau balas email ini agar pesanan Anda dapat segera masuk antrean produksi / penyiapan armada.</em>

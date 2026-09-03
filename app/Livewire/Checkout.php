@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Mail\AdminNewOrderMail;
 use App\Mail\OrderStatusMail;
 use App\Models\Address;
 use App\Models\Cart as CartModel;
@@ -881,6 +882,14 @@ class Checkout extends Component
                 Log::error('WA Checkout created email error: '.$e->getMessage());
             }
 
+            // Kirim notifikasi ke admin bahwa ada WA order baru dari website
+            try {
+                $adminEmail = SiteSetting::getValue('admin_email', 'abdulhamid66266@gmail.com');
+                Mail::to($adminEmail)->send(new AdminNewOrderMail($order));
+            } catch (\Throwable $e) {
+                Log::error('WA Checkout admin notif email error: '.$e->getMessage());
+            }
+
             // Prepare WhatsApp Message
             $rawWa = SiteSetting::getValue('whatsapp_number', '0813-8970-9847');
             $waPhone = preg_replace('/[^0-9]/', '', (string) $rawWa);
@@ -902,33 +911,21 @@ class Checkout extends Component
             $trackingUrl = route('order.tracking', [
                 'order_number' => $order->order_number,
                 'contact' => $this->phone,
+                'open_wa' => 1,
             ]);
 
-            $waMessage = "Halo Admin IndoRoster, saya ingin memesan roster beton melalui website:\n\n"
-                ."📋 *DETAIL PESANAN*\n"
-                ."• No. Pesanan: #{$order->order_number}\n"
-                ."• Tanggal: {$dateNow} WIB\n\n"
-                ."📦 *DAFTAR PRODUK:*\n{$itemsString}\n\n"
-                ."💰 *Total Harga Barang:* {$subtotalFormatted}\n"
-                ."🚚 *Ongkir:* (Menunggu konfirmasi admin armada via WA)\n\n"
-                ."👤 *DATA PEMESAN:*\n"
-                ."• Nama: {$this->name}\n"
-                ."• No. WhatsApp: {$this->phone}\n"
-                ."• Alamat Lengkap: {$completeShippingAddress}"
-                .$mapsLink."\n"
-                .($this->notes ? "• Catatan: {$this->notes}\n" : '')
-                ."\n🔍 *Lacak Pesanan:* {$trackingUrl}\n"
-                ."\nMohon info ketersediaan stok, estimasi ongkos kirim armada pabrik, dan total pembayaran. Terima kasih!";
+            $waUrl = $order->getBuyerToAdminWaOrderLink();
 
-            $waUrl = 'https://wa.me/'.$waPhone.'?text='.rawurlencode($waMessage);
+            // Simpan session flash untuk halaman Lacak Pesanan
+            session()->flash('new_wa_order', true);
+            session()->flash('wa_order_url', $waUrl);
+            session()->flash('wa_order_number', $order->order_number);
 
-            // Buka WhatsApp di tab baru dan alihkan tab checkout ke Lacak Pesanan
+            // Buka WhatsApp di tab baru dan alihkan tab checkout ke Lacak Pesanan via event JS
             $this->dispatch('open-wa-order', [
                 'waUrl' => $waUrl,
                 'trackingUrl' => $trackingUrl,
             ]);
-
-            return $this->redirect($trackingUrl);
 
         } catch (\Exception $e) {
             DB::rollBack();

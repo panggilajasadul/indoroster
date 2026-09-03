@@ -644,7 +644,8 @@ class WaOrderResource extends Resource
                             }),
 
                         Forms\Components\TextInput::make('down_payment_amount')
-                            ->label('Nominal DP / Pembayaran Diterima (Rp)')
+                            ->label('Target Tagihan DP Awal (Rp)')
+                            ->helperText('Nominal kewajiban DP pada Surat Penawaran. (Pencatatan kas riil masuk dilakukan via tombol Catat Pembayaran Masuk).')
                             ->prefix('Rp')
                             ->numeric()
                             ->default(0)
@@ -822,22 +823,29 @@ class WaOrderResource extends Resource
                     ->label('Pembayaran')
                     ->badge()
                     ->formatStateUsing(function (string $state, Order $record) {
-                        if ($record->down_payment_amount > 0 && $record->remaining_balance > 0) {
-                            return '🟡 DP Masuk: Rp '.number_format($record->down_payment_amount, 0, ',', '.');
+                        $totalPaid = (float) $record->total_paid_amount;
+                        if ($state === 'paid' || ($record->remaining_balance <= 0 && $totalPaid >= (float) $record->grand_total && $totalPaid > 0)) {
+                            return '🟢 Lunas';
+                        }
+                        if ($totalPaid > 0) {
+                            return '🟡 DP Masuk: Rp '.number_format($totalPaid, 0, ',', '.');
+                        }
+                        if ($record->payment_scheme !== 'full' && $record->payment_scheme !== 'quotation' && $record->down_payment_amount > 0) {
+                            return '🔴 Belum Bayar (Target DP: Rp '.number_format($record->down_payment_amount, 0, ',', '.').')';
                         }
 
-                        return match ($state) {
-                            'paid' => '🟢 Lunas',
-                            'unpaid' => '🔴 Belum Bayar',
-                            default => $state,
-                        };
+                        return '🔴 Belum Bayar';
                     })
                     ->color(function (string $state, Order $record) {
-                        if ($record->down_payment_amount > 0 && $record->remaining_balance > 0) {
+                        $totalPaid = (float) $record->total_paid_amount;
+                        if ($state === 'paid' || ($record->remaining_balance <= 0 && $totalPaid >= (float) $record->grand_total && $totalPaid > 0)) {
+                            return 'success';
+                        }
+                        if ($totalPaid > 0) {
                             return 'warning';
                         }
 
-                        return $state === 'paid' ? 'success' : 'danger';
+                        return 'danger';
                     }),
 
                 Tables\Columns\TextColumn::make('grand_total')

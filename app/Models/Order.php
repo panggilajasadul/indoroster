@@ -174,15 +174,7 @@ class Order extends Model
             return (float) $this->grand_total;
         }
 
-        if ($this->payment_status === 'unpaid') {
-            if ($this->payment_scheme === 'full' || $this->payment_scheme === 'quotation') {
-                return 0.0;
-            }
-
-            return (float) ($this->down_payment_amount ?? 0);
-        }
-
-        return (float) ($this->down_payment_amount ?? 0);
+        return 0.0;
     }
 
     /**
@@ -748,5 +740,57 @@ class Order extends Model
         $text .= "Terima kasih banyak atas kepercayaan Anda berbelanja dan bermitra dengan Pabrik IndoRoster Indonesia!\n\nSalam hormat,\nTim Logistik Pabrik IndoRoster";
 
         return 'https://wa.me/'.$phone.'?text='.rawurlencode($text);
+    }
+
+    /**
+     * Link WhatsApp dari Pembeli ke Admin dengan format template pesanan lengkap
+     */
+    public function getBuyerToAdminWaOrderLink(): string
+    {
+        $rawWa = SiteSetting::getValue('whatsapp_number', '0813-8970-9847');
+        $waPhone = preg_replace('/[^0-9]/', '', (string) $rawWa);
+        if (str_starts_with($waPhone, '0')) {
+            $waPhone = '62'.substr($waPhone, 1);
+        } elseif (str_starts_with($waPhone, '8')) {
+            $waPhone = '62'.$waPhone;
+        }
+
+        $dateNow = $this->created_at ? $this->created_at->translatedFormat('d F Y H:i') : now()->translatedFormat('d F Y H:i');
+
+        $itemLines = [];
+        foreach ($this->items as $item) {
+            $variant = $item->product_variant_name ? " ({$item->product_variant_name})" : '';
+            $itemLines[] = "• {$item->quantity}x {$item->product_name}{$variant}";
+        }
+        $itemsString = count($itemLines) > 0 ? implode("\n", $itemLines) : '• (Produk pesanan)';
+        $subtotalFormatted = 'Rp'.number_format($this->subtotal, 0, ',', '.');
+
+        $trackingUrl = route('order.tracking', [
+            'order_number' => $this->order_number,
+            'contact' => $this->shipping_phone,
+        ]);
+
+        $mapsLink = '';
+        if ($this->shipping_latitude && $this->shipping_longitude) {
+            $mapsLink = "\n📍 *Titik Lokasi (Google Maps):* https://maps.google.com/?q={$this->shipping_latitude},{$this->shipping_longitude}";
+        }
+
+        $waMessage = "Halo Admin IndoRoster, saya ingin memesan roster beton melalui website:\n\n"
+            ."📋 *DETAIL PESANAN*\n"
+            ."• No. Pesanan: #{$this->order_number}\n"
+            ."• Tanggal: {$dateNow} WIB\n\n"
+            ."📦 *DAFTAR PRODUK:*\n{$itemsString}\n\n"
+            ."💰 *Total Harga Barang:* {$subtotalFormatted}\n"
+            ."🚚 *Ongkir:* (Menunggu konfirmasi admin armada via WA)\n\n"
+            ."👤 *DATA PEMESAN:*\n"
+            ."• Nama: {$this->shipping_name}\n"
+            ."• No. WhatsApp: {$this->shipping_phone}\n"
+            ."• Alamat Lengkap: {$this->full_shipping_address}"
+            .$mapsLink."\n"
+            .($this->notes ? "• Catatan: {$this->notes}\n" : '')
+            ."\n🔍 *Lacak Pesanan:* {$trackingUrl}\n"
+            ."\nMohon info ketersediaan stok, estimasi ongkos kirim armada pabrik, dan total pembayaran. Terima kasih!";
+
+        return 'https://wa.me/'.$waPhone.'?text='.rawurlencode($waMessage);
     }
 }
