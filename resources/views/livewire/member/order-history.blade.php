@@ -347,7 +347,14 @@
                                 {{-- Dokumen Penawaran / Invoice Sah --}}
                                 @php
                                     $docUrl = $order->invoice ? URL::signedRoute('print.invoice', ['invoice' => $order->invoice->id]) : route('print.order', ['order' => $order->id]);
-                                    $docLabel = ($order->status === 'draft' || $order->payment_scheme === 'quotation') ? 'Surat Penawaran' : ($order->payment_status === 'paid' ? 'Invoice Lunas' : 'Invoice / Tagihan');
+                                    $isOrderLunas = ($order->payment_status === 'paid' || (float)$order->remaining_balance <= 0);
+                                    if ($isOrderLunas) {
+                                        $docLabel = 'Invoice Final (Lunas)';
+                                    } elseif ($order->status === 'draft' || $order->payment_scheme === 'quotation') {
+                                        $docLabel = 'Surat Penawaran';
+                                    } else {
+                                        $docLabel = 'Invoice Tagihan';
+                                    }
                                 @endphp
                                 <a href="{{ $docUrl }}" target="_blank" class="inline-flex items-center justify-center border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-white text-xs font-bold px-3.5 py-2 rounded-xl shadow-2xs transition-all gap-1.5 cursor-pointer">
                                     <svg class="w-4 h-4 text-slate-400 dark:text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">

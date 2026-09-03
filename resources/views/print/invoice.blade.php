@@ -99,7 +99,7 @@
             @if($paymentStage)
                 INVOICE {{ strtoupper($paymentStage->installment_title) }}
             @elseif($isStageLunas)
-                INVOICE PELUNASAN RESMI
+                INVOICE FINAL / FAKTUR PENJUALAN RESMI (LUNAS)
             @elseif($allPayments->count() > 0 && $remaining > 0)
                 SURAT TAGIHAN PELUNASAN (SISA TERMIN)
             @elseif($order && ($order->status === 'draft' || $order->status === 'pending_payment' || $order->payment_status === 'unpaid' || $invoice->status === 'unpaid'))

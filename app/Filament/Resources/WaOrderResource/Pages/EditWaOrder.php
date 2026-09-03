@@ -3,11 +3,14 @@
 namespace App\Filament\Resources\WaOrderResource\Pages;
 
 use App\Filament\Resources\WaOrderResource;
+use App\Mail\OrderStatusMail;
 use App\Models\Invoice;
 use App\Models\Order;
 use Filament\Actions;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class EditWaOrder extends EditRecord
 {
@@ -85,6 +88,17 @@ class EditWaOrder extends EditRecord
                 'status' => $order->payment_status === 'paid' ? 'paid' : ($order->status === 'draft' ? 'draft' : 'sent'),
                 'paid_at' => $order->payment_status === 'paid' ? ($invoice->paid_at ?: now()) : null,
             ]);
+        }
+
+        // Kirim email update jika ada email pembeli dan status berubah
+        $email = $order->shipping_email ?: $order->user?->email;
+        if ($email && ($this->record->wasChanged('status') || $this->record->wasChanged('payment_status'))) {
+            try {
+                $mailType = $order->payment_status === 'paid' ? 'paid' : $order->status;
+                Mail::to($email)->send(new OrderStatusMail($order, $mailType));
+            } catch (\Throwable $e) {
+                Log::error("Failed to send order status mail on edit: {$e->getMessage()}");
+            }
         }
     }
 
