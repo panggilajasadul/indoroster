@@ -922,8 +922,13 @@ class Checkout extends Component
 
             $waUrl = 'https://wa.me/'.$waPhone.'?text='.rawurlencode($waMessage);
 
-            // Buka WhatsApp langsung di browser / aplikasi WhatsApp HP
-            return $this->redirect($waUrl);
+            // Buka WhatsApp di tab baru dan alihkan tab checkout ke Lacak Pesanan
+            $this->dispatch('open-wa-order', [
+                'waUrl' => $waUrl,
+                'trackingUrl' => $trackingUrl,
+            ]);
+
+            return $this->redirect($trackingUrl);
 
         } catch (\Exception $e) {
             DB::rollBack();
