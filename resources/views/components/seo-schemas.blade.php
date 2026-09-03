@@ -1,10 +1,18 @@
 @php
-    $siteName    = 'IndoRoster';
+    $siteName    = \App\Models\SiteSetting::getValue('site_name', 'IndoRoster');
     $siteUrl     = config('app.url', 'https://indoroster.com');
-    $logoUrl     = asset('assets/logo_indoroster_no_text.PNG');
+    $logoUrl     = \App\Models\SiteSetting::getValue('site_logo') ?: asset('assets/logo_indoroster_no_text.PNG');
     $address     = \App\Models\SiteSetting::getValue('factory_address', 'Kp. Cicadas, RT 05 RW 03, Desa Cadasmekar, Kec. Tegalwaru, Kab. Purwakarta, Jawa Barat, 41165');
+    $locality    = \App\Models\SiteSetting::getValue('factory_locality', 'Tegalwaru');
+    $region      = \App\Models\SiteSetting::getValue('factory_region', 'Purwakarta, Jawa Barat');
+    $postalCode  = \App\Models\SiteSetting::getValue('factory_postal_code', '41165');
+    $latitude    = \App\Models\SiteSetting::getValue('factory_latitude', '-6.6689917');
+    $longitude   = \App\Models\SiteSetting::getValue('factory_longitude', '107.3619295');
     $phone       = \App\Models\SiteSetting::getValue('whatsapp_number', '+62 813-8970-9847');
     $email       = \App\Models\SiteSetting::getValue('contact_email', 'hello@indoroster.com');
+    $priceRange  = \App\Models\SiteSetting::getValue('schema_price_range', 'Rp12.000 - Rp15.000');
+    $openTime    = \App\Models\SiteSetting::getValue('factory_opening_time', '08:00');
+    $closeTime   = \App\Models\SiteSetting::getValue('factory_closing_time', '17:00');
     $instagram   = \App\Models\SiteSetting::getValue('instagram_url', 'https://www.instagram.com/indoroster.official');
     $tiktok      = \App\Models\SiteSetting::getValue('tiktok_url', 'https://www.tiktok.com/@indoroster');
     $youtube     = \App\Models\SiteSetting::getValue('youtube_url', '');
@@ -44,9 +52,9 @@
     ],
     "address": {
         "@@type": "PostalAddress",
-        "addressLocality": "Tegalwaru",
-        "addressRegion": "Jawa Barat",
-        "postalCode": "41165",
+        "addressLocality": "{{ $locality }}",
+        "addressRegion": "{{ $region }}",
+        "postalCode": "{{ $postalCode }}",
         "addressCountry": "ID",
         "streetAddress": "{{ $address }}"
     },
@@ -69,34 +77,34 @@
 {
     "@@context": "https://schema.org",
     "@@type": ["LocalBusiness", "Manufacturer"],
-    "name": "IndoRoster — Pabrik Roster Beton Minimalis & Suplier Proyek Nasional",
+    "name": "{{ $siteName }} — Pabrik Roster Beton Minimalis & Suplier Proyek Nasional",
     "image": "{{ $logoUrl }}",
     "url": "{{ $siteUrl }}",
     "telephone": "{{ $phone }}",
     "email": "{{ $email }}",
-    "description": "Pusat produsen dan pabrik roster beton minimalis, loster arsitektural, dan bata expose di Plered, Purwakarta. Siap melayani pengadaan partai besar (ribuan hingga puluhan ribu pcs) untuk kontraktor proyek, developer perumahan, arsitek, dan toko bangunan dengan garansi 100% bebas pecah dan armada pengiriman ke Jabodetabek, Bandung, serta seluruh Indonesia.",
+    "description": "Pusat produsen dan pabrik roster beton minimalis, loster arsitektural, dan bata expose di Plered, Purwakarta. Siap melayani pengadaan partai besar untuk kontraktor proyek, developer perumahan, arsitek, dan toko bangunan dengan garansi 100% bebas pecah dan armada pengiriman ke Jabodetabek, Bandung, serta seluruh Indonesia.",
     "address": {
         "@@type": "PostalAddress",
         "streetAddress": "{{ $address }}",
-        "addressLocality": "Tegalwaru",
-        "addressRegion": "Purwakarta, Jawa Barat",
-        "postalCode": "41165",
+        "addressLocality": "{{ $locality }}",
+        "addressRegion": "{{ $region }}",
+        "postalCode": "{{ $postalCode }}",
         "addressCountry": "ID"
     },
     "geo": {
         "@@type": "GeoCoordinates",
-        "latitude": "-6.6689917",
-        "longitude": "107.3619295"
+        "latitude": "{{ $latitude }}",
+        "longitude": "{{ $longitude }}"
     },
     "openingHoursSpecification": [
         {
             "@@type": "OpeningHoursSpecification",
             "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"],
-            "opens": "08:00",
-            "closes": "17:00"
+            "opens": "{{ $openTime }}",
+            "closes": "{{ $closeTime }}"
         }
     ],
-    "priceRange": "Rp12.000 - Rp15.000",
+    "priceRange": "{{ $priceRange }}",
     "currenciesAccepted": "IDR, USD",
     "paymentAccepted": "Cash, Transfer Bank, QRIS, Invoice Proyek",
     "hasOfferCatalog": {

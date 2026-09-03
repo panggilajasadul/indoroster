@@ -13,6 +13,7 @@ class Order extends Model
         'user_id',
         'order_number',
         'order_source',
+        'payment_method',
         'shipping_email',
         'status',
         'payment_status',
@@ -226,9 +227,37 @@ class Order extends Model
             return "https://www.google.com/maps/dir/?api=1&destination={$this->shipping_latitude},{$this->shipping_longitude}";
         }
 
-        $fullAddr = "{$this->shipping_address}, {$this->shipping_city}, {$this->shipping_province} {$this->shipping_postal_code}";
+        return 'https://www.google.com/maps/search/?api=1&query='.urlencode($this->full_shipping_address);
+    }
 
-        return 'https://www.google.com/maps/search/?api=1&query='.urlencode($fullAddr);
+    /**
+     * Get complete formatted shipping address including district, city, province, and postal code.
+     */
+    public function getFullShippingAddressAttribute(): string
+    {
+        $base = trim($this->shipping_address ?? '');
+        $parts = [];
+        if ($base) {
+            $parts[] = $base;
+        }
+        if ($this->shipping_village && ! str_contains(strtolower($base), strtolower($this->shipping_village))) {
+            $parts[] = 'Desa/Kel. '.$this->shipping_village;
+        }
+        if ($this->shipping_district && ! str_contains(strtolower($base), strtolower($this->shipping_district))) {
+            $parts[] = 'Kec. '.$this->shipping_district;
+        }
+        if ($this->shipping_city && ! str_contains(strtolower($base), strtolower($this->shipping_city))) {
+            $parts[] = $this->shipping_city;
+        }
+        if ($this->shipping_province && ! str_contains(strtolower($base), strtolower($this->shipping_province))) {
+            $parts[] = $this->shipping_province;
+        }
+        $res = implode(', ', $parts);
+        if ($this->shipping_postal_code && ! str_contains($res, (string) $this->shipping_postal_code)) {
+            $res .= ' '.$this->shipping_postal_code;
+        }
+
+        return $res ?: '-';
     }
 
     /**
@@ -499,7 +528,7 @@ class Order extends Model
             $text .= '• *'.$b->batch_name.':* '.number_format($b->quantity, 0, ',', '.')." pcs (Est. Kirim: {$tglKirim})\n";
         }
 
-        $text .= "\n📍 *Lokasi Proyek:* {$this->shipping_address} ({$this->shipping_city})\n";
+        $text .= "\n📍 *Lokasi Proyek:* {$this->full_shipping_address}\n";
         $text .= '🔍 *Live Tracking & Progres Proyek:* '.$this->getTrackingUrl()."\n\n";
         $text .= "Terima kasih atas kepercayaan Anda memesan di IndoRoster!\n\nSalam,\nPabrik IndoRoster";
 
@@ -565,7 +594,7 @@ class Order extends Model
         $invoiceUrl = $this->invoice ? route('print.invoice', $this->invoice) : route('print.order', ['order' => $this->id]);
         $text .= "📄 *Download Dokumen Surat Penawaran / Invoice Sah:*\n{$invoiceUrl}\n\n";
 
-        $text .= "📍 *Alamat Pengiriman / Titik Proyek:*\n{$this->shipping_address} ({$this->shipping_city})\n\n";
+        $text .= "📍 *Alamat Pengiriman / Titik Proyek:*\n{$this->full_shipping_address}\n\n";
         $text .= "Mohon konfirmasi jika bukti transfer pembayaran telah dilakukan.\n\nSalam hormat,\n*Manajemen Pabrik IndoRoster*";
 
         return 'https://wa.me/'.$phone.'?text='.rawurlencode($text);

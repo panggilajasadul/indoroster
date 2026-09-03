@@ -26,10 +26,6 @@ class Cart extends Component
 
     public function mount()
     {
-        if (SiteSetting::getValue('order_mode', 'midtrans') === 'whatsapp') {
-            return redirect()->route('catalog')->with('error', 'Transaksi keranjang belanja sedang dinonaktifkan. Silakan lakukan pemesanan langsung melalui WhatsApp pada halaman detail produk.');
-        }
-
         $this->loadCart();
     }
 
@@ -170,47 +166,6 @@ class Cart extends Component
                     return;
                 }
             }
-        }
-
-        if ($this->orderMode === 'whatsapp') {
-            $selectedModels = $this->cartItems->filter(fn ($item) => in_array((string) $item->id, $this->selectedItems));
-
-            $itemList = [];
-            $totalQty = 0;
-            $idx = 1;
-
-            foreach ($selectedModels as $cartItem) {
-                $varName = $cartItem->variant ? ' ('.$cartItem->variant->name.')' : '';
-                $priceFormatted = 'Rp'.number_format($cartItem->subtotal, 0, ',', '.');
-                $itemList[] = "{$idx}. {$cartItem->product->name}{$varName}\n   • Jumlah: {$cartItem->quantity} pcs\n   • Total: {$priceFormatted}";
-                $totalQty += $cartItem->quantity;
-                $idx++;
-            }
-
-            $itemsText = implode("\n", $itemList);
-            $subtotalText = 'Rp'.number_format($this->subtotal, 0, ',', '.');
-
-            $phone = SiteSetting::getValue('order_wa_number', '081389709847');
-            $phone = preg_replace('/[^0-9]/', '', (string) $phone);
-            if (str_starts_with($phone, '0')) {
-                $phone = '62'.substr($phone, 1);
-            } elseif (str_starts_with($phone, '8')) {
-                $phone = '62'.$phone;
-            }
-
-            $template = SiteSetting::getValue('order_wa_template_cart', "Halo Admin IndoRoster, saya ingin memesan daftar produk berikut:\n\n{items_list}\n\n• Total Jumlah: {total_qty} pcs\n• Subtotal: {subtotal}\n\nMohon info ketersediaan stok dan perkiraan ongkos kirim ke lokasi saya. Terima kasih.");
-
-            $message = str_replace(
-                ['{items_list}', '{total_qty}', '{subtotal}'],
-                [$itemsText, $totalQty, $subtotalText],
-                $template
-            );
-
-            $waUrl = 'https://wa.me/'.$phone.'?text='.rawurlencode($message);
-
-            $this->dispatch('open-external-url', url: $waUrl);
-
-            return;
         }
 
         session()->put('selected_cart_items', $this->selectedItems);

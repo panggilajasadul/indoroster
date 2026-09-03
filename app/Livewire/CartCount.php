@@ -3,7 +3,6 @@
 namespace App\Livewire;
 
 use App\Models\Cart;
-use App\Models\SiteSetting;
 use Illuminate\Support\Facades\Cookie;
 use Livewire\Component;
 
@@ -22,13 +21,6 @@ class CartCount extends Component
 
     public function updateCount()
     {
-        if (SiteSetting::getValue('order_mode', 'midtrans') !== 'midtrans') {
-            $this->count = 0;
-            $this->cartItems = [];
-
-            return;
-        }
-
         $sessionId = Cookie::get('cart_session_id');
 
         $query = Cart::query();
@@ -50,12 +42,6 @@ class CartCount extends Component
 
     public function loadCartItems()
     {
-        if (SiteSetting::getValue('order_mode', 'midtrans') !== 'midtrans') {
-            $this->cartItems = [];
-
-            return;
-        }
-
         $sessionId = Cookie::get('cart_session_id');
 
         $query = Cart::with(['product.media', 'variant']);
@@ -92,12 +78,6 @@ class CartCount extends Component
 
     public function render()
     {
-        if (SiteSetting::getValue('order_mode', 'midtrans') !== 'midtrans') {
-            return <<<'HTML'
-            <div></div>
-            HTML;
-        }
-
         return view('livewire.cart-count');
     }
 }

@@ -345,28 +345,54 @@
                                         </div>
                                         <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
                                             @if($step1_done)
-                                                Pembayaran berhasil dikonfirmasi secara otomatis via Midtrans.
+                                                @if($order->order_source === 'whatsapp')
+                                                    Pembayaran transfer telah diverifikasi & dicatat oleh Admin IndoRoster.
+                                                @else
+                                                    Pembayaran berhasil dikonfirmasi secara otomatis via Midtrans.
+                                                @endif
                                                 @if($order->paid_at)
                                                     (Terverifikasi pada {{ $order->paid_at->format('d M Y, H:i') }})
                                                 @endif
                                             @else
-                                                Pesanan berhasil dibuat dan menunggu pembayaran Anda.
+                                                @if($order->order_source === 'whatsapp')
+                                                    Pesanan tercatat di pabrik dan menunggu transfer pembayaran / DP. Silakan konfirmasi bukti transfer via WhatsApp Admin.
+                                                @else
+                                                    Pesanan berhasil dibuat dan menunggu pembayaran Anda.
+                                                @endif
                                             @endif
                                         </p>
                                         
                                         @if(!$step1_done && $status === 'pending_payment')
-                                            <div class="mt-3">
-                                                @if(!$isExpired)
-                                                    <button wire:click="payOrder" class="inline-flex items-center justify-center bg-slate-900 hover:bg-black text-white text-xs font-bold px-4 py-2 rounded-lg shadow-sm transition-all gap-1.5 cursor-pointer">
-                                                        Lanjutkan Pembayaran
-                                                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                                                        </svg>
-                                                    </button>
+                                            <div class="mt-3 flex flex-wrap gap-2">
+                                                @if($order->order_source === 'whatsapp')
+                                                    @php
+                                                        $rawWa = \App\Models\SiteSetting::getValue('whatsapp_number', '0813-8970-9847');
+                                                        $waPhone = preg_replace('/[^0-9]/', '', (string) $rawWa);
+                                                        if (str_starts_with($waPhone, '0')) {
+                                                            $waPhone = '62'.substr($waPhone, 1);
+                                                        } elseif (str_starts_with($waPhone, '8')) {
+                                                            $waPhone = '62'.$waPhone;
+                                                        }
+                                                        $waMsg = "Halo Admin IndoRoster, saya ingin konfirmasi pembayaran untuk pesanan #{$order->order_number} sebesar Rp" . number_format($order->grand_total, 0, ',', '.') . ".";
+                                                        $waConfirmUrl = "https://wa.me/{$waPhone}?text=" . rawurlencode($waMsg);
+                                                    @endphp
+                                                    <a href="{{ $waConfirmUrl }}" target="_blank" class="inline-flex items-center justify-center bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2 rounded-lg shadow-sm transition-all gap-1.5 cursor-pointer">
+                                                        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+                                                        <span>Konfirmasi Transfer via WA</span>
+                                                    </a>
                                                 @else
-                                                    <span class="inline-flex bg-red-50 text-red-600 px-3 py-1.5 rounded-lg text-xs font-semibold border border-red-100">
-                                                        Kedaluwarsa
-                                                    </span>
+                                                    @if(!$isExpired)
+                                                        <button wire:click="payOrder" class="inline-flex items-center justify-center bg-slate-900 hover:bg-black text-white text-xs font-bold px-4 py-2 rounded-lg shadow-sm transition-all gap-1.5 cursor-pointer">
+                                                            Lanjutkan Pembayaran
+                                                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                                            </svg>
+                                                        </button>
+                                                    @else
+                                                        <span class="inline-flex bg-red-50 text-red-600 px-3 py-1.5 rounded-lg text-xs font-semibold border border-red-100">
+                                                            Kedaluwarsa
+                                                        </span>
+                                                    @endif
                                                 @endif
                                             </div>
                                         @endif
@@ -562,29 +588,69 @@
 
                             @if($order->status === 'pending_payment' && $order->payment_status !== 'paid')
                                 <div class="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
-                                    @if(!$isExpired)
-                                        <button wire:click="payOrder" class="w-full inline-flex items-center justify-center bg-terra-600 hover:bg-terra-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-sm shadow-terra-500/30 transition-all gap-1.5 cursor-pointer">
-                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
-                                            </svg>
-                                            Lanjutkan Pembayaran
-                                        </button>
-                                        <p class="text-[10px] text-center text-slate-400 dark:text-slate-500 mt-2">Batas waktu: {{ $order->created_at->addDay()->format('d M Y, H:i') }}</p>
-                                    @else
-                                        <div class="bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 p-3 rounded-xl text-center text-xs font-semibold border border-red-100 dark:border-red-900/40">
-                                            Waktu pembayaran telah habis (Lebih dari 24 Jam)
+                                    @if($order->order_source === 'whatsapp')
+                                        @php
+                                            $rawWa = \App\Models\SiteSetting::getValue('whatsapp_number', '0813-8970-9847');
+                                            $waPhone = preg_replace('/[^0-9]/', '', (string) $rawWa);
+                                            if (str_starts_with($waPhone, '0')) {
+                                                $waPhone = '62'.substr($waPhone, 1);
+                                            } elseif (str_starts_with($waPhone, '8')) {
+                                                $waPhone = '62'.$waPhone;
+                                            }
+                                            $waMsg = "Halo Admin IndoRoster, saya ingin konfirmasi pembayaran untuk pesanan #{$order->order_number} sebesar Rp" . number_format($order->grand_total, 0, ',', '.') . ".";
+                                            $waConfirmUrl = "https://wa.me/{$waPhone}?text=" . rawurlencode($waMsg);
+                                        @endphp
+                                        <div class="p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-xl mb-3 text-xs text-emerald-800 dark:text-emerald-300">
+                                            <p class="font-bold mb-1">🏦 Menunggu Transfer Bank</p>
+                                            <p class="text-[11px] leading-relaxed">Silakan transfer dan kirimkan bukti bayar ke WhatsApp Admin agar status pesanan diverifikasi.</p>
                                         </div>
+                                        <a href="{{ $waConfirmUrl }}" target="_blank" class="w-full inline-flex items-center justify-center bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-sm shadow-emerald-600/30 transition-all gap-1.5 cursor-pointer">
+                                            <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+                                            <span>Konfirmasi Bayar ke WhatsApp</span>
+                                        </a>
+                                    @else
+                                        @if(!$isExpired)
+                                            <button wire:click="payOrder" class="w-full inline-flex items-center justify-center bg-terra-600 hover:bg-terra-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-sm shadow-terra-500/30 transition-all gap-1.5 cursor-pointer">
+                                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                                                </svg>
+                                                Lanjutkan Pembayaran
+                                            </button>
+                                            <p class="text-[10px] text-center text-slate-400 dark:text-slate-500 mt-2">Batas waktu: {{ $order->created_at->addDay()->format('d M Y, H:i') }}</p>
+                                        @else
+                                            <div class="bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 p-3 rounded-xl text-center text-xs font-semibold border border-red-100 dark:border-red-900/40">
+                                                Waktu pembayaran telah habis (Lebih dari 24 Jam)
+                                            </div>
+                                        @endif
                                     @endif
                                 </div>
                             @endif
 
-                            @if($order->invoice)
+                            @php
+                                $invoiceRecord = $order->invoice ?: \App\Models\Invoice::firstOrCreate(
+                                    ['order_id' => $order->id],
+                                    [
+                                        'invoice_number' => \App\Models\Invoice::generateWaInvoiceNumber(),
+                                        'invoice_date' => now(),
+                                        'subtotal' => $order->subtotal,
+                                        'shipping_cost' => $order->shipping_cost,
+                                        'discount_amount' => $order->discount_amount,
+                                        'grand_total' => $order->grand_total,
+                                        'payment_scheme' => $order->payment_scheme ?: 'full',
+                                        'down_payment_amount' => $order->down_payment_amount ?: 0,
+                                        'remaining_balance' => $order->remaining_balance ?: 0,
+                                        'status' => $order->payment_status === 'paid' ? 'paid' : 'sent',
+                                        'paid_at' => $order->payment_status === 'paid' ? now() : null,
+                                    ]
+                                );
+                            @endphp
+                            @if($invoiceRecord)
                                 <div class="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
-                                    <a href="{{ URL::signedRoute('print.invoice', ['invoice' => $order->invoice->id]) }}" target="_blank" class="w-full inline-flex items-center justify-center bg-slate-900 dark:bg-slate-800 hover:bg-black dark:hover:bg-slate-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-sm transition-all gap-1.5 cursor-pointer border border-slate-700">
+                                    <a href="{{ URL::signedRoute('print.invoice', ['invoice' => $invoiceRecord->id]) }}" target="_blank" class="w-full inline-flex items-center justify-center bg-slate-900 dark:bg-slate-800 hover:bg-black dark:hover:bg-slate-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-sm transition-all gap-1.5 cursor-pointer border border-slate-700">
                                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
                                         </svg>
-                                        Cetak Dokumen Invoice
+                                        {{ $order->payment_status === 'paid' ? '📄 Cetak Invoice Lunas' : '📄 Cetak Surat Penawaran & Tagihan' }}
                                     </a>
                                 </div>
                             @endif

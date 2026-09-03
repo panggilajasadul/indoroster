@@ -1,41 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- IndoRoster Master Sitemap Index | Generated: 2026-09-02 00:58:41 WIB | Base: https://indoroster.com -->
+<!-- IndoRoster Master Sitemap Index | Generated: 2026-09-03 13:39:20 WIB | Base: https://indoroster.com -->
 <?xml-stylesheet type="text/xsl" href="/sitemap.xsl?v=1.1"?>
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <sitemap>
         <loc>https://indoroster.com/sitemap-pages.xml</loc>
-            <lastmod>2026-09-02T00:58:41+07:00</lastmod>
+            <lastmod>2026-09-03T13:39:20+07:00</lastmod>
     </sitemap>
     <sitemap>
         <loc>https://indoroster.com/sitemap-applications.xml</loc>
-            <lastmod>2026-09-02T00:58:41+07:00</lastmod>
+            <lastmod>2026-09-03T13:39:20+07:00</lastmod>
     </sitemap>
     <sitemap>
         <loc>https://indoroster.com/sitemap-exports.xml</loc>
-            <lastmod>2026-09-02T00:58:41+07:00</lastmod>
+            <lastmod>2026-09-03T13:39:20+07:00</lastmod>
     </sitemap>
     <sitemap>
         <loc>https://indoroster.com/sitemap-categories.xml</loc>
-            <lastmod>2026-09-02T00:58:41+07:00</lastmod>
+            <lastmod>2026-09-03T13:39:20+07:00</lastmod>
     </sitemap>
     <sitemap>
         <loc>https://indoroster.com/sitemap-products.xml</loc>
-            <lastmod>2026-09-02T00:58:41+07:00</lastmod>
+            <lastmod>2026-09-03T13:39:20+07:00</lastmod>
     </sitemap>
     <sitemap>
         <loc>https://indoroster.com/sitemap-locations.xml</loc>
-            <lastmod>2026-09-02T00:58:41+07:00</lastmod>
+            <lastmod>2026-09-03T13:39:20+07:00</lastmod>
     </sitemap>
     <sitemap>
         <loc>https://indoroster.com/sitemap-articles.xml</loc>
-            <lastmod>2026-09-02T00:58:41+07:00</lastmod>
+            <lastmod>2026-09-03T13:39:20+07:00</lastmod>
     </sitemap>
     <sitemap>
         <loc>https://indoroster.com/sitemap-galleries.xml</loc>
-            <lastmod>2026-09-02T00:58:41+07:00</lastmod>
+            <lastmod>2026-09-03T13:39:20+07:00</lastmod>
     </sitemap>
     <sitemap>
         <loc>https://indoroster.com/sitemap-seopages.xml</loc>
-            <lastmod>2026-09-02T00:58:41+07:00</lastmod>
+            <lastmod>2026-09-03T13:39:20+07:00</lastmod>
     </sitemap>
 </sitemapindex>

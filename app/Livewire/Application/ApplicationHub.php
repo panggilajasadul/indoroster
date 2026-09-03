@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Application;
 
+use App\Models\ApplicationPage;
 use App\Models\SiteSetting;
 use Livewire\Component;
 
@@ -9,6 +10,27 @@ class ApplicationHub extends Component
 {
     public function getApplicationsProperty(): array
     {
+        try {
+            $dbApps = ApplicationPage::where('is_active', true)
+                ->orderBy('sort_order', 'asc')
+                ->get();
+
+            if ($dbApps->isNotEmpty()) {
+                return $dbApps->map(function ($app) {
+                    return [
+                        'slug' => $app->slug,
+                        'title' => $app->title,
+                        'subtitle' => $app->subtitle,
+                        'icon' => $app->icon ?? '🏡',
+                        'image' => $app->image,
+                        'recommended_motifs' => $app->motifs ?? [],
+                    ];
+                })->toArray();
+            }
+        } catch (\Throwable $e) {
+            // Fallback gracefully
+        }
+
         return [
             [
                 'slug' => 'pagar-rumah',
@@ -101,8 +123,8 @@ class ApplicationHub extends Component
             $waNumber = '62'.substr($waNumber, 1);
         }
 
-        $metaTitle = 'Inspirasi Aplikasi Desain Roster Beton Minimalis | IndoRoster';
-        $metaDescription = 'Koleksi lengkap ide pengaplikasian roster beton minimalis untuk pagar, fasad rumah, ventilasi dinding, partisi ruangan, cafe, ruko, dan proyek komersial.';
+        $metaTitle = SiteSetting::getValue('application_hub_meta_title', 'Inspirasi Aplikasi Desain Roster Beton Minimalis | IndoRoster');
+        $metaDescription = SiteSetting::getValue('application_hub_meta_description', 'Koleksi lengkap ide pengaplikasian roster beton minimalis untuk pagar, fasad rumah, ventilasi dinding, partisi ruangan, cafe, ruko, dan proyek komersial.');
 
         return view('livewire.application.application-hub', [
             'applications' => $this->applications,

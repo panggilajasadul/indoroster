@@ -77,4 +77,47 @@ class GeocodeController extends Controller
 
         return response()->json($result);
     }
+
+    public function reverse(Request $request)
+    {
+        $lat = (float) $request->input('lat', 0);
+        $lon = (float) $request->input('lon', 0);
+
+        if (! $lat || ! $lon) {
+            return response()->json(['display_name' => null]);
+        }
+
+        $cacheKey = 'reverse_geocode_'.round($lat, 4).'_'.round($lon, 4);
+
+        $result = Cache::remember($cacheKey, 86400, function () use ($lat, $lon) {
+            try {
+                $response = Http::withHeaders([
+                    'User-Agent' => 'IndorosterApp/1.0 (info@indoroster.com)',
+                    'Accept-Language' => 'id,en;q=0.9',
+                ])->timeout(4)->get('https://nominatim.openstreetmap.org/reverse', [
+                    'format' => 'json',
+                    'lat' => $lat,
+                    'lon' => $lon,
+                    'zoom' => 18,
+                    'addressdetails' => 1,
+                ]);
+
+                if ($response->successful()) {
+                    $data = $response->json();
+                    if (! empty($data['display_name'])) {
+                        return [
+                            'display_name' => $data['display_name'],
+                            'address' => $data['address'] ?? [],
+                        ];
+                    }
+                }
+            } catch (\Throwable $e) {
+                // Fallback
+            }
+
+            return ['display_name' => null];
+        });
+
+        return response()->json($result);
+    }
 }

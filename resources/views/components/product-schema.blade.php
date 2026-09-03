@@ -7,7 +7,7 @@
     $stock      = $product->total_stock > 0 ? 'InStock' : 'OutOfStock';
     $rating     = $product->average_rating;
     $reviewCount = $product->reviews_count;
-    $price      = number_format($product->min_price, 0, '.', '');
+    $price      = number_format($product->min_price > 0 ? $product->min_price : ((float) $product->price > 0 ? (float) $product->price : 13000), 0, '.', '');
 
     // Kumpulkan semua URL gambar produk (Google Images & Google Shopping membutuhkan array)
     $imageUrls = $product->media
@@ -95,6 +95,7 @@
         "priceCurrency": "{{ $currency }}",
         "price": "{{ $price }}",
         "priceValidUntil": "{{ now()->addYear()->format('Y-m-d') }}",
+        "validFrom": "{{ now()->subMonths(6)->format('Y-m-d') }}",
         "availability": "https://schema.org/{{ $stock }}",
         "itemCondition": "https://schema.org/NewCondition",
         "seller": {
@@ -107,6 +108,11 @@
         },
         "shippingDetails": {
             "@@type": "OfferShippingDetails",
+            "shippingRate": {
+                "@@type": "MonetaryAmount",
+                "value": "0",
+                "currency": "{{ $currency }}"
+            },
             "shippingDestination": {
                 "@@type": "DefinedRegion",
                 "addressCountry": "ID"
@@ -126,6 +132,14 @@
                     "unitCode": "DAY"
                 }
             }
+        },
+        "hasMerchantReturnPolicy": {
+            "@@type": "MerchantReturnPolicy",
+            "applicableCountry": "ID",
+            "returnPolicyCategory": "https://schema.org/MerchantReturnFiniteReturnWindow",
+            "merchantReturnDays": 7,
+            "returnMethod": "https://schema.org/ReturnByMail",
+            "returnFees": "https://schema.org/FreeReturn"
         }
     }
 }

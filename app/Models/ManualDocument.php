@@ -184,10 +184,13 @@ class ManualDocument extends Model
     {
         return match ($this->type) {
             'invoice', 'faktur' => 'Faktur Penjualan (Invoice)',
-            'surat_jalan' => 'Surat Jalan',
-            'receipt', 'kwitansi' => 'Kwitansi Pembayaran',
+            'surat_jalan' => 'Surat Jalan Pengiriman',
+            'receipt', 'kwitansi' => 'Kwitansi Pembayaran Sah',
             'quotation', 'penawaran' => 'Penawaran Harga (Quotation)',
-            'sales_order', 'surat_pesanan' => 'Surat Pesanan Offline',
+            'bast' => 'Berita Acara Serah Terima (BAST)',
+            'sph' => 'Surat Dukungan Tender & SPH',
+            'lab_test', 'uji_lab' => 'Sertifikat Uji Kuat Tekan Lab SNI',
+            'sales_order', 'surat_pesanan' => 'Surat Pesanan (Sales Order)',
             'proforma_invoice' => 'Proforma Invoice',
             'delivery_note' => 'Delivery Note',
             'packing_list' => 'Packing List',
@@ -199,7 +202,7 @@ class ManualDocument extends Model
             'export_packing_list' => 'Export Packing List (Ekspor)',
             'shipping_instruction' => 'Shipping Instruction (SI)',
             'certificate_of_origin' => 'Certificate of Origin (COO)',
-            default => $this->type
+            default => str_replace('_', ' ', strtoupper($this->type))
         };
     }
 

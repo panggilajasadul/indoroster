@@ -329,14 +329,14 @@
         </div>
         @endif
 
-        <div class="notes">
+        <div class="notes" style="page-break-inside: avoid !important; break-inside: avoid !important;">
             <strong>Catatan & Ketentuan Pengiriman:</strong><br>
             1. Harap periksa fisik barang saat serah terima. Komplain barang pecah/kurang wajib dicatat di lembar surat jalan ini sebelum supir meninggalkan lokasi.<br>
             2. Jadwal dan kuantitas pengiriman per batch merupakan estimasi operasional pabrik yang dapat disesuaikan mengikuti kondisi cuaca, kapasitas produksi, serta kapasitas muatan armada truk.<br>
             3. Surat jalan ini sah dan berlaku sebagai bukti fisik serah terima barang di lokasi proyek.
         </div>
 
-        <div style="margin-top: 40px; width: 100%; display: table;">
+        <div style="margin-top: 30px; width: 100%; display: table; page-break-inside: avoid !important; break-inside: avoid !important;">
             <div style="display: table-cell; text-align: center; width: 33%;">
                 Penerima / Mandor Proyek,<br><br><br><br>
                 ( ................................... )<br>

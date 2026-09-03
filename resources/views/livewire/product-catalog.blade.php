@@ -1,4 +1,11 @@
 <div class="bg-slate-50 dark:bg-slate-950 min-h-screen py-6 sm:py-10">
+    {{-- Dynamic JSON-LD Structured Data for Catalog & Category --}}
+    <x-ecommerce-itemlist-schema 
+        :name="$activeCategory ? 'Katalog ' . $activeCategory->name . ' IndoRoster' : 'Katalog Lengkap Roster Beton & Material IndoRoster'" 
+        :description="$activeCategory ? ($activeCategory->meta_description ?: ($activeCategory->description ?? 'Pilihan terlengkap ' . $activeCategory->name . ' kualitas pabrik IndoRoster.')) : ($page?->meta_description ?: 'Pusat katalog roster beton minimalis, bata expose, dan ornamen dinding langsung dari pabrik tangan pertama IndoRoster Plered Purwakarta.')" 
+        :products="$products" 
+    />
+
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         <!-- Breadcrumb & Header -->

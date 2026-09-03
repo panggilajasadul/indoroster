@@ -6,7 +6,11 @@
     $type = $record->fulfillment_type;
     $prodStatus = $record->production_status ?? 'pending';
     
-    $isPaid = in_array($status, ['paid', 'processing', 'shipped', 'completed']);
+    $allPayments = $record->getValidPayments();
+    $totalPaid = (float) $allPayments->sum('gross_amount');
+    $isPaid = ($record->payment_status === 'paid') || ($totalPaid >= (float) $record->grand_total && (float) $record->grand_total > 0 && $allPayments->isNotEmpty());
+    $hasDp = ($totalPaid > 0 && !$isPaid) || ($record->down_payment_amount > 0 && $totalPaid > 0);
+    $isWaitingPayment = !$isPaid && !$hasDp;
     
     // Step 2: Produksi / Persiapan
     $isStep2Active = ($status === 'processing');
@@ -23,19 +27,31 @@
 <div class="p-5" wire:poll.5s style="background: #0f172a; border-radius: 12px; border: 1px solid #1e293b; color: #f8fafc; font-family: inherit;">
     <div style="display: flex; flex-direction: column; gap: 20px;">
         
-        <!-- Step 1: Lunas -->
+        <!-- Step 1: Status Pembayaran -->
         <div style="display: flex; gap: 15px; align-items: flex-start;">
             <div style="display: flex; flex-direction: column; align-items: center;">
-                <div style="width: 28px; height: 28px; border-radius: 50%; background: #22c55e; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; color: #fff; font-weight: bold; border: 2px solid #22c55e;">
-                    ✓
+                <div style="width: 28px; height: 28px; border-radius: 50%; background: {{ $isPaid ? '#22c55e' : ($hasDp ? '#0284c7' : '#eab308') }}; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; color: {{ $isPaid || $hasDp ? '#fff' : '#0f172a' }}; font-weight: bold; border: 2px solid {{ $isPaid ? '#22c55e' : ($hasDp ? '#0284c7' : '#eab308') }};">
+                    {{ $isPaid ? '✓' : ($hasDp ? '💳' : '⏳') }}
                 </div>
-                <div style="width: 2px; height: 40px; background: {{ $isStep2Active || $isStep2Completed ? '#22c55e' : '#334155' }};"></div>
+                <div style="width: 2px; height: 40px; background: {{ $isPaid || $hasDp || $isStep2Active || $isStep2Completed ? '#22c55e' : '#334155' }};"></div>
             </div>
             <div>
-                <h4 style="margin: 0; font-size: 0.95rem; font-weight: bold; color: #f8fafc;">💳 Pembayaran Diterima (Lunas)</h4>
-                <p style="margin: 4px 0 0 0; font-size: 0.78rem; color: #94a3b8;">
-                    Pesanan lunas dibayar pada {{ $record->paid_at ? $record->paid_at->format('d M Y H:i') : ($record->created_at ? $record->created_at->format('d M Y H:i') : '-') }}
-                </p>
+                @if($isPaid)
+                    <h4 style="margin: 0; font-size: 0.95rem; font-weight: bold; color: #f8fafc;">💳 Pembayaran Diterima (Lunas)</h4>
+                    <p style="margin: 4px 0 0 0; font-size: 0.78rem; color: #94a3b8;">
+                        Pesanan lunas dibayar pada {{ $record->paid_at ? $record->paid_at->format('d M Y H:i') : ($record->created_at ? $record->created_at->format('d M Y H:i') : '-') }}
+                    </p>
+                @elseif($hasDp)
+                    <h4 style="margin: 0; font-size: 0.95rem; font-weight: bold; color: #38bdf8;">💳 Pembayaran Masuk (DP Terverifikasi)</h4>
+                    <p style="margin: 4px 0 0 0; font-size: 0.78rem; color: #94a3b8;">
+                        DP masuk sebesar Rp{{ number_format($totalPaid, 0, ',', '.') }} (Sisa tagihan: Rp{{ number_format(max(0, $record->grand_total - $totalPaid), 0, ',', '.') }})
+                    </p>
+                @else
+                    <h4 style="margin: 0; font-size: 0.95rem; font-weight: bold; color: #facc15;">⏳ Menunggu Pembayaran / DP Transfer</h4>
+                    <p style="margin: 4px 0 0 0; font-size: 0.78rem; color: #94a3b8;">
+                        Belum ada pembayaran masuk dari pembeli. Silakan klik tombol <strong>+ Catat Pembayaran Masuk</strong> atau <strong>Lunaskan Sisa</strong> setelah pembeli transfer.
+                    </p>
+                @endif
             </div>
         </div>
 

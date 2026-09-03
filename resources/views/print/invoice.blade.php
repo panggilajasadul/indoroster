@@ -4,40 +4,53 @@
     <meta charset="UTF-8">
     <title>Invoice - {{ $invoice->invoice_number }}</title>
     <style>
-        body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 13px; color: #334155; line-height: 1.5; margin: 0; padding: 20px 0; background: #ffffff; }
+        body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 12.5px; color: #334155; line-height: 1.45; margin: 0; padding: 15px 0; background: #ffffff; }
         .invoice-box { max-width: 800px; margin: auto; padding: 10px 20px; background: #ffffff; }
         .header { width: 100%; display: table; margin-bottom: 5px; }
         .header td { vertical-align: middle; }
         .header .logo { font-size: 28px; font-weight: bold; color: #1e293b; width: 50%; }
-        .header .company-info { text-align: right; color: #64748b; font-size: 12px; width: 50%; line-height: 1.45; }
-        .header-divider { border: none; border-top: 1.5px solid #e2e8f0; margin: 15px 0 25px 0; }
-        .title { font-size: 22px; font-weight: 800; text-align: center; margin: 10px 0 25px 0; text-transform: uppercase; color: #0f172a; letter-spacing: 3px; }
-        .details { width: 100%; display: table; margin-bottom: 25px; }
+        .header .company-info { text-align: right; color: #64748b; font-size: 11.5px; width: 50%; line-height: 1.4; }
+        .header-divider { border: none; border-top: 1.5px solid #e2e8f0; margin: 10px 0 18px 0; }
+        .title { font-size: 20px; font-weight: 800; text-align: center; margin: 8px 0 18px 0; text-transform: uppercase; color: #0f172a; letter-spacing: 2.5px; }
+        .details { width: 100%; display: table; margin-bottom: 18px; }
         .details-col { display: table-cell; width: 50%; vertical-align: top; }
-        .details-label { font-weight: 700; font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
-        table.items { width: 100%; border-collapse: collapse; margin-bottom: 25px; table-layout: fixed; }
-        table.items th, table.items td { padding: 10px 8px; border-bottom: 1px solid #e2e8f0; vertical-align: middle; }
-        table.items th { background: transparent; font-weight: 700; color: #475569; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; border-top: 1px solid #e2e8f0; }
-        table.items td { font-size: 13px; }
+        .details-label { font-weight: 700; font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+        table.items { width: 100%; border-collapse: collapse; margin-bottom: 18px; table-layout: fixed; }
+        table.items th, table.items td { padding: 8px 6px; border-bottom: 1px solid #e2e8f0; vertical-align: middle; }
+        table.items th { background: transparent; font-weight: 700; color: #475569; font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.5px; border-top: 1px solid #e2e8f0; }
+        table.items td { font-size: 12.5px; }
         table.items th.col-product, table.items td.col-product { width: 44%; text-align: left; }
         table.items th.col-price, table.items td.col-price { width: 20%; text-align: right; white-space: nowrap; }
         table.items th.col-qty, table.items td.col-qty { width: 14%; text-align: right; white-space: nowrap; }
         table.items th.col-total, table.items td.col-total { width: 22%; text-align: right; white-space: nowrap; }
-        .summary { width: 100%; display: table; table-layout: fixed; margin-top: 10px; }
-        .summary-col { display: table-cell; width: 46%; vertical-align: top; padding-right: 25px; }
+        .summary { width: 100%; display: table; table-layout: fixed; margin-top: 5px; page-break-inside: avoid !important; break-inside: avoid !important; }
+        .summary-col { display: table-cell; width: 46%; vertical-align: top; padding-right: 20px; }
         .summary-totals { display: table-cell; width: 54%; vertical-align: top; }
-        table.totals { width: 100%; border-collapse: collapse; }
-        table.totals td { padding: 6px 8px; text-align: right; font-size: 13px; white-space: nowrap; }
+        table.totals { width: 100%; border-collapse: collapse; page-break-inside: avoid !important; break-inside: avoid !important; }
+        table.totals td { padding: 5px 6px; text-align: right; font-size: 12.5px; white-space: nowrap; }
         table.totals td.label { text-align: left; color: #64748b; font-weight: 500; }
-        table.totals tr.bold td { font-weight: 800; font-size: 16px; border-top: 2px solid #e2e8f0; color: #ea580c; padding-top: 12px; }
+        table.totals tr.bold td { font-weight: 800; font-size: 15px; border-top: 2px solid #e2e8f0; color: #ea580c; padding-top: 8px; }
         table.totals tr.bold td.label { color: #ea580c; font-weight: 800; }
-        .notes { font-size: 11.5px; color: #64748b; border: 1px dashed #e2e8f0; padding: 12px 14px; border-radius: 6px; background: transparent; line-height: 1.5; }
-        .status { display: inline-block; padding: 3px 8px; border-radius: 4px; font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .notes { font-size: 11px; color: #64748b; border: 1px dashed #e2e8f0; padding: 10px 12px; border-radius: 6px; background: transparent; line-height: 1.45; page-break-inside: avoid !important; break-inside: avoid !important; }
+        .status { display: inline-block; padding: 2px 7px; border-radius: 4px; font-weight: 700; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.5px; }
         .status-paid { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
         .status-unpaid { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
+        
+        .avoid-break, .payment-history-box, .bank-instruction-box, .signature-section {
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+        }
+        tr {
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+        }
         @media print {
             body { padding: 0; }
             .invoice-box { padding: 0; max-width: 100%; }
+            .avoid-break, .payment-history-box, .bank-instruction-box, .signature-section {
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+            }
         }
     </style>
 </head>
@@ -64,19 +77,21 @@
             $paymentStage = $paymentStage ?? null;
             $order = $invoice->order;
             $allPayments = $order ? $order->getValidPayments() : collect();
+            $totalPaid = (float) $allPayments->sum('gross_amount');
+            $grandTotal = (float) $invoice->grand_total;
             
             if ($paymentStage) {
                 $payments = $allPayments->filter(fn($p) => $p->id <= $paymentStage->id);
                 $stagePaid = (float) $payments->sum('gross_amount');
-                $grandTotal = (float) $invoice->grand_total;
                 $dp = $stagePaid;
                 $remaining = max(0, $grandTotal - $stagePaid);
-                $isStageLunas = ($remaining <= 0);
+                $isStageLunas = ($remaining <= 0 || $paymentStage->is_settlement_receipt);
             } else {
                 $payments = $allPayments;
-                $dp = $invoice->down_payment_amount ?: ($order->down_payment_amount ?? 0);
-                $remaining = $invoice->remaining_balance > 0 ? $invoice->remaining_balance : ($order->remaining_balance ?? max(0, $invoice->grand_total - $dp));
-                $isStageLunas = ($remaining <= 0 || $invoice->status === 'paid' || ($order && $order->payment_status === 'paid'));
+                $isLunas = ($order && $order->payment_status === 'paid') || ($invoice->status === 'paid') || ($totalPaid >= $grandTotal && $grandTotal > 0 && $allPayments->isNotEmpty());
+                $isStageLunas = $isLunas;
+                $dp = $totalPaid > 0 ? $totalPaid : 0;
+                $remaining = $isLunas ? 0 : max(0, $grandTotal - $totalPaid);
             }
         @endphp
 
@@ -87,14 +102,14 @@
                 INVOICE PELUNASAN RESMI
             @elseif($allPayments->count() > 0 && $remaining > 0)
                 SURAT TAGIHAN PELUNASAN (SISA TERMIN)
-            @elseif($order && ($order->status === 'draft' || $order->status === 'pending_payment' || $invoice->status === 'unpaid'))
-                @if($order->payment_scheme !== 'full' && $dp > 0 && $dp < $invoice->grand_total)
+            @elseif($order && ($order->status === 'draft' || $order->status === 'pending_payment' || $order->payment_status === 'unpaid' || $invoice->status === 'unpaid'))
+                @if($order->payment_scheme !== 'full' && $order->down_payment_amount > 0 && $order->down_payment_amount < $invoice->grand_total)
                     SURAT PENAWARAN & TAGIHAN PEMBAYARAN DP
                 @else
-                    SURAT PENAWARAN & PROFORMA INVOICE
+                    SURAT PENAWARAN & PROFORMA TAGIHAN
                 @endif
             @else
-                INVOICE RESMI
+                SURAT PENAWARAN & PROFORMA TAGIHAN
             @endif
         </div>
 
@@ -138,14 +153,12 @@
                                 <span class="status status-paid">LUNAS (100%)</span>
                             @elseif($allPayments->count() > 0 && $remaining > 0)
                                 <span class="status" style="background: #fef2f2; color: #dc2626; border: 1px solid #fecaca;">MENUNGGU PELUNASAN SISA (Rp {{ number_format($remaining, 0, ',', '.') }})</span>
-                            @elseif($order && ($order->status === 'draft' || $order->status === 'pending_payment'))
-                                @if($order->payment_scheme !== 'full' && $dp > 0 && $dp < $invoice->grand_total)
-                                    <span class="status" style="background: #fef3c7; color: #b45309; border: 1px solid #fde68a;">MENUNGGU PEMBAYARAN DP (Rp {{ number_format($dp, 0, ',', '.') }})</span>
+                            @elseif($order && ($order->status === 'draft' || $order->status === 'pending_payment' || $order->payment_status === 'unpaid'))
+                                @if($order->payment_scheme !== 'full' && $order->down_payment_amount > 0 && $order->down_payment_amount < $invoice->grand_total)
+                                    <span class="status" style="background: #fef3c7; color: #b45309; border: 1px solid #fde68a;">MENUNGGU PEMBAYARAN DP (Rp {{ number_format($order->down_payment_amount, 0, ',', '.') }})</span>
                                 @else
-                                    <span class="status" style="background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1;">DRAFT / PROFORMA PENAWARAN</span>
+                                    <span class="status status-unpaid">MENUNGGU PEMBAYARAN TRANSFER</span>
                                 @endif
-                            @elseif($dp > 0 && $remaining > 0)
-                                <span class="status" style="background: #fef3c7; color: #b45309; border: 1px solid #fde68a;">DP TERVERIFIKASI</span>
                             @else
                                 <span class="status status-unpaid">MENUNGGU PEMBAYARAN</span>
                             @endif
@@ -158,30 +171,24 @@
         <table class="items">
             <thead>
                 <tr>
-                    <th class="col-product">Produk</th>
+                    <th class="col-product">Deskripsi Produk</th>
                     <th class="col-price">Harga Satuan</th>
-                    <th class="col-qty">Qty</th>
-                    <th class="col-total">Total</th>
+                    <th class="col-qty">Jumlah</th>
+                    <th class="col-total">Subtotal</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach($invoice->order->items as $item)
                 <tr>
                     <td class="col-product">
-                        <strong style="color: #0f172a;">{{ $item->product_name }}</strong><br>
-                        @if($item->custom_variant_name || $item->variant)
-                            <small style="color: #64748b;">Varian: {{ $item->custom_variant_name ?: $item->variant?->name }}</small><br>
-                        @endif
-                        @if($item->product)
-                            <small style="color: #64748b;">{{ $item->product->material ?? '' }} {{ $item->product->dimensions ? '('.$item->product->dimensions.')' : '' }}</small><br>
-                        @endif
-                        @if($item->item_notes)
-                            <small style="color: #64748b; font-style: italic;">Catatan: {{ $item->item_notes }}</small>
+                        <strong>{{ $item->product_name }}</strong>
+                        @if($item->variant)
+                            <br><small style="color: #64748b;">Varian: {{ $item->variant->name }}</small>
                         @endif
                     </td>
                     <td class="col-price">Rp {{ number_format($item->product_price, 0, ',', '.') }}</td>
-                    <td class="col-qty">{{ number_format($item->quantity, 0, ',', '.') }} pcs</td>
-                    <td class="col-total" style="font-weight: 600; color: #0f172a;">Rp {{ number_format($item->subtotal, 0, ',', '.') }}</td>
+                    <td class="col-qty">{{ $item->quantity }} pcs</td>
+                    <td class="col-total">Rp {{ number_format($item->subtotal, 0, ',', '.') }}</td>
                 </tr>
                 @endforeach
             </tbody>
@@ -190,8 +197,12 @@
         <div class="summary">
             <div class="summary-col">
                 <div class="notes">
-                    <strong style="color: #334155;">Catatan:</strong><br>
-                    {{ $invoice->notes ?: 'Terima kasih telah berbelanja di indoroster.com. Barang yang sudah dibeli tidak dapat ditukar atau dikembalikan.' }}
+                    <strong>Catatan & Keterangan Pengiriman:</strong><br>
+                    {{ $invoice->order->notes ?: 'Material pesanan diproduksi langsung dari pabrik IndoRoster Purwakarta dengan standar cetak padat presisi.' }}
+                    @if($invoice->order->shipping_latitude && $invoice->order->shipping_longitude)
+                        <br><br><strong>Titik Koordinat Google Maps:</strong><br>
+                        {{ $invoice->order->shipping_latitude }}, {{ $invoice->order->shipping_longitude }}
+                    @endif
                 </div>
             </div>
             <div class="summary-totals">
@@ -242,8 +253,13 @@
                         <td class="label" style="color: #15803d; font-weight: 700;">SISA TAGIHAN</td>
                         <td style="color: #15803d; font-weight: 800; font-size: 13px;">Rp 0 (LUNAS)</td>
                     </tr>
-                    @elseif($dp == 0 && ($invoice->order->status === 'draft' || $invoice->order->status === 'pending_payment'))
-                        @if($scheme === 'dp_50_50')
+                    @elseif($dp == 0 && ($invoice->order->status === 'draft' || $invoice->order->status === 'pending_payment' || $invoice->order->payment_status === 'unpaid'))
+                        @if($scheme === 'full')
+                        <tr style="background: #fef2f2;">
+                            <td class="label" style="color: #dc2626; font-weight: 700;">TOTAL TAGIHAN TRANSFER<br><small style="font-weight: normal; color: #64748b; font-size: 9px;">(Menunggu Pembayaran Transfer)</small></td>
+                            <td style="color: #dc2626; font-weight: 800; font-size: 13px;">Rp {{ number_format($grandTotalVal, 0, ',', '.') }}</td>
+                        </tr>
+                        @elseif($scheme === 'dp_50_50')
                         <tr style="background: #fffbeb;">
                             <td class="label" style="color: #b45309; font-weight: 700;">Tagihan DP Awal (50%)<br><small style="font-weight: normal; color: #64748b; font-size: 9px;">(Untuk Konfirmasi Cetak Pabrik)</small></td>
                             <td style="color: #b45309; font-weight: 800; font-size: 12px;">Rp {{ number_format(round($grandTotalVal * 0.5), 0, ',', '.') }}</td>
@@ -279,8 +295,8 @@
 
         @if($payments->count() > 0)
         <!-- Riwayat Pembayaran Bertahap Terhubung -->
-        <div style="margin-top: 15px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 14px;">
-            <div style="font-size: 11px; font-weight: 800; color: #1e293b; text-transform: uppercase; margin-bottom: 5px; letter-spacing: 0.03em;">
+        <div class="payment-history-box avoid-break" style="margin-top: 12px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 8px 12px; page-break-inside: avoid !important; break-inside: avoid !important;">
+            <div style="font-size: 10.5px; font-weight: 800; color: #1e293b; text-transform: uppercase; margin-bottom: 4px; letter-spacing: 0.03em;">
                 Rincian Pembayaran Masuk & Kuitansi Terhubung:
             </div>
             <table style="width: 100%; border-collapse: collapse; font-size: 10.5px;">
@@ -309,31 +325,31 @@
         @endif
         @if($remaining > 0 || $dp == 0)
         <!-- Petunjuk Rekening Pembayaran Resmi Pabrik -->
-        <div style="margin-top: 14px; background: #fffdfa; border: 1.5px solid #fed7aa; border-left: 5px solid #ea580c; border-radius: 6px; padding: 10px 14px; font-size: 11px;">
-            <div style="color: #9a3412; font-weight: 800; text-transform: uppercase; font-size: 11px; margin-bottom: 4px; letter-spacing: 0.03em;">
+        <div class="bank-instruction-box avoid-break" style="margin-top: 10px; background: #fffdfa; border: 1.5px solid #fed7aa; border-left: 5px solid #ea580c; border-radius: 6px; padding: 8px 12px; font-size: 10.5px; page-break-inside: avoid !important; break-inside: avoid !important;">
+            <div style="color: #9a3412; font-weight: 800; text-transform: uppercase; font-size: 10.5px; margin-bottom: 3px; letter-spacing: 0.03em;">
                 Petunjuk Pembayaran & Rekening Resmi:
             </div>
-            <div style="color: #334155; line-height: 1.5;">
+            <div style="color: #334155; line-height: 1.45;">
                 @if($scheme === 'full')
                     Silakan melakukan transfer pembayaran penuh (100%) ke rekening resmi berikut:
                 @else
                     Silakan melakukan transfer pembayaran / DP ke rekening resmi berikut:
                 @endif
-                <table style="margin-top: 4px; font-size: 11px; border-collapse: collapse;">
+                <table style="margin-top: 3px; font-size: 10.5px; border-collapse: collapse;">
                     <tr>
-                        <td style="padding: 2px 0; color: #64748b; width: 110px;">Bank Tujuan</td>
-                        <td style="padding: 2px 0; font-weight: 700; color: #0f172a;">: Bank BRI (Bank Rakyat Indonesia)</td>
+                        <td style="padding: 1.5px 0; color: #64748b; width: 100px;">Bank Tujuan</td>
+                        <td style="padding: 1.5px 0; font-weight: 700; color: #0f172a;">: Bank BRI (Bank Rakyat Indonesia)</td>
                     </tr>
                     <tr>
-                        <td style="padding: 2px 0; color: #64748b;">Nomor Rekening</td>
-                        <td style="padding: 2px 0; font-weight: 800; font-family: monospace; font-size: 12.5px; color: #ea580c;">: 4356-01-009396-50-2 <span style="font-weight: normal; font-size: 10px; color: #64748b;">(435601009396502)</span></td>
+                        <td style="padding: 1.5px 0; color: #64748b;">Nomor Rekening</td>
+                        <td style="padding: 1.5px 0; font-weight: 800; font-family: monospace; font-size: 12px; color: #ea580c;">: 4356-01-009396-50-2 <span style="font-weight: normal; font-size: 9.5px; color: #64748b;">(435601009396502)</span></td>
                     </tr>
                     <tr>
-                        <td style="padding: 2px 0; color: #64748b;">Atas Nama</td>
-                        <td style="padding: 2px 0; font-weight: 700; color: #0f172a;">: ABDUL HAMID</td>
+                        <td style="padding: 1.5px 0; color: #64748b;">Atas Nama</td>
+                        <td style="padding: 1.5px 0; font-weight: 700; color: #0f172a;">: ABDUL HAMID</td>
                     </tr>
                 </table>
-                <div style="margin-top: 5px; font-size: 10px; color: #9a3412; font-style: italic; line-height: 1.4;">
+                <div style="margin-top: 4px; font-size: 9.5px; color: #9a3412; font-style: italic; line-height: 1.35;">
                     @if($scheme !== 'full')
                     * Sisa pelunasan diselesaikan saat material telah selesai diproduksi & siap dikirim dari pabrik.<br>
                     @endif
@@ -344,7 +360,7 @@
         @endif
 
         <!-- Signature & Stamp Section Resmi Pabrik -->
-        <table style="width: 100%; margin-top: 30px; border-collapse: collapse; page-break-inside: avoid;">
+        <table class="signature-section avoid-break" style="width: 100%; margin-top: 15px; border-collapse: collapse; page-break-inside: avoid !important; break-inside: avoid !important;">
             <tr>
                 <td style="width: 55%; vertical-align: top; font-size: 11px; color: #64748b; line-height: 1.5; padding-right: 20px;">
                     <strong style="color: #334155;">Syarat & Ketentuan Pengiriman:</strong>

@@ -5,6 +5,7 @@ namespace App\Filament\Resources\WaOrderResource\Pages;
 use App\Filament\Resources\WaOrderResource;
 use App\Mail\OrderStatusMail;
 use App\Models\Invoice;
+use App\Models\ManualDocument;
 use App\Models\Order;
 use App\Models\OrderBatch;
 use App\Models\Payment;
@@ -158,6 +159,15 @@ class ViewWaOrder extends ViewRecord
                         ]);
                     }
 
+                    try {
+                        $email = $record->shipping_email ?? $record->user?->email;
+                        if ($email) {
+                            Mail::to($email)->send(new OrderStatusMail($record, 'payment_received', null, $payment));
+                        }
+                    } catch (\Throwable $e) {
+                        Log::error('Record payment email error: '.$e->getMessage());
+                    }
+
                     Notification::make()
                         ->title('Pembayaran '.($data['installment_title'] ?? ('#'.$payCount)).' Berhasil Dicatat! 💳')
                         ->body('Uang Masuk: Rp '.number_format($amountThisTime, 0, ',', '.').' | Total Terbayar: Rp '.number_format($newTotalPaid, 0, ',', '.').' | Sisa Tagihan: Rp '.number_format($remaining, 0, ',', '.'))
@@ -248,7 +258,7 @@ class ViewWaOrder extends ViewRecord
                     try {
                         $email = $record->shipping_email ?? $record->user?->email;
                         if ($email) {
-                            Mail::to($email)->send(new OrderStatusMail($record, 'paid'));
+                            Mail::to($email)->send(new OrderStatusMail($record, 'paid', null, $payment ?? null));
                         }
                     } catch (\Throwable $e) {
                         Log::error('Settlement email error: '.$e->getMessage());
@@ -319,6 +329,227 @@ class ViewWaOrder extends ViewRecord
             ->color('info')
             ->url(fn ($record) => route('print.order', $record))
             ->openUrlInNewTab();
+
+        // Terbitkan Dokumen Tambahan (Retail, B2B Proyek, Ekspor)
+        $actions[] = Actions\Action::make('generate_custom_document')
+            ->label('📄 Terbitkan Dokumen Tambahan')
+            ->icon('heroicon-o-document-plus')
+            ->color('warning')
+            ->modalHeading("Terbitkan Dokumen Resmi Khusus — {$record->order_number}")
+            ->modalDescription('Pilih kategori dan tipe dokumen yang ingin diterbitkan (Retail B2C, Kontraktor B2B, atau Ekspor Internasional). Data pesanan otomatis diimpor.')
+            ->modalWidth('4xl')
+            ->form([
+                Forms\Components\Grid::make(3)->schema([
+                    Forms\Components\Select::make('category')
+                        ->label('1. Kategori Kebutuhan Dokumen')
+                        ->options([
+                            'retail' => '🏠 Retail / B2C (Pembeli Biasa)',
+                            'b2b' => '🏢 Kontraktor / Developer Proyek (B2B)',
+                            'export' => '🌐 Ekspor Internasional (Valas / Port Tanjung Priok)',
+                        ])
+                        ->default('b2b')
+                        ->live()
+                        ->required()
+                        ->columnSpan(1),
+
+                    Forms\Components\Select::make('type')
+                        ->label('2. Tipe Dokumen yang Diterbitkan')
+                        ->options(function (Forms\Get $get) {
+                            $cat = $get('category');
+                            if ($cat === 'retail') {
+                                return [
+                                    'penawaran' => '📝 Surat Penawaran Harga (SPH)',
+                                    'faktur' => '🧾 Faktur Penjualan (Invoice)',
+                                    'kwitansi' => '💰 Kwitansi Pembayaran Sah',
+                                    'surat_jalan' => '🚚 Surat Jalan Pengiriman',
+                                ];
+                            } elseif ($cat === 'export') {
+                                return [
+                                    'commercial_invoice' => '🚢 Commercial Invoice (Ekspor - USD / Valas)',
+                                    'export_packing_list' => '📦 Export Packing List (Peti Kayu / Crates)',
+                                    'certificate_of_origin' => '📜 Certificate of Origin (COO / Form D)',
+                                    'shipping_instruction' => '🚢 Shipping Instruction (Ocean Freight)',
+                                ];
+                            } else {
+                                return [
+                                    'bast' => '📋 Berita Acara Serah Terima (BAST Lapangan)',
+                                    'sph' => '📝 SPH Resmi Tender / Surat Dukungan',
+                                    'lab_test' => '🔬 Sertifikat Uji Kuat Tekan Lab SNI',
+                                    'kwitansi' => '💰 Kwitansi Bermaterai (Rp 10.000)',
+                                    'faktur' => '📑 Faktur Komersial B2B',
+                                ];
+                            }
+                        })
+                        ->default('bast')
+                        ->live()
+                        ->required()
+                        ->columnSpan(2),
+                ]),
+
+                Forms\Components\Grid::make(2)->schema([
+                    Forms\Components\TextInput::make('document_number')
+                        ->label('Nomor Dokumen Resmi')
+                        ->default(function (Forms\Get $get) use ($record) {
+                            $type = $get('type') ?: 'DOC';
+                            $prefix = strtoupper(str_replace('_', '-', $type));
+                            $cleanNo = preg_replace('/[^0-9]/', '', $record->order_number);
+
+                            return "{$prefix}/IR-PWK/".date('Y').'/'.substr($cleanNo, -4);
+                        })
+                        ->required(),
+
+                    Forms\Components\DatePicker::make('document_date')
+                        ->label('Tanggal Terbit Dokumen')
+                        ->default(now())
+                        ->required(),
+                ]),
+
+                Forms\Components\Fieldset::make('Informasi Klien / Perusahaan')
+                    ->schema([
+                        Forms\Components\TextInput::make('client_name')
+                            ->label('Nama Klien / PT / Instansi')
+                            ->default(fn () => $record->shipping_name)
+                            ->required(),
+
+                        Forms\Components\TextInput::make('client_phone')
+                            ->label('No. WhatsApp / Telepon')
+                            ->default(fn () => $record->shipping_phone),
+
+                        Forms\Components\TextInput::make('client_email')
+                            ->label('Email Klien')
+                            ->default(fn () => $record->shipping_email),
+
+                        Forms\Components\Textarea::make('client_address')
+                            ->label('Alamat Proyek / Lokasi Tujuan')
+                            ->default(fn () => $record->shipping_address.($record->shipping_city ? ', '.$record->shipping_city : '').($record->shipping_province ? ', '.$record->shipping_province : ''))
+                            ->rows(2)
+                            ->columnSpanFull(),
+                    ])->columns(3),
+
+                Forms\Components\Fieldset::make('Rincian Produk & Nilai Dokumen')
+                    ->schema([
+                        Forms\Components\Repeater::make('items')
+                            ->label('Daftar Produk / Barang')
+                            ->default(function () use ($record) {
+                                return $record->items->map(function ($it) {
+                                    return [
+                                        'product_name' => $it->product_name.($it->variant ? ' ('.$it->variant->name.')' : ''),
+                                        'quantity' => $it->quantity,
+                                        'price' => $it->product_price,
+                                        'total' => $it->subtotal,
+                                    ];
+                                })->toArray();
+                            })
+                            ->schema([
+                                Forms\Components\TextInput::make('product_name')
+                                    ->label('Nama Barang / Uraian')
+                                    ->required()
+                                    ->columnSpan(4),
+                                Forms\Components\TextInput::make('quantity')
+                                    ->label('Qty (pcs)')
+                                    ->numeric()
+                                    ->required()
+                                    ->columnSpan(2),
+                                Forms\Components\TextInput::make('price')
+                                    ->label('Harga Satuan')
+                                    ->numeric()
+                                    ->prefix('Rp')
+                                    ->required()
+                                    ->columnSpan(3),
+                                Forms\Components\TextInput::make('total')
+                                    ->label('Subtotal')
+                                    ->numeric()
+                                    ->prefix('Rp')
+                                    ->required()
+                                    ->columnSpan(3),
+                            ])
+                            ->columns(12)
+                            ->columnSpanFull(),
+
+                        Forms\Components\Grid::make(3)->schema([
+                            Forms\Components\TextInput::make('subtotal')
+                                ->label('Subtotal')
+                                ->numeric()
+                                ->prefix('Rp')
+                                ->default(fn () => $record->subtotal)
+                                ->required(),
+
+                            Forms\Components\TextInput::make('discount')
+                                ->label('Diskon')
+                                ->numeric()
+                                ->prefix('Rp')
+                                ->default(fn () => $record->discount_amount ?: 0),
+
+                            Forms\Components\TextInput::make('grand_total')
+                                ->label('Grand Total')
+                                ->numeric()
+                                ->prefix('Rp')
+                                ->default(fn () => $record->grand_total)
+                                ->required(),
+                        ]),
+                    ]),
+
+                Forms\Components\Textarea::make('notes')
+                    ->label('Catatan Khusus / Keterangan Legalitas')
+                    ->placeholder('Contoh: Dokumen ini diterbitkan sebagai Berita Acara Serah Terima Resmi Proyek Cluster...')
+                    ->rows(2)
+                    ->columnSpanFull(),
+            ])
+            ->modalSubmitActionLabel('📄 Terbitkan & Buat Dokumen')
+            ->action(function (array $data) use ($record) {
+                $doc = ManualDocument::create([
+                    'document_number' => $data['document_number'],
+                    'type' => $data['type'],
+                    'client_name' => $data['client_name'],
+                    'client_address' => $data['client_address'] ?? null,
+                    'client_phone' => $data['client_phone'] ?? null,
+                    'client_email' => $data['client_email'] ?? null,
+                    'items' => $data['items'] ?? [],
+                    'subtotal' => (float) ($data['subtotal'] ?? 0),
+                    'discount' => (float) ($data['discount'] ?? 0),
+                    'has_tax' => false,
+                    'tax_amount' => 0,
+                    'grand_total' => (float) ($data['grand_total'] ?? 0),
+                    'document_date' => $data['document_date'] ?? now(),
+                    'issued_by' => auth()->user()?->name ?? 'Admin Pabrik',
+                    'status' => 'final',
+                    'notes' => $data['notes'] ?? null,
+                    'extra_data' => [
+                        'order_id' => $record->id,
+                        'order_number' => $record->order_number,
+                        'category' => $data['category'] ?? 'b2b',
+                        'notes' => $data['notes'] ?? null,
+                    ],
+                ]);
+
+                $docUrl = route('print.manual-document', $doc->id);
+                $phone = preg_replace('/[^0-9]/', '', $record->shipping_phone ?? '');
+                if (str_starts_with($phone, '0')) {
+                    $phone = '62'.substr($phone, 1);
+                }
+                $waMsg = rawurlencode("Halo {$record->shipping_name}, berikut kami lampirkan dokumen resmi {$doc->getTypeLabel()} untuk pesanan #{$record->order_number}:\n\n🔗 Link Dokumen PDF: {$docUrl}\n\nTerima kasih.");
+                $waLink = "https://wa.me/{$phone}?text={$waMsg}";
+
+                Notification::make()
+                    ->title("Dokumen {$doc->getTypeLabel()} Berhasil Diterbitkan! 📄")
+                    ->body("No. Dokumen: {$doc->document_number}. Siap dicetak atau dikirimkan ke pembeli.")
+                    ->success()
+                    ->persistent()
+                    ->actions([
+                        Action::make('print_doc_'.$doc->id)
+                            ->label('🖨️ Cetak PDF Dokumen')
+                            ->url($docUrl, shouldOpenInNewTab: true)
+                            ->button()
+                            ->color('success')
+                            ->icon('heroicon-o-printer'),
+                        Action::make('wa_doc_'.$doc->id)
+                            ->label('💬 Kirim via WhatsApp')
+                            ->url($waLink, shouldOpenInNewTab: true)
+                            ->button()
+                            ->icon('heroicon-o-chat-bubble-left-ellipsis'),
+                    ])
+                    ->send();
+            });
 
         $actions[] = Actions\EditAction::make();
 

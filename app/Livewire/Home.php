@@ -8,6 +8,7 @@ use App\Models\Faq;
 use App\Models\Page;
 use App\Models\Product;
 use App\Models\SeoLocation;
+use App\Models\SiteSetting;
 use App\Models\Testimonial;
 use Livewire\Component;
 
@@ -17,8 +18,10 @@ class Home extends Component
     {
         $page = Page::where('slug', 'home')->first();
 
-        $metaTitle = $page?->meta_title ?: 'Produsen & Supplier Roster Beton No. 1 di Indonesia — IndoRoster';
-        $metaDescription = $page?->meta_description ?: 'Pabrik & produsen roster beton minimalis terbesar di Indonesia. Supplier loster cetak padat presisi harga pabrik Plered Purwakarta, siap kirim partai kecil & proyek ke seluruh Indonesia.';
+        $metaTitle = $page?->meta_title
+            ?: SiteSetting::getValue('meta_title_default', 'Pabrik Roster Beton Minimalis | Suplier Proyek Jabodetabek & Indonesia');
+        $metaDescription = $page?->meta_description
+            ?: SiteSetting::getValue('meta_description_default', 'Pusat produsen tangan pertama roster beton minimalis, bata expose, dan loster arsitektural modern harga pabrik Plered Purwakarta.');
 
         $topLocations = class_exists(SeoLocation::class)
             ? SeoLocation::where('seo_enabled', true)->orderBy('priority', 'asc')->take(16)->get()

@@ -2,8 +2,10 @@
 
 namespace App\Livewire;
 
+use App\Mail\OrderStatusMail;
 use App\Models\Address;
 use App\Models\Cart as CartModel;
+use App\Models\Invoice;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
@@ -12,8 +14,11 @@ use App\Models\ShippingRate;
 use App\Models\SiteSetting;
 use App\Models\Voucher;
 use App\Services\MidtransService;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Laravolt\Indonesia\Models\City;
 use Laravolt\Indonesia\Models\District;
 use Laravolt\Indonesia\Models\Province;
@@ -178,18 +183,24 @@ class Checkout extends Component
     {
         $rules = [
             'name' => 'required|min:3',
-            'email' => 'required|email',
-            'phone' => 'required|min:10',
-            'address' => 'required|min:10',
-            'postal_code' => 'required',
+            'phone' => 'required|min:8',
+            'address' => 'required|min:5',
         ];
+
+        if ($this->orderMode === 'midtrans') {
+            $rules['email'] = 'required|email';
+            $rules['postal_code'] = 'required';
+        } else {
+            $rules['email'] = 'nullable|email';
+            $rules['postal_code'] = 'nullable';
+        }
 
         // If a saved address is not selected, require location selection fields (Laravolt)
         if (! $this->selectedAddressId) {
             $rules['province_id'] = 'required';
             $rules['city_id'] = 'required';
             $rules['district_id'] = 'required';
-            $rules['village_id'] = 'required';
+            $rules['village_id'] = 'nullable';
         }
 
         return $rules;
@@ -221,14 +232,16 @@ class Checkout extends Component
         $this->calculateTotal();
     }
 
+    public string $orderMode = 'midtrans';
+
+    public function getOrderModeProperty(): string
+    {
+        return $this->orderMode ?: SiteSetting::getValue('order_mode', 'midtrans');
+    }
+
     public function mount()
     {
-        if (SiteSetting::getValue('order_mode', 'midtrans') === 'whatsapp') {
-            session()->flash('error', 'Pemesanan online otomatis sedang dinonaktifkan. Silakan selesaikan pesanan Anda langsung melalui WhatsApp.');
-
-            return redirect('/keranjang');
-        }
-
+        $this->orderMode = SiteSetting::getValue('order_mode', 'midtrans');
         $this->mode = request()->query('mode', '');
 
         $this->loadCart();
@@ -483,7 +496,8 @@ class Checkout extends Component
             }
 
             if (session()->has('selected_cart_items')) {
-                $query->whereIn('id', session()->get('selected_cart_items'));
+                $selectedIds = (array) session()->get('selected_cart_items');
+                $query->whereIn('id', array_map('intval', $selectedIds));
             }
 
             $this->cartItems = $query->get();
@@ -501,6 +515,15 @@ class Checkout extends Component
     public function calculateTotal()
     {
         if ($this->isProcessing) {
+            return;
+        }
+
+        if ($this->orderMode === 'whatsapp') {
+            $this->shippingCost = 0;
+            $this->minOrderQty = 0;
+            $this->discountAmount = 0;
+            $this->grandTotal = $this->subtotal;
+
             return;
         }
 
@@ -533,8 +556,6 @@ class Checkout extends Component
         $this->grandTotal = max(0, $this->subtotal + $this->shippingCost - $this->discountAmount);
     }
 
-    // No longer needed since calculateTotal is called in updatedCityId
-
     public function processCheckout()
     {
         $this->loadCart(); // Ensure cart items and relations are fresh
@@ -558,6 +579,10 @@ class Checkout extends Component
             }
         }
 
+        if ($this->orderMode === 'whatsapp') {
+            return $this->processWhatsappCheckout();
+        }
+
         if ($this->totalQty < $this->minOrderQty) {
             session()->flash('error', 'Maaf, minimal order untuk wilayah ini adalah '.$this->minOrderQty.' pcs. Pesanan Anda saat ini baru '.$this->totalQty.' pcs.');
 
@@ -569,7 +594,6 @@ class Checkout extends Component
 
         DB::beginTransaction();
         try {
-            // Create user if not logged in (optional logic, for now we attach to guest or existing)
             $userId = auth()->id();
 
             // Get names for storage
@@ -632,7 +656,6 @@ class Checkout extends Component
 
             // Create Order Items & Reduce Stock
             foreach ($this->cartItems as $cartItem) {
-                // Critical Safety Check: Ensure product exists before creating order item
                 if (! $cartItem->product_id) {
                     throw new \Exception('Informasi produk tidak lengkap. Silakan ulangi proses checkout.');
                 }
@@ -659,7 +682,6 @@ class Checkout extends Component
 
             // Generate Midtrans Snap Token
             $midtrans = new MidtransService;
-            // We need a dummy user relation if guest for Midtrans
             if (! $order->user) {
                 $order->setRelation('user', (object) [
                     'name' => $this->name,
@@ -673,8 +695,6 @@ class Checkout extends Component
             if ($this->mode === 'buy_now') {
                 session()->forget('buy_now_item');
             } else {
-                // Cart is no longer cleared during checkout creation to support payment retries.
-                // It will be cleared in OrderSuccess component or PaymentCallbackController once payment status is 'paid'.
                 session()->forget('selected_cart_items');
                 $this->dispatch('cart-updated');
             }
@@ -691,11 +711,234 @@ class Checkout extends Component
         }
     }
 
+    public function processWhatsappCheckout()
+    {
+        $this->isProcessing = true;
+
+        DB::beginTransaction();
+        try {
+            $userId = auth()->id();
+
+            // Resolve location names
+            $provinceName = Province::where('code', $this->province_id)->first()?->name;
+            $cityName = City::where('code', $this->city_id)->first()?->name;
+            $districtName = District::where('code', $this->district_id)->first()?->name;
+            $villageName = Village::where('code', $this->village_id)->first()?->name;
+
+            $shippingAddressText = '';
+            $finalLat = $this->latitude;
+            $finalLng = $this->longitude;
+
+            if ($this->selectedAddressId) {
+                $addressModel = Address::find($this->selectedAddressId);
+                if ($addressModel) {
+                    $provinceName = $provinceName ?: $addressModel->province;
+                    $cityName = $cityName ?: $addressModel->city;
+                    $districtName = $districtName ?: $addressModel->district;
+                    $villageName = $villageName ?: $addressModel->village;
+                    $this->postal_code = $this->postal_code ?: $addressModel->postal_code;
+                    $shippingAddressText = $addressModel->full_address;
+                    $finalLat = $finalLat ?: $addressModel->latitude;
+                    $finalLng = $finalLng ?: $addressModel->longitude;
+                }
+            }
+
+            if (! $shippingAddressText) {
+                $shippingAddressText = $this->address;
+            }
+
+            // Susun alamat lengkap terpadu (Jalan, RT/RW, Desa/Kelurahan, Kecamatan, Kota/Kabupaten, Provinsi, Kode Pos)
+            $addressParts = array_filter([
+                $shippingAddressText,
+                ($villageName && ! str_contains(strtolower($shippingAddressText), strtolower($villageName))) ? 'Desa/Kel. '.$villageName : null,
+                ($districtName && ! str_contains(strtolower($shippingAddressText), strtolower($districtName))) ? 'Kec. '.$districtName : null,
+                ($cityName && ! str_contains(strtolower($shippingAddressText), strtolower($cityName))) ? $cityName : null,
+                ($provinceName && ! str_contains(strtolower($shippingAddressText), strtolower($provinceName))) ? $provinceName : null,
+            ]);
+            $completeShippingAddress = implode(', ', $addressParts);
+            if ($this->postal_code && ! str_contains($completeShippingAddress, (string) $this->postal_code)) {
+                $completeShippingAddress .= ' '.$this->postal_code;
+            }
+
+            $batchNotesText = null;
+            if ($this->requestedBatchDelivery) {
+                $prefLabel = match ($this->batchPreference) {
+                    'tiap_minggu' => 'Kirim Bertahap Tiap Minggu',
+                    '2_tahap' => 'Kirim dalam 2 Tahap',
+                    '4_tahap' => 'Kirim dalam 4 Tahap',
+                    '8_tahap' => 'Kirim dalam 8 Tahap',
+                    default => 'Kirim Bertahap Sesuai Kesiapan',
+                };
+                $batchNotesText = $prefLabel.($this->batchCustomNotes ? " (Catatan Proyek: {$this->batchCustomNotes})" : '');
+            }
+
+            // Create Order in Database
+            $order = Order::create([
+                'order_number' => Order::generateWaOrderNumber(),
+                'user_id' => $userId,
+                'status' => 'pending_payment',
+                'payment_status' => 'unpaid',
+                'order_source' => 'whatsapp',
+                'subtotal' => $this->subtotal,
+                'shipping_cost' => 0,
+                'discount_amount' => 0,
+                'grand_total' => $this->subtotal,
+                'shipping_name' => $this->name ?: (auth()->user()?->name ?? 'Pelanggan'),
+                'shipping_email' => $this->email ?: (auth()->user()?->email ?? null),
+                'shipping_phone' => $this->phone ?: (auth()->user()?->phone ?? '-'),
+                'shipping_address' => $shippingAddressText,
+                'shipping_city' => $cityName,
+                'shipping_district' => $districtName,
+                'shipping_village' => $villageName,
+                'shipping_province' => $provinceName,
+                'shipping_postal_code' => $this->postal_code,
+                'shipping_latitude' => $finalLat,
+                'shipping_longitude' => $finalLng,
+                'notes' => $this->notes,
+                'requested_batch_delivery' => $this->requestedBatchDelivery,
+                'requested_batch_notes' => $batchNotesText,
+            ]);
+
+            $itemLines = [];
+            $idx = 1;
+
+            // Create Order Items
+            foreach ($this->cartItems as $cartItem) {
+                if (! $cartItem->product_id) {
+                    throw new \Exception('Informasi produk tidak lengkap. Silakan ulangi proses checkout.');
+                }
+
+                $product = $cartItem->product;
+                $varName = $cartItem->variant ? ' ('.$cartItem->variant->name.')' : '';
+                $price = $cartItem->variant ? $cartItem->variant->final_price : ($product?->price ?? 0);
+                $itemSubtotal = $price * $cartItem->quantity;
+                $prodUrl = $product ? route('product.detail', $product->slug) : '';
+
+                OrderItem::create([
+                    'order_id' => $order->id,
+                    'product_id' => $cartItem->product_id,
+                    'product_variant_id' => $cartItem->product_variant_id,
+                    'product_name' => $product?->name ?? 'Produk Roster',
+                    'product_price' => $price,
+                    'quantity' => $cartItem->quantity,
+                    'subtotal' => $itemSubtotal,
+                ]);
+
+                // Format WhatsApp Item Line with Direct Link
+                $line = "{$idx}. *".($product?->name ?? 'Produk')."{$varName}*\n";
+                $line .= '   • Jumlah: '.$cartItem->quantity.' pcs × Rp'.number_format($price, 0, ',', '.')."\n";
+                $line .= '   • Subtotal: Rp'.number_format($itemSubtotal, 0, ',', '.');
+                if ($prodUrl) {
+                    $line .= "\n   🔗 Link: {$prodUrl}";
+                }
+                $itemLines[] = $line;
+                $idx++;
+            }
+
+            // Clear ordered cart items
+            if ($this->mode === 'buy_now') {
+                session()->forget('buy_now_item');
+            } else {
+                $selectedIds = session()->get('selected_cart_items', []);
+                if (! empty($selectedIds)) {
+                    CartModel::whereIn('id', $selectedIds)->delete();
+                } else {
+                    $cartIds = $this->cartItems->pluck('id')->filter()->toArray();
+                    if (! empty($cartIds)) {
+                        CartModel::whereIn('id', $cartIds)->delete();
+                    }
+                }
+                session()->forget('selected_cart_items');
+                $this->dispatch('cart-updated');
+            }
+
+            DB::commit();
+
+            // Pastikan Dokumen Invoice / Penawaran terbuat
+            Invoice::firstOrCreate(
+                ['order_id' => $order->id],
+                [
+                    'invoice_number' => Invoice::generateWaInvoiceNumber(),
+                    'invoice_date' => now(),
+                    'subtotal' => $order->subtotal,
+                    'shipping_cost' => $order->shipping_cost,
+                    'discount_amount' => $order->discount_amount,
+                    'grand_total' => $order->grand_total,
+                    'payment_scheme' => $order->payment_scheme ?: 'full',
+                    'down_payment_amount' => $order->down_payment_amount ?: 0,
+                    'remaining_balance' => $order->remaining_balance ?: 0,
+                    'status' => 'sent',
+                ]
+            );
+
+            // Kirim Email Surat Penawaran & Proforma Tagihan ke Pembeli
+            try {
+                $buyerEmail = $order->shipping_email ?: (auth()->user()?->email ?? null);
+                if ($buyerEmail) {
+                    Mail::to($buyerEmail)->send(new OrderStatusMail($order, 'created'));
+                }
+            } catch (\Throwable $e) {
+                Log::error('WA Checkout created email error: '.$e->getMessage());
+            }
+
+            // Prepare WhatsApp Message
+            $rawWa = SiteSetting::getValue('whatsapp_number', '0813-8970-9847');
+            $waPhone = preg_replace('/[^0-9]/', '', (string) $rawWa);
+            if (str_starts_with($waPhone, '0')) {
+                $waPhone = '62'.substr($waPhone, 1);
+            } elseif (str_starts_with($waPhone, '8')) {
+                $waPhone = '62'.$waPhone;
+            }
+
+            $mapsLink = '';
+            if ($finalLat && $finalLng) {
+                $mapsLink = "\n📍 *Titik Lokasi (Google Maps):* https://maps.google.com/?q={$finalLat},{$finalLng}";
+            }
+
+            $dateNow = Carbon::now()->translatedFormat('d F Y H:i');
+            $itemsString = implode("\n\n", $itemLines);
+            $subtotalFormatted = 'Rp'.number_format($this->subtotal, 0, ',', '.');
+
+            $trackingUrl = route('order.tracking', [
+                'order_number' => $order->order_number,
+                'contact' => $this->phone,
+            ]);
+
+            $waMessage = "Halo Admin IndoRoster, saya ingin memesan roster beton melalui website:\n\n"
+                ."📋 *DETAIL PESANAN*\n"
+                ."• No. Pesanan: #{$order->order_number}\n"
+                ."• Tanggal: {$dateNow} WIB\n\n"
+                ."📦 *DAFTAR PRODUK:*\n{$itemsString}\n\n"
+                ."💰 *Total Harga Barang:* {$subtotalFormatted}\n"
+                ."🚚 *Ongkir:* (Menunggu konfirmasi admin armada via WA)\n\n"
+                ."👤 *DATA PEMESAN:*\n"
+                ."• Nama: {$this->name}\n"
+                ."• No. WhatsApp: {$this->phone}\n"
+                ."• Alamat Lengkap: {$completeShippingAddress}"
+                .$mapsLink."\n"
+                .($this->notes ? "• Catatan: {$this->notes}\n" : '')
+                ."\n🔍 *Lacak Pesanan:* {$trackingUrl}\n"
+                ."\nMohon info ketersediaan stok, estimasi ongkos kirim armada pabrik, dan total pembayaran. Terima kasih!";
+
+            $waUrl = 'https://wa.me/'.$waPhone.'?text='.rawurlencode($waMessage);
+
+            // Buka WhatsApp langsung di browser / aplikasi WhatsApp HP
+            return $this->redirect($waUrl);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            $this->isProcessing = false;
+            session()->flash('error', 'Terjadi kesalahan: '.$e->getMessage());
+        }
+    }
+
     public function render()
     {
         $this->loadCart();
 
-        return view('livewire.checkout')->layout('components.layouts.app', [
+        return view('livewire.checkout', [
+            'orderMode' => $this->orderMode,
+        ])->layout('components.layouts.app', [
             'title' => 'Checkout | INDOROSTER',
             'robots' => 'noindex, nofollow',
         ]);

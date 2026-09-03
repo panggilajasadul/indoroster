@@ -1,69 +1,29 @@
 <?php
 
-namespace App\Livewire\Application;
+namespace Database\Seeders;
 
 use App\Models\ApplicationPage;
-use App\Models\Category;
-use App\Models\GalleryMedia;
-use App\Models\Product;
-use App\Models\SeoLocation;
-use App\Models\SiteSetting;
-use Livewire\Component;
-use Livewire\WithPagination;
+use Illuminate\Database\Seeder;
 
-class ApplicationDetail extends Component
+class ApplicationPageSeeder extends Seeder
 {
-    use WithPagination;
-
-    public string $slug;
-
-    public array $application;
-
-    public string $search = '';
-
-    public string $selectedCategory = '';
-
-    public function mount(string $slug)
+    /**
+     * Run the database seeds.
+     */
+    public function run(): void
     {
-        $this->slug = strtolower(trim($slug));
-
-        try {
-            $dbApp = ApplicationPage::where('slug', $this->slug)
-                ->where('is_active', true)
-                ->first();
-
-            if ($dbApp) {
-                $this->application = [
-                    'title' => $dbApp->title,
-                    'meta_title' => $dbApp->meta_title ?: ($dbApp->title.' | Pabrik IndoRoster'),
-                    'meta_description' => $dbApp->meta_description ?: $dbApp->subtitle,
-                    'keywords' => $dbApp->keywords,
-                    'headline' => $dbApp->headline,
-                    'badge' => $dbApp->badge,
-                    'intro' => $dbApp->intro,
-                    'deep_narrative' => $dbApp->deep_narrative ?? [],
-                    'specs' => $dbApp->specs ?? [],
-                    'installation_guide' => $dbApp->installation_guide ?? [],
-                    'design_tips' => $dbApp->design_tips ?? [],
-                    'benefits' => $dbApp->benefits ?? [],
-                    'motifs' => $dbApp->motifs ?? [],
-                    'gallery_images' => $dbApp->gallery_images ?? [],
-                    'faqs' => $dbApp->faqs ?? [],
-                ];
-
-                return;
-            }
-        } catch (\Throwable $e) {
-            // Fallback gracefully
-        }
-
         $applications = [
-            'pagar-rumah' => [
+            [
+                'slug' => 'pagar-rumah',
                 'title' => 'Roster Beton Pagar Minimalis Modern',
+                'subtitle' => 'Kombinasi privasi, sirkulasi udara, dan estetika modern untuk batas hunian.',
+                'badge' => '🏡 Pagar & Pembatas Kavling',
+                'icon' => '🏡',
+                'image' => 'https://res.cloudinary.com/indoroster/image/upload/v1765259970/7_blkgfx.jpg',
                 'meta_title' => 'Jual Roster Beton Pagar Rumah Minimalis Modern | Pabrik IndoRoster',
                 'meta_description' => 'Inspirasi & rekomendasi motif roster beton untuk dinding pagar rumah minimalis modern. Kokoh cetak padat presisi plat baja, sirkulasi udara lancar, privasi terjaga, harga langsung pabrik Plered.',
+                'keywords' => 'roster pagar rumah, pagar roster beton, loster pagar minimalis, roster dinding pagar, pagar roster plered',
                 'headline' => 'Desain Pagar Rumah Minimalis Modern dengan Roster Beton Tumbuk Padat',
-                'badge' => '🏡 Pagar & Pembatas Kavling',
                 'intro' => 'Pagar roster beton adalah solusi arsitektural paling populer dalam rancang bangun hunian modern tropis di Indonesia. Berbeda dari dinding masif yang kaku dan membuat halaman terasa pengap seperti terkurung, aplikasi dinding pagar roster beton memberikan perpaduan sempurna antara batas keamanan kavling yang kokoh, sirkulasi udara alami yang leluasa mengalir, serta perlindungan privasi keluarga dari pandangan langsung pejalan kaki di luar jalan raya. Diproduksi dari formula pasir abu batu murni pilihan dengan pemadatan cetak plat baja presisi oleh pengrajin berpengalaman sentra Plered Purwakarta, pagar rumah Anda tampil kokoh, mewah, dan bernilai seni tinggi.',
                 'deep_narrative' => [
                     'title' => 'Mengapa Roster Beton Adalah Material Terbaik untuk Pagar Rumah Tropis?',
@@ -81,22 +41,10 @@ class ApplicationDetail extends Component
                 'installation_guide' => [
                     'title' => 'Panduan Teknis Pemasangan Pagar Roster yang Aman & Kokoh',
                     'steps' => [
-                        [
-                            'step' => '1. Pondasi Sloof Beton Bertulang',
-                            'desc' => 'Pastikan dinding pagar berdiri di atas sloof beton bertulang dengan kedalaman pondasi minimal 30–40 cm agar tidak mengalami penurunan tanah di kemudian hari.',
-                        ],
-                        [
-                            'step' => '2. Kolom Praktis & Pembesian Pengaku',
-                            'desc' => 'Pasang tiang kolom cor praktis besi bertulang (Ø 8–10 mm) setiap bentang horizontal 1.5 – 2.0 meter, serta selipkan besi begel penguat di sela nat horizontal setiap 3–4 susun keping roster.',
-                        ],
-                        [
-                            'step' => '3. Adukan Semen Instan / Mortar Presisi',
-                            'desc' => 'Gunakan semen mortar perekat berkualitas dengan ketebalan nat siar 8–10 mm untuk menjaga kelurusan garis nat vertikal dan horizontal dinding pagar.',
-                        ],
-                        [
-                            'step' => '4. Lapisan Pelindung (Clear Coating Water-Repellent)',
-                            'desc' => 'Setelah adukan semen kering sempurna (3–7 hari), aplikasikan cat pelapis batu alam / clear coating anti air (water-repellent) untuk mencegah lumut, jamur, dan noda cipratan tanah saat hujan.',
-                        ],
+                        ['step' => '1. Pondasi Sloof Beton Bertulang', 'desc' => 'Pastikan dinding pagar berdiri di atas sloof beton bertulang dengan kedalaman pondasi minimal 30–40 cm agar tidak mengalami penurunan tanah di kemudian hari.'],
+                        ['step' => '2. Kolom Praktis & Pembesian Pengaku', 'desc' => 'Pasang tiang kolom cor praktis besi bertulang (Ø 8–10 mm) setiap bentang horizontal 1.5 – 2.0 meter, serta selipkan besi begel penguat di sela nat horizontal setiap 3–4 susun keping roster.'],
+                        ['step' => '3. Adukan Semen Instan / Mortar Presisi', 'desc' => 'Gunakan semen mortar perekat berkualitas dengan ketebalan nat siar 8–10 mm untuk menjaga kelurusan garis nat vertikal dan horizontal dinding pagar.'],
+                        ['step' => '4. Lapisan Pelindung (Clear Coating Water-Repellent)', 'desc' => 'Setelah adukan semen kering sempurna (3–7 hari), aplikasikan cat pelapis batu alam / clear coating anti air (water-repellent) untuk mencegah lumut, jamur, dan noda cipratan tanah saat hujan.'],
                     ],
                 ],
                 'design_tips' => [
@@ -121,13 +69,20 @@ class ApplicationDetail extends Component
                     ['q' => 'Bagaimana cara menghitung jumlah kebutuhan roster untuk pagar?', 'a' => 'Ukuran standar roster beton kami adalah 20x20x10 cm, sehingga membutuhkan 25 keping per 1 meter persegi (m²). Rumus hitungnya: Luas Dinding (Panjang × Tinggi) × 25 pcs + cadangan 3-5% untuk potongan nat.'],
                     ['q' => 'Apakah IndoRoster melayani pengiriman langsung ke lokasi proyek pagar rumah?', 'a' => 'Ya, kami melayani pengiriman langsung dari pabrik Plered Purwakarta ke seluruh wilayah Jabodetabek, Bandung, Jawa Barat, hingga ke seluruh Indonesia dengan garansi 100% ganti baru jika ada keping pecah di jalan.'],
                 ],
+                'is_active' => true,
+                'sort_order' => 1,
             ],
-            'fasad-rumah' => [
+            [
+                'slug' => 'fasad-rumah',
                 'title' => 'Fasad Dinding Roster Rumah Tropis',
+                'subtitle' => 'Secondary skin penangkal panas matahari langsung dengan pola bayangan arsitektural.',
+                'badge' => '🏛️ Fasad & Secondary Skin',
+                'icon' => '🏛️',
+                'image' => 'https://res.cloudinary.com/indoroster/image/upload/v1765260049/40_kt08ee.jpg',
                 'meta_title' => 'Fasad Rumah Roster Beton Minimalis Modern | Secondary Skin IndoRoster',
                 'meta_description' => 'Koleksi roster beton untuk fasad dinding rumah minimalis tropis. Menurunkan suhu ruangan, hemat AC, meredam silau matahari, harga langsung pabrik Plered.',
+                'keywords' => 'fasad roster beton, fasad rumah minimalis, secondary skin roster, roster penangkal panas, roster dinding depan',
                 'headline' => 'Fasad Rumah Tropis Modern: Secondary Skin Estetik, Meredam Panas & Hemat Listrik AC',
-                'badge' => '🏛️ Fasad & Secondary Skin',
                 'intro' => 'Aplikasi roster beton sebagai secondary skin (kulit kedua bangunan) pada fasad rumah menjadi tren utama dalam mahakarya arsitektur modern kontemporer. Memasang dinding roster di depan bidang kaca jendela utama terbukti mampu meredam radiasi panas matahari tropis langsung hingga 40%, menurunkan temperatur suhu ruangan di dalam rumah secara alami 3–5°C, serta menciptakan privasi maksimal bagi penghuni tanpa perlu menutup gorden jendela sepanjang hari. Diproduksi dengan presisi sudut siku 90 derajat, fasad rumah Anda menjadi karya seni geometris yang megah dan berkelas.',
                 'deep_narrative' => [
                     'title' => 'Efisiensi Energi & Estetika Shadow Play pada Fasad Bangunan',
@@ -145,18 +100,9 @@ class ApplicationDetail extends Component
                 'installation_guide' => [
                     'title' => 'Panduan Konstruksi Secondary Skin Fasad Roster Bertingkat',
                     'steps' => [
-                        [
-                            'step' => '1. Struktur Balok & Cantilever Penopang',
-                            'desc' => 'Dinding secondary skin roster di lantai 2 atau 3 harus bertumpu pada balok beton struktur cantilever atau frame baja IWF/UNP yang diangkur kuat ke struktur utama gedung.',
-                        ],
-                        [
-                            'step' => '2. Pembesian Begel Tulang Horizontal & Vertikal',
-                            'desc' => 'Setiap 2–3 susun keping roster wajib diisi besi tulangan horizontal dan dikaitkan pada kolom samping agar dinding fasad kokoh menahan beban angin (wind-load).',
-                        ],
-                        [
-                            'step' => '3. Ruang Perawatan (Maintenance Gap)',
-                            'desc' => 'Sisakan jarak 30–60 cm antara dinding roster dan kaca jendela untuk mempermudah pembersihan kaca dan sirkulasi pembuangan panas.',
-                        ],
+                        ['step' => '1. Struktur Balok & Cantilever Penopang', 'desc' => 'Dinding secondary skin roster di lantai 2 atau 3 harus bertumpu pada balok beton struktur cantilever atau frame baja IWF/UNP yang diangkur kuat ke struktur utama gedung.'],
+                        ['step' => '2. Pembesian Begel Tulang Horizontal & Vertikal', 'desc' => 'Setiap 2–3 susun keping roster wajib diisi besi tulangan horizontal dan dikaitkan pada kolom samping agar dinding fasad kokoh menahan beban angin (wind-load).'],
+                        ['step' => '3. Ruang Perawatan (Maintenance Gap)', 'desc' => 'Sisakan jarak 30–60 cm antara dinding roster dan kaca jendela untuk mempermudah pembersihan kaca dan sirkulasi pembuangan panas.'],
                     ],
                 ],
                 'design_tips' => [
@@ -179,13 +125,20 @@ class ApplicationDetail extends Component
                     ['q' => 'Bagaimana cara merawat fasad dinding roster agar tidak kusam?', 'a' => 'Cukup aplikasikan cat pelapis batu alam / clear coating water-repellent (berbasis solvent atau water-based) setiap 2-3 tahun sekali agar debu tidak mudah menempel dan permukaan beton selalu bersih mengkilap.'],
                     ['q' => 'Apakah roster beton kuat menahan beban angin pada fasad gedung tinggi?', 'a' => 'Sangat kuat jika dipasang dengan frame struktur pengaku besi hollow/baja dan pembesian begel cor di setiap nat modul.'],
                 ],
+                'is_active' => true,
+                'sort_order' => 2,
             ],
-            'ventilasi-dinding' => [
+            [
+                'slug' => 'ventilasi-dinding',
                 'title' => 'Ventilasi Dinding & Lubang Angin Roster',
+                'subtitle' => 'Sirkulasi udara alami bebas pengap untuk dapur, kamar mandi, dan ruang keluarga.',
+                'badge' => '💨 Sirkulasi Udara Alami',
+                'icon' => '💨',
+                'image' => 'https://res.cloudinary.com/indoroster/image/upload/v1765259923/34_li9387.jpg',
                 'meta_title' => 'Roster Ventilasi Udara Dinding & Lubang Angin Rumah | IndoRoster',
                 'meta_description' => 'Jual roster beton untuk ventilasi udara dinding rumah, dapur, kamar mandi, dan gudang. Sirkulasi lancar bebas pengap, cetak padat presisi harga pabrik.',
+                'keywords' => 'ventilasi roster beton, lubang angin rumah, roster dapur, roster kamar mandi, jalusi beton',
                 'headline' => 'Ventilasi Dinding Alami: Udara Bersih, Bebas Lembap & Rumah Sejuk Tanpa Pengap',
-                'badge' => '💨 Sirkulasi Udara Alami',
                 'intro' => 'Ventilasi alami adalah kunci utama rumah tinggal yang sehat dan nyaman dihuni. Roster lubang angin IndoRoster dirancang khusus dengan kepresisian siku 90 derajat untuk mempermudah pemasangan di atas kusen pintu, jendela, dinding dapur, kamar mandi, area cuci jemur, hingga dinding gudang. Mengalirkan pergantian udara bersih secara kontinu siang dan malam, mencegah timbulnya kelembapan berlebih, bau apek, dan pertumbuhan jamur berbahaya pada dinding hunian Anda.',
                 'deep_narrative' => [
                     'title' => 'Prinsip Sirkulasi Silang (Cross-Ventilation) untuk Kesehatan Rumah',
@@ -203,14 +156,8 @@ class ApplicationDetail extends Component
                 'installation_guide' => [
                     'title' => 'Tips Pemasangan Ventilasi Lubang Angin Roster',
                     'steps' => [
-                        [
-                            'step' => '1. Pasang di Atas Ketinggian Kepala',
-                            'desc' => 'Udara panas memiliki massa jenis lebih ringan dan selalu bergerak ke atas. Tempatkan modul ventilasi roster di area atas dinding (ketinggian > 2 meter) untuk membuang udara panas secara efisien.',
-                        ],
-                        [
-                            'step' => '2. Pemasangan Kawat Nyamuk Interior',
-                            'desc' => 'Untuk mencegah serangga atau nyamuk masuk, Anda dapat memasang frame kawat nyamuk aluminium atau magnetik di sisi dalam dinding roster yang mudah dilepas saat dibersihkan.',
-                        ],
+                        ['step' => '1. Pasang di Atas Ketinggian Kepala', 'desc' => 'Udara panas memiliki massa jenis lebih ringan dan selalu bergerak ke atas. Tempatkan modul ventilasi roster di area atas dinding (ketinggian > 2 meter) untuk membuang udara panas secara efisien.'],
+                        ['step' => '2. Pemasangan Kawat Nyamuk Interior', 'desc' => 'Untuk mencegah serangga atau nyamuk masuk, Anda dapat memasang frame kawat nyamuk aluminium atau magnetik di sisi dalam dinding roster yang mudah dilepas saat dibersihkan.'],
                     ],
                 ],
                 'design_tips' => [
@@ -232,13 +179,20 @@ class ApplicationDetail extends Component
                     ['q' => 'Apakah bisa dipasangi kawat nyamuk di bagian belakang roster?', 'a' => 'Bisa sekali. Anda bisa memasang frame kawat nyamuk aluminium atau lis magnetik di sisi belakang dinding roster agar serangga tidak bisa masuk.'],
                     ['q' => 'Apakah roster ventilasi aman dipasang di dinding kamar mandi?', 'a' => 'Sangat aman. Roster beton abu batu murni IndoRoster tahan air dan uap lembap kamar mandi tanpa risiko lapuk atau keropos.'],
                 ],
+                'is_active' => true,
+                'sort_order' => 3,
             ],
-            'partisi-ruangan' => [
+            [
+                'slug' => 'partisi-ruangan',
                 'title' => 'Partisi Ruangan & Sekat Interior Roster',
+                'subtitle' => 'Pembatas ruang fleksibel dan estetik yang menjaga keterbukaan visual.',
+                'badge' => '🚪 Partisi & Sekat Interior',
+                'icon' => '🚪',
+                'image' => 'https://res.cloudinary.com/indoroster/image/upload/v1765259822/469209740_1825168834684213_7463143257193343054_n_l4pum3.jpg',
                 'meta_title' => 'Sekat Partisi Ruangan Roster Beton Minimalis Interior | IndoRoster',
                 'meta_description' => 'Ide sekat partisi ruangan roster beton untuk ruang tamu, ruang keluarga, dan dapur. Tampilan estetik industrial modern langsung dari produsen.',
+                'keywords' => 'partisi roster beton, sekat ruang tamu roster, partisi interior minimalis, sekat dapur roster, pembatas ruang industrial',
                 'headline' => 'Sekat Partisi Ruangan Interior: Estetik, Elegan & Menjaga Keterbukaan Visual Ruang',
-                'badge' => '🚪 Partisi & Sekat Interior',
                 'intro' => 'Membagi zonasi ruang tamu, ruang keluarga, ruang makan, atau dapur tanpa membuat rumah terasa sempit kini semakin mudah dengan partisi roster beton interior. Desain kisi-kisi arsitektural memberikan batasan fungsi ruang yang tegas (semi-private zoning) namun tetap mempertahankan konsep ruang terbuka (open space), keterbukaan pandangan visual, dan kebebasan sirkulasi udara antar ruangan. Tampilan semen ekspos natural menghadirkan atmosfer Industrial Modern yang hangat dan instagramable.',
                 'deep_narrative' => [
                     'title' => 'Solusi Ruang Semi-Private Tanpa Kesan Pengap dan Gelap',
@@ -256,18 +210,9 @@ class ApplicationDetail extends Component
                 'installation_guide' => [
                     'title' => 'Langkah Pemasangan Partisi Interior Roster',
                     'steps' => [
-                        [
-                            'step' => '1. Letakkan di Atas Balok / Lantai Kokoh',
-                            'desc' => 'Pastikan partisi berdiri di atas lantai yang solid atau balok struktur. Pasang bracket siku penguat besi di sisi dinding samping dan lantai.',
-                        ],
-                        [
-                            'step' => '2. Gunakan Semen Perekat Mortar Tipis',
-                            'desc' => 'Untuk interior, gunakan adukan semen perekat instan tipis (neat mortar) agar garis nat terlihat sangat rapi dan presisi.',
-                        ],
-                        [
-                            'step' => '3. Finishing Interior Sealer',
-                            'desc' => 'Aplikasikan dust-proof coating / interior clear sealer agar permukaan beton bebas debu dan mudah dilap saat dibersihkan.',
-                        ],
+                        ['step' => '1. Letakkan di Atas Balok / Lantai Kokoh', 'desc' => 'Pastikan partisi berdiri di atas lantai yang solid atau balok struktur. Pasang bracket siku penguat besi di sisi dinding samping dan lantai.'],
+                        ['step' => '2. Gunakan Semen Perekat Mortar Tipis', 'desc' => 'Untuk interior, gunakan adukan semen perekat instan tipis (neat mortar) agar garis nat terlihat sangat rapi dan presisi.'],
+                        ['step' => '3. Finishing Interior Sealer', 'desc' => 'Aplikasikan dust-proof coating / interior clear sealer agar permukaan beton bebas debu dan mudah dilap saat dibersihkan.'],
                     ],
                 ],
                 'design_tips' => [
@@ -288,13 +233,20 @@ class ApplicationDetail extends Component
                     ['q' => 'Apakah partisi roster beton aman dipasang di lantai 2 bangunan?', 'a' => 'Aman, pastikan partisi diletakkan di atas jalur balok struktur lantai atau gunakan frame besi pengaku agar beban merata.'],
                     ['q' => 'Bagaimana cara membersihkan debu pada kisi-kisi partisi roster dalam rumah?', 'a' => 'Gunakan kemoceng mikrofiber atau vacuum cleaner berujung sikat halus. Permukaan yang sudah diberi clear sealer sangat mudah dilap dengan lap setengah basah.'],
                 ],
+                'is_active' => true,
+                'sort_order' => 4,
             ],
-            'void-tangga' => [
+            [
+                'slug' => 'void-tangga',
                 'title' => 'Dinding Void Tangga & Skylight Roster',
+                'subtitle' => 'Meneruskan cahaya alami ke area tangga tanpa membuat ruangan terasa sempit.',
+                'badge' => '🪜 Void Tangga & Skylight',
+                'icon' => '🪜',
+                'image' => 'https://res.cloudinary.com/indoroster/image/upload/v1765259870/146480918_962561287611643_2630009701372432663_n_gugfhr.jpg',
                 'meta_title' => 'Dinding Void Tangga Roster Beton Minimalis | IndoRoster Pabrik',
                 'meta_description' => 'Aplikasi roster beton pada dinding void tangga dan skylight. Meneruskan pencahayaan alami dan sirkulasi vertikal, pesan harga pabrik bergaransi.',
+                'keywords' => 'roster void tangga, dinding void tangga, pencahayaan alami tangga, roster skylight',
                 'headline' => 'Dinding Void Tangga Roster: Maksimalkan Cahaya Alami & Efek Sirkulasi Cerobong Vertikal',
-                'badge' => '🪜 Void Tangga & Skylight',
                 'intro' => 'Area tangga pada rumah bertingkat seringkali menjadi sudut yang gelap, lembap, dan pengap. Dengan mengaplikasikan dinding roster beton pada area void tangga yang terhubung dengan skylight atap atau inner courtyard (taman dalam), cahaya alami akan menyinari lantai 1 dan 2 secara merata tanpa perlu menyalakan lampu di siang hari. Udara panas yang naik ke lantai atas juga akan terbuang keluar dengan lancar melalui efek sirkulasi cerobong alami (Stack Effect).',
                 'deep_narrative' => [
                     'title' => 'Efek Cerobong Termal (Stack Effect) dan Kemegahan Visual Tangga',
@@ -312,14 +264,8 @@ class ApplicationDetail extends Component
                 'installation_guide' => [
                     'title' => 'Panduan Pemasangan Dinding Void Tangga Tinggi',
                     'steps' => [
-                        [
-                            'step' => '1. Gunakan Perancah (Scaffolding) Kokoh',
-                            'desc' => 'Untuk dinding void tangga dengan ketinggian 4–6 meter, pastikan pemasangan dilakukan bertahap menggunakan scaffolding yang aman dan stabil.',
-                        ],
-                        [
-                            'step' => '2. Balok Lintel / Pengaku Horizontal',
-                            'desc' => 'Pasang balok cor pengaku lintel setiap ketinggian 2.5 – 3 meter bentang dinding agar struktur roster tidak mengalami lendutan.',
-                        ],
+                        ['step' => '1. Gunakan Perancah (Scaffolding) Kokoh', 'desc' => 'Untuk dinding void tangga dengan ketinggian 4–6 meter, pastikan pemasangan dilakukan bertahap menggunakan scaffolding yang aman dan stabil.'],
+                        ['step' => '2. Balok Lintel / Pengaku Horizontal', 'desc' => 'Pasang balok cor pengaku lintel setiap ketinggian 2.5 – 3 meter bentang dinding agar struktur roster tidak mengalami lendutan.'],
                     ],
                 ],
                 'design_tips' => [
@@ -339,13 +285,20 @@ class ApplicationDetail extends Component
                 'faqs' => [
                     ['q' => 'Apakah pemasangan roster di dinding void tangga membutuhkan besi penguat?', 'a' => 'Ya, untuk dinding void yang tinggi, disarankan memasang besi begel penguat vertikal dan horizontal setiap 3 susun keping dan diikat ke kolom praktis gedung.'],
                 ],
+                'is_active' => true,
+                'sort_order' => 5,
             ],
-            'fasad-cafe' => [
+            [
+                'slug' => 'fasad-cafe',
                 'title' => 'Fasad Cafe & Restoran Industrial',
+                'subtitle' => 'Spot foto instagramable dan daya tarik visual unik untuk bisnis kuliner.',
+                'badge' => '☕ Cafe & Resto Komersial',
+                'icon' => '☕',
+                'image' => 'https://res.cloudinary.com/indoroster/image/upload/v1765260885/189153683_1030631617471276_2071152964924271585_n_wbq1kg.jpg',
                 'meta_title' => 'Fasad Roster Beton Cafe & Resto Industrial | Spot Instagramable IndoRoster',
                 'meta_description' => 'Supplier roster beton untuk fasad coffee shop, cafe, dan resto kekinian bernuansa industrial. Kualitas cetak padat presisi harga tangan pertama pabrik.',
+                'keywords' => 'fasad cafe roster, roster coffee shop, dinding cafe industrial, spot foto cafe roster',
                 'headline' => 'Fasad Cafe & Resto Kekinian: Ikonik, Instagramable, Sejuk & Hemat Biaya Konstruksi',
-                'badge' => '☕ Cafe & Resto Komersial',
                 'intro' => 'Dalam bisnis kuliner dan hospitality modern, fasad depan adalah daya tarik visual utama (identity landmark) yang memikat calon pelanggan untuk berhenti, masuk, dan berfoto. Dinding roster beton industrial IndoRoster memberikan karakter arsitektur yang kuat, estetik, fotogenik, dan sangat diminati generasi muda. Cocok diaplikasikan untuk fasad depan cafe, outdoor smoking area yang sejuk, maupun dinding pembatas parkiran dengan efisiensi biaya konstruksi tinggi.',
                 'deep_narrative' => [
                     'title' => 'Kekuatan Daya Tarik Visual Media Sosial (Instagramable Architecture)',
@@ -363,14 +316,8 @@ class ApplicationDetail extends Component
                 'installation_guide' => [
                     'title' => 'Tips Pemasangan Fasad Cafe',
                     'steps' => [
-                        [
-                            'step' => '1. Kombinasi Neon Signage',
-                            'desc' => 'Dinding roster sangat serasi dipadukan dengan neon flex sign bertuliskan logo atau nama cafe Anda.',
-                        ],
-                        [
-                            'step' => '2. Pasang Lampu Hidden LED',
-                            'desc' => 'Tanam strip LED di bawah modul roster untuk menghasilkan efek glowing yang memikat mata pengunjung di malam hari.',
-                        ],
+                        ['step' => '1. Kombinasi Neon Signage', 'desc' => 'Dinding roster sangat serasi dipadukan dengan neon flex sign bertuliskan logo atau nama cafe Anda.'],
+                        ['step' => '2. Pasang Lampu Hidden LED', 'desc' => 'Tanam strip LED di bawah modul roster untuk menghasilkan efek glowing yang memikat mata pengunjung di malam hari.'],
                     ],
                 ],
                 'design_tips' => [
@@ -389,13 +336,20 @@ class ApplicationDetail extends Component
                 'faqs' => [
                     ['q' => 'Berapa hari waktu pengiriman roster untuk proyek cafe di luar kota?', 'a' => 'Pengiriman armada truk pabrik IndoRoster memakan waktu 1-2 hari kerja ke seluruh Jabodetabek, Bandung Raya, dan Jawa Barat.'],
                 ],
+                'is_active' => true,
+                'sort_order' => 6,
             ],
-            'ruko' => [
-                'title' => 'Fasad Ruko & Gedung Komersial',
+            [
+                'slug' => 'ruko',
+                'title' => 'Fasad Ruko & Commercial Building',
+                'subtitle' => 'Transformasi visual fasad ruko menjadi bangunan komersial bernilai sewa tinggi.',
+                'badge' => '🏢 Fasad Ruko Komersial',
+                'icon' => '🏢',
+                'image' => 'https://res.cloudinary.com/indoroster/image/upload/v1765260059/477127145_935487138780264_8156628137020905763_n_koes6o.jpg',
                 'meta_title' => 'Fasad Ruko Roster Beton Minimalis Modern | Renovasi Ruko IndoRoster',
                 'meta_description' => 'Renovasi fasad ruko dengan roster beton minimalis. Tingkatkan nilai jual dan sewa ruko komersial dengan secondary skin modern harga pabrik.',
+                'keywords' => 'fasad ruko roster, renovasi ruko minimalis, secondary skin ruko, roster komersial',
                 'headline' => 'Renovasi Fasad Ruko Komersial: Modernisasi Tampilan, Nilai Sewa & Jual Naik 3x Lipat',
-                'badge' => '🏢 Fasad Ruko Komersial',
                 'intro' => 'Ubah tampilan ruko lama yang monoton dan kusam menjadi bangunan komersial modern bergengsi tinggi dengan secondary skin roster beton. Selain meningkatkan daya tarik bagi calon penyewa bisnis ternama (kantor, klinik, cafe, butik), kisi-kisi roster membantu meminimalisir radiasi panas matahari di lantai 2 dan 3 ruko sehingga suhu ruangan lebih sejuk dan tagihan listrik AC hemat drastis.',
                 'deep_narrative' => [
                     'title' => 'Transformasi Ruko Lama Menjadi Bangunan Komersial Bernilai Tinggi',
@@ -413,10 +367,7 @@ class ApplicationDetail extends Component
                 'installation_guide' => [
                     'title' => 'Panduan Pemasangan Fasad Ruko',
                     'steps' => [
-                        [
-                            'step' => '1. Bracket Baja IWF / Hollow Tebal',
-                            'desc' => 'Gunakan struktur rangka baja penopang yang di-dynabolt kokoh ke balok lantai balkon ruko.',
-                        ],
+                        ['step' => '1. Bracket Baja IWF / Hollow Tebal', 'desc' => 'Gunakan struktur rangka baja penopang yang di-dynabolt kokoh ke balok lantai balkon ruko.'],
                     ],
                 ],
                 'design_tips' => [
@@ -433,13 +384,20 @@ class ApplicationDetail extends Component
                 'faqs' => [
                     ['q' => 'Apakah IndoRoster melayani pengadaan ribuan pcs untuk renovasi deretan ruko?', 'a' => 'Ya, kami melayani pengadaan partai besar grosir dengan kapasitas pabrik 10.000 pcs per bulan dan dokumen pengadaan faktur pajak lengkap.'],
                 ],
+                'is_active' => true,
+                'sort_order' => 7,
             ],
-            'perumahan-cluster' => [
+            [
+                'slug' => 'perumahan-cluster',
                 'title' => 'Gerbang & Fasad Klaster Perumahan',
+                'subtitle' => 'Keseragaman estetika mewah untuk gerbang utama dan fasad tipe rumah developer.',
+                'badge' => '🏘️ Developer & Klaster Perumahan',
+                'icon' => '🏘️',
+                'image' => 'https://res.cloudinary.com/indoroster/image/upload/v1765259830/36_vaxh6k.jpg',
                 'meta_title' => 'Pengadaan Roster Beton Klaster Perumahan & Developer | IndoRoster',
                 'meta_description' => 'Suplai roster beton untuk gerbang cluster, fasad perumahan developer, dan dinding pembatas kavling. Kontrak harga pabrik dan suplai bertahap.',
+                'keywords' => 'roster perumahan, gerbang cluster roster, roster proyek developer, loster perumahan minimalis',
                 'headline' => 'Pengadaan Roster Developer: Gerbang Utama Ikonik & Fasad Klaster Perumahan',
-                'badge' => '🏘️ Developer & Klaster Perumahan',
                 'intro' => 'Bagi developer perumahan, keseragaman motif, ketahanan material bebas cuaca, dan kepresisian sudut siku 90 derajat adalah faktor kunci penentu kecepatan kerja tukang di lapangan. IndoRoster menyediakan kontrak pengadaan berkala untuk puluhan hingga ratusan unit rumah klaster serta gerbang utama perumahan dengan harga pabrik terkunci, dokumen faktur pajak resmi, dan jaminan pasokan rutin bergaransi 100% bebas pecah.',
                 'deep_narrative' => [
                     'title' => 'Standar Presisi Tinggi untuk Kecepatan Pembangunan Unit Developer',
@@ -457,10 +415,7 @@ class ApplicationDetail extends Component
                 'installation_guide' => [
                     'title' => 'Skema Pengadaan & Pengiriman Developer',
                     'steps' => [
-                        [
-                            'step' => '1. Pengiriman Bertahap Sesuai SPK',
-                            'desc' => 'Pengiriman armada truk pabrik disesuaikan dengan tahapan progres bangun (500 – 2.000 pcs per ritase).',
-                        ],
+                        ['step' => '1. Pengiriman Bertahap Sesuai SPK', 'desc' => 'Pengiriman armada truk pabrik disesuaikan dengan tahapan progres bangun (500 – 2.000 pcs per ritase).'],
                     ],
                 ],
                 'design_tips' => [
@@ -479,182 +434,114 @@ class ApplicationDetail extends Component
                 'faqs' => [
                     ['q' => 'Berapa minimal order kontrak suplai developer perumahan?', 'a' => 'Kami melayani mulai dari pengadaan 1 klaster (1.000 – 5.000 pcs) hingga kontrak tahunan puluhan ribu pcs dengan harga pabrik terkunci.'],
                 ],
+                'is_active' => true,
+                'sort_order' => 8,
             ],
-            'gedung-komersial' => [
+            [
+                'slug' => 'gedung-komersial',
                 'title' => 'Fasad Gedung, Hotel & Kantor',
-                'meta_title' => 'Roster Beton Fasad Gedung, Hotel & Perkantoran | IndoRoster Proyek',
-                'meta_description' => 'Suplai roster beton partai besar untuk fasad gedung komersial, hotel resort, dan gedung perkantoran. Presisi siku 90 derajat dan dokumen resmi.',
-                'headline' => 'Fasad Gedung Arsitektural: Megah, Fungsional, Berskala Ribuan Pcs & Mendukung Green Building',
-                'badge' => '🏨 Gedung, Hotel & Perkantoran',
-                'intro' => 'Aplikasi roster beton skala ribuan pcs pada fasad gedung perkantoran, hotel resort, universitas, dan rumah sakit menghadirkan solusi pendinginan pasif alami yang ramah lingkungan (Green Architecture). Roster beton IndoRoster dibuat dari cetakan plat baja dengan sudut siku 90 derajat sempurna untuk menjamin kelurusan garis nat dinding tinggi bertingkat dengan ketahanan puluhan tahun.',
+                'subtitle' => 'Dinding secondary skin berskala ribuan pcs dengan efisiensi pendinginan AC alami.',
+                'badge' => '🏨 Gedung, Hotel & Kantor',
+                'icon' => '🏨',
+                'image' => 'https://res.cloudinary.com/indoroster/image/upload/v1765260025/210781640_1049103868957384_7584920712298347840_n_jhvxju.jpg',
+                'meta_title' => 'Fasad Roster Gedung Komersial, Hotel & Kantor | IndoRoster Tender Proyek',
+                'meta_description' => 'Suplai roster beton skala ribuan pcs untuk fasad gedung komersial, hotel, apartemen, dan perkantoran. Spek teknis arsitektur dan legalitas lengkap.',
+                'keywords' => 'roster fasad gedung, secondary skin hotel, roster beton komersial, supplier tender roster',
+                'headline' => 'Secondary Skin Gedung Komersial: Solusi Arsitektur Hijau & Efisiensi Energi Skala Besar',
+                'intro' => 'Proyek gedung bertingkat, hotel bintang, resort tropis, dan kantor modern memerlukan material fasad yang tidak hanya spektakuler secara visual, namun juga memenuhi standar bangunan hijau (Green Building Concept). Roster beton cetak padat IndoRoster dirancang untuk menahan beban terpaan angin tinggi (wind pressure) serta meredam penyerapan panas dinding kaca luar secara signifikan.',
                 'deep_narrative' => [
-                    'title' => 'Mendukung Sertifikasi Green Building & Pengurangan Beban AC Gedung',
-                    'p1' => 'Gedung komersial modern dituntut memiliki efisiensi konsumsi energi yang tinggi. Secondary skin roster beton menyaring radiasi termal matahari sebelum masuk ke kaca ruangan kantor, mereduksi kebutuhan daya chiller/AC sentral gedung hingga 30%, serta mendukung pencapaian poin sertifikasi bangunan hijau (Green Building Certification).',
-                    'p2' => 'Dengan kapasitas produksi pabrik 10.000 pcs per bulan, IndoRoster siap memenuhi jadwal suplai tender kontraktor utama (Main Contractor BUMN/Swasta) dengan kelengkapan dokumen teknis, sertifikat uji karakteristik, surat jalan, dan faktur pajak resmi.',
+                    'title' => 'Solusi Green Architecture & Penghematan Biaya Operasional Gedung',
+                    'p1' => 'Pada gedung komersial, biaya operasional terbesar berasal dari pendinginan ruangan (HVAC/AC). Pemasangan secondary skin roster beton bertindak sebagai tabir peneduh termal pasif yang mengurangi beban panas hingga 35–45%, memperpanjang masa pakai sistem chiller, dan membantu gedung memperoleh sertifikasi efisiensi energi hijau.',
+                    'p2' => 'Kami siap mendampingi konsultan arsitek dan kontraktor utama (Main Contractor) dalam penyusunan RKS, penyediaan sampel uji laboratorium, serta dokumen administrasi tender lengkap.',
                 ],
                 'specs' => [
-                    'dimensi' => '20 × 20 × 10 cm (Toleransi presisi < 1 mm)',
+                    'dimensi' => '20 × 20 × 10 cm (Toleransi presisi ± 1 mm)',
                     'bobot' => '3.8 – 4.2 kg / keping',
                     'kebutuhan_luas' => '25 keping per 1 meter persegi (m²)',
-                    'komposisi' => 'Pasir Abu Batu Murni Plered + Semen Khusus',
+                    'komposisi' => 'Pasir Abu Batu Murni Plered + Semen Mutu Tinggi',
                     'metode_produksi' => 'Cetak Tumbuk Padat Plat Baja Siku 90° Presisi',
-                    'pilihan_warna' => 'Abu Semen Natural, Putih Semen, Merah Bata',
+                    'pilihan_warna' => 'Abu Semen Natural, Putih Semen, Custom Shade',
                 ],
                 'installation_guide' => [
-                    'title' => 'Spesifikasi Pemasangan Dinding Gedung Tinggi',
+                    'title' => 'Pemasangan Modul Roster Fasad Gedung',
                     'steps' => [
-                        [
-                            'step' => '1. Struktur Frame Baja & Bracket Bersertifikat',
-                            'desc' => 'Dinding secondary skin fasad gedung dipasang pada frame struktur baja dengan angkur dynabolt Hilti/Fischer yang teruji beban geser.',
-                        ],
+                        ['step' => '1. Subframe Baja Struktur', 'desc' => 'Dinding roster dipasang pada subframe baja struktural yang diperhitungkan terhadap gaya gempa dan beban angin.'],
                     ],
                 ],
                 'design_tips' => [
-                    'Gunakan motif MMC atau Petir untuk fasad gedung skala masif guna menghasilkan karakter arsitektur monumental yang kuat.',
+                    'Kombinasikan motif MMC, Petir, atau Arrow untuk fasad gedung skala monumental.',
                 ],
                 'benefits' => [
-                    ['title' => 'Mendukung Sertifikasi Green Building', 'desc' => 'Mengurangi kebutuhan energi operasional gedung melalui pencahayaan dan sirkulasi alami.'],
-                    ['title' => 'Kerapian Garis Nat Presisi Tinggi', 'desc' => 'Modul 20x20 cm presisi plat baja menjaga kelurusan nat vertikal dan horizontal dinding tinggi.'],
+                    ['title' => 'Mendukung Konsep Green Building', 'desc' => 'Mengurangi radiasi panas gedung secara pasif dan menurunkan beban AC komersial.'],
+                    ['title' => 'Kapasitas Suplai Skala Besar', 'desc' => 'Pabrik siap memproduksi hingga puluhan ribu pcs dengan batch warna konsisten.'],
+                    ['title' => 'Dukungan Administrasi Tender Lengkap', 'desc' => 'Tersedia dokumen legalitas perusahaan, faktur pajak, dan surat keterangan pabrikasi.'],
                 ],
                 'motifs' => ['MMC', 'Petir', 'Arrow', 'Nako Sipit'],
                 'gallery_images' => [
                     'https://res.cloudinary.com/indoroster/image/upload/v1765260025/210781640_1049103868957384_7584920712298347840_n_jhvxju.jpg',
                 ],
                 'faqs' => [
-                    ['q' => 'Apakah bisa menerbitkan dokumen sertifikasi uji mutu untuk konsultan pengawas proyek gedung?', 'a' => 'Bisa. Kami menyediakan dokumen spesifikasi teknis dan hasil uji karakteristik material untuk kelengkapan administrasi konsultan pengawas.'],
+                    ['q' => 'Apakah IndoRoster menyediakan sampel motif untuk approval arsitek?', 'a' => 'Ya, kami siap mengirimkan paket mock-up sampel kepingan roster langsung ke kantor arsitek atau direksi keet proyek Anda.'],
                 ],
+                'is_active' => true,
+                'sort_order' => 9,
             ],
-            'interior-cafe' => [
+            [
+                'slug' => 'interior-cafe',
                 'title' => 'Interior Bar & Backdrop Cafe',
-                'meta_title' => 'Roster Beton Interior Bar, Meja Kasir & Backdrop Cafe | IndoRoster',
-                'meta_description' => 'Inspirasi roster beton untuk meja bar cafe, counter kasir, dan backdrop estetik. Tampilan semen ekspos natural langsung dari produsen.',
-                'headline' => 'Interior Bar & Backdrop Cafe: Sentuhan Semen Ekspos Rustic-Modern yang Hangat',
+                'subtitle' => 'Aksen meja kasir, bar counter, dan background photo booth bernuansa industrial.',
                 'badge' => '🍸 Interior Bar & Backdrop',
-                'intro' => 'Roster beton tidak hanya untuk aplikasi luar ruangan. Di dalam ruangan cafe, coffee shop, resto, maupun lobby hotel, modul roster beton sangat populer digunakan sebagai meja bar counter kasir, backdrop panggung mini, sekat area VIP, hingga pembatas booth pengunjung. Tekstur abu batu murni semen ekspos memberikan nuansa rustic-industrial yang estetik, fotogenik, dan sangat diminati pelanggan.',
+                'icon' => '🍸',
+                'image' => 'https://res.cloudinary.com/indoroster/image/upload/v1765260086/23_max5ag.jpg',
+                'meta_title' => 'Roster Beton Meja Bar & Backdrop Interior Cafe | IndoRoster',
+                'meta_description' => 'Aplikasi roster beton untuk meja barista bar counter, backdrop kasir, dan photobooth cafe resto. Tampilan artistik modern harga pabrik.',
+                'keywords' => 'meja bar roster, backdrop cafe roster, meja barista roster beton, interior cafe roster',
+                'headline' => 'Meja Bar & Backdrop Cafe Roster: Aksen Interior Unik yang Menarik Perhatian Pengunjung',
+                'intro' => 'Selain fasad luar, interior area meja bar barista dan backdrop kasir adalah pusat visual (centre of attention) dalam sebuah cafe. Menggunakan modul roster beton sebagai panel penutup meja bar atau dinding backdrop memberikan kesan arsitektur modern yang berani, tekstural, dan sangat menarik ketika disinari lampu spot hangat.',
                 'deep_narrative' => [
-                    'title' => 'Aksen Bar Counter Kokoh dengan Efek Hidden Lighting',
-                    'p1' => 'Meja bar yang terbuat dari susunan roster beton tahan terhadap benturan kaki kursi dan gesekan barang, jauh lebih kokoh dibanding material kayu lapis/HPL. Keberadaan rongga roster memungkinkan penanaman lampu strip LED tersembunyi yang memancarkan cahaya lembut saat malam hari, menciptakan atmosfer santai (chill) yang mewah.',
-                    'p2' => 'Permukaan beton cukup diberi clear coating anti noda agar mudah dibersihkan bila terkena tumpahan kopi atau minuman sirup.',
+                    'title' => 'Sentuhan Tekstur Geometris pada Interior Hospitality',
+                    'p1' => 'Permukaan meja bar dari semen cor polos atau kayu seringkali terlihat monoton. Menggabungkan roster beton dengan top table kayu solid atau marmer menciptakan kontras tekstur yang sangat kaya dan mewah.',
+                    'p2' => 'Modul roster juga memungkinkan pemasangan lampu indirect LED di bagian dalam meja bar, menghasilkan pendaran cahaya dari sela-sela lubang roster yang memukau di malam hari.',
                 ],
                 'specs' => [
                     'dimensi' => '20 × 20 × 10 cm',
                     'bobot' => '3.8 – 4.2 kg / keping',
                     'kebutuhan_luas' => '25 keping per 1 meter persegi (m²)',
-                    'komposisi' => 'Pasir Abu Batu Murni Plered + Semen Portland',
+                    'komposisi' => 'Pasir Abu Batu Murni Plered + Semen Mutu Tinggi',
                     'metode_produksi' => 'Cetak Tumbuk Padat Plat Baja Siku 90° Presisi',
                     'pilihan_warna' => 'Abu Semen Natural, Putih Bersih, Terakota',
                 ],
                 'installation_guide' => [
-                    'title' => 'Pemasangan Meja Bar Roster',
+                    'title' => 'Tips Pemasangan Meja Bar Roster',
                     'steps' => [
-                        [
-                            'step' => '1. Top Table Kayu Solid / Granit',
-                            'desc' => 'Dinding roster berfungsi sebagai kaki meja penopang yang sangat kokoh untuk top table papan kayu trembesi solid atau batu granit.',
-                        ],
+                        ['step' => '1. Frame Besi / Kayu Penopang Top Table', 'desc' => 'Pastikan top table bar ditopang oleh rangka struktur tersendiri dan tidak sepenuhnya bertumpu pada dinding roster.'],
+                        ['step' => '2. Finishing Debu (Anti-Dust Sealer)', 'desc' => 'Wajib aplikasikan interior clear sealer agar abu semen tidak menempel pada pakaian pengunjung.'],
                     ],
                 ],
                 'design_tips' => [
-                    'Gunakan motif Batman, MMC, atau JaboL untuk variasi motif yang unik pada backdrop kasir cafe.',
+                    'Gunakan motif Batman, MMC, atau JaboL untuk meja bar berkarakter kuat.',
                 ],
                 'benefits' => [
-                    ['title' => 'Aksen Bar Counter Kokoh', 'desc' => 'Tahan goresan dan benturan kursi bar berkat kepadatan beton tumbuk padat baja.'],
-                    ['title' => 'Efek Pencahayaan Hidden LED', 'desc' => 'Dapat disisipi lampu strip LED di balik lubang roster untuk efek pencahayaan dramatis saat malam hari.'],
+                    ['title' => 'Karakter Interior Berani & Mewah', 'desc' => 'Memberikan tekstur visual kuat pada meja barista dan area kasir cafe.'],
+                    ['title' => 'Efek Pencahayaan Glowing', 'desc' => 'Bisa dipasangi lampu LED di balik modul roster untuk efek pendaran cahaya malam hari.'],
                 ],
-                'motifs' => ['Batman', 'MMC', 'JaboL', 'Petir'],
+                'motifs' => ['Batman', 'MMC', 'JaboL'],
                 'gallery_images' => [
                     'https://res.cloudinary.com/indoroster/image/upload/v1765260086/23_max5ag.jpg',
                 ],
                 'faqs' => [
-                    ['q' => 'Apakah roster beton untuk meja bar cafe perlu di-coating?', 'a' => 'Sangat disarankan mengaplikasikan clear coating batu alam anti debu agar permukaan mudah dilap saat terkena tumpahan cairan minuman.'],
+                    ['q' => 'Apakah roster untuk meja bar aman dan tidak berdebu?', 'a' => 'Sangat aman jika setelah dipasang dilapisi cairan dust-proof clear sealer atau vernis batu alam.'],
                 ],
+                'is_active' => true,
+                'sort_order' => 10,
             ],
         ];
 
-        if (! isset($applications[$this->slug])) {
-            abort(404);
+        foreach ($applications as $app) {
+            ApplicationPage::updateOrCreate(
+                ['slug' => $app['slug']],
+                $app
+            );
         }
-
-        $this->application = $applications[$this->slug];
-    }
-
-    public function updatedSearch()
-    {
-        $this->resetPage('explorerPage');
-    }
-
-    public function updatedSelectedCategory()
-    {
-        $this->resetPage('explorerPage');
-    }
-
-    public function getRecommendedProductsProperty()
-    {
-        $motifNames = $this->application['motifs'] ?? [];
-
-        return Product::where('is_active', true)
-            ->where(function ($q) use ($motifNames) {
-                foreach ($motifNames as $name) {
-                    $q->orWhere('name', 'like', "%{$name}%");
-                }
-            })
-            ->with(['media', 'variants', 'category'])
-            ->take(8)
-            ->get();
-    }
-
-    public function render()
-    {
-        $rawWa = SiteSetting::getValue('whatsapp_number', '0813-8970-9847');
-        $waNumber = preg_replace('/[^0-9]/', '', $rawWa);
-        if (str_starts_with($waNumber, '0')) {
-            $waNumber = '62'.substr($waNumber, 1);
-        }
-
-        $waText = "Halo Admin IndoRoster, saya tertarik dengan Roster Beton untuk aplikasi: {$this->application['title']}. Mohon rekomendasi motif terbaik, estimasi harga pabrik, dan info pengiriman armada ke lokasi saya.";
-        $waUrl = "https://wa.me/{$waNumber}?text=".urlencode($waText);
-
-        // Product Explorer Query
-        $explorerQuery = Product::where('is_active', true)
-            ->with(['media', 'variants', 'category']);
-
-        if (! empty($this->search)) {
-            $explorerQuery->where('name', 'like', '%'.$this->search.'%');
-        }
-
-        if (! empty($this->selectedCategory)) {
-            $explorerQuery->where('category_id', $this->selectedCategory);
-        }
-
-        $explorerProducts = $explorerQuery->orderBy('total_sold', 'desc')->paginate(12, ['*'], 'explorerPage');
-        $categories = Category::where('is_active', true)->orderBy('name')->get();
-
-        // Top Location Hubs for Silo Linking
-        $topLocations = SeoLocation::where('seo_enabled', true)
-            ->orderBy('priority', 'asc')
-            ->take(12)
-            ->get();
-
-        // Real Project Gallery Media
-        $randomGalleryMedia = GalleryMedia::with('gallery')
-            ->where('media_type', 'image')
-            ->inRandomOrder()
-            ->limit(6)
-            ->get();
-
-        return view('livewire.application.application-detail', [
-            'application' => $this->application,
-            'recommendedProducts' => $this->recommendedProducts,
-            'explorerProducts' => $explorerProducts,
-            'categories' => $categories,
-            'topLocations' => $topLocations,
-            'randomGalleryMedia' => $randomGalleryMedia,
-            'waUrl' => $waUrl,
-            'waNumber' => $waNumber,
-        ])->layout('components.layouts.app', [
-            'title' => $this->application['meta_title'],
-            'description' => $this->application['meta_description'],
-            'canonicalOverride' => route('application.detail', $this->slug),
-            'keywords' => 'roster '.$this->slug.', aplikasi roster beton, loster minimalis, '.$this->application['title'].', pabrik roster purwakarta',
-        ]);
     }
 }

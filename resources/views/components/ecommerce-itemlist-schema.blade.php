@@ -13,7 +13,8 @@
             ? ($p->primary_media->media_type === 'image' ? $p->primary_media->formatted_url : $p->primary_image)
             : ($p->primary_image ?: asset('assets/logo_indoroster_no_text.PNG'));
 
-        $price = $p->price ?? ($p->variants->first()?->price ?? 13000);
+        $rawPrice = $p->min_price > 0 ? $p->min_price : ((float) $p->price > 0 ? (float) $p->price : 13000);
+        $price = (string) (int) $rawPrice;
         $rating = $p->average_rating > 0 ? (float) $p->average_rating : 4.9;
         $reviewCount = $p->reviews_count > 0 ? (int) $p->reviews_count : max(15, (int) ($p->total_sold / 50));
 
@@ -31,8 +32,9 @@
                 '@type' => 'Offer',
                 'url' => route('product.detail', $p->slug),
                 'priceCurrency' => 'IDR',
-                'price' => (string) (int) $price,
+                'price' => $price,
                 'priceValidUntil' => \Carbon\Carbon::now()->addYear()->format('Y-m-d'),
+                'validFrom' => \Carbon\Carbon::now()->subMonths(6)->format('Y-m-d'),
                 'itemCondition' => 'https://schema.org/NewCondition',
                 'availability' => ($p->total_stock > 0 || $p->stock_status === 'in_stock') 
                     ? 'https://schema.org/InStock' 
@@ -42,6 +44,41 @@
                     'name' => 'IndoRoster',
                 ],
                 'valueAddedTaxIncluded' => true,
+                'shippingDetails' => [
+                    '@type' => 'OfferShippingDetails',
+                    'shippingRate' => [
+                        '@type' => 'MonetaryAmount',
+                        'value' => '0',
+                        'currency' => 'IDR',
+                    ],
+                    'shippingDestination' => [
+                        '@type' => 'DefinedRegion',
+                        'addressCountry' => 'ID',
+                    ],
+                    'deliveryTime' => [
+                        '@type' => 'ShippingDeliveryTime',
+                        'handlingTime' => [
+                            '@type' => 'QuantitativeValue',
+                            'minValue' => 1,
+                            'maxValue' => 3,
+                            'unitCode' => 'DAY',
+                        ],
+                        'transitTime' => [
+                            '@type' => 'QuantitativeValue',
+                            'minValue' => 1,
+                            'maxValue' => 7,
+                            'unitCode' => 'DAY',
+                        ],
+                    ],
+                ],
+                'hasMerchantReturnPolicy' => [
+                    '@type' => 'MerchantReturnPolicy',
+                    'applicableCountry' => 'ID',
+                    'returnPolicyCategory' => 'https://schema.org/MerchantReturnFiniteReturnWindow',
+                    'merchantReturnDays' => 7,
+                    'returnMethod' => 'https://schema.org/ReturnByMail',
+                    'returnFees' => 'https://schema.org/FreeReturn',
+                ],
             ],
             'aggregateRating' => [
                 '@type' => 'AggregateRating',

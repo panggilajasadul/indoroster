@@ -610,7 +610,7 @@ class WaOrderResource extends Resource
                             ->selectablePlaceholder(false)
                             ->live()
                             ->afterStateUpdated(function ($state, Set $set, Get $get) {
-                                self::calculatePaymentScheme($state ?: 'quotation', $get, $set);
+                                self::calculatePaymentScheme($state, $get, $set);
                             }),
 
                         Forms\Components\TextInput::make('down_payment_amount')
@@ -625,12 +625,6 @@ class WaOrderResource extends Resource
                                 $dp = (float) ($state ?: 0);
                                 $remaining = max(0, $grandTotal - $dp);
                                 $set('remaining_balance', $remaining);
-
-                                if ($dp >= $grandTotal && $grandTotal > 0) {
-                                    $set('payment_status', 'paid');
-                                } else {
-                                    $set('payment_status', 'unpaid');
-                                }
                             }),
 
                         Forms\Components\TextInput::make('remaining_balance')
@@ -651,7 +645,21 @@ class WaOrderResource extends Resource
                                 'refunded' => '⚪ Dikembalikan / Refund',
                             ])
                             ->default('unpaid')
-                            ->required(),
+                            ->required()
+                            ->live()
+                            ->afterStateUpdated(function ($state, Set $set, Get $get) {
+                                $grandTotal = (float) ($get('grand_total') ?: 0);
+                                if ($state === 'paid') {
+                                    $set('down_payment_amount', $grandTotal);
+                                    $set('remaining_balance', 0);
+                                } elseif ($state === 'unpaid') {
+                                    $scheme = $get('payment_scheme') ?: 'quotation';
+                                    if ($scheme === 'quotation' || $scheme === 'full') {
+                                        $set('down_payment_amount', 0);
+                                        $set('remaining_balance', $grandTotal);
+                                    }
+                                }
+                            }),
 
                         Forms\Components\Textarea::make('notes')
                             ->label('Catatan Invoice Untuk Pembeli')
@@ -673,9 +681,9 @@ class WaOrderResource extends Resource
         $subtotal = 0;
 
         foreach ($items as $item) {
-            $price = (float) ($item['product_price'] ?? 0);
             $qty = (int) ($item['quantity'] ?? 0);
-            $subtotal += ($price * $qty);
+            $price = (float) ($item['product_price'] ?? 0);
+            $subtotal += ($qty * $price);
         }
 
         $shipping = (float) ($get('shipping_cost') ?? 0);
@@ -694,14 +702,18 @@ class WaOrderResource extends Resource
     {
         $scheme = $scheme ?: 'quotation';
         $grandTotal = $total !== null ? $total : (float) ($get('grand_total') ?: 0);
+        $isPaid = ($get('payment_status') === 'paid');
 
-        if ($scheme === 'quotation') {
-            $set('down_payment_amount', 0);
-            $set('remaining_balance', $grandTotal);
-            $set('payment_status', 'unpaid');
-        } elseif ($scheme === 'full') {
+        if ($isPaid) {
             $set('down_payment_amount', $grandTotal);
             $set('remaining_balance', 0);
+
+            return;
+        }
+
+        if ($scheme === 'quotation' || $scheme === 'full') {
+            $set('down_payment_amount', 0);
+            $set('remaining_balance', $grandTotal);
             $set('payment_status', 'unpaid');
         } elseif ($scheme === 'dp_50_50') {
             $dp = round($grandTotal * 0.5);

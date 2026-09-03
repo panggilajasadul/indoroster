@@ -114,7 +114,10 @@
                         <!-- Top Header Card -->
                         <div class="bg-slate-50 dark:bg-slate-800/80 px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex flex-wrap justify-between items-center gap-3">
                             <div class="flex items-center gap-3 flex-wrap">
-                                <span class="font-display font-black text-sm text-slate-900 dark:text-white tracking-wide">{{ $order->order_number }}</span>
+                                <a href="{{ route('order.tracking', ['order_number' => $order->order_number, 'contact' => $order->shipping_email ?? $order->shipping_phone]) }}" class="font-display font-black text-sm text-terra-600 dark:text-terra-400 hover:underline tracking-wide flex items-center gap-1.5" title="Klik untuk Lacak Pesanan">
+                                    <span>{{ $order->order_number }}</span>
+                                    <svg class="w-3.5 h-3.5 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                                </a>
                                 <span class="text-slate-300 dark:text-slate-700">|</span>
                                 <span class="text-xs text-slate-500 dark:text-slate-400 font-semibold">{{ $order->created_at->format('d M Y, H:i') }} WIB</span>
                                 @if($order->order_source === 'whatsapp')
@@ -125,7 +128,7 @@
                                 @endif
                             </div>
                             
-                            <!-- Badges -->
+                            <!-- Badges & Direct Action -->
                             <div class="flex items-center gap-2 flex-wrap">
                                 @if($order->fulfillment_type)
                                 <span class="font-display font-bold text-[10px] px-2.5 py-1 rounded-full border uppercase tracking-wider
@@ -159,6 +162,11 @@
                                 <span class="font-display font-bold text-[10px] px-3 py-1 rounded-full border uppercase tracking-wider {{ $statusColors }}">
                                     {{ $order->status === 'draft' ? 'Surat Penawaran' : $order->status_label }}
                                 </span>
+
+                                <a href="{{ route('order.tracking', ['order_number' => $order->order_number, 'contact' => $order->shipping_email ?? $order->shipping_phone]) }}" class="inline-flex items-center gap-1 bg-terra-500 hover:bg-terra-600 text-white font-bold text-[10.5px] px-3 py-1 rounded-full shadow-xs transition-all">
+                                    <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                                    <span>Lacak Pesanan</span>
+                                </a>
                             </div>
                         </div>
 
@@ -327,13 +335,13 @@
                                     </button>
                                 @endif
                                 
-                                {{-- Tombol Lacak Pengiriman --}}
+                                {{-- Tombol Lacak Pesanan --}}
                                 <a href="{{ route('order.tracking', ['order_number' => $order->order_number, 'contact' => $order->shipping_email ?? $order->shipping_phone]) }}" class="inline-flex items-center justify-center bg-terra-500 hover:bg-terra-600 text-white text-xs font-bold px-4 py-2 rounded-xl shadow-md shadow-terra-500/20 hover:shadow-lg hover:shadow-terra-500/30 transition-all gap-1.5 cursor-pointer">
                                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                                     </svg>
-                                    Lacak Pengiriman
+                                    Lacak Pesanan
                                 </a>
                                 
                                 {{-- Dokumen Penawaran / Invoice Sah --}}
@@ -377,8 +385,6 @@
                                     @endforeach
                                 @endif
                             </div>
-                        </div>
-
                         </div>
                     </div>
                 @endforeach

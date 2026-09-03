@@ -1,4 +1,3 @@
-@if(\App\Models\SiteSetting::getValue('order_mode', 'midtrans') === 'midtrans')
 <div class="relative inline-block text-left" 
      x-data="{ open: false, cartTimer: null }"
      @mouseenter="clearTimeout(cartTimer); open = true; $wire.loadCartItems()"
@@ -74,4 +73,3 @@
         @endif
     </div>
 </div>
-@endif

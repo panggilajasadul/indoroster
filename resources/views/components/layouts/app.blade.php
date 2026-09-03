@@ -44,7 +44,7 @@
     @php
         $pageTitle      = $title ?? \App\Models\SiteSetting::getValue('meta_title_default', 'IndoRoster — Pabrik Roster Beton Minimalis | Suplier Proyek Jabodetabek & Indonesia');
         $pageDesc       = $description ?? \App\Models\SiteSetting::getValue('meta_description_default', 'Pusat produsen tangan pertama roster beton minimalis, bata expose, dan loster arsitektural modern harga pabrik. Melayani pengiriman cepat partai kecil & proyek ribuan pcs ke Jabodetabek, Bandung, Karawang, Cirebon & seluruh Indonesia.');
-        $pageImage      = $ogImage ?? asset('assets/logo_indoroster_no_text.PNG');
+        $pageImage      = $ogImage ?? (\App\Models\SiteSetting::getValue('og_image_default') ?: asset('assets/logo_indoroster_no_text.PNG'));
         $robotsMeta     = $robots ?? 'index, follow';
 
         // Canonical: strip query params yang berisiko duplicate content
@@ -352,6 +352,10 @@
                                     <a href="{{ route('member.orders') }}" wire:navigate class="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-terra-500 transition-colors">
                                         <svg class="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
                                         Pesanan Saya
+                                    </a>
+                                    <a href="{{ route('order.tracking') }}" wire:navigate class="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-terra-500 transition-colors">
+                                        <svg class="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                                        Lacak Pesanan
                                     </a>
                                     <a href="{{ route('member.addresses') }}" wire:navigate class="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-terra-500 transition-colors">
                                         <svg class="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>

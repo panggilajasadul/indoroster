@@ -23,27 +23,26 @@ class CreateWaOrder extends CreateRecord
 
         // Kalkulasi DP default jika belum diatur
         $grandTotal = (float) ($data['grand_total'] ?? 0);
-        $scheme = $data['payment_scheme'] ?? 'full';
+        $scheme = $data['payment_scheme'] ?? 'quotation';
+        $isPaid = ($data['payment_status'] ?? 'unpaid') === 'paid';
 
-        $dp = isset($data['down_payment_amount']) && $data['down_payment_amount'] !== null && $data['down_payment_amount'] !== ''
-            ? (float) $data['down_payment_amount']
-            : null;
-
-        if ($dp === null) {
-            if ($scheme === 'full') {
-                $dp = $grandTotal;
-            } elseif ($scheme === 'dp_50_50') {
-                $dp = round($grandTotal * 0.5);
-            } elseif ($scheme === 'termin_3x') {
-                $dp = round($grandTotal * 0.3);
+        if (! $isPaid) {
+            $data['payment_status'] = 'unpaid';
+            if ($scheme === 'full' || $scheme === 'quotation') {
+                $data['down_payment_amount'] = 0.0;
+                $data['remaining_balance'] = $grandTotal;
             } else {
-                $dp = 0.0;
+                $dp = isset($data['down_payment_amount']) && $data['down_payment_amount'] !== null && $data['down_payment_amount'] !== ''
+                    ? (float) $data['down_payment_amount']
+                    : ($scheme === 'dp_50_50' ? round($grandTotal * 0.5) : ($scheme === 'termin_3x' ? round($grandTotal * 0.3) : 0.0));
+                $data['down_payment_amount'] = $dp;
+                $data['remaining_balance'] = max(0, $grandTotal - $dp);
             }
+        } else {
+            $data['down_payment_amount'] = $grandTotal;
+            $data['remaining_balance'] = 0.0;
+            $data['payment_status'] = 'paid';
         }
-
-        $data['down_payment_amount'] = $dp;
-        $data['remaining_balance'] = max(0, $grandTotal - $dp);
-        $data['payment_status'] = $data['payment_status'] ?? 'unpaid';
 
         return $data;
     }

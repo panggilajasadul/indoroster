@@ -43,14 +43,24 @@ class EditWaOrder extends EditRecord
     protected function mutateFormDataBeforeSave(array $data): array
     {
         $grandTotal = (float) ($data['grand_total'] ?? 0);
-        $dp = isset($data['down_payment_amount']) && $data['down_payment_amount'] !== null && $data['down_payment_amount'] !== ''
-            ? (float) $data['down_payment_amount']
-            : 0.0;
+        $isPaid = ($data['payment_status'] ?? 'unpaid') === 'paid';
+        $scheme = $data['payment_scheme'] ?? 'quotation';
 
-        $data['down_payment_amount'] = $dp;
-        $data['remaining_balance'] = max(0, $grandTotal - $dp);
-
-        if ($dp >= $grandTotal && $grandTotal > 0) {
+        if (! $isPaid) {
+            $data['payment_status'] = 'unpaid';
+            if ($scheme === 'full' || $scheme === 'quotation') {
+                $data['down_payment_amount'] = 0.0;
+                $data['remaining_balance'] = $grandTotal;
+            } else {
+                $dp = isset($data['down_payment_amount']) && $data['down_payment_amount'] !== null && $data['down_payment_amount'] !== ''
+                    ? (float) $data['down_payment_amount']
+                    : 0.0;
+                $data['down_payment_amount'] = $dp;
+                $data['remaining_balance'] = max(0, $grandTotal - $dp);
+            }
+        } else {
+            $data['down_payment_amount'] = $grandTotal;
+            $data['remaining_balance'] = 0.0;
             $data['payment_status'] = 'paid';
         }
 

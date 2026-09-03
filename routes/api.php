@@ -15,6 +15,7 @@ Route::post('/payments/midtrans-callback', [PaymentCallbackController::class, 'm
 
 // Geocoding Proxy Endpoint (Bebas CORS & Rate Limit)
 Route::get('/geocode', [GeocodeController::class, 'search']);
+Route::get('/geocode/reverse', [GeocodeController::class, 'reverse']);
 
 // SEO Growth Engine API Endpoints
 Route::middleware('seo.api.token')->prefix('seo')->group(function () {

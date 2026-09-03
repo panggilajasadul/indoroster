@@ -582,17 +582,18 @@ function addressBookMapHandler(latRef, lngRef) {
                     "🛰️ Foto Satelit (Atap Rumah)": satelliteLayer
                 }, null, { position: 'topright' }).addTo(this.map);
 
-                const pinIconHtml = '<div style="font-size: 32px; line-height: 1; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.35)); transform: translate(-16px, -32px); cursor: grab;">📍<' + '/div>';
-                const pinIcon = L.divIcon({
-                    className: 'custom-pin-marker',
-                    html: pinIconHtml,
-                    iconSize: [32, 32],
-                    iconAnchor: [16, 32]
-                });
+                const getPinIcon = () => {
+                    return L.divIcon({
+                        className: 'custom-pin-marker',
+                        html: '<div style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; font-size: 32px; line-height: 1; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.45)); cursor: grab; user-select: none;">📍</div>',
+                        iconSize: [36, 36],
+                        iconAnchor: [18, 34]
+                    });
+                };
 
                 if (this.lat && this.lng) {
                     this.marker = L.marker([initialLat, initialLng], {
-                        icon: pinIcon,
+                        icon: getPinIcon(),
                         draggable: true
                     }).addTo(this.map);
 
@@ -612,7 +613,7 @@ function addressBookMapHandler(latRef, lngRef) {
                         this.marker.setLatLng([lat, lng]);
                     } else {
                         this.marker = L.marker([lat, lng], {
-                            icon: pinIcon,
+                            icon: getPinIcon(),
                             draggable: true
                         }).addTo(this.map);
 
@@ -628,18 +629,17 @@ function addressBookMapHandler(latRef, lngRef) {
                 setTimeout(() => { if (this.map) this.map.invalidateSize(); }, 300);
             }, 100);
         },
-        setLocationOnMap(lat, lng, zoomLevel = 15) {
+        setLocationOnMap(lat, lng, zoomLevel = 17) {
             this.lat = parseFloat(lat).toFixed(7);
             this.lng = parseFloat(lng).toFixed(7);
 
             if (this.map && typeof L !== 'undefined') {
                 this.map.setView([lat, lng], zoomLevel);
-                const pinIconHtml = '<div style="font-size: 32px; line-height: 1; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.35)); transform: translate(-16px, -32px); cursor: grab;">📍<' + '/div>';
                 const pinIcon = L.divIcon({
                     className: 'custom-pin-marker',
-                    html: pinIconHtml,
-                    iconSize: [32, 32],
-                    iconAnchor: [16, 32]
+                    html: '<div style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; font-size: 32px; line-height: 1; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.45)); cursor: grab; user-select: none;">📍</div>',
+                    iconSize: [36, 36],
+                    iconAnchor: [18, 34]
                 });
 
                 if (this.marker) {
@@ -803,17 +803,61 @@ function addressBookMapHandler(latRef, lngRef) {
         },
         locateMe() {
             if (!navigator.geolocation) {
-                alert('Browser Anda tidak mendukung GPS otomatis.');
+                alert('Browser Anda tidak mendukung deteksi GPS.');
                 return;
             }
             this.isLocating = true;
+            
+            const geoOptions = {
+                enableHighAccuracy: true,
+                timeout: 15000,
+                maximumAge: 0
+            };
+
             navigator.geolocation.getCurrentPosition((pos) => {
                 this.isLocating = false;
-                this.setLocationOnMap(pos.coords.latitude, pos.coords.longitude, 16);
+                const lat = pos.coords.latitude;
+                const lng = pos.coords.longitude;
+                const acc = pos.coords.accuracy ? Math.round(pos.coords.accuracy) : null;
+
+                this.setLocationOnMap(lat, lng, 18);
+
+                if (this.accuracyCircle && this.map) {
+                    this.map.removeLayer(this.accuracyCircle);
+                    this.accuracyCircle = null;
+                }
+                if (acc && acc > 5 && this.map) {
+                    this.accuracyCircle = L.circle([lat, lng], {
+                        radius: acc,
+                        color: '#3b82f6',
+                        fillColor: '#3b82f6',
+                        fillOpacity: 0.15,
+                        weight: 1.5,
+                        dashArray: '4, 4'
+                    }).addTo(this.map);
+                }
+
+                fetch(`/api/geocode/reverse?lat=${lat}&lon=${lng}`)
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data && data.display_name) {
+                            this.searchQuery = data.display_name;
+                        }
+                    })
+                    .catch(() => {});
+
             }, (err) => {
                 this.isLocating = false;
-                alert('Gagal mengambil lokasi GPS: ' + err.message + '. Silakan klik tombol "Arahkan ke Alamat Terisi" atau klik langsung pada peta.');
-            }, { enableHighAccuracy: true, timeout: 10000 });
+                let msg = 'Gagal mendeteksi lokasi GPS.';
+                if (err.code === 1) {
+                    msg = 'Izin lokasi (GPS) ditolak oleh browser/HP Anda. Silakan aktifkan izin akses lokasi pada pengaturan browser lalu coba lagi.';
+                } else if (err.code === 2) {
+                    msg = 'Sinyal GPS tidak ditemukan. Pastikan Layanan Lokasi (GPS) di HP sudah aktif dalam mode Akurasi Tinggi.';
+                } else if (err.code === 3) {
+                    msg = 'Waktu pencarian sinyal GPS habis. Silakan klik tombol "GPS Perangkat" kembali atau gunakan tombol "Arahkan ke Alamat".';
+                }
+                alert(msg);
+            }, geoOptions);
         },
         searchLocation() {
             if (!this.searchQuery || this.searchQuery.trim().length < 3) {
