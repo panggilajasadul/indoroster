@@ -56,19 +56,21 @@
         'description' => $application['meta_description'],
     ];
 
+    $rawFaqs = is_array($application['faqs'] ?? null) ? $application['faqs'] : [];
+    $validFaqs = array_values(array_filter($rawFaqs, fn ($item) => is_array($item) && !empty($item['q'] ?? ($item['question'] ?? null))));
     $faqSchema = [
         '@context' => 'https://schema.org',
         '@type' => 'FAQPage',
         'mainEntity' => array_map(function ($item) {
             return [
                 '@type' => 'Question',
-                'name' => $item['q'],
+                'name' => $item['q'] ?? ($item['question'] ?? ''),
                 'acceptedAnswer' => [
                     '@type' => 'Answer',
-                    'text' => $item['a'],
+                    'text' => $item['a'] ?? ($item['answer'] ?? ''),
                 ],
             ];
-        }, $application['faqs']),
+        }, $validFaqs),
     ];
 @endphp
 
@@ -320,7 +322,8 @@
                     {{-- Fallback: gallery_images (Pexels / Custom URLs) --}}
                     @foreach($galleryItems as $idx => $gImg)
                     @php
-                        $photoUrl = str_starts_with($gImg, 'http') ? $gImg : asset('storage/' . $gImg);
+                        $rawPhoto = is_array($gImg) ? ($gImg['image_url'] ?? ($gImg['url'] ?? '')) : $gImg;
+                        $photoUrl = str_starts_with((string)$rawPhoto, 'http') ? $rawPhoto : asset('storage/' . $rawPhoto);
                     @endphp
                     <div class="group relative rounded-3xl overflow-hidden bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-soft-sm hover:shadow-soft-xl hover:border-terra-400/80 dark:hover:border-terra-500 transition-all duration-300 cursor-pointer flex flex-col"
                          @click="openLightbox({{ $idx }})">
@@ -416,18 +419,20 @@
                 </div>
 
                 <!-- Installation Guide Steps -->
-                @if(isset($application['installation_guide']))
+                @if(isset($application['installation_guide']) && is_array($application['installation_guide']) && !empty($application['installation_guide']['steps']) && is_array($application['installation_guide']['steps']))
                 <div class="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-soft-xs">
                     <span class="text-xs font-bold text-terra-600 dark:text-terra-400 uppercase tracking-widest block mb-2">Panduan Konstruksi Lapangan</span>
                     <h3 class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-5">
-                        {{ $application['installation_guide']['title'] }}
+                        {{ $application['installation_guide']['title'] ?? 'Panduan Teknis Pemasangan' }}
                     </h3>
                     <div class="space-y-4">
                         @foreach($application['installation_guide']['steps'] as $step)
+                        @if(is_array($step))
                         <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800">
-                            <h4 class="font-bold text-xs sm:text-sm text-slate-900 dark:text-white mb-1">{{ $step['step'] }}</h4>
-                            <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">{{ $step['desc'] }}</p>
+                            <h4 class="font-bold text-xs sm:text-sm text-slate-900 dark:text-white mb-1">{{ $step['step'] ?? '' }}</h4>
+                            <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">{{ $step['desc'] ?? '' }}</p>
                         </div>
+                        @endif
                         @endforeach
                     </div>
                 </div>
@@ -437,7 +442,7 @@
             <!-- Right: Technical Specs & Design Tips Card -->
             <div class="lg:col-span-5 space-y-6">
                 <!-- Specs Table -->
-                @if(isset($application['specs']))
+                @if(isset($application['specs']) && is_array($application['specs']))
                 <div class="bg-white dark:bg-slate-900 p-6 sm:p-7 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-soft-xs">
                     <h3 class="text-base font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
                         <span>📋</span> Spesifikasi Teknis Material
@@ -445,44 +450,46 @@
                     <div class="divide-y divide-slate-100 dark:divide-slate-800 text-xs">
                         <div class="py-2.5 flex justify-between gap-3">
                             <span class="text-slate-500 dark:text-slate-400 font-medium">Dimensi Modul</span>
-                            <span class="font-bold text-slate-800 dark:text-slate-200 text-right">{{ $application['specs']['dimensi'] }}</span>
+                            <span class="font-bold text-slate-800 dark:text-slate-200 text-right">{{ $application['specs']['dimensi'] ?? '20 × 20 × 10 cm' }}</span>
                         </div>
                         <div class="py-2.5 flex justify-between gap-3">
                             <span class="text-slate-500 dark:text-slate-400 font-medium">Bobot Keping</span>
-                            <span class="font-bold text-slate-800 dark:text-slate-200 text-right">{{ $application['specs']['bobot'] }}</span>
+                            <span class="font-bold text-slate-800 dark:text-slate-200 text-right">{{ $application['specs']['bobot'] ?? '3.8 – 4.2 kg / keping' }}</span>
                         </div>
                         <div class="py-2.5 flex justify-between gap-3">
                             <span class="text-slate-500 dark:text-slate-400 font-medium">Kebutuhan / m²</span>
-                            <span class="font-bold text-terra-600 dark:text-terra-400 text-right">{{ $application['specs']['kebutuhan_luas'] }}</span>
+                            <span class="font-bold text-terra-600 dark:text-terra-400 text-right">{{ $application['specs']['kebutuhan_luas'] ?? '25 keping / m²' }}</span>
                         </div>
                         <div class="py-2.5 flex justify-between gap-3">
                             <span class="text-slate-500 dark:text-slate-400 font-medium">Bahan Baku</span>
-                            <span class="font-bold text-slate-800 dark:text-slate-200 text-right">{{ $application['specs']['komposisi'] }}</span>
+                            <span class="font-bold text-slate-800 dark:text-slate-200 text-right">{{ $application['specs']['komposisi'] ?? 'Pasir Abu Batu Murni Pilihan' }}</span>
                         </div>
                         <div class="py-2.5 flex justify-between gap-3">
                             <span class="text-slate-500 dark:text-slate-400 font-medium">Teknologi Cetak</span>
-                            <span class="font-bold text-slate-800 dark:text-slate-200 text-right">{{ $application['specs']['metode_produksi'] }}</span>
+                            <span class="font-bold text-slate-800 dark:text-slate-200 text-right">{{ $application['specs']['metode_produksi'] ?? 'Cetak Tumbuk Padat Plat Baja Siku 90°' }}</span>
                         </div>
                         <div class="py-2.5 flex justify-between gap-3">
                             <span class="text-slate-500 dark:text-slate-400 font-medium">Pilihan Warna</span>
-                            <span class="font-bold text-slate-800 dark:text-slate-200 text-right">{{ $application['specs']['pilihan_warna'] }}</span>
+                            <span class="font-bold text-slate-800 dark:text-slate-200 text-right">{{ $application['specs']['pilihan_warna'] ?? 'Abu Natural, Putih, Terakota' }}</span>
                         </div>
                     </div>
                 </div>
                 @endif
 
                 <!-- Design Tips -->
-                @if(isset($application['design_tips']))
+                @if(isset($application['design_tips']) && is_array($application['design_tips']) && !empty($application['design_tips']))
                 <div class="bg-gradient-to-br from-amber-500/10 via-white to-white dark:from-amber-500/10 dark:via-slate-900 dark:to-slate-900 p-6 sm:p-7 rounded-3xl border border-amber-500/30 shadow-soft-xs">
                     <h3 class="text-base font-bold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
                         <span>💡</span> Tips Desain & Pencahayaan
                     </h3>
                     <ul class="space-y-2.5 text-xs text-slate-600 dark:text-slate-300">
                         @foreach($application['design_tips'] as $tip)
+                        @if(is_string($tip))
                         <li class="flex items-start gap-2">
                             <span class="text-amber-500 font-bold shrink-0 mt-0.5">✦</span>
                             <span class="leading-relaxed">{{ $tip }}</span>
                         </li>
+                        @endif
                         @endforeach
                     </ul>
                 </div>
@@ -593,19 +600,21 @@
         {{-- ══════════════════════════════════════════════════════════════
              8. COMPREHENSIVE FAQS SECTION
         ══════════════════════════════════════════════════════════════ --}}
+        @if(!empty($validFaqs))
         <div class="bg-white dark:bg-slate-900 p-6 sm:p-10 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-soft-xs">
             <h3 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mb-6">
-                Pertanyaan yang Sering Diajukan Seputar {{ $application['title'] }}
+                Pertanyaan yang Sering Diajukan Seputar {{ $application['title'] ?? 'Roster Beton' }}
             </h3>
             <div class="space-y-4">
-                @foreach($application['faqs'] as $faq)
+                @foreach($validFaqs as $faq)
                 <div class="p-5 rounded-2xl bg-slate-50/80 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/70">
-                    <h4 class="font-bold text-slate-900 dark:text-white text-sm sm:text-base mb-2">{{ $faq['q'] }}</h4>
-                    <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">{{ $faq['a'] }}</p>
+                    <h4 class="font-bold text-slate-900 dark:text-white text-sm sm:text-base mb-2">{{ $faq['q'] ?? ($faq['question'] ?? '') }}</h4>
+                    <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">{{ $faq['a'] ?? ($faq['answer'] ?? '') }}</p>
                 </div>
                 @endforeach
             </div>
         </div>
+        @endif
 
         {{-- ══════════════════════════════════════════════════════════════
              9. BOTTOM CALL-TO-ACTION BANNER

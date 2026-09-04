@@ -592,12 +592,19 @@ class ApplicationDetail extends Component
     public function getRecommendedProductsProperty()
     {
         $motifNames = $this->application['motifs'] ?? [];
+        if (! is_array($motifNames)) {
+            $motifNames = [];
+        }
+
+        $validMotifs = array_filter($motifNames, fn ($m) => is_string($m) && trim($m) !== '');
 
         return Product::where('is_active', true)
-            ->where(function ($q) use ($motifNames) {
-                foreach ($motifNames as $name) {
-                    $q->orWhere('name', 'like', "%{$name}%");
-                }
+            ->when(! empty($validMotifs), function ($query) use ($validMotifs) {
+                $query->where(function ($q) use ($validMotifs) {
+                    foreach ($validMotifs as $name) {
+                        $q->orWhere('name', 'like', '%'.trim($name).'%');
+                    }
+                });
             })
             ->with(['media', 'variants', 'category'])
             ->take(8)
