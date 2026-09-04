@@ -10,6 +10,7 @@ class ShippingRate extends Model
     protected $fillable = [
         'city_code',
         'shipping_cost',
+        'rate_type',
         'min_order_qty',
         'is_active',
     ];

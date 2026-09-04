@@ -34,6 +34,10 @@ class Checkout extends Component
 
     public $shippingCost = 0; // Default 0, could be calculated based on city
 
+    public $shippingRateType = 'flat'; // 'flat' or 'per_pcs'
+
+    public $shippingCostPerUnit = 0;
+
     public $discountAmount = 0;
 
     public $grandTotal = 0;
@@ -233,16 +237,11 @@ class Checkout extends Component
         $this->calculateTotal();
     }
 
-    public string $orderMode = 'midtrans';
-
-    public function getOrderModeProperty(): string
-    {
-        return $this->orderMode ?: SiteSetting::getValue('order_mode', 'midtrans');
-    }
+    public string $orderMode = 'whatsapp';
 
     public function mount()
     {
-        $this->orderMode = SiteSetting::getValue('order_mode', 'midtrans');
+        $this->orderMode = SiteSetting::getValue('order_mode', 'whatsapp');
         $this->mode = request()->query('mode', '');
 
         $this->loadCart();
@@ -519,25 +518,27 @@ class Checkout extends Component
             return;
         }
 
-        if ($this->orderMode === 'whatsapp') {
-            $this->shippingCost = 0;
-            $this->minOrderQty = 0;
-            $this->discountAmount = 0;
-            $this->grandTotal = $this->subtotal;
-
-            return;
-        }
-
         if ($this->city_id) {
             $rate = ShippingRate::where('city_code', $this->city_id)->where('is_active', true)->first();
             if ($rate) {
-                $this->shippingCost = $rate->shipping_cost;
-                $this->minOrderQty = $rate->min_order_qty;
+                $this->shippingRateType = $rate->rate_type ?? 'flat';
+                $this->shippingCostPerUnit = (float) $rate->shipping_cost;
+
+                if ($this->shippingRateType === 'per_pcs') {
+                    $this->shippingCost = $this->shippingCostPerUnit * (int) $this->totalQty;
+                } else {
+                    $this->shippingCost = $this->shippingCostPerUnit;
+                }
+                $this->minOrderQty = (int) $rate->min_order_qty;
             } else {
-                $this->shippingCost = 180000; // Default
+                $this->shippingRateType = 'flat';
+                $this->shippingCostPerUnit = $this->orderMode === 'whatsapp' ? 0 : 180000;
+                $this->shippingCost = $this->shippingCostPerUnit;
                 $this->minOrderQty = 0;
             }
         } else {
+            $this->shippingRateType = 'flat';
+            $this->shippingCostPerUnit = 0;
             $this->shippingCost = 0;
             $this->minOrderQty = 0;
         }
@@ -580,14 +581,15 @@ class Checkout extends Component
             }
         }
 
-        if ($this->orderMode === 'whatsapp') {
-            return $this->processWhatsappCheckout();
-        }
-
-        if ($this->totalQty < $this->minOrderQty) {
-            session()->flash('error', 'Maaf, minimal order untuk wilayah ini adalah '.$this->minOrderQty.' pcs. Pesanan Anda saat ini baru '.$this->totalQty.' pcs.');
+        // Check region-level min order
+        if ($this->minOrderQty > 0 && $this->totalQty < $this->minOrderQty) {
+            session()->flash('error', 'Maaf, minimal order armada untuk wilayah ini adalah '.number_format($this->minOrderQty, 0, ',', '.').' pcs. Total pesanan Anda saat ini baru '.number_format($this->totalQty, 0, ',', '.').' pcs.');
 
             return;
+        }
+
+        if ($this->orderMode === 'whatsapp') {
+            return $this->processWhatsappCheckout();
         }
 
         $this->isProcessing = true;
@@ -781,9 +783,9 @@ class Checkout extends Component
                 'payment_status' => 'unpaid',
                 'order_source' => 'whatsapp',
                 'subtotal' => $this->subtotal,
-                'shipping_cost' => 0,
-                'discount_amount' => 0,
-                'grand_total' => $this->subtotal,
+                'shipping_cost' => $this->shippingCost,
+                'discount_amount' => $this->discountAmount,
+                'grand_total' => $this->grandTotal,
                 'shipping_name' => $this->name ?: (auth()->user()?->name ?? 'Pelanggan'),
                 'shipping_email' => $this->email ?: (auth()->user()?->email ?? null),
                 'shipping_phone' => $this->phone ?: (auth()->user()?->phone ?? '-'),
@@ -851,6 +853,10 @@ class Checkout extends Component
                 }
                 session()->forget('selected_cart_items');
                 $this->dispatch('cart-updated');
+            }
+
+            if ($this->appliedVoucher) {
+                $this->appliedVoucher->increment('used_count');
             }
 
             DB::commit();

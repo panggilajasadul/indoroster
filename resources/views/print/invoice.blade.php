@@ -213,7 +213,13 @@
                     </tr>
                     <tr>
                         <td class="label">Ongkos Kirim</td>
-                        <td>Rp {{ number_format($invoice->shipping_cost, 0, ',', '.') }}</td>
+                        @if((float)$invoice->shipping_cost > 0)
+                            <td>Rp {{ number_format($invoice->shipping_cost, 0, ',', '.') }}</td>
+                        @elseif($invoice->order && $invoice->order->order_source === 'whatsapp' && $invoice->order->payment_status !== 'paid')
+                            <td style="color: #b45309; font-style: italic; font-size: 11px;">[Menunggu Konfirmasi Pabrik]</td>
+                        @else
+                            <td>Rp 0</td>
+                        @endif
                     </tr>
                     @if($invoice->discount_amount > 0)
                     <tr>
@@ -228,7 +234,7 @@
                     </tr>
                     @endif
                     <tr class="bold">
-                        <td class="label">GRAND TOTAL</td>
+                        <td class="label">{{ ((float)$invoice->shipping_cost == 0 && $invoice->order && $invoice->order->order_source === 'whatsapp' && $invoice->order->payment_status !== 'paid') ? 'TOTAL SEMENTARA (BELUM TERMASUK ONGKIR)' : 'GRAND TOTAL' }}</td>
                         <td>Rp {{ number_format($invoice->grand_total, 0, ',', '.') }}</td>
                     </tr>
                     @php
@@ -355,6 +361,11 @@
                     @endif
                     * Harap konfirmasikan bukti transfer ke WhatsApp resmi kami (0813-8970-9847) untuk penerbitan Kuitansi Resmi dan verifikasi pesanan.
                 </div>
+                @if((float)$invoice->shipping_cost == 0 && $invoice->order && $invoice->order->order_source === 'whatsapp' && $invoice->order->payment_status !== 'paid')
+                <div style="margin-top: 6px; padding: 5px 8px; background: #fff7ed; border: 1px solid #fdba74; border-radius: 4px; color: #9a3412; font-size: 9.5px; font-weight: bold; line-height: 1.4;">
+                    ⚠️ PERHATIAN: Biaya ongkos kirim armada truk saat ini sedang dihitung oleh tim logistik. Mohon jangan melakukan transfer sebelum total ongkir dikonfirmasi oleh Admin WhatsApp (0813-8970-9847).
+                </div>
+                @endif
             </div>
         </div>
         @endif

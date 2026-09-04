@@ -144,7 +144,7 @@ class OrderObserver
                 'recipient_phone' => $order->shipping_phone,
                 'recipient_address' => $order->shipping_address,
                 'recipient_city' => $order->shipping_city,
-                'recipient_postal_code' => $order->shipping_postal_code,
+                'recipient_postal_code' => $order->shipping_postal_code ?: '-',
                 'recipient_latitude' => $order->shipping_latitude,
                 'recipient_longitude' => $order->shipping_longitude,
                 'total_items' => $order->items()->sum('quantity'),

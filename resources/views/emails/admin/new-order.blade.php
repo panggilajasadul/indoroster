@@ -7,7 +7,7 @@
         <div style="margin-bottom: 8px; font-size: 16px; font-weight: bold; color: #1f2937;">Notifikasi Admin</div>
         <div style="text-align: right;">
             <div style="display: inline-block; background-color: #dcfce7; color: #15803d; padding: 6px 14px; border-radius: 9999px; font-weight: bold; font-size: 14px;">
-                <span style="margin-right: 4px;">🟢</span> ORDER WA BARU
+                ORDER WA
             </div>
         </div>
     </div>

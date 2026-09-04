@@ -567,13 +567,18 @@
                         </div>
                         <div class="flex justify-between text-slate-600 dark:text-slate-300 text-sm">
                             <span>Ongkos Kirim Armada</span>
-                            <span class="font-medium text-slate-900 dark:text-white">
-                                @if($orderMode === 'whatsapp')
-                                    <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/50 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800">Dikonfirmasi via WA</span>
-                                @elseif($shippingCost > 0)
+                            <span class="font-medium text-slate-900 dark:text-white text-right">
+                                @if($shippingCost > 0)
                                     Rp{{ number_format($shippingCost, 0, ',', '.') }}
+                                    @if($shippingRateType === 'per_pcs')
+                                        <span class="block text-[11px] font-normal text-slate-500 dark:text-slate-400">
+                                            (Rp{{ number_format($shippingCostPerUnit, 0, ',', '.') }}/pcs × {{ number_format($totalQty, 0, ',', '.') }} pcs)
+                                        </span>
+                                    @endif
+                                @elseif($city_id)
+                                    <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/50 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800">Dikonfirmasi via WA</span>
                                 @else
-                                    <span class="text-xs italic text-slate-400 dark:text-slate-500">(Tentukan Kota)</span>
+                                    <span class="text-xs italic text-slate-400 dark:text-slate-500">(Pilih Kota Tujuan)</span>
                                 @endif
                             </span>
                         </div>
@@ -583,15 +588,15 @@
                             </svg>
                             <span>Dikirim langsung menggunakan <strong>Armada Truk Pabrik</strong> dari Plered, Purwakarta (Roster dijamin 100% aman sampai lokasi).</span>
                         </div>
-                        @if($discountAmount > 0 && $orderMode !== 'whatsapp')
+                        @if($discountAmount > 0)
                         <div class="flex justify-between text-terra-600 dark:text-terra-400 text-sm">
-                            <span>Diskon</span>
+                            <span>Diskon Voucher</span>
                             <span class="font-medium">-Rp{{ number_format($discountAmount, 0, ',', '.') }}</span>
                         </div>
                         @endif
                         <div class="border-t border-slate-200 dark:border-slate-700 pt-3 flex justify-between items-center mt-3">
-                            <span class="font-display font-bold text-slate-900 dark:text-white">{{ $orderMode === 'whatsapp' ? 'Total Harga Barang' : 'Total Tagihan' }}</span>
-                            <span class="font-display font-black text-terra-600 dark:text-terra-400 text-fluid-h3">Rp{{ number_format($orderMode === 'whatsapp' ? $subtotal : $grandTotal, 0, ',', '.') }}</span>
+                            <span class="font-display font-bold text-slate-900 dark:text-white">{{ ($shippingCost > 0 || $orderMode !== 'whatsapp') ? 'Total Tagihan' : 'Total Harga Barang' }}</span>
+                            <span class="font-display font-black text-terra-600 dark:text-terra-400 text-fluid-h3">Rp{{ number_format($grandTotal, 0, ',', '.') }}</span>
                         </div>
                     </div>
 
@@ -616,15 +621,18 @@
                         </div>
                     @endif
                     
-                    @if($orderMode !== 'whatsapp' && $city_id && $totalQty < $minOrderQty)
-                    <div class="mb-4 p-3 bg-red-50 dark:bg-red-950/40 border border-red-100 dark:border-red-900/40 rounded-xl flex gap-2 text-red-700 dark:text-red-300 text-xs italic">
-                        <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
-                        <span>Minimal belanja untuk wilayah ini adalah {{ $minOrderQty }} pcs. Pesanan Anda saat ini baru {{ $totalQty }} pcs.</span>
+                    @if($city_id && $minOrderQty > 0 && $totalQty < $minOrderQty)
+                    <div class="mb-4 p-3.5 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/50 rounded-xl flex gap-2.5 text-red-700 dark:text-red-300 text-xs">
+                        <svg class="w-5 h-5 shrink-0 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                        <div>
+                            <span class="font-bold block">Kuantitas di bawah batas minimal armada wilayah:</span>
+                            <span>Minimal pemesanan armada untuk wilayah ini adalah <strong>{{ number_format($minOrderQty, 0, ',', '.') }} pcs</strong> (Pesanan Anda saat ini: {{ number_format($totalQty, 0, ',', '.') }} pcs). Silakan tambah kuantitas belanja Anda.</span>
+                        </div>
                     </div>
                     @endif
 
                     @if($orderMode === 'whatsapp')
-                        <button type="submit" wire:loading.attr="disabled" @disabled($isProcessing) class="font-display w-full flex justify-center items-center bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600 text-white font-bold py-4 px-4 rounded-xl shadow-lg shadow-emerald-600/25 transition-all gap-2.5 disabled:opacity-80 disabled:cursor-wait cursor-pointer text-base"
+                        <button type="submit" wire:loading.attr="disabled" @disabled($isProcessing || ($city_id && $minOrderQty > 0 && $totalQty < $minOrderQty)) class="font-display w-full flex justify-center items-center bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600 text-white font-bold py-4 px-4 rounded-xl shadow-lg shadow-emerald-600/25 transition-all gap-2.5 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer text-base"
                             x-on:click="
                                 const mapEl = document.querySelector('[x-data^=\'checkoutMapHandler\']');
                                 if (mapEl && mapEl._x_dataStack) {

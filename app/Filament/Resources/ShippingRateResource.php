@@ -62,14 +62,26 @@ class ShippingRateResource extends Resource
                                 return City::where('province_code', $provinceCode)->pluck('name', 'code');
                             })
                             ->disabled(fn (Forms\Get $get) => ! $get('province_code')),
+                        Forms\Components\Radio::make('rate_type')
+                            ->label('Metode Perhitungan Ongkir')
+                            ->options([
+                                'flat' => 'Ongkos Kirim Penuh / Flat (Per Pengiriman Armada)',
+                                'per_pcs' => 'Ongkos Kirim per Pcs (Dikalikan Jumlah Pesanan)',
+                            ])
+                            ->default('flat')
+                            ->live()
+                            ->columnSpanFull()
+                            ->required(),
                         Forms\Components\TextInput::make('shipping_cost')
-                            ->label('Ongkos Kirim')
+                            ->label(fn (Forms\Get $get) => $get('rate_type') === 'per_pcs' ? 'Tarif Ongkir per Pcs' : 'Ongkos Kirim Penuh (Flat)')
+                            ->helperText(fn (Forms\Get $get) => $get('rate_type') === 'per_pcs' ? 'Contoh: Rp 2.500 (Akan dikalikan dengan total jumlah pcs pesanan)' : 'Tarif tetap untuk satu kali pengiriman armada truk')
                             ->required()
                             ->numeric()
                             ->prefix('Rp')
                             ->default(180000.00),
                         Forms\Components\TextInput::make('min_order_qty')
                             ->label('Minimal Order (Qty)')
+                            ->helperText('Jumlah minimal seluruh pcs barang untuk wilayah ini (0 = tanpa minimal order)')
                             ->required()
                             ->numeric()
                             ->default(0),
@@ -93,13 +105,20 @@ class ShippingRateResource extends Resource
                     ->label('Kota/Kabupaten')
                     ->searchable()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('rate_type')
+                    ->label('Metode')
+                    ->badge()
+                    ->formatStateUsing(fn ($state) => $state === 'per_pcs' ? 'Per Pcs' : 'Flat / Penuh')
+                    ->color(fn ($state) => $state === 'per_pcs' ? 'warning' : 'info')
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('shipping_cost')
                     ->label('Ongkos Kirim')
-                    ->money('IDR')
+                    ->formatStateUsing(fn ($record) => 'Rp '.number_format($record->shipping_cost, 0, ',', '.').($record->rate_type === 'per_pcs' ? ' / pcs' : ''))
                     ->sortable(),
                 Tables\Columns\TextColumn::make('min_order_qty')
                     ->label('Min. Order (Qty)')
                     ->numeric()
+                    ->formatStateUsing(fn ($state) => $state > 0 ? number_format($state, 0, ',', '.').' pcs' : 'Tanpa Min.')
                     ->sortable(),
                 Tables\Columns\IconColumn::make('is_active')
                     ->label('Aktif')
@@ -143,33 +162,53 @@ class ShippingRateResource extends Resource
                             ->options(Province::pluck('name', 'code'))
                             ->searchable()
                             ->required(),
+                        Forms\Components\Select::make('rate_type')
+                            ->label('Metode Perhitungan')
+                            ->options([
+                                'flat' => 'Ongkos Kirim Penuh / Flat',
+                                'per_pcs' => 'Ongkos Kirim per Pcs',
+                            ])
+                            ->default('flat')
+                            ->live()
+                            ->required(),
                         Forms\Components\TextInput::make('shipping_cost')
-                            ->label('Ongkos Kirim Baru')
+                            ->label(fn (Forms\Get $get) => $get('rate_type') === 'per_pcs' ? 'Tarif per Pcs (Rp)' : 'Nominal Tarif Ongkir Penuh (Rp)')
+                            ->helperText(fn (Forms\Get $get) => $get('rate_type') === 'per_pcs' ? 'Contoh: 2500 (Akan dikalikan dengan total pcs pesanan)' : 'Tarif tetap untuk satu kali pengiriman armada')
                             ->numeric()
                             ->prefix('Rp')
                             ->required(),
                         Forms\Components\TextInput::make('min_order_qty')
                             ->label('Minimal Order (Qty)')
+                            ->helperText('Jumlah minimal seluruh pcs barang untuk wilayah ini (0 = tanpa minimal order)')
                             ->numeric()
                             ->required()
                             ->default(0),
                     ])
                     ->action(function (array $data) {
-                        $cityCodes = City::where('province_code', $data['province_code'])->pluck('code');
+                        $cities = City::where('province_code', $data['province_code'])->get();
 
-                        $count = ShippingRate::whereIn('city_code', $cityCodes)->update([
-                            'shipping_cost' => $data['shipping_cost'],
-                            'min_order_qty' => $data['min_order_qty'],
-                        ]);
+                        $count = 0;
+                        foreach ($cities as $city) {
+                            ShippingRate::updateOrCreate(
+                                ['city_code' => $city->code],
+                                [
+                                    'shipping_cost' => $data['shipping_cost'],
+                                    'rate_type' => $data['rate_type'],
+                                    'min_order_qty' => $data['min_order_qty'],
+                                    'is_active' => true,
+                                ]
+                            );
+                            $count++;
+                        }
 
                         Notification::make()
                             ->title('Update Berhasil')
-                            ->body("Berhasil memperbarui {$count} kota di provinsi tersebut.")
+                            ->body("Berhasil memperbarui/membuat tarif untuk {$count} kota di provinsi tersebut.")
                             ->success()
                             ->send();
                     })
                     ->modalHeading('Atur Ongkir & Min Order Massal')
-                    ->modalDescription('Semua kota di provinsi yang dipilih akan diperbarui datanya secara otomatis.')
+                    ->modalDescription('Semua kota di provinsi yang dipilih akan dibuatkan/diperbarui datanya secara otomatis.')
                     ->modalSubmitActionLabel('Update Semua Kota'),
 
                 Tables\Actions\Action::make('bulk_update_cities')
@@ -177,29 +216,65 @@ class ShippingRateResource extends Resource
                     ->icon('heroicon-o-building-office-2')
                     ->color('info')
                     ->form([
+                        Forms\Components\Select::make('province_filter')
+                            ->label('Filter Berdasarkan Provinsi (Opsional)')
+                            ->options(Province::pluck('name', 'code'))
+                            ->searchable()
+                            ->live()
+                            ->afterStateUpdated(fn (Forms\Set $set) => $set('city_codes', []))
+                            ->helperText('Pilih provinsi untuk menampilkan daftar kota, atau ketik langsung di kolom bawah.'),
                         Forms\Components\Select::make('city_codes')
                             ->label('Pilih Kota/Kabupaten')
                             ->multiple()
                             ->searchable()
-                            ->getSearchResultsUsing(fn (string $search): array => City::where('name', 'like', "%{$search}%")
-                                ->limit(50)
-                                ->get()
-                                ->mapWithKeys(fn ($city) => [$city->code => $city->name.' ('.$city->province?->name.')'])
-                                ->toArray()
-                            )
+                            ->options(function (Forms\Get $get) {
+                                $provCode = $get('province_filter');
+                                if ($provCode) {
+                                    return City::where('province_code', $provCode)
+                                        ->get()
+                                        ->mapWithKeys(fn ($city) => [$city->code => $city->name])
+                                        ->toArray();
+                                }
+
+                                return [];
+                            })
+                            ->getSearchResultsUsing(function (string $search, Forms\Get $get): array {
+                                $provCode = $get('province_filter');
+                                $query = City::query();
+                                if ($provCode) {
+                                    $query->where('province_code', $provCode);
+                                }
+
+                                return $query->where('name', 'like', "%{$search}%")
+                                    ->limit(50)
+                                    ->get()
+                                    ->mapWithKeys(fn ($city) => [$city->code => $city->name.' ('.($city->province?->name ?? '').')'])
+                                    ->toArray();
+                            })
                             ->getOptionLabelsUsing(fn (array $values): array => City::whereIn('code', $values)
                                 ->get()
-                                ->mapWithKeys(fn ($city) => [$city->code => $city->name.' ('.$city->province?->name.')'])
+                                ->mapWithKeys(fn ($city) => [$city->code => $city->name.' ('.($city->province?->name ?? '').')'])
                                 ->toArray()
                             )
                             ->required(),
+                        Forms\Components\Select::make('rate_type')
+                            ->label('Metode Perhitungan')
+                            ->options([
+                                'flat' => 'Ongkos Kirim Penuh / Flat',
+                                'per_pcs' => 'Ongkos Kirim per Pcs',
+                            ])
+                            ->default('flat')
+                            ->live()
+                            ->required(),
                         Forms\Components\TextInput::make('shipping_cost')
-                            ->label('Ongkos Kirim Baru')
+                            ->label(fn (Forms\Get $get) => $get('rate_type') === 'per_pcs' ? 'Tarif per Pcs (Rp)' : 'Nominal Tarif Baru (Rp)')
+                            ->helperText(fn (Forms\Get $get) => $get('rate_type') === 'per_pcs' ? 'Contoh: 2500 (Akan dikalikan dengan total pcs pesanan)' : 'Tarif tetap untuk satu kali pengiriman armada')
                             ->numeric()
                             ->prefix('Rp')
                             ->required(),
                         Forms\Components\TextInput::make('min_order_qty')
                             ->label('Minimal Order (Qty)')
+                            ->helperText('Jumlah minimal seluruh pcs barang untuk wilayah ini (0 = tanpa minimal order)')
                             ->numeric()
                             ->required()
                             ->default(0),
@@ -211,7 +286,9 @@ class ShippingRateResource extends Resource
                                 ['city_code' => $cityCode],
                                 [
                                     'shipping_cost' => $data['shipping_cost'],
+                                    'rate_type' => $data['rate_type'],
                                     'min_order_qty' => $data['min_order_qty'],
+                                    'is_active' => true,
                                 ]
                             );
                             $count++;
@@ -238,8 +315,16 @@ class ShippingRateResource extends Resource
                         ->icon('heroicon-o-pencil-square')
                         ->color('warning')
                         ->form([
+                            Forms\Components\Select::make('rate_type')
+                                ->label('Metode Perhitungan')
+                                ->options([
+                                    'flat' => 'Ongkos Kirim Penuh / Flat',
+                                    'per_pcs' => 'Ongkos Kirim per Pcs',
+                                ])
+                                ->default('flat')
+                                ->required(),
                             Forms\Components\TextInput::make('shipping_cost')
-                                ->label('Ongkos Kirim Baru')
+                                ->label('Nominal Tarif Baru')
                                 ->numeric()
                                 ->prefix('Rp')
                                 ->required(),
@@ -253,6 +338,7 @@ class ShippingRateResource extends Resource
                             $records->each(function (ShippingRate $record) use ($data) {
                                 $record->update([
                                     'shipping_cost' => $data['shipping_cost'],
+                                    'rate_type' => $data['rate_type'],
                                     'min_order_qty' => $data['min_order_qty'],
                                 ]);
                             });

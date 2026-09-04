@@ -808,21 +808,36 @@ class Order extends Model
             $mapsLink = "\n📍 *Titik Lokasi (Google Maps):* https://maps.google.com/?q={$this->shipping_latitude},{$this->shipping_longitude}";
         }
 
+        $ongkirText = $this->shipping_cost > 0
+            ? 'Rp'.number_format($this->shipping_cost, 0, ',', '.')
+            : '(Menunggu konfirmasi admin armada via WA)';
+
+        $diskonText = $this->discount_amount > 0
+            ? '🎟️ *Diskon Voucher:* -Rp'.number_format($this->discount_amount, 0, ',', '.')."\n"
+            : '';
+
+        $totalTagihanText = 'Rp'.number_format($this->grand_total, 0, ',', '.');
+        $closingText = $this->shipping_cost > 0
+            ? 'Mohon info ketersediaan stok & panduan transfer pembayaran / DP pesanan ini. Terima kasih!'
+            : 'Mohon info ketersediaan stok, estimasi ongkos kirim armada pabrik, dan total pembayaran. Terima kasih!';
+
         $waMessage = "Halo Admin IndoRoster, saya ingin memesan roster beton melalui website:\n\n"
             ."📋 *DETAIL PESANAN*\n"
             ."• No. Pesanan: #{$this->order_number}\n"
             ."• Tanggal: {$dateNow} WIB\n\n"
             ."📦 *DAFTAR PRODUK:*\n{$itemsString}\n\n"
-            ."💰 *Total Harga Barang:* {$subtotalFormatted}\n"
-            ."🚚 *Ongkir:* (Menunggu konfirmasi admin armada via WA)\n\n"
+            ."💰 *Subtotal Barang:* {$subtotalFormatted}\n"
+            ."🚚 *Ongkos Kirim:* {$ongkirText}\n"
+            .$diskonText
+            ."💳 *TOTAL PEMBAYARAN:* {$totalTagihanText}\n\n"
             ."👤 *DATA PEMESAN:*\n"
             ."• Nama: {$this->shipping_name}\n"
             ."• No. WhatsApp: {$this->shipping_phone}\n"
             ."• Alamat Lengkap: {$this->full_shipping_address}"
             .$mapsLink."\n"
             .($this->notes ? "• Catatan: {$this->notes}\n" : '')
-            ."\n🔍 *Lacak Pesanan:* {$trackingUrl}\n"
-            ."\nMohon info ketersediaan stok, estimasi ongkos kirim armada pabrik, dan total pembayaran. Terima kasih!";
+            ."\n🔍 *Lacak Pesanan:* {$trackingUrl}\n\n"
+            .$closingText;
 
         return 'https://wa.me/'.$waPhone.'?text='.rawurlencode($waMessage);
     }
