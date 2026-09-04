@@ -148,7 +148,12 @@
 
                                 <!-- Status Badge -->
                                 @php
-                                    $statusColors = match ($order->status) {
+                                    $effectiveStatus = $order->status;
+                                    if ($order->payment_status === 'paid' && in_array($order->status, ['draft', 'pending_payment'])) {
+                                        $effectiveStatus = 'processing';
+                                    }
+
+                                    $statusColors = match ($effectiveStatus) {
                                         'draft' => 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700',
                                         'pending_payment' => 'bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800',
                                         'paid' => 'bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800',
@@ -305,10 +310,10 @@
                                             Status: <strong class="text-slate-700 dark:text-slate-200">{{ $order->status === 'draft' ? 'Surat Penawaran' : $order->status_label }}</strong>. 
                                             @if($order->status === 'draft')
                                                 Dokumen Surat Penawaran resmi siap diunduh.
+                                            @elseif($order->payment_status === 'paid' || $order->status === 'paid' || $order->status === 'processing')
+                                                Pembayaran telah terverifikasi. Roster beton Anda sedang kami cetak/siapkan di pabrik Plered, Purwakarta.
                                             @elseif($order->status === 'pending_payment')
                                                 Menunggu penyelesaian pembayaran DP / Pelunasan.
-                                            @elseif($order->status === 'paid' || $order->status === 'processing')
-                                                Roster beton Anda sedang kami cetak/siapkan di pabrik Plered, Purwakarta.
                                             @elseif($order->status === 'cancelled')
                                                 Pesanan telah dibatalkan.
                                             @endif

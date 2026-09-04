@@ -12,6 +12,20 @@ use Illuminate\Support\Str;
 class OrderObserver
 {
     /**
+     * Handle the Order "saving" event.
+     */
+    public function saving(Order $order): void
+    {
+        // Pastikan jika pembayaran sudah paid, status pesanan otomatis minimal processing
+        if ($order->payment_status === 'paid' && in_array($order->status, ['draft', 'pending_payment'])) {
+            $order->status = 'processing';
+            if (! $order->paid_at) {
+                $order->paid_at = now();
+            }
+        }
+    }
+
+    /**
      * Handle the Order "created" event.
      */
     public function created(Order $order): void
@@ -20,6 +34,7 @@ class OrderObserver
             $this->ensureInvoiceExists($order);
             $this->ensurePaymentExists($order);
             $this->incrementProductTotalSold($order);
+            $this->ensureShippingLabelExists($order);
         }
     }
 
@@ -33,6 +48,13 @@ class OrderObserver
             $this->ensureInvoiceExists($order);
             $this->ensurePaymentExists($order);
             $this->incrementProductTotalSold($order);
+
+            if (in_array($order->status, ['draft', 'pending_payment'])) {
+                $order->status = 'processing';
+                $order->saveQuietly();
+            }
+
+            $this->ensureShippingLabelExists($order);
         }
 
         // 2. Jika pesanan yang tadinya lunas dibatalkan / refund

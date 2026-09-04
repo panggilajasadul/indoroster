@@ -337,12 +337,15 @@
                                 $prodStatus = $order->production_status ?? 'pending';
                                 $isExpired = now()->diffInHours($order->created_at) >= 24;
 
+                                $isPaymentCompleted = ($payStatus === 'paid') || ((float) $order->grand_total > 0 && (float) $order->total_paid_amount >= (float) $order->grand_total);
+                                $hasVerifiedPayment = $isPaymentCompleted || ((float) $order->total_paid_amount > 0);
+
                                 // Step status check logic
-                                $step1_done = in_array($status, ['paid', 'processing', 'shipped', 'completed']);
-                                $step1_active = ($status === 'pending_payment' && $payStatus !== 'paid');
+                                $step1_done = in_array($status, ['paid', 'processing', 'shipped', 'completed']) || $hasVerifiedPayment;
+                                $step1_active = ($status === 'pending_payment' && ! $hasVerifiedPayment);
 
                                 $step2_done = in_array($prodStatus, ['ready_to_ship', 'shipped', 'delivered']) || in_array($status, ['shipped', 'completed']);
-                                $step2_active = ($status === 'processing' && in_array($prodStatus, ['pending', 'producing']));
+                                $step2_active = (in_array($status, ['paid', 'processing']) || $hasVerifiedPayment) && in_array($prodStatus, ['pending', 'producing']) && ! $step2_done;
 
                                 $step3_done = in_array($prodStatus, ['delivered']) || ($status === 'completed');
                                 $step3_active = ($status === 'shipped');
@@ -368,12 +371,12 @@
                                         <div class="flex items-center justify-between gap-4 flex-wrap">
                                             <h4 class="font-display font-bold text-sm text-slate-800 dark:text-white">
                                                 @if($step1_done)
-                                                    Pembayaran Diterima
+                                                    {{ $isPaymentCompleted ? 'Pembayaran Diterima (Lunas)' : 'Pembayaran DP / Termin Diterima' }}
                                                 @else
                                                     Menunggu Pembayaran
                                                 @endif
                                             </h4>
-                                            <span class="text-[10px] font-semibold text-slate-400 dark:text-slate-500 font-mono">{{ $order->created_at->format('d M Y, H:i') }} WIB</span>
+                                            <span class="text-[10px] font-semibold text-slate-400 dark:text-slate-500 font-mono">{{ ($order->paid_at ?? $order->created_at)->format('d M Y, H:i') }} WIB</span>
                                         </div>
                                         <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
                                             @if($step1_done)

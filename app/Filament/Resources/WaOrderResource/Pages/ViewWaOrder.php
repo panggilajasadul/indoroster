@@ -239,12 +239,18 @@ class ViewWaOrder extends ViewRecord
                         ]);
                     }
 
-                    $record->update([
+                    $updateData = [
                         'payment_status' => 'paid',
                         'down_payment_amount' => $grandTotal,
                         'remaining_balance' => 0,
                         'paid_at' => now(),
-                    ]);
+                    ];
+
+                    if (in_array($record->status, ['draft', 'pending_payment'])) {
+                        $updateData['status'] = 'processing';
+                    }
+
+                    $record->update($updateData);
 
                     if ($invoice = $record->invoice) {
                         $invoice->update([

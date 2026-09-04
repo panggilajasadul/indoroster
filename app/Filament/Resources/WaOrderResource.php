@@ -683,6 +683,9 @@ class WaOrderResource extends Resource
                                 if ($state === 'paid') {
                                     $set('down_payment_amount', $grandTotal);
                                     $set('remaining_balance', 0);
+                                    if (in_array($get('status'), ['draft', 'pending_payment'])) {
+                                        $set('status', 'processing');
+                                    }
                                 } elseif ($state === 'unpaid') {
                                     $scheme = $get('payment_scheme') ?: 'quotation';
                                     if ($scheme === 'quotation' || $scheme === 'full') {

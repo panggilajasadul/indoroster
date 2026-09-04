@@ -42,6 +42,9 @@ class CreateWaOrder extends CreateRecord
             $data['down_payment_amount'] = $grandTotal;
             $data['remaining_balance'] = 0.0;
             $data['payment_status'] = 'paid';
+            if (empty($data['status']) || in_array($data['status'], ['draft', 'pending_payment'])) {
+                $data['status'] = 'processing';
+            }
         }
 
         return $data;
@@ -101,8 +104,8 @@ class CreateWaOrder extends CreateRecord
                 ->label('🚀 Terbitkan Pesanan')
                 ->color('success')
                 ->action(function () {
-                    // Set status to pending_payment if was draft
-                    $this->data['status'] = $this->data['status'] === 'draft' ? 'pending_payment' : ($this->data['status'] ?: 'pending_payment');
+                    $isPaid = ($this->data['payment_status'] ?? 'unpaid') === 'paid';
+                    $this->data['status'] = $isPaid ? 'processing' : ($this->data['status'] === 'draft' ? 'pending_payment' : ($this->data['status'] ?: 'pending_payment'));
                     $this->create();
                 }),
 

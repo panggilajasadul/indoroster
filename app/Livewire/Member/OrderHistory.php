@@ -75,8 +75,16 @@ class OrderHistory extends Component
         $tabCounts = [
             'semua' => (clone $baseQuery)->count(),
             'penawaran' => (clone $baseQuery)->where('status', 'draft')->count(),
-            'belum-bayar' => (clone $baseQuery)->where('status', 'pending_payment')->where('payment_status', '!=', 'paid')->count(),
-            'diproses' => (clone $baseQuery)->whereIn('status', ['paid', 'processing'])->count(),
+            'belum-bayar' => (clone $baseQuery)->where('status', 'pending_payment')->where('payment_status', '!=', 'paid')->where(function ($q) {
+                $q->whereNull('down_payment_amount')->orWhere('down_payment_amount', '<=', 0);
+            })->count(),
+            'diproses' => (clone $baseQuery)->where(function ($q) {
+                $q->whereIn('status', ['paid', 'processing'])
+                    ->orWhere(function ($sub) {
+                        $sub->where('payment_status', 'paid')
+                            ->whereNotIn('status', ['shipped', 'delivered', 'completed', 'cancelled']);
+                    });
+            })->count(),
             'dikirim' => (clone $baseQuery)->whereIn('status', ['shipped', 'delivered'])->count(),
             'selesai' => (clone $baseQuery)->where('status', 'completed')->count(),
             'batal' => (clone $baseQuery)->where('status', 'cancelled')->count(),
@@ -92,10 +100,20 @@ class OrderHistory extends Component
                 $query->where('status', 'draft');
                 break;
             case 'belum-bayar':
-                $query->where('status', 'pending_payment')->where('payment_status', '!=', 'paid');
+                $query->where('status', 'pending_payment')
+                    ->where('payment_status', '!=', 'paid')
+                    ->where(function ($q) {
+                        $q->whereNull('down_payment_amount')->orWhere('down_payment_amount', '<=', 0);
+                    });
                 break;
             case 'diproses':
-                $query->whereIn('status', ['paid', 'processing']);
+                $query->where(function ($q) {
+                    $q->whereIn('status', ['paid', 'processing'])
+                        ->orWhere(function ($sub) {
+                            $sub->where('payment_status', 'paid')
+                                ->whereNotIn('status', ['shipped', 'delivered', 'completed', 'cancelled']);
+                        });
+                });
                 break;
             case 'dikirim':
                 $query->whereIn('status', ['shipped', 'delivered']);

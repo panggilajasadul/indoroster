@@ -78,6 +78,35 @@ class Order extends Model
         ];
     }
 
+    protected static function booted(): void
+    {
+        static::saving(function (Order $order) {
+            // Jika pembayaran lunas tapi status masih draft atau pending_payment, otomatis sinkronkan ke processing
+            if ($order->payment_status === 'paid' && in_array($order->status, ['draft', 'pending_payment'])) {
+                $order->status = 'processing';
+                if (! $order->paid_at) {
+                    $order->paid_at = now();
+                }
+            }
+        });
+    }
+
+    /**
+     * Check if payment is fully settled or completed.
+     */
+    public function isFullyPaid(): bool
+    {
+        return $this->payment_status === 'paid' || ((float) $this->grand_total > 0 && (float) $this->total_paid_amount >= (float) $this->grand_total);
+    }
+
+    /**
+     * Check if any verified payment (DP or full) has been received.
+     */
+    public function hasVerifiedPayment(): bool
+    {
+        return $this->isFullyPaid() || ((float) $this->total_paid_amount > 0);
+    }
+
     /**
      * Generate unique order number for online web orders.
      */
@@ -342,6 +371,10 @@ class Order extends Model
      */
     public function getStatusLabelAttribute(): string
     {
+        if ($this->payment_status === 'paid' && in_array($this->status, ['draft', 'pending_payment'])) {
+            return 'Diproses (Lunas)';
+        }
+
         return match ($this->status) {
             'draft' => 'Draft / Penawaran',
             'pending_payment' => 'Menunggu Pembayaran',

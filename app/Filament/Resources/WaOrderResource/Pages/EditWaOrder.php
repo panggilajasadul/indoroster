@@ -65,6 +65,9 @@ class EditWaOrder extends EditRecord
             $data['down_payment_amount'] = $grandTotal;
             $data['remaining_balance'] = 0.0;
             $data['payment_status'] = 'paid';
+            if (isset($data['status']) && in_array($data['status'], ['draft', 'pending_payment'])) {
+                $data['status'] = 'processing';
+            }
         }
 
         return $data;
