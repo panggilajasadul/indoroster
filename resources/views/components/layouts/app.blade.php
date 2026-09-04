@@ -1,11 +1,24 @@
 <!DOCTYPE html>
 @php
-    $cookieTheme = request()->cookie('indoroster_theme');
     $themeDefaultMode = \App\Models\SiteSetting::getValue('theme_default_mode', 'light');
-    $isDarkInitial = ($cookieTheme === 'dark') || (!$cookieTheme && $themeDefaultMode === 'dark');
+    $themeAllowUserToggle = filter_var(\App\Models\SiteSetting::getValue('theme_allow_user_toggle', true), FILTER_VALIDATE_BOOLEAN);
+    $themeVersion = \App\Models\SiteSetting::getValue('theme_version', '1');
+    $cookieTheme = request()->cookie('indoroster_theme');
+
+    if (! $themeAllowUserToggle) {
+        // Mode dikunci oleh Admin: tidak boleh ada cookie override pengunjung
+        $isDarkInitial = ($themeDefaultMode === 'dark');
+    } else {
+        // Mode toggle diizinkan: ikuti cookie jika ada, atau default admin
+        $isDarkInitial = ($cookieTheme === 'dark') || (! $cookieTheme && $themeDefaultMode === 'dark');
+    }
 @endphp
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-smooth {{ $isDarkInitial ? 'dark' : '' }}">
 <head>
+    <!-- Mobile & iOS Safari Theme Color & Color Scheme (Mencegah iPhone otomatis invert jadi dark) -->
+    <meta name="theme-color" content="{{ $isDarkInitial ? '#020617' : '#ffffff' }}">
+    <meta name="color-scheme" content="{{ $isDarkInitial ? 'dark' : 'light' }}">
+
     <!-- Google tag (gtag.js) -->
     @php
         $gaId = \App\Models\SiteSetting::getValue('google_analytics_id', 'G-GZQXJ03B4C');
@@ -74,7 +87,6 @@
         }
 
         // Theme & Appearance Settings
-        $themeAllowUserToggle = filter_var(\App\Models\SiteSetting::getValue('theme_allow_user_toggle', true), FILTER_VALIDATE_BOOLEAN);
         $themeAccentColor = \App\Models\SiteSetting::getValue('theme_accent_color', '#f75c20');
         $themeNavbarStyle = \App\Models\SiteSetting::getValue('theme_navbar_style', 'glassmorphism');
         $isOrderModeMidtrans = \App\Models\SiteSetting::getValue('order_mode', 'midtrans') === 'midtrans';
@@ -82,21 +94,45 @@
 
     <title>{{ $pageTitle }}</title>
 
-    <!-- Theme Initialization Script (Zero-FOUC & Livewire SPA Navigation Sync) -->
+    <!-- Theme Initialization Script (Zero-FOUC, iOS Safari / Android Sync & Livewire SPA Sync) -->
     <script>
+        function updateMetaTheme(isDark) {
+            try {
+                let metaThemeColor = document.querySelector('meta[name="theme-color"]');
+                if (!metaThemeColor) {
+                    metaThemeColor = document.createElement('meta');
+                    metaThemeColor.setAttribute('name', 'theme-color');
+                    document.head.appendChild(metaThemeColor);
+                }
+                let metaColorScheme = document.querySelector('meta[name="color-scheme"]');
+                if (!metaColorScheme) {
+                    metaColorScheme = document.createElement('meta');
+                    metaColorScheme.setAttribute('name', 'color-scheme');
+                    document.head.appendChild(metaColorScheme);
+                }
+                if (isDark) {
+                    metaThemeColor.setAttribute('content', '#020617');
+                    metaColorScheme.setAttribute('content', 'dark');
+                } else {
+                    metaThemeColor.setAttribute('content', '#ffffff');
+                    metaColorScheme.setAttribute('content', 'light');
+                }
+            } catch (e) {}
+        }
+
         function syncIndorosterTheme() {
             try {
                 const defaultMode = '{{ $themeDefaultMode }}';
-                const cookieMatch = document.cookie.match(/(^|;\s*)indoroster_theme=([^;]+)/);
-                const cookieVal = cookieMatch ? cookieMatch[2] : null;
-                const storedTheme = localStorage.getItem('indoroster_theme') || cookieVal;
+                const allowToggle = {{ $themeAllowUserToggle ? 'true' : 'false' }};
+                const currentVersion = '{{ $themeVersion }}';
                 let isDark = false;
 
-                if (storedTheme === 'dark') {
-                    isDark = true;
-                } else if (storedTheme === 'light') {
-                    isDark = false;
-                } else {
+                if (!allowToggle) {
+                    // Admin mengunci mode tampilan: hapus sisa cookie/storage lama agar HP/iPhone tidak tersangkut
+                    localStorage.removeItem('indoroster_theme');
+                    localStorage.removeItem('indoroster_theme_version');
+                    document.cookie = 'indoroster_theme=; path=/; max-age=0; SameSite=Lax';
+
                     if (defaultMode === 'dark') {
                         isDark = true;
                     } else if (defaultMode === 'system') {
@@ -104,12 +140,41 @@
                     } else {
                         isDark = false;
                     }
+                } else {
+                    // Jika admin baru saja menyimpan/mengubah setting tema di admin panel,
+                    // sinkronkan versi dan reset cookie lama agar browser mengadopsi default baru admin
+                    const savedVersion = localStorage.getItem('indoroster_theme_version');
+                    if (savedVersion !== currentVersion) {
+                        localStorage.removeItem('indoroster_theme');
+                        localStorage.setItem('indoroster_theme_version', currentVersion);
+                        document.cookie = 'indoroster_theme=; path=/; max-age=0; SameSite=Lax';
+                    }
+
+                    const cookieMatch = document.cookie.match(/(^|;\s*)indoroster_theme=([^;]+)/);
+                    const cookieVal = cookieMatch ? cookieMatch[2] : null;
+                    const storedTheme = localStorage.getItem('indoroster_theme') || cookieVal;
+
+                    if (storedTheme === 'dark') {
+                        isDark = true;
+                    } else if (storedTheme === 'light') {
+                        isDark = false;
+                    } else {
+                        if (defaultMode === 'dark') {
+                            isDark = true;
+                        } else if (defaultMode === 'system') {
+                            isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                        } else {
+                            isDark = false;
+                        }
+                    }
                 }
 
                 if (isDark) {
                     document.documentElement.classList.add('dark');
+                    updateMetaTheme(true);
                 } else {
                     document.documentElement.classList.remove('dark');
+                    updateMetaTheme(false);
                 }
             } catch (e) {}
         }
@@ -296,11 +361,16 @@
                         toggleTheme() {
                             this.currentTheme = this.currentTheme === 'dark' ? 'light' : 'dark';
                             localStorage.setItem('indoroster_theme', this.currentTheme);
+                            localStorage.setItem('indoroster_theme_version', '{{ $themeVersion }}');
                             document.cookie = 'indoroster_theme=' + this.currentTheme + '; path=/; max-age=31536000; SameSite=Lax';
-                            if (this.currentTheme === 'dark') {
+                            const isDark = (this.currentTheme === 'dark');
+                            if (isDark) {
                                 document.documentElement.classList.add('dark');
                             } else {
                                 document.documentElement.classList.remove('dark');
+                            }
+                            if (typeof updateMetaTheme === 'function') {
+                                updateMetaTheme(isDark);
                             }
                             window.dispatchEvent(new CustomEvent('indoroster-theme-updated', { detail: this.currentTheme }));
                         }
@@ -476,11 +546,16 @@
                                         toggleTheme() {
                                             this.currentTheme = this.currentTheme === 'dark' ? 'light' : 'dark';
                                             localStorage.setItem('indoroster_theme', this.currentTheme);
+                                            localStorage.setItem('indoroster_theme_version', '{{ $themeVersion }}');
                                             document.cookie = 'indoroster_theme=' + this.currentTheme + '; path=/; max-age=31536000; SameSite=Lax';
-                                            if (this.currentTheme === 'dark') {
+                                            const isDark = (this.currentTheme === 'dark');
+                                            if (isDark) {
                                                 document.documentElement.classList.add('dark');
                                             } else {
                                                 document.documentElement.classList.remove('dark');
+                                            }
+                                            if (typeof updateMetaTheme === 'function') {
+                                                updateMetaTheme(isDark);
                                             }
                                             window.dispatchEvent(new CustomEvent('indoroster-theme-updated', { detail: this.currentTheme }));
                                         }

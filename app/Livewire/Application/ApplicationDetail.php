@@ -4,6 +4,7 @@ namespace App\Livewire\Application;
 
 use App\Models\ApplicationPage;
 use App\Models\Category;
+use App\Models\Gallery;
 use App\Models\GalleryMedia;
 use App\Models\Product;
 use App\Models\SeoLocation;
@@ -48,6 +49,7 @@ class ApplicationDetail extends Component
                     'benefits' => $dbApp->benefits ?? [],
                     'motifs' => $dbApp->motifs ?? [],
                     'gallery_images' => $dbApp->gallery_images ?? [],
+                    'gallery_ids' => $dbApp->gallery_ids ?? [],
                     'faqs' => $dbApp->faqs ?? [],
                 ];
 
@@ -634,20 +636,125 @@ class ApplicationDetail extends Component
             ->take(12)
             ->get();
 
-        // Real Project Gallery Media
+        // Fetch Galleries: prioritize explicitly selected gallery_ids, fallback to matching category
+        $selectedGalleries = collect();
+        $galleryIds = $this->application['gallery_ids'] ?? [];
+
+        if (! empty($galleryIds)) {
+            $selectedGalleries = Gallery::with(['media', 'product.variants', 'product.media'])
+                ->whereIn('id', $galleryIds)
+                ->where('is_active', true)
+                ->get()
+                ->sortBy(function ($g) use ($galleryIds) {
+                    return array_search($g->id, $galleryIds);
+                });
+        }
+
+        if ($selectedGalleries->isEmpty()) {
+            $catMap = [
+                'pagar-rumah' => 'pagar',
+                'fasad-rumah' => 'fasad',
+                'ventilasi-dinding' => 'dapur',
+                'partisi-ruangan' => 'interior',
+                'void-tangga' => 'interior',
+                'fasad-cafe' => 'ruang-tamu',
+                'ruko' => 'fasad',
+                'perumahan-cluster' => 'pagar',
+                'gedung-komersial' => 'fasad',
+                'interior-cafe' => 'interior',
+            ];
+            $matchedCat = $catMap[$this->slug] ?? null;
+            if ($matchedCat) {
+                $selectedGalleries = Gallery::with(['media', 'product.variants', 'product.media'])
+                    ->where('category', $matchedCat)
+                    ->where('is_active', true)
+                    ->orderBy('sort_order', 'asc')
+                    ->limit(6)
+                    ->get();
+            }
+        }
+
+        // Real Project Gallery Media Fallback
         $randomGalleryMedia = GalleryMedia::with('gallery')
             ->where('media_type', 'image')
             ->inRandomOrder()
             ->limit(6)
             ->get();
 
+        // Build Structured Lightbox Items for Theatre Modal (Foto 2 & 3 upgrade)
+        $lightboxItems = [];
+        if ($selectedGalleries->isNotEmpty()) {
+            foreach ($selectedGalleries as $idx => $gal) {
+                $firstMedia = $gal->media->first();
+                $photoUrl = $firstMedia?->formatted_url ?? $firstMedia?->media_url ?: 'https://images.pexels.com/photos/7946866/pexels-photo-7946866.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940';
+                $prod = $gal->product;
+                $lightboxItems[] = [
+                    'id' => $gal->id,
+                    'image' => $photoUrl,
+                    'title' => $gal->title,
+                    'description' => $firstMedia?->caption ?: ($gal->description ?: 'Dokumentasi inspirasi nyata penerapan roster beton arsitektural cetak padat presisi plat baja IndoRoster.'),
+                    'location' => $gal->location ?: 'Proyek Hunian Modern',
+                    'category' => strtoupper($gal->category ?: 'Arsitektur'),
+                    'has_product' => $prod ? true : false,
+                    'product_name' => $prod?->name,
+                    'product_price' => $prod?->formatted_price_range,
+                    'product_image' => $prod?->primary_image ?: asset('assets/logo_indoroster_no_text.PNG'),
+                    'product_url' => $prod ? route('product.detail', $prod->slug) : null,
+                    'wa_link' => $prod
+                        ? "https://wa.me/{$waNumber}?text=".urlencode("Halo IndoRoster, saya melihat foto inspirasi {$gal->title} dan tertarik dengan motif {$prod->name}. Apakah stok tersedia dan bisa dikirim ke lokasi saya?")
+                        : $waUrl,
+                ];
+            }
+        } elseif (! empty($this->application['gallery_images'])) {
+            foreach ($this->application['gallery_images'] as $idx => $gImg) {
+                $photoUrl = is_array($gImg) ? ($gImg['image_url'] ?? '') : $gImg;
+                if (! str_starts_with($photoUrl, 'http')) {
+                    $photoUrl = asset('storage/'.$photoUrl);
+                }
+                $lightboxItems[] = [
+                    'id' => $idx,
+                    'image' => $photoUrl,
+                    'title' => 'Inspirasi '.$this->application['title'].' #'.($idx + 1),
+                    'description' => 'Dokumentasi pengaplikasian nyata roster beton arsitektural cetak tumbuk padat plat baja presisi sentra pengrajin Plered Purwakarta.',
+                    'location' => 'Proyek Hunian Modern',
+                    'category' => strtoupper($this->application['badge'] ?? 'Aplikasi'),
+                    'has_product' => false,
+                    'product_name' => null,
+                    'product_price' => null,
+                    'product_image' => null,
+                    'product_url' => null,
+                    'wa_link' => "https://wa.me/{$waNumber}?text=".urlencode("Halo IndoRoster, saya tertarik dengan foto inspirasi {$this->application['title']} #".($idx + 1).'. Mohon info motif rekomendasi dan harga.'),
+                ];
+            }
+        } elseif ($randomGalleryMedia->isNotEmpty()) {
+            foreach ($randomGalleryMedia as $idx => $media) {
+                $g = $media->gallery;
+                $lightboxItems[] = [
+                    'id' => $media->id,
+                    'image' => $media->formatted_url,
+                    'title' => $g?->title ?: 'Inspirasi Roster Beton #'.($idx + 1),
+                    'description' => $media->caption ?: ($g?->description ?: 'Dokumentasi terpasang roster beton modern.'),
+                    'location' => $g?->location ?: 'Indonesia',
+                    'category' => strtoupper($g?->category ?: 'Inspirasi'),
+                    'has_product' => false,
+                    'product_name' => null,
+                    'product_price' => null,
+                    'product_image' => null,
+                    'product_url' => null,
+                    'wa_link' => $waUrl,
+                ];
+            }
+        }
+
         return view('livewire.application.application-detail', [
             'application' => $this->application,
+            'selectedGalleries' => $selectedGalleries,
             'recommendedProducts' => $this->recommendedProducts,
             'explorerProducts' => $explorerProducts,
             'categories' => $categories,
             'topLocations' => $topLocations,
             'randomGalleryMedia' => $randomGalleryMedia,
+            'lightboxItems' => $lightboxItems,
             'waUrl' => $waUrl,
             'waNumber' => $waNumber,
         ])->layout('components.layouts.app', [

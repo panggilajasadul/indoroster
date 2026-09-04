@@ -63,14 +63,8 @@
             const diffY = this.touchStartY - this.touchEndY;
             const diffX = this.touchStartX - this.touchEndX;
 
-            // Vertical swipe dominant (Swipe Up / Scroll Down for next, Swipe Down for prev)
-            if (Math.abs(diffY) > Math.abs(diffX) && Math.abs(diffY) > 40) {
-                if (diffY > 0) {
-                    this.nextPhoto();
-                } else {
-                    this.prevPhoto();
-                }
-            } else if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 40) {
+            // Only horizontal swipe changes photos, allowing natural vertical scroll on mobile!
+            if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
                 if (diffX > 0) {
                     this.nextPhoto();
                 } else {
@@ -338,12 +332,12 @@
             </svg>
         </button>
 
-        <!-- Main Modal Container: Split Layout on Desktop, Full Image on Mobile -->
-        <div class="w-full h-full flex flex-col md:flex-row relative">
+        <!-- Main Modal Container: Split Layout on Desktop, Vertical Scrollable on Mobile -->
+        <div class="w-full h-full flex flex-col md:flex-row relative overflow-y-auto md:overflow-hidden">
             
-            <!-- Left Side: Image Container & Navigation (75% width on desktop) -->
+            <!-- Left Side: Image Container & Navigation (Expansive Theatre) -->
             <div 
-                class="flex-1 h-full flex items-center justify-center relative bg-black/30 p-2 sm:p-4 overflow-hidden"
+                class="w-full md:flex-1 min-h-[50vh] sm:min-h-[60vh] md:h-full flex items-center justify-center relative bg-black/40 p-2 sm:p-4 overflow-hidden shrink-0 select-none"
                 @touchstart="handleTouchStart($event)"
                 @touchmove="handleTouchMove($event)"
                 @touchend="handleTouchEnd($event)"
@@ -371,17 +365,18 @@
                     <span class="text-[10px] text-white/40 border-l border-white/10 pl-2 ml-1 hidden lg:inline">Klik 2x / Scroll</span>
                 </div>
 
-                <!-- Mobile Swipe Hint (TikTok / Reels Style) -->
-                <div class="md:hidden absolute top-4 left-4 z-[115] bg-black/50 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 text-[10px] text-white/80 flex items-center gap-1.5 pointer-events-none">
-                    <svg class="w-3.5 h-3.5 text-terra-400 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M7 11l5-5m0 0l5 5m-5-5v12"/></svg>
-                    <span>Geser atas/bawah</span>
+                <!-- Mobile Swipe Hint -->
+                <div class="md:hidden absolute top-4 left-4 z-[115] bg-black/60 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 text-[10px] text-white/80 flex items-center gap-1.5 pointer-events-none">
+                    <svg class="w-3.5 h-3.5 text-terra-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+                    <span>Geser kiri/kanan</span>
                 </div>
                 
-                <!-- Navigation: Previous (Desktop) -->
+                <!-- Navigation: Previous (Desktop & Mobile) -->
                 <button 
                     @click.stop="prevPhoto()" 
-                    class="hidden md:flex absolute left-4 z-[110] p-3 bg-black/40 hover:bg-black/60 backdrop-blur-md rounded-full text-white transition-all focus:outline-none border border-white/10 shadow-xl cursor-pointer">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6">
+                    class="flex absolute left-3 sm:left-4 z-[110] p-2.5 sm:p-3 bg-black/50 hover:bg-black/70 backdrop-blur-md rounded-full text-white transition-all focus:outline-none border border-white/10 shadow-xl cursor-pointer"
+                    title="Foto Sebelumnya">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5 sm:w-6 sm:h-6">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
                     </svg>
                 </button>
@@ -397,108 +392,19 @@
                     />
                 </div>
 
-                <!-- Navigation: Next (Desktop) -->
+                <!-- Navigation: Next (Desktop & Mobile) -->
                 <button 
                     @click.stop="nextPhoto()" 
-                    class="hidden md:flex absolute right-4 z-[110] p-3 bg-black/40 hover:bg-black/60 backdrop-blur-md rounded-full text-white transition-all focus:outline-none border border-white/10 shadow-xl cursor-pointer">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6">
+                    class="flex absolute right-3 sm:right-4 z-[110] p-2.5 sm:p-3 bg-black/50 hover:bg-black/70 backdrop-blur-md rounded-full text-white transition-all focus:outline-none border border-white/10 shadow-xl cursor-pointer"
+                    title="Foto Berikutnya">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5 sm:w-6 sm:h-6">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
                     </svg>
                 </button>
-
-                <!-- Mobile Floating Controls & Brand Overlay (Only visible on mobile) -->
-                <div class="absolute bottom-6 left-4 right-16 z-[110] text-left md:hidden pointer-events-none">
-                    <div class="flex items-center gap-2 mb-2 pointer-events-auto">
-                        <div class="w-8 h-8 rounded-full border border-white/40 flex items-center justify-center shadow-lg bg-terra-500 shrink-0">
-                            <span class="text-[8px] font-black text-white" x-text="photos[activeIndex]?.type === 'gallery' ? 'INDO' : (photos[activeIndex]?.reviewer_name?.charAt(0) || 'U')"></span>
-                        </div>
-                        <span class="text-white text-xs font-bold tracking-widest uppercase drop-shadow-md" style="text-shadow: 1px 1px 3px rgba(0,0,0,0.6);" x-text="photos[activeIndex]?.reviewer_name || 'INDOROSTER OFFICIAL'"></span>
-                    </div>
-                    <h2 class="font-display text-white text-sm font-bold drop-shadow-lg line-clamp-1" style="text-shadow: 1px 1px 3px rgba(0,0,0,0.8);" x-text="photos[activeIndex]?.title"></h2>
-                    <p class="text-white/90 text-xs mt-1 line-clamp-2 leading-relaxed drop-shadow" style="text-shadow: 1px 1px 2px rgba(0,0,0,0.8);" x-show="photos[activeIndex]?.description || photos[activeIndex]?.caption" x-text="photos[activeIndex]?.description || photos[activeIndex]?.caption"></p>
-                    <p class="text-white/70 text-[10px] mt-1 flex items-center gap-1 drop-shadow" x-show="photos[activeIndex]?.location">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-terra-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
-                        <span x-text="photos[activeIndex]?.location"></span>
-                    </p>
-
-                    <!-- Mobile Product Badge (Shoppable) -->
-                    <template x-if="photos[activeIndex]?.product">
-                        <a 
-                            :href="'/produk/' + photos[activeIndex]?.product?.slug" 
-                            class="flex items-center gap-2 bg-white/95 backdrop-blur-md p-2 rounded-xl shadow-xl mt-3 border border-white/20 pointer-events-auto max-w-[85vw]"
-                        >
-                            <img :src="photos[activeIndex]?.product?.image" class="w-10 h-10 rounded-lg object-cover border border-slate-200">
-                            <div class="flex-grow min-w-0">
-                                <p class="text-[10px] font-bold text-slate-800 truncate" x-text="photos[activeIndex]?.product?.name"></p>
-                                <p class="text-[9px] font-black text-terra-600 mt-0.5" x-text="photos[activeIndex]?.product?.formatted_price + ' • Beli'"></p>
-                            </div>
-                        </a>
-                    </template>
-                </div>
-
-                <!-- Mobile Floating Actions Sidebar (Like, Comment, Share) -->
-                <div class="absolute right-4 bottom-24 z-[115] flex flex-col items-center gap-4 text-white md:hidden">
-
-                    <!-- Like Button -->
-                    <button 
-                        @click.stop="if (!isLoggedIn) { window.location.href = '{{ route('login') }}'; } else { $wire.toggleLike(photos[activeIndex].id) }" 
-                        class="flex flex-col items-center justify-center group focus:outline-none cursor-pointer">
-                        <div class="w-10 h-10 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center transition-all duration-200 border border-white/10 active:scale-95 text-white"
-                            :class="photos[activeIndex]?.is_liked ? 'text-rose-500' : ''">
-                            <svg xmlns="http://www.w3.org/2000/svg" :fill="photos[activeIndex]?.is_liked ? 'currentColor' : 'none'" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
-                            </svg>
-                        </div>
-                        <span class="text-[10px] font-bold mt-1 drop-shadow-md" x-text="photos[activeIndex]?.likes_count || 0"></span>
-                    </button>
-
-                    <!-- Comment Button -->
-                    <button 
-                        @click.stop="if (!isLoggedIn) { window.location.href = '{{ route('login') }}'; } else { activePhotoId = photos[activeIndex].id; commentDrawerOpen = true; }" 
-                        class="flex flex-col items-center justify-center group focus:outline-none cursor-pointer">
-                        <div class="w-10 h-10 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center transition-all duration-200 border border-white/10 active:scale-95 text-white">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9s0-3-3-3m-6 3h6m-6 0A2.25 2.25 0 0 0 5.25 10.5v3.75a2.25 2.25 0 0 0 2.25 2.25h1.372c.516 0 .966.351 1.091.852l1.106 4.423c.11.44.74.44.85 0l1.107-4.423a1.106 1.106 0 0 1 1.09-.852h1.372a2.25 2.25 0 0 0 2.25-2.25V10.5a2.25 2.25 0 0 0-2.25-2.25h-9Z" />
-                            </svg>
-                        </div>
-                        <span class="text-[10px] font-bold mt-1 drop-shadow-md" x-text="photos[activeIndex]?.comments_count || 0"></span>
-                    </button>
-
-                    <!-- Share Button -->
-                    <button 
-                        @click.stop="
-                            const slug = photos[activeIndex].slug || photos[activeIndex].id;
-                            const shareUrl = `${window.location.origin}/gallery/${slug}`;
-                            if (navigator.share) {
-                                navigator.share({
-                                    title: photos[activeIndex].title,
-                                    text: 'Lihat foto inspirasi roster beton menarik ini di Indoroster!',
-                                    url: shareUrl
-                                }).catch(() => {});
-                            } else {
-                                navigator.clipboard.writeText(shareUrl).then(() => {
-                                    toastMessage = 'Tautan foto berhasil disalin!';
-                                    showToast = true;
-                                    setTimeout(() => showToast = false, 3000);
-                                });
-                            }
-                        " 
-                        class="flex flex-col items-center justify-center group focus:outline-none cursor-pointer">
-                        <div class="w-10 h-10 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center transition-all duration-200 border border-white/10 active:scale-95 text-white">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="m15 15 6-6m0 0-6-6m6 6H9a6 6 0 0 0 0 12h3" />
-                            </svg>
-                        </div>
-                        <span class="text-[10px] font-bold mt-1 drop-shadow-md">Bagikan</span>
-                    </button>
-                </div>
             </div>
 
-            <!-- Right Side: Details & Comments Panel (380px width, hidden on mobile) -->
-            <div class="hidden md:flex w-[380px] h-full bg-slate-900 border-l border-white/10 flex-col relative z-20">
+            <!-- Right Side: Details & Comments Panel (Desktop Sidebar & Mobile Scrollable View) -->
+            <div class="flex flex-col w-full md:w-[380px] lg:w-[420px] md:h-full bg-slate-900 border-t md:border-t-0 md:border-l border-white/10 relative z-20 shrink-0 md:overflow-hidden">
                 <!-- Header / Author Info & Story Caption -->
                 <div class="p-6 border-b border-white/10 max-h-[350px] overflow-y-auto no-scrollbar">
                     <div class="flex items-center gap-3 mb-3.5">
@@ -527,30 +433,33 @@
                     </div>
                 </div>
 
-                <!-- Shoppable Product Link (Desktop) -->
+                <!-- Shoppable Product Link (Desktop & Mobile) -->
                 <template x-if="photos[activeIndex]?.product">
-                    <div class="px-6 py-4 border-b border-white/10 bg-slate-950/40">
-                        <a 
-                            :href="'/produk/' + photos[activeIndex]?.product?.slug" 
-                            class="flex items-center gap-3 bg-white/5 backdrop-blur-md p-3 rounded-2xl border border-white/10 hover:bg-white/10 hover:scale-[1.01] transition-all duration-300 group max-w-full">
-                            <!-- Product Image -->
-                            <div class="w-12 h-12 rounded-xl overflow-hidden bg-slate-800 flex-shrink-0 border border-white/10">
-                                <img :src="photos[activeIndex]?.product?.image" class="w-full h-full object-cover">
-                            </div>
-                            
-                            <!-- Product Info -->
-                            <div class="flex-grow min-w-0 text-left">
-                                <p class="text-xs font-bold text-white line-clamp-1 group-hover:text-terra-400 transition-colors" x-text="photos[activeIndex]?.product?.name"></p>
-                                <p class="text-[11px] font-black text-terra-500 mt-0.5" x-text="photos[activeIndex]?.product?.formatted_price"></p>
+                    <div class="px-5 sm:px-6 py-4 border-b border-white/10 bg-slate-950/60">
+                        <div class="text-[10px] uppercase font-bold tracking-wider text-emerald-400 mb-2 flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+                            Motif Roster Terkait (Bisa Langsung Beli)
+                        </div>
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white/5 backdrop-blur-md p-3.5 rounded-2xl border border-white/10 hover:border-emerald-500/50 transition-all">
+                            <!-- Product Image & Details -->
+                            <div class="flex items-center gap-3 min-w-0">
+                                <div class="w-12 h-12 rounded-xl overflow-hidden bg-slate-800 flex-shrink-0 border border-white/10">
+                                    <img :src="photos[activeIndex]?.product?.image" class="w-full h-full object-cover">
+                                </div>
+                                <div class="flex-grow min-w-0 text-left">
+                                    <p class="text-xs font-bold text-white line-clamp-1 group-hover:text-terra-400 transition-colors" x-text="photos[activeIndex]?.product?.name"></p>
+                                    <p class="text-xs font-black text-terra-400 mt-0.5" x-text="photos[activeIndex]?.product?.formatted_price"></p>
+                                </div>
                             </div>
 
-                            <!-- Bag Icon -->
-                            <div class="flex-shrink-0 w-8 h-8 rounded-full bg-terra-500 group-hover:bg-terra-600 flex items-center justify-center text-white shadow-md transition-colors">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4">
-                                    <path fill-rule="evenodd" d="M7.5 6v.75H5.513c-.96 0-1.764.724-1.865 1.679l-1.263 12A1.875 1.875 0 0 0 4.25 22.5h15.5a1.875 1.875 0 0 0 1.865-2.071l-1.262-12a1.875 1.875 0 0 0-1.865-1.679H16.5V6a4.5 4.5 0 1 0-9 0ZM12 3a3 3 0 0 0-3 3v.75h6V6a3 3 0 0 0-3-3Zm-3 8.25a.75.75 0 1 0-1.5 0v-.75a.75.75 0 0 0 1.5 0v.75Zm7.5-.75a.75.75 0 0 1 .75.75v.75a.75.75 0 0 1-1.5 0v-.75a.75.75 0 0 1 .75-.75Z" clip-rule="evenodd" />
-                                </svg>
-                            </div>
-                        </a>
+                            <!-- Cart Button -->
+                            <a 
+                                :href="'/produk/' + photos[activeIndex]?.product?.slug" 
+                                class="w-full sm:w-auto px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-bold text-xs rounded-xl shadow-lg transition-all flex items-center justify-center gap-1.5 shrink-0 whitespace-nowrap">
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+                                <span>🛒 Masukkan Keranjang</span>
+                            </a>
+                        </div>
                     </div>
                 </template>
 

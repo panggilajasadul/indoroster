@@ -1,82 +1,82 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- IndoRoster Pages Sitemap | Generated: 2026-09-04 23:04:28 WIB | Total URLs: 18 | Base: https://indoroster.com -->
+<!-- IndoRoster Pages Sitemap | Generated: 2026-09-05 00:12:03 WIB | Total URLs: 18 | Base: https://indoroster.com -->
 <?xml-stylesheet type="text/xsl" href="/sitemap.xsl?v=1.1"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">
     <url>
     <loc>https://indoroster.com/</loc>
-    <lastmod>2026-09-04T23:04:28+07:00</lastmod>
+    <lastmod>2026-09-05T00:12:03+07:00</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
             </url>
     <url>
     <loc>https://indoroster.com/katalog</loc>
-    <lastmod>2026-09-04T23:04:28+07:00</lastmod>
+    <lastmod>2026-09-05T00:12:03+07:00</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
             </url>
     <url>
     <loc>https://indoroster.com/artikel</loc>
-    <lastmod>2026-09-04T23:04:28+07:00</lastmod>
+    <lastmod>2026-09-05T00:12:03+07:00</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
             </url>
     <url>
     <loc>https://indoroster.com/untuk-kontraktor</loc>
-    <lastmod>2026-09-04T23:04:28+07:00</lastmod>
+    <lastmod>2026-09-05T00:12:03+07:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
             </url>
     <url>
     <loc>https://indoroster.com/untuk-developer</loc>
-    <lastmod>2026-09-04T23:04:28+07:00</lastmod>
+    <lastmod>2026-09-05T00:12:03+07:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
             </url>
     <url>
     <loc>https://indoroster.com/untuk-arsitek</loc>
-    <lastmod>2026-09-04T23:04:28+07:00</lastmod>
+    <lastmod>2026-09-05T00:12:03+07:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
             </url>
     <url>
     <loc>https://indoroster.com/roster-beton-proyek</loc>
-    <lastmod>2026-09-04T23:04:28+07:00</lastmod>
+    <lastmod>2026-09-05T00:12:03+07:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
             </url>
     <url>
     <loc>https://indoroster.com/kalkulator-roster</loc>
-    <lastmod>2026-09-04T23:04:28+07:00</lastmod>
+    <lastmod>2026-09-05T00:12:03+07:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
             </url>
     <url>
     <loc>https://indoroster.com/lokasi</loc>
-    <lastmod>2026-09-04T23:04:28+07:00</lastmod>
+    <lastmod>2026-09-05T00:12:03+07:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
             </url>
     <url>
     <loc>https://indoroster.com/video-inspirasi</loc>
-    <lastmod>2026-09-04T23:04:28+07:00</lastmod>
+    <lastmod>2026-09-05T00:12:03+07:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
             </url>
     <url>
     <loc>https://indoroster.com/proses-produksi</loc>
-    <lastmod>2026-09-04T23:04:28+07:00</lastmod>
+    <lastmod>2026-09-05T00:12:03+07:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
             </url>
     <url>
     <loc>https://indoroster.com/tentang-kami</loc>
-    <lastmod>2026-09-04T23:04:28+07:00</lastmod>
+    <lastmod>2026-09-05T00:12:03+07:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
             </url>
     <url>
     <loc>https://indoroster.com/kontak</loc>
-    <lastmod>2026-09-04T23:04:28+07:00</lastmod>
+    <lastmod>2026-09-05T00:12:03+07:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
             </url>

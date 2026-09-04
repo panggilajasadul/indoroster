@@ -1,7 +1,121 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- IndoRoster Galleries Sitemap | Generated: 2026-09-04 23:04:29 WIB | Total URLs: 4 | Base: https://indoroster.com -->
+<!-- IndoRoster Galleries Sitemap | Generated: 2026-09-05 00:12:04 WIB | Total URLs: 14 | Base: https://indoroster.com -->
 <?xml-stylesheet type="text/xsl" href="/sitemap.xsl?v=1.1"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">
+    <url>
+    <loc>https://indoroster.com/gallery/backdrop-dinding-taman-kering-kolam-renang-modern</loc>
+    <lastmod>2026-09-05T00:12:03+07:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+            </url>
+    <url>
+    <loc>https://indoroster.com/gallery/aksen-dinding-cafe-resto-konsep-semen-ekspos</loc>
+    <lastmod>2026-09-05T00:12:01+07:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+    <image:loc>https://images.pexels.com/photos/19949276/pexels-photo-19949276.jpeg?auto=compress&amp;cs=tinysrgb&amp;dpr=2&amp;h=650&amp;w=940</image:loc>
+    <image:caption>Aksen Dinding Cafe &amp; Resto Konsep Semen Ekspos</image:caption>
+    <image:geo_location>Bandung</image:geo_location>
+    <image:title>Aksen Dinding Cafe &amp; Resto Konsep Semen Ekspos</image:title>
+</image:image>
+        </url>
+    <url>
+    <loc>https://indoroster.com/gallery/dinding-void-tangga-pembatas-skylight-rumah</loc>
+    <lastmod>2026-09-05T00:12:00+07:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+    <image:loc>https://images.pexels.com/photos/14046317/pexels-photo-14046317.jpeg?auto=compress&amp;cs=tinysrgb&amp;dpr=2&amp;h=650&amp;w=940</image:loc>
+    <image:caption>Dinding Void Tangga &amp; Pembatas Skylight Rumah</image:caption>
+    <image:geo_location>Purwakarta</image:geo_location>
+    <image:title>Dinding Void Tangga &amp; Pembatas Skylight Rumah</image:title>
+</image:image>
+        </url>
+    <url>
+    <loc>https://indoroster.com/gallery/desain-secondary-skin-fasad-gedung-kantor-tropis</loc>
+    <lastmod>2026-09-05T00:11:59+07:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+    <image:loc>https://images.pexels.com/photos/24866696/pexels-photo-24866696.jpeg?auto=compress&amp;cs=tinysrgb&amp;dpr=2&amp;h=650&amp;w=940</image:loc>
+    <image:caption>Desain Secondary Skin Fasad Gedung Kantor Tropis</image:caption>
+    <image:geo_location>Jakarta Pusat</image:geo_location>
+    <image:title>Desain Secondary Skin Fasad Gedung Kantor Tropis</image:title>
+</image:image>
+        </url>
+    <url>
+    <loc>https://indoroster.com/gallery/ventilasi-dinding-kamar-mandi-dapur-roster-daun</loc>
+    <lastmod>2026-09-05T00:11:58+07:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+    <image:loc>https://images.pexels.com/photos/11986202/pexels-photo-11986202.jpeg?auto=compress&amp;cs=tinysrgb&amp;dpr=2&amp;h=650&amp;w=940</image:loc>
+    <image:caption>Ventilasi Dinding Kamar Mandi &amp; Dapur Roster Daun</image:caption>
+    <image:geo_location>Depok</image:geo_location>
+    <image:title>Ventilasi Dinding Kamar Mandi &amp; Dapur Roster Daun</image:title>
+</image:image>
+        </url>
+    <url>
+    <loc>https://indoroster.com/gallery/inspirasi-pagar-beton-minimalis-kombinasi-pintu-besi-hollow</loc>
+    <lastmod>2026-09-05T00:11:58+07:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+    <image:loc>https://images.pexels.com/photos/13724830/pexels-photo-13724830.jpeg?auto=compress&amp;cs=tinysrgb&amp;dpr=2&amp;h=650&amp;w=940</image:loc>
+    <image:caption>Inspirasi Pagar Beton Minimalis Kombinasi Pintu Besi Hollow</image:caption>
+    <image:geo_location>Bogor</image:geo_location>
+    <image:title>Inspirasi Pagar Beton Minimalis Kombinasi Pintu Besi Hollow</image:title>
+</image:image>
+        </url>
+    <url>
+    <loc>https://indoroster.com/gallery/pagar-kavling-industrial-modern-roster-nako-ls</loc>
+    <lastmod>2026-09-05T00:11:57+07:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+    <image:loc>https://images.pexels.com/photos/38439592/pexels-photo-38439592.jpeg?auto=compress&amp;cs=tinysrgb&amp;dpr=2&amp;h=650&amp;w=940</image:loc>
+    <image:caption>Pagar Kavling Industrial Modern Roster Nako LS</image:caption>
+    <image:geo_location>Bekasi</image:geo_location>
+    <image:title>Pagar Kavling Industrial Modern Roster Nako LS</image:title>
+</image:image>
+        </url>
+    <url>
+    <loc>https://indoroster.com/gallery/partisi-sekat-ruang-tamu-modern-roster-jabol</loc>
+    <lastmod>2026-09-05T00:11:56+07:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+    <image:loc>https://images.pexels.com/photos/12384869/pexels-photo-12384869.jpeg?auto=compress&amp;cs=tinysrgb&amp;dpr=2&amp;h=650&amp;w=940</image:loc>
+    <image:caption>Partisi Sekat Ruang Tamu Modern Roster JaboL</image:caption>
+    <image:geo_location>Tangerang</image:geo_location>
+    <image:title>Partisi Sekat Ruang Tamu Modern Roster JaboL</image:title>
+</image:image>
+        </url>
+    <url>
+    <loc>https://indoroster.com/gallery/fasad-dinding-roster-tropis-motif-petir</loc>
+    <lastmod>2026-09-05T00:11:55+07:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+    <image:loc>https://images.pexels.com/photos/136097/pexels-photo-136097.jpeg?auto=compress&amp;cs=tinysrgb&amp;dpr=2&amp;h=650&amp;w=940</image:loc>
+    <image:caption>Fasad Dinding Roster Tropis Motif Petir</image:caption>
+    <image:geo_location>Jakarta Selatan</image:geo_location>
+    <image:title>Fasad Dinding Roster Tropis Motif Petir</image:title>
+</image:image>
+        </url>
+    <url>
+    <loc>https://indoroster.com/gallery/pagar-roster-beton-minimalis-nako-sipit</loc>
+    <lastmod>2026-09-05T00:11:54+07:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+    <image:loc>https://images.pexels.com/photos/7946866/pexels-photo-7946866.jpeg?auto=compress&amp;cs=tinysrgb&amp;dpr=2&amp;h=650&amp;w=940</image:loc>
+    <image:caption>Pagar Roster Beton Minimalis Nako Sipit</image:caption>
+    <image:geo_location>Bandung</image:geo_location>
+    <image:title>Pagar Roster Beton Minimalis Nako Sipit</image:title>
+</image:image>
+        </url>
     <url>
     <loc>https://indoroster.com/gallery/proyek-fasad-ruko-cafe-industrial-instagramable</loc>
     <lastmod>2026-08-27T17:40:10+07:00</lastmod>

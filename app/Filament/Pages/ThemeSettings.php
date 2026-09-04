@@ -313,6 +313,13 @@ class ThemeSettings extends Page implements HasForms
             );
         }
 
+        // Increment theme_version agar semua perangkat (iPhone/Android/Desktop)
+        // langsung menyelaraskan diri ke mode tema baru yang ditentukan Admin
+        SiteSetting::updateOrCreate(
+            ['key' => 'theme_version'],
+            ['value' => (string) time(), 'group' => 'theme']
+        );
+
         Notification::make()
             ->title('Pengaturan Tema Berhasil Disimpan')
             ->body('Perubahan tema, link media sosial, dan template WA langsung aktif di storefront website.')

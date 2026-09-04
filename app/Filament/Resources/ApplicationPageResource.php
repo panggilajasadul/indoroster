@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\ApplicationPageResource\Pages;
 use App\Models\ApplicationPage;
+use App\Models\Gallery;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -79,7 +80,54 @@ class ApplicationPageResource extends Resource
                             ]),
                         ]),
 
-                    Forms\Components\Tabs\Tab::make('2. Narasi Arsitektural')
+                    Forms\Components\Tabs\Tab::make('2. Galeri Foto Pengaplikasian')
+                        ->icon('heroicon-o-photo')
+                        ->schema([
+                            Forms\Components\Section::make('Pilih Foto dari Galeri Pabrik (Tinggal Pilih Satu-Satu)')
+                                ->description('Pilih foto proyek yang ada di database galeri. Foto yang memiliki ikon 🛒 akan otomatis memunculkan tombol beli / keranjang langsung di samping foto pada halaman pengunjung.')
+                                ->schema([
+                                    Forms\Components\Select::make('gallery_ids')
+                                        ->label('Pilih Foto Proyek Galeri (Bisa Pilih Banyak)')
+                                        ->options(function () {
+                                            return Gallery::with('product')
+                                                ->orderBy('category')
+                                                ->get()
+                                                ->mapWithKeys(function ($g) {
+                                                    $hasCart = $g->product ? " 🛒 [Ada Keranjang: {$g->product->name}]" : ' 📷 [Inspirasi Saja (Non-Keranjang)]';
+                                                    $cat = strtoupper($g->category ?: 'UMUM');
+
+                                                    return [$g->id => "[{$cat}] {$g->title}{$hasCart}"];
+                                                });
+                                        })
+                                        ->multiple()
+                                        ->searchable()
+                                        ->preload()
+                                        ->helperText('Tinggal pilih foto yang ingin ditampilkan untuk halaman aplikasi ini. Jumlah bebas.')
+                                        ->columnSpanFull(),
+                                ]),
+
+                            Forms\Components\Section::make('Atau Tambah Link / URL Foto Kustom Sendiri')
+                                ->description('Opsi alternatif jika Anda ingin menambahkan link foto arsitektur dari Pexels, Cloudinary, atau web luar.')
+                                ->collapsible()
+                                ->collapsed()
+                                ->schema([
+                                    Forms\Components\Repeater::make('gallery_images')
+                                        ->label('Daftar Link Foto Tambahan (Bebas / Tak Terbatas)')
+                                        ->simple(
+                                            Forms\Components\TextInput::make('image_url')
+                                                ->label('Link / URL Foto (Pexels, Web, CDN, Storage)')
+                                                ->placeholder('https://images.pexels.com/photos/... atau URL gambar')
+                                                ->required()
+                                        )
+                                        ->reorderable()
+                                        ->collapsible()
+                                        ->addActionLabel('+ Tambah Link Foto Kustom')
+                                        ->helperText('Masukkan link foto arsitektur dari Pexels, Cloudinary, atau hosting web.')
+                                        ->columnSpanFull(),
+                                ]),
+                        ]),
+
+                    Forms\Components\Tabs\Tab::make('3. Narasi Arsitektural')
                         ->icon('heroicon-o-document-text')
                         ->schema([
                             Forms\Components\TextInput::make('headline')
@@ -109,7 +157,7 @@ class ApplicationPageResource extends Resource
                                 ]),
                         ]),
 
-                    Forms\Components\Tabs\Tab::make('3. Spesifikasi & Motif')
+                    Forms\Components\Tabs\Tab::make('4. Spesifikasi & Motif')
                         ->icon('heroicon-o-cube')
                         ->schema([
                             Forms\Components\TagsInput::make('motifs')
@@ -146,7 +194,7 @@ class ApplicationPageResource extends Resource
                                 ])->columns(2),
                         ]),
 
-                    Forms\Components\Tabs\Tab::make('4. Panduan Pasang & FAQ')
+                    Forms\Components\Tabs\Tab::make('5. Panduan Pasang & FAQ')
                         ->icon('heroicon-o-wrench-screwdriver')
                         ->schema([
                             Forms\Components\Repeater::make('installation_guide.steps')
@@ -184,7 +232,7 @@ class ApplicationPageResource extends Resource
                                 ->collapsible(),
                         ]),
 
-                    Forms\Components\Tabs\Tab::make('5. Form SEO & Meta Data')
+                    Forms\Components\Tabs\Tab::make('6. Form SEO & Meta Data')
                         ->icon('heroicon-o-magnifying-glass')
                         ->schema([
                             Forms\Components\TextInput::make('meta_title')
@@ -230,6 +278,13 @@ class ApplicationPageResource extends Resource
                     ->label('Kategori/Badge')
                     ->badge()
                     ->color('primary'),
+
+                Tables\Columns\TextColumn::make('gallery_count')
+                    ->label('Foto Proyek')
+                    ->state(fn ($record) => count($record->gallery_images ?? []).' foto')
+                    ->badge()
+                    ->color('warning')
+                    ->icon('heroicon-o-camera'),
 
                 Tables\Columns\IconColumn::make('is_active')
                     ->label('Aktif')
