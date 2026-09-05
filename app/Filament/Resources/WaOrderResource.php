@@ -21,6 +21,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\HtmlString;
 use Laravolt\Indonesia\Models\City;
 use Laravolt\Indonesia\Models\District;
 use Laravolt\Indonesia\Models\Province;
@@ -543,7 +544,60 @@ class WaOrderResource extends Resource
                                         ->label('Rencana Jumlah Rit Truk (Batch)')
                                         ->numeric()
                                         ->default(2)
-                                        ->helperText('Jumlah rit truk armada pengiriman yang direncanakan'),
+                                        ->minValue(1)
+                                        ->helperText('Jumlah rit truk armada pengiriman yang direncanakan')
+                                        ->suffixAction(
+                                            Forms\Components\Actions\Action::make('distribute_batches')
+                                                ->label('⚡ Bagi Rata Muatan')
+                                                ->tooltip('Klik untuk otomatis membuat & membagi rata muatan pesanan ke dalam baris rit truk')
+                                                ->icon('heroicon-m-calculator')
+                                                ->color('warning')
+                                                ->action(function (Get $get, Set $set, $record) {
+                                                    $count = max(1, (int) ($get('batch_count') ?: 2));
+                                                    $totalOrdered = self::getTotalOrderedQuantity($get, $record);
+
+                                                    if ($totalOrdered <= 0) {
+                                                        Notification::make()
+                                                            ->title('Item Pesanan Belum Ada')
+                                                            ->body('Silakan input item produk terlebih dahulu pada bagian Rincian Item Pesanan.')
+                                                            ->warning()
+                                                            ->send();
+
+                                                        return;
+                                                    }
+
+                                                    $perBatch = (int) floor($totalOrdered / $count);
+                                                    $remainder = $totalOrdered % $count;
+
+                                                    $existingBatches = $get('batches') ?? [];
+                                                    $newBatches = [];
+
+                                                    for ($i = 1; $i <= $count; $i++) {
+                                                        $qty = $perBatch + ($i === $count ? $remainder : 0);
+                                                        $prevKeys = array_keys($existingBatches);
+                                                        $prev = isset($prevKeys[$i - 1]) ? ($existingBatches[$prevKeys[$i - 1]] ?? []) : [];
+
+                                                        $newBatches['batch_'.$i.'_'.uniqid()] = [
+                                                            'batch_name' => $prev['batch_name'] ?? ("Batch {$i}"),
+                                                            'quantity' => $qty,
+                                                            'factory_name' => $prev['factory_name'] ?? 'Pabrik Utama Plered',
+                                                            'factory_pic_name' => $prev['factory_pic_name'] ?? 'Kang Asep',
+                                                            'production_start_date' => $prev['production_start_date'] ?? null,
+                                                            'estimated_dispatch_date' => $prev['estimated_dispatch_date'] ?? null,
+                                                            'estimated_delivery_date' => $prev['estimated_delivery_date'] ?? null,
+                                                            'status' => $prev['status'] ?? 'pending_production',
+                                                        ];
+                                                    }
+
+                                                    $set('batches', $newBatches);
+
+                                                    Notification::make()
+                                                        ->title("Berhasil Membagi {$count} Rit Truk")
+                                                        ->body("Total {$totalOrdered} pcs telah dibagi rata ke dalam {$count} rit batch.")
+                                                        ->success()
+                                                        ->send();
+                                                })
+                                        ),
 
                                     Forms\Components\Textarea::make('fulfillment_notes')
                                         ->label('Catatan Alokasi Lapangan / Mandor')
@@ -551,21 +605,98 @@ class WaOrderResource extends Resource
                                         ->rows(1),
                                 ]),
 
+                            Forms\Components\Placeholder::make('batch_allocation_summary')
+                                ->label('Status Alokasi Muatan Rit Truk')
+                                ->content(function (Get $get, $record) {
+                                    $totalOrdered = self::getTotalOrderedQuantity($get, $record);
+                                    $batches = $get('batches') ?? [];
+                                    $allocated = 0;
+                                    foreach ($batches as $b) {
+                                        $allocated += (int) ($b['quantity'] ?? 0);
+                                    }
+                                    $remaining = $totalOrdered - $allocated;
+
+                                    if ($totalOrdered === 0) {
+                                        $badge = '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">⚠️ Belum ada item produk diinput</span>';
+                                    } elseif ($remaining === 0) {
+                                        $badge = '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-800 dark:bg-green-900/60 dark:text-green-300">✅ Pas 100% (Semua muatan teralokasi sempurna)</span>';
+                                    } elseif ($remaining > 0) {
+                                        $badge = '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-300">⚠️ Sisa '.number_format($remaining, 0, ',', '.').' pcs belum dialokasikan</span>';
+                                    } else {
+                                        $badge = '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-800 dark:bg-red-900/60 dark:text-red-300">⚠️ Muatan melebihi pesanan ('.number_format(abs($remaining), 0, ',', '.').' pcs lebih)</span>';
+                                    }
+
+                                    return new HtmlString('
+                                        <div class="flex flex-wrap items-center gap-3 text-xs sm:text-sm py-2 px-3.5 rounded-lg border border-gray-200 bg-gray-50/70 dark:bg-gray-800/50 dark:border-gray-700">
+                                            <div>📦 Total Pesanan: <strong class="text-gray-900 dark:text-gray-100">'.number_format($totalOrdered, 0, ',', '.').' pcs</strong></div>
+                                            <div class="text-gray-400">|</div>
+                                            <div>🚛 Total Muatan Rit: <strong class="text-primary-600 dark:text-primary-400">'.number_format($allocated, 0, ',', '.').' pcs</strong></div>
+                                            <div class="text-gray-400">|</div>
+                                            <div>'.$badge.'</div>
+                                        </div>
+                                    ');
+                                })
+                                ->columnSpanFull(),
+
                             Forms\Components\Repeater::make('batches')
                                 ->relationship('batches')
                                 ->orderColumn('batch_number')
                                 ->label('Rincian Kuantitas Muatan & Jadwal Tiap Rit Truk')
+                                ->live()
                                 ->schema([
                                     Forms\Components\TextInput::make('batch_name')
                                         ->label('Nama Rit / Batch')
                                         ->placeholder('Contoh: Batch 1 / Rit #1')
                                         ->required()
+                                        ->default(function (Get $get) {
+                                            $batches = $get('../../batches') ?? [];
+                                            $maxNum = 0;
+                                            foreach ($batches as $b) {
+                                                if (! empty($b['batch_name']) && preg_match('/(\d+)/', (string) $b['batch_name'], $matches)) {
+                                                    $maxNum = max($maxNum, (int) $matches[1]);
+                                                }
+                                            }
+                                            $nextNum = $maxNum > 0 ? ($maxNum + 1) : (count($batches) + 1);
+
+                                            return "Batch {$nextNum}";
+                                        })
                                         ->columnSpan(2),
 
                                     Forms\Components\TextInput::make('quantity')
                                         ->label('Muatan (Pcs)')
                                         ->numeric()
                                         ->required()
+                                        ->live(onBlur: true)
+                                        ->default(function (Get $get, $record) {
+                                            $totalOrdered = self::getTotalOrderedQuantity($get, $record);
+                                            if ($totalOrdered <= 0) {
+                                                return null;
+                                            }
+
+                                            $batches = $get('../../batches') ?? [];
+                                            $allocated = 0;
+                                            $batchesWithQty = 0;
+                                            foreach ($batches as $b) {
+                                                if (isset($b['quantity']) && is_numeric($b['quantity']) && (int) $b['quantity'] > 0) {
+                                                    $allocated += (int) $b['quantity'];
+                                                    $batchesWithQty++;
+                                                }
+                                            }
+
+                                            $remaining = max(0, $totalOrdered - $allocated);
+                                            $plannedBatchCount = max(1, (int) ($get('../../batch_count') ?: 2));
+
+                                            if ($remaining > 0) {
+                                                $remainingBatches = max(1, $plannedBatchCount - $batchesWithQty);
+                                                if ($remainingBatches <= 1) {
+                                                    return $remaining;
+                                                }
+
+                                                return (int) round($remaining / $remainingBatches);
+                                            }
+
+                                            return 0;
+                                        })
                                         ->columnSpan(2),
 
                                     Forms\Components\TextInput::make('factory_name')
@@ -741,6 +872,29 @@ class WaOrderResource extends Resource
                             ->columnSpanFull(),
                     ])->columns(2),
             ]);
+    }
+
+    public static function getTotalOrderedQuantity(Get $get, $record = null): int
+    {
+        $items = $get('items');
+        if (is_null($items)) {
+            $items = $get('../../items') ?? [];
+        }
+
+        $total = 0;
+        if (is_array($items) && count($items) > 0) {
+            foreach ($items as $item) {
+                $total += (int) ($item['quantity'] ?? 0);
+            }
+        }
+
+        if ($total === 0 && $record) {
+            if (method_exists($record, 'items')) {
+                $total = (int) $record->items()->sum('quantity');
+            }
+        }
+
+        return $total;
     }
 
     public static function calculateGrandTotal(Get $get, Set $set): void
