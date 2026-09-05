@@ -24,6 +24,13 @@ class OrderBatch extends Model
         'tracking_number',
         'notes',
         'delivery_photo_path',
+        'source_type',
+        'factory_name',
+        'factory_pic_name',
+        'factory_pic_phone',
+        'factory_address',
+        'pickup_driver_name',
+        'pickup_driver_plate',
     ];
 
     protected $casts = [

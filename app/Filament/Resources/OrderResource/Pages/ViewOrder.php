@@ -34,6 +34,144 @@ class ViewOrder extends ViewRecord
                 $batchId = $batch->id;
                 $batchName = $batch->batch_name;
 
+                // Aksi: Cetak SPP Produksi Per-Batch (dengan modal input mandor/pabrik)
+                $actions[] = Actions\Action::make('batch_print_spk_'.$batchId)
+                    ->label("📄 Cetak SPP {$batchName}")
+                    ->icon('heroicon-o-document-chart-bar')
+                    ->color('warning')
+                    ->extraAttributes(['style' => 'display: none !important;'])
+                    ->modalHeading("Cetak Pengajuan Produksi (SPP): {$batchName}")
+                    ->modalDescription("Lengkapi data pabrik / vendor & mandor yang mengerjakan {$batchName} (".number_format($batch->quantity, 0, ',', '.').' pcs).')
+                    ->form([
+                        Forms\Components\TextInput::make('factory_name')
+                            ->label('Nama Pabrik / Vendor')
+                            ->placeholder('Pabrik Utama Plered / Nama Vendor')
+                            ->datalist(['Pabrik Utama Plered (Purwakarta)', 'Pabrik Anjun Plered', 'Pabrik Cadasmekar', 'CV. Sumber Berkah Roster'])
+                            ->default(fn () => $batch->factory_name ?: ($record->factory_name ?: 'Pabrik Utama Plered (Purwakarta)'))
+                            ->required(),
+                        Forms\Components\TextInput::make('factory_pic_name')
+                            ->label('Nama Mandor / PIC Pabrik')
+                            ->placeholder('Contoh: Kang Asep')
+                            ->default(fn () => $batch->factory_pic_name ?: ($record->factory_pic_name ?: 'Kang Asep'))
+                            ->required(),
+                        Forms\Components\TextInput::make('factory_pic_phone')
+                            ->label('No. HP / WhatsApp Mandor')
+                            ->default(fn () => $batch->factory_pic_phone ?: $record->factory_pic_phone)
+                            ->tel(),
+                        Forms\Components\Textarea::make('notes')
+                            ->label('Catatan Khusus Batch (Opsional)')
+                            ->default(fn () => $batch->notes ?: $record->fulfillment_notes)
+                            ->columnSpanFull(),
+                    ])
+                    ->modalSubmitActionLabel('🖨️ Simpan & Buka SPP PDF')
+                    ->action(function (array $data) use ($batchId, $record) {
+                        $batch = OrderBatch::find($batchId);
+                        if ($batch) {
+                            $batch->update([
+                                'source_type' => 'internal',
+                                'factory_name' => $data['factory_name'] ?? null,
+                                'factory_pic_name' => $data['factory_pic_name'] ?? null,
+                                'factory_pic_phone' => $data['factory_pic_phone'] ?? null,
+                                'notes' => $data['notes'] ?? null,
+                            ]);
+                        }
+
+                        $printUrl = route('print.production-order', ['order' => $record->id, 'batch_id' => $batchId]);
+
+                        $this->js("window.open('{$printUrl}', '_blank');");
+
+                        Notification::make()
+                            ->title("Data SPP {$batch?->batch_name} Tersimpan")
+                            ->body('Dokumen SPP PDF sedang dibuka di tab baru.')
+                            ->success()
+                            ->persistent()
+                            ->actions([
+                                Action::make('open_pdf')
+                                    ->label('🖨️ Buka Dokumen SPP')
+                                    ->url($printUrl, shouldOpenInNewTab: true)
+                                    ->button()
+                                    ->color('warning'),
+                            ])
+                            ->send();
+                    });
+
+                // Aksi: Cetak Pengantar Ambil Barang Per-Batch (dari pabrik vendor)
+                $actions[] = Actions\Action::make('batch_print_spab_'.$batchId)
+                    ->label("🚚 Cetak Pengantar Ambil {$batchName}")
+                    ->icon('heroicon-o-truck')
+                    ->color('warning')
+                    ->extraAttributes(['style' => 'display: none !important;'])
+                    ->modalHeading("Cetak Pengantar Ambil Barang: {$batchName}")
+                    ->modalDescription("Lengkapi data pabrik / vendor & armada penjemput untuk {$batchName} (".number_format($batch->quantity, 0, ',', '.').' pcs).')
+                    ->form([
+                        Forms\Components\TextInput::make('factory_name')
+                            ->label('Nama Pabrik / Vendor')
+                            ->placeholder('CV. Sumber Berkah Roster / Pabrik Anjun')
+                            ->datalist(['CV. Sumber Berkah Roster', 'Pabrik Anjun Plered', 'Pabrik Cadasmekar', 'Pabrik Utama Plered (Purwakarta)'])
+                            ->default(fn () => $batch->factory_name ?: 'CV. Sumber Berkah Roster')
+                            ->required(),
+                        Forms\Components\TextInput::make('factory_pic_name')
+                            ->label('Pemilik / Mandor / PIC Pabrik')
+                            ->placeholder('Contoh: Pak Asep Hidayat')
+                            ->default(fn () => $batch->factory_pic_name ?: 'Pak Asep Hidayat')
+                            ->required(),
+                        Forms\Components\TextInput::make('factory_pic_phone')
+                            ->label('No. Telepon / WA PIC Pabrik')
+                            ->default(fn () => $batch->factory_pic_phone)
+                            ->tel(),
+                        Forms\Components\Textarea::make('factory_address')
+                            ->label('Alamat Pabrik / Lokasi Pengambilan')
+                            ->placeholder('Contoh: Jl. Raya Anjun No. 45, Plered, Purwakarta')
+                            ->default(fn () => $batch->factory_address ?: 'Jl. Raya Anjun No. 45, Plered, Purwakarta')
+                            ->columnSpanFull(),
+                        Forms\Components\TextInput::make('pickup_driver_name')
+                            ->label('Nama Supir Penjemput')
+                            ->default(fn () => $batch->pickup_driver_name ?: ($batch->courier_name ?: 'Mulyadi (Supir Internal)'))
+                            ->required(),
+                        Forms\Components\TextInput::make('pickup_driver_plate')
+                            ->label('Plat Nomor Truk / Kendaraan')
+                            ->default(fn () => $batch->pickup_driver_plate ?: ($batch->tracking_number ?: 'T 8472 AB'))
+                            ->required(),
+                        Forms\Components\Textarea::make('notes')
+                            ->label('Catatan Pengambilan (Opsional)')
+                            ->default(fn () => $batch->notes ?: $record->fulfillment_notes)
+                            ->columnSpanFull(),
+                    ])
+                    ->modalSubmitActionLabel('🖨️ Simpan & Buka Surat Pengantar PDF')
+                    ->action(function (array $data) use ($batchId, $record) {
+                        $batch = OrderBatch::find($batchId);
+                        if ($batch) {
+                            $batch->update([
+                                'source_type' => 'vendor_pickup',
+                                'factory_name' => $data['factory_name'] ?? null,
+                                'factory_pic_name' => $data['factory_pic_name'] ?? null,
+                                'factory_pic_phone' => $data['factory_pic_phone'] ?? null,
+                                'factory_address' => $data['factory_address'] ?? null,
+                                'pickup_driver_name' => $data['pickup_driver_name'] ?? null,
+                                'pickup_driver_plate' => $data['pickup_driver_plate'] ?? null,
+                                'notes' => $data['notes'] ?? null,
+                            ]);
+                        }
+
+                        $printUrl = route('print.pickup-order', ['order' => $record->id, 'batch_id' => $batchId]);
+
+                        $this->js("window.open('{$printUrl}', '_blank');");
+
+                        Notification::make()
+                            ->title("Data Pengantar Ambil {$batch?->batch_name} Tersimpan")
+                            ->body('Surat pengantar PDF sedang dibuka di tab baru.')
+                            ->success()
+                            ->persistent()
+                            ->actions([
+                                Action::make('open_pdf')
+                                    ->label('🖨️ Buka Surat Pengantar Ambil Barang')
+                                    ->url($printUrl, shouldOpenInNewTab: true)
+                                    ->button()
+                                    ->color('warning'),
+                            ])
+                            ->send();
+                    });
+
                 // Aksi: Mulai Produksi (pending_production → producing)
                 $actions[] = Actions\Action::make('batch_start_production_'.$batchId)
                     ->label("🔨 Mulai Produksi {$batchName}")
@@ -452,6 +590,138 @@ class ViewOrder extends ViewRecord
                     $this->redirect(request()->header('Referer') ?? static::getUrl(['record' => $record]));
                 });
         }
+
+        // ============================================================
+        // AKSI DOKUMEN PABRIK: Cetak SPP Produksi & Cetak Surat Pengantar Ambil Barang
+        // Hanya muncul setelah tipe pemenuhan dikonfirmasi oleh admin
+        // ============================================================
+        $actions[] = Actions\Action::make('print_spk')
+            ->label($record->fulfillment_type === 'po_batch' ? '📄 Cetak SPP Master Batch' : '📄 Cetak Pengajuan Produksi (SPP)')
+            ->icon('heroicon-o-document-chart-bar')
+            ->color('warning')
+            ->visible(fn ($record) => filled($record->fulfillment_type) && ! in_array($record->status, ['pending', 'cancelled']))
+            ->modalHeading($record->fulfillment_type === 'po_batch' ? 'Cetak SPP Master Batch (Semua Tahapan)' : 'Cetak Surat Pengajuan Produksi (SPP)')
+            ->modalDescription('Lengkapi data pabrik / vendor & mandor sebelum mencetak dokumen SPP.')
+            ->form([
+                Forms\Components\TextInput::make('factory_name')
+                    ->label('Nama Pabrik / Vendor')
+                    ->placeholder('Pabrik Utama Plered / Nama Vendor')
+                    ->datalist(['Pabrik Utama Plered (Purwakarta)', 'Pabrik Anjun Plered', 'Pabrik Cadasmekar', 'CV. Sumber Berkah Roster'])
+                    ->default(fn () => $record->factory_name ?: 'Pabrik Utama Plered (Purwakarta)')
+                    ->required(),
+                Forms\Components\TextInput::make('factory_pic_name')
+                    ->label('Nama Mandor / PIC Pabrik')
+                    ->placeholder('Contoh: Kang Asep')
+                    ->default(fn () => $record->factory_pic_name ?: 'Kang Asep')
+                    ->required(),
+                Forms\Components\TextInput::make('factory_pic_phone')
+                    ->label('No. HP / WhatsApp Mandor')
+                    ->default(fn () => $record->factory_pic_phone)
+                    ->tel(),
+                Forms\Components\Textarea::make('factory_notes')
+                    ->label('Catatan Khusus Produksi (Opsional)')
+                    ->default(fn () => $record->fulfillment_notes)
+                    ->columnSpanFull(),
+            ])
+            ->modalSubmitActionLabel('🖨️ Simpan & Buka SPP PDF')
+            ->action(function (array $data) use ($record) {
+                $record->update([
+                    'factory_name' => $data['factory_name'] ?? null,
+                    'factory_pic_name' => $data['factory_pic_name'] ?? null,
+                    'factory_pic_phone' => $data['factory_pic_phone'] ?? null,
+                    'fulfillment_notes' => $data['factory_notes'] ?? null,
+                ]);
+
+                $printUrl = route('print.production-order', $record);
+
+                $this->js("window.open('{$printUrl}', '_blank');");
+
+                Notification::make()
+                    ->title('Data SPP Produksi Tersimpan')
+                    ->body('Dokumen SPP PDF sedang dibuka di tab baru.')
+                    ->success()
+                    ->persistent()
+                    ->actions([
+                        Action::make('open_spk_pdf')
+                            ->label('🖨️ Buka Dokumen SPP')
+                            ->url($printUrl, shouldOpenInNewTab: true)
+                            ->button()
+                            ->color('warning'),
+                    ])
+                    ->send();
+            });
+
+        $actions[] = Actions\Action::make('print_spab')
+            ->label('🚚 Cetak Pengantar Ambil Barang')
+            ->icon('heroicon-o-truck')
+            ->color('warning')
+            ->visible(fn ($record) => filled($record->fulfillment_type) && ! in_array($record->status, ['pending', 'cancelled']))
+            ->modalHeading('Cetak Surat Pengantar Pengambilan Barang (SPPB)')
+            ->modalDescription('Lengkapi data pabrik / vendor dan supir armada penjemput.')
+            ->form([
+                Forms\Components\TextInput::make('factory_name')
+                    ->label('Nama Pabrik / Vendor')
+                    ->placeholder('CV. Sumber Berkah Roster / Pabrik Anjun')
+                    ->datalist(['CV. Sumber Berkah Roster', 'Pabrik Anjun Plered', 'Pabrik Cadasmekar', 'Pabrik Utama Plered (Purwakarta)'])
+                    ->default(fn () => $record->factory_name ?: 'CV. Sumber Berkah Roster')
+                    ->required(),
+                Forms\Components\TextInput::make('factory_pic_name')
+                    ->label('Pemilik / Mandor / PIC Pabrik')
+                    ->placeholder('Contoh: Pak Asep Hidayat')
+                    ->default(fn () => $record->factory_pic_name ?: 'Pak Asep Hidayat')
+                    ->required(),
+                Forms\Components\TextInput::make('factory_pic_phone')
+                    ->label('No. Telepon / WA PIC Pabrik')
+                    ->default(fn () => $record->factory_pic_phone)
+                    ->tel(),
+                Forms\Components\Textarea::make('factory_address')
+                    ->label('Alamat Pabrik / Lokasi Pengambilan')
+                    ->placeholder('Contoh: Jl. Raya Anjun No. 45, Plered, Purwakarta')
+                    ->default(fn () => $record->factory_address ?: 'Jl. Raya Anjun No. 45, Plered, Purwakarta')
+                    ->columnSpanFull(),
+                Forms\Components\TextInput::make('pickup_driver_name')
+                    ->label('Nama Supir Penjemput')
+                    ->default(fn () => $record->pickup_driver_name ?: ($record->courier ?: 'Mulyadi (Supir Internal)'))
+                    ->required(),
+                Forms\Components\TextInput::make('pickup_driver_plate')
+                    ->label('Nomor Plat Truk Penjemput')
+                    ->default(fn () => $record->pickup_driver_plate ?: ($record->tracking_number ?: 'T 8472 AB'))
+                    ->required(),
+                Forms\Components\Textarea::make('factory_notes')
+                    ->label('Catatan Tambahan Penjemputan')
+                    ->default(fn () => $record->fulfillment_notes)
+                    ->columnSpanFull(),
+            ])
+            ->modalSubmitActionLabel('🖨️ Simpan & Buka Surat Pengantar PDF')
+            ->action(function (array $data) use ($record) {
+                $record->update([
+                    'factory_name' => $data['factory_name'] ?? null,
+                    'factory_pic_name' => $data['factory_pic_name'] ?? null,
+                    'factory_pic_phone' => $data['factory_pic_phone'] ?? null,
+                    'factory_address' => $data['factory_address'] ?? null,
+                    'pickup_driver_name' => $data['pickup_driver_name'] ?? null,
+                    'pickup_driver_plate' => $data['pickup_driver_plate'] ?? null,
+                    'fulfillment_notes' => $data['factory_notes'] ?? null,
+                ]);
+
+                $printUrl = route('print.pickup-order', $record);
+
+                $this->js("window.open('{$printUrl}', '_blank');");
+
+                Notification::make()
+                    ->title('Data Pengantar Penjemputan Tersimpan')
+                    ->body('Surat pengantar PDF sedang dibuka di tab baru.')
+                    ->success()
+                    ->persistent()
+                    ->actions([
+                        Action::make('open_spab_pdf')
+                            ->label('🚚 Buka Surat Pengantar')
+                            ->url($printUrl, shouldOpenInNewTab: true)
+                            ->button()
+                            ->color('warning'),
+                    ])
+                    ->send();
+            });
 
         // ============================================================
         // AKSI UMUM: Cetak Invoice, Cetak SJ, Label

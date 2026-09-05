@@ -497,11 +497,33 @@ class WaOrderResource extends Resource
                             ->required(),
 
                         // Fields untuk Ready Stock
-                        Forms\Components\DatePicker::make('ready_shipping_date')
-                            ->label('Jadwal Keberangkatan Truk Gudang')
-                            ->visible(fn (Get $get) => $get('fulfillment_type') === 'ready_stock'),
+                        Forms\Components\Grid::make(3)
+                            ->visible(fn (Get $get) => $get('fulfillment_type') === 'ready_stock')
+                            ->schema([
+                                Forms\Components\TextInput::make('factory_name')
+                                    ->label('Pabrik / Vendor Stok')
+                                    ->placeholder('CV. Sumber Berkah Roster')
+                                    ->datalist(['Pabrik Utama Plered (Purwakarta)', 'Pabrik Anjun Plered', 'Pabrik Cadasmekar', 'CV. Sumber Berkah Roster']),
+                                Forms\Components\TextInput::make('factory_pic_name')
+                                    ->label('Mandor / PIC Gudang')
+                                    ->placeholder('Pak Asep Hidayat'),
+                                Forms\Components\DatePicker::make('ready_shipping_date')
+                                    ->label('Jadwal Keberangkatan Truk Gudang'),
+                            ]),
 
                         // Fields untuk PO Single
+                        Forms\Components\Grid::make(2)
+                            ->visible(fn (Get $get) => $get('fulfillment_type') === 'po_single')
+                            ->schema([
+                                Forms\Components\TextInput::make('factory_name')
+                                    ->label('Pabrik / Vendor Pelaksana Produksi')
+                                    ->placeholder('Pabrik Utama Plered (Purwakarta)')
+                                    ->datalist(['Pabrik Utama Plered (Purwakarta)', 'Pabrik Anjun Plered', 'Pabrik Cadasmekar', 'CV. Sumber Berkah Roster']),
+                                Forms\Components\TextInput::make('factory_pic_name')
+                                    ->label('Nama Mandor / PIC Pabrik')
+                                    ->placeholder('Kang Asep'),
+                            ]),
+
                         Forms\Components\Grid::make(3)
                             ->visible(fn (Get $get) => $get('fulfillment_type') === 'po_single')
                             ->schema([
@@ -544,6 +566,18 @@ class WaOrderResource extends Resource
                                         ->label('Muatan (Pcs)')
                                         ->numeric()
                                         ->required()
+                                        ->columnSpan(2),
+
+                                    Forms\Components\TextInput::make('factory_name')
+                                        ->label('Pabrik / Sumber')
+                                        ->placeholder('Pabrik Utama Plered / Mitra B')
+                                        ->default('Pabrik Utama Plered')
+                                        ->columnSpan(2),
+
+                                    Forms\Components\TextInput::make('factory_pic_name')
+                                        ->label('Mandor / PIC')
+                                        ->placeholder('Kang Asep / Pak Ujang')
+                                        ->default('Kang Asep')
                                         ->columnSpan(2),
 
                                     Forms\Components\DatePicker::make('production_start_date')

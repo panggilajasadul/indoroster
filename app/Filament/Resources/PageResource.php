@@ -70,7 +70,18 @@ class PageResource extends Resource
                                     Forms\Components\TextInput::make('badge')->label('Teks Badge Atas (Opsional)'),
                                     Forms\Components\TextInput::make('title')->label('Judul Seksi (Opsional)'),
                                     Forms\Components\Textarea::make('subtitle')->label('Sub-judul / Keterangan (Opsional)')->rows(2),
-                                    static::bgThemeSelect('white'),
+                                    Forms\Components\Grid::make(2)->schema([
+                                        static::bgThemeSelect('white'),
+                                        Forms\Components\Select::make('box_style')
+                                            ->label('Gaya Wadah Background')
+                                            ->options([
+                                                'rounded' => '🟡 Melengkung Modern / Rounded Box (Rekomendasi)',
+                                                'transparent' => '⚪ Transparan (Tanpa Background Box Putih)',
+                                                'flat' => '⬜ Kotak Persegi Penuh (Flat)',
+                                            ])
+                                            ->default('rounded')
+                                            ->helperText('Pilih sudut melengkung modern atau transparan.'),
+                                    ]),
                                     Forms\Components\Grid::make(3)->schema([
                                         Forms\Components\Toggle::make('autoplay')->label('Autoplay Slider Otomatis')->default(true),
                                         Forms\Components\TextInput::make('duration')->label('Durasi Pergantian (ms)')->numeric()->default(4500),

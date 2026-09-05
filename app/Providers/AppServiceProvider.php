@@ -48,9 +48,9 @@ class AppServiceProvider extends ServiceProvider
             config(['filesystems.disks.public.url' => request()->getSchemeAndHttpHost().'/storage']);
         }
 
-        // Load SMTP settings from database if table exists
+        // Load SMTP settings from database if table exists (skip during unit tests)
         try {
-            if (Schema::hasTable('site_settings')) {
+            if (! app()->runningUnitTests() && ! app()->environment('testing') && Schema::hasTable('site_settings')) {
                 $mailSettings = SiteSetting::where('group', 'mail')->pluck('value', 'key');
 
                 if ($mailSettings->isNotEmpty()) {

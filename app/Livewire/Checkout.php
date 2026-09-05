@@ -109,6 +109,89 @@ class Checkout extends Component
 
     public $voucherError = '';
 
+    public function getCurrentLocationText(): string
+    {
+        if ($this->selectedAddressId) {
+            $savedAddr = Address::find($this->selectedAddressId);
+            if ($savedAddr) {
+                return trim("{$savedAddr->province} {$savedAddr->city} {$savedAddr->district} {$savedAddr->full_address}");
+            }
+        }
+
+        $cityName = '';
+        $provName = '';
+        $distName = '';
+        if ($this->city_id) {
+            $city = City::where('code', $this->city_id)->first() ?? City::find($this->city_id);
+            $cityName = $city?->name ?? '';
+        }
+        if ($this->province_id) {
+            $prov = Province::where('code', $this->province_id)->first() ?? Province::find($this->province_id);
+            $provName = $prov?->name ?? '';
+        }
+        if ($this->district_id) {
+            $dist = District::where('code', $this->district_id)->first() ?? District::find($this->district_id);
+            $distName = $dist?->name ?? '';
+        }
+
+        return trim("{$provName} {$cityName} {$distName} {$this->address}");
+    }
+
+    public function validateAppliedVoucher(): bool
+    {
+        if (! $this->appliedVoucher) {
+            return true;
+        }
+
+        $voucher = Voucher::where('id', $this->appliedVoucher->id)->active()->first();
+        if (! $voucher) {
+            $this->voucherError = 'Voucher telah kedaluwarsa atau tidak aktif.';
+            $this->appliedVoucher = null;
+            $this->voucherMessage = '';
+
+            return false;
+        }
+
+        if ($this->totalQty < $voucher->min_order_qty) {
+            $this->voucherError = "Voucher {$voucher->code} dibatalkan karena minimal order adalah {$voucher->min_order_qty} pcs (Pesanan Anda: {$this->totalQty} pcs).";
+            $this->appliedVoucher = null;
+            $this->voucherMessage = '';
+
+            return false;
+        }
+
+        if ($this->subtotal < $voucher->min_order_amount) {
+            $this->voucherError = 'Voucher '.$voucher->code.' dibatalkan karena minimal belanja adalah Rp'.number_format($voucher->min_order_amount, 0, ',', '.').'.';
+            $this->appliedVoucher = null;
+            $this->voucherMessage = '';
+
+            return false;
+        }
+
+        $currentLocation = $this->getCurrentLocationText();
+        if (! empty($currentLocation) && ! $voucher->isEligibleForLocation($currentLocation)) {
+            $allowedStr = implode(', ', $voucher->allowed_regions ?? []);
+            $displayLoc = '';
+            if ($this->city_id) {
+                $city = City::where('code', $this->city_id)->first() ?? City::find($this->city_id);
+                $displayLoc = $city?->name;
+            }
+            if (! $displayLoc && $this->province_id) {
+                $prov = Province::where('code', $this->province_id)->first() ?? Province::find($this->province_id);
+                $displayLoc = $prov?->name;
+            }
+            $displayLoc = $displayLoc ?: 'wilayah pengiriman terbaru Anda';
+
+            $this->voucherError = "Voucher {$voucher->code} dibatalkan otomatis karena hanya berlaku untuk wilayah: {$allowedStr} (Alamat pengiriman diubah ke: {$displayLoc}).";
+            $this->appliedVoucher = null;
+            $this->voucherMessage = '';
+
+            return false;
+        }
+
+        return true;
+    }
+
     public function applyVoucher()
     {
         $this->voucherError = '';
@@ -141,27 +224,7 @@ class Checkout extends Component
         }
 
         // Cek kecocokan wilayah pengiriman pembeli
-        $locationName = '';
-        if ($this->selectedAddressId) {
-            $savedAddr = Address::find($this->selectedAddressId);
-            if ($savedAddr) {
-                $locationName = trim("{$savedAddr->province} {$savedAddr->city} {$savedAddr->district} {$savedAddr->full_address}");
-            }
-        }
-
-        if (empty($locationName)) {
-            $cityName = '';
-            $provName = '';
-            if ($this->city_id) {
-                $city = City::where('code', $this->city_id)->first() ?? City::find($this->city_id);
-                $cityName = $city?->name ?? '';
-            }
-            if ($this->province_id) {
-                $prov = Province::where('code', $this->province_id)->first() ?? Province::find($this->province_id);
-                $provName = $prov?->name ?? '';
-            }
-            $locationName = trim("{$provName} {$cityName} {$this->address}");
-        }
+        $locationName = $this->getCurrentLocationText();
 
         if (! empty($locationName) && ! $voucher->isEligibleForLocation($locationName)) {
             $allowedStr = implode(', ', $voucher->allowed_regions ?? []);
@@ -444,6 +507,11 @@ class Checkout extends Component
         }
     }
 
+    public function updatedAddress()
+    {
+        $this->calculateTotal();
+    }
+
     public function selectPostalCode($code)
     {
         $this->postal_code = (string) $code;
@@ -518,6 +586,9 @@ class Checkout extends Component
             return;
         }
 
+        // Cek ulang kelayakan voucher yang sedang terpasang terhadap alamat & kuantitas terbaru
+        $this->validateAppliedVoucher();
+
         if ($this->city_id) {
             $rate = ShippingRate::where('city_code', $this->city_id)->where('is_active', true)->first();
             if ($rate) {
@@ -570,6 +641,14 @@ class Checkout extends Component
         }
 
         $this->calculateTotal();
+
+        // Verifikasi akhir voucher sebelum pesanan dicatat
+        if ($this->appliedVoucher && ! $this->validateAppliedVoucher()) {
+            $this->calculateTotal();
+            session()->flash('error', $this->voucherError);
+
+            return;
+        }
 
         // Check product-level min order first
         foreach ($this->cartItems as $cartItem) {
@@ -716,6 +795,15 @@ class Checkout extends Component
 
     public function processWhatsappCheckout()
     {
+        $this->calculateTotal();
+
+        if ($this->appliedVoucher && ! $this->validateAppliedVoucher()) {
+            $this->calculateTotal();
+            session()->flash('error', $this->voucherError);
+
+            return;
+        }
+
         $this->isProcessing = true;
 
         DB::beginTransaction();

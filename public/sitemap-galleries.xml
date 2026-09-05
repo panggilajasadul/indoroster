@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- IndoRoster Galleries Sitemap | Generated: 2026-09-05 00:12:04 WIB | Total URLs: 14 | Base: https://indoroster.com -->
+<!-- IndoRoster Galleries Sitemap | Generated: 2026-09-05 21:44:41 WIB | Total URLs: 14 | Base: https://indoroster.com -->
 <?xml-stylesheet type="text/xsl" href="/sitemap.xsl?v=1.1"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">
     <url>
@@ -7,7 +7,13 @@
     <lastmod>2026-09-05T00:12:03+07:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
-            </url>
+    <image:image>
+    <image:loc>https://images.pexels.com/photos/6537735/pexels-photo-6537735.jpeg?auto=compress&amp;cs=tinysrgb&amp;dpr=2&amp;h=650&amp;w=940</image:loc>
+    <image:caption>Backdrop Dinding Taman Kering &amp; Kolam Renang Modern</image:caption>
+    <image:geo_location>Bali</image:geo_location>
+    <image:title>Backdrop Dinding Taman Kering &amp; Kolam Renang Modern</image:title>
+</image:image>
+        </url>
     <url>
     <loc>https://indoroster.com/gallery/aksen-dinding-cafe-resto-konsep-semen-ekspos</loc>
     <lastmod>2026-09-05T00:12:01+07:00</lastmod>

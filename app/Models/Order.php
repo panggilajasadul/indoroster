@@ -54,6 +54,12 @@ class Order extends Model
         'batch_count',
         'fulfillment_notes',
         'production_status',
+        'factory_name',
+        'factory_pic_name',
+        'factory_pic_phone',
+        'factory_address',
+        'pickup_driver_name',
+        'pickup_driver_plate',
     ];
 
     protected function casts(): array

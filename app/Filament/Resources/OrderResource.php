@@ -549,6 +549,15 @@ class OrderResource extends Resource
                             Forms\Components\Section::make('Penjadwalan Ready Stock')
                                 ->visible(fn (Forms\Get $get) => $get('fulfillment_type') === 'ready_stock')
                                 ->schema([
+                                    Forms\Components\TextInput::make('factory_name_ready')
+                                        ->label('Nama Pabrik / Vendor Penyedia Stok')
+                                        ->placeholder('Contoh: CV. Sumber Berkah Roster / Pabrik Utama Plered')
+                                        ->datalist(['Pabrik Utama Plered (Purwakarta)', 'Pabrik Anjun Plered', 'Pabrik Cadasmekar', 'CV. Sumber Berkah Roster'])
+                                        ->default($record->factory_name ?: 'CV. Sumber Berkah Roster'),
+                                    Forms\Components\TextInput::make('factory_pic_name_ready')
+                                        ->label('Pemilik / Mandor / PIC Gudang')
+                                        ->placeholder('Contoh: Pak Asep Hidayat')
+                                        ->default($record->factory_pic_name ?: 'Pak Asep Hidayat'),
                                     Forms\Components\DatePicker::make('ready_shipping_date')
                                         ->label('Estimasi Tanggal Siap Kirim')
                                         ->default(now()->addDays(1)->format('Y-m-d'))
@@ -567,6 +576,15 @@ class OrderResource extends Resource
                             Forms\Components\Section::make('Penjadwalan Pre-Order (PO Tunggal)')
                                 ->visible(fn (Forms\Get $get) => $get('fulfillment_type') === 'po_single')
                                 ->schema([
+                                    Forms\Components\TextInput::make('factory_name_po')
+                                        ->label('Nama Pabrik / Vendor Pelaksana Produksi')
+                                        ->placeholder('Contoh: Pabrik Utama Plered (Purwakarta)')
+                                        ->datalist(['Pabrik Utama Plered (Purwakarta)', 'Pabrik Anjun Plered', 'Pabrik Cadasmekar', 'CV. Sumber Berkah Roster'])
+                                        ->default($record->factory_name ?: 'Pabrik Utama Plered (Purwakarta)'),
+                                    Forms\Components\TextInput::make('factory_pic_name_po')
+                                        ->label('Nama Mandor / PIC Pabrik')
+                                        ->placeholder('Contoh: Kang Asep')
+                                        ->default($record->factory_pic_name ?: 'Kang Asep'),
                                     Forms\Components\DatePicker::make('production_start_date')
                                         ->label('Tanggal Mulai Produksi/Cetak')
                                         ->default(now()->format('Y-m-d'))
@@ -583,7 +601,7 @@ class OrderResource extends Resource
                                         ->label('Catatan Produksi (Opsional)')
                                         ->placeholder('Contoh: Masuk antrean cetak mesin 2.')
                                         ->columnSpanFull(),
-                                ])->columns(3),
+                                ])->columns(2),
 
                             // PO Batch
                             Forms\Components\Section::make('Penjadwalan Pre-Order Batch (Pengiriman Bertahap)')
@@ -606,9 +624,17 @@ class OrderResource extends Resource
                                                 ->label('Nama Batch')
                                                 ->required(),
                                             TextInput::make('quantity')
-                                                ->label('Muatan Truk (pcs)')
+                                                ->label('Muatan (pcs)')
                                                 ->numeric()
                                                 ->required(),
+                                            TextInput::make('factory_name')
+                                                ->label('Pabrik / Vendor')
+                                                ->placeholder('Pabrik Utama Plered / Mitra B')
+                                                ->default('Pabrik Utama Plered'),
+                                            TextInput::make('factory_pic_name')
+                                                ->label('Mandor / PIC')
+                                                ->placeholder('Kang Asep / Pak Ujang')
+                                                ->default('Kang Asep'),
                                             Forms\Components\DatePicker::make('production_start_date')
                                                 ->label('Mulai Produksi'),
                                             Forms\Components\DatePicker::make('estimated_dispatch_date')
@@ -618,7 +644,7 @@ class OrderResource extends Resource
                                                 ->label('Est. Tiba')
                                                 ->required(),
                                         ])
-                                        ->columns(5)
+                                        ->columns(4)
                                         ->default(function () use ($totalQty) {
                                             $batchNum = $totalQty >= 8000 ? 8 : ($totalQty >= 4000 ? 4 : 2);
                                             $perBatch = (int) floor($totalQty / $batchNum);
@@ -658,12 +684,16 @@ class OrderResource extends Resource
                         ];
 
                         if ($type === 'ready_stock') {
+                            $updateData['factory_name'] = $data['factory_name_ready'] ?? $record->factory_name;
+                            $updateData['factory_pic_name'] = $data['factory_pic_name_ready'] ?? $record->factory_pic_name;
                             $updateData['ready_shipping_date'] = $data['ready_shipping_date'] ?? null;
                             $updateData['estimated_delivery_date'] = $data['estimated_delivery_date'] ?? null;
                             $updateData['fulfillment_notes'] = $data['fulfillment_notes_ready'] ?? null;
                             $updateData['batch_count'] = 1;
                             $updateData['production_status'] = 'ready_to_ship';
                         } elseif ($type === 'po_single') {
+                            $updateData['factory_name'] = $data['factory_name_po'] ?? $record->factory_name;
+                            $updateData['factory_pic_name'] = $data['factory_pic_name_po'] ?? $record->factory_pic_name;
                             $updateData['production_start_date'] = $data['production_start_date'] ?? null;
                             $updateData['ready_shipping_date'] = $data['ready_shipping_date_po'] ?? null;
                             $updateData['estimated_delivery_date'] = $data['estimated_delivery_date_po'] ?? null;
@@ -684,6 +714,8 @@ class OrderResource extends Resource
                                     'batch_number' => $bNum,
                                     'batch_name' => $b['batch_name'] ?? "Batch #{$bNum}",
                                     'quantity' => (int) ($b['quantity'] ?? 0),
+                                    'factory_name' => $b['factory_name'] ?? null,
+                                    'factory_pic_name' => $b['factory_pic_name'] ?? null,
                                     'production_start_date' => $b['production_start_date'] ?? null,
                                     'estimated_dispatch_date' => $b['estimated_dispatch_date'] ?? null,
                                     'estimated_delivery_date' => $b['estimated_delivery_date'] ?? null,
@@ -754,6 +786,13 @@ class OrderResource extends Resource
                                     ->icon('heroicon-o-chat-bubble-left-ellipsis');
                             }
                         }
+
+                        $notifActions[] = Action::make('print_spk_btn')
+                            ->label('🖨️ Cetak SPK Produksi')
+                            ->url(route('print.production-order', $record), shouldOpenInNewTab: true)
+                            ->button()
+                            ->color('warning')
+                            ->icon('heroicon-o-document-chart-bar');
 
                         Notification::make()
                             ->title('Pesanan Berhasil Diproses ('.$record->fulfillment_label.')')

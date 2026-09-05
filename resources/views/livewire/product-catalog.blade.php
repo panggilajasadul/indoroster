@@ -36,6 +36,13 @@
             </div>
         </div>
 
+        <!-- Custom Page Builder Blocks (Tampil di Atas Pencarian & Filter) -->
+        @if($page && is_array($page->content) && count($page->content) > 0)
+            <div class="mb-8">
+                <x-block-renderer :blocks="$page->content" />
+            </div>
+        @endif
+
         <!-- Filter & Search Bar Panel -->
         <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-soft-xs p-3.5 sm:p-5 mb-8">
             <div class="flex flex-col lg:flex-row gap-3.5 sm:gap-4 items-stretch lg:items-center">
@@ -161,13 +168,6 @@
                 </div>
             @endif
         </div>
-
-        <!-- Custom Page Builder Blocks (Jika Admin menambahkan blok di /admin/pages untuk katalog) -->
-        @if($page && is_array($page->content) && count($page->content) > 0)
-            <div class="mt-12">
-                <x-block-renderer :blocks="$page->content" />
-            </div>
-        @endif
 
         <!-- Silo Pillar Navigation & Quick Tools -->
         <div class="mt-14 p-6 sm:p-8 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-soft-xs">

@@ -118,8 +118,31 @@
             </div>
             @endif
 
+            {{-- Info Pabrik / Mitra Sumber --}}
+            @if($batch->factory_name || $batch->factory_pic_name)
+            <div style="background: #1e293b; border-radius: 8px; padding: 8px 12px; margin-top: 8px; font-size: 0.78rem; color: #94a3b8; display: flex; flex-wrap: wrap; gap: 12px; align-items: center;">
+                <span>🏭 Sumber: <strong style="color: #38bdf8;">{{ $batch->factory_name ?: 'Pabrik Utama' }}</strong></span>
+                @if($batch->factory_pic_name)
+                <span>👤 PIC/Mandor: <strong style="color: #f1f5f9;">{{ $batch->factory_pic_name }}</strong></span>
+                @endif
+                @if($batch->factory_pic_phone)
+                <span>📱 <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', str_replace('+', '', $batch->factory_pic_phone)) }}" target="_blank" style="color: #22c55e;">{{ $batch->factory_pic_phone }}</a></span>
+                @endif
+            </div>
+            @endif
+
             {{-- Aksi per-batch --}}
             <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px;">
+                {{-- Cetak Dokumen Pabrik Per-Batch --}}
+                <button type="button" wire:click.prevent="mountAction('batch_print_spk_{{ $batch->id }}')"
+                        style="display: inline-flex; align-items: center; gap: 5px; padding: 6px 12px; background: transparent; border: 1.5px solid #f59e0b; border-radius: 8px; color: #fbbf24; font-size: 0.75rem; font-weight: 600; cursor: pointer;">
+                    📄 Cetak SPP Pabrik
+                </button>
+                <button type="button" wire:click.prevent="mountAction('batch_print_spab_{{ $batch->id }}')"
+                        style="display: inline-flex; align-items: center; gap: 5px; padding: 6px 12px; background: transparent; border: 1.5px solid #0284c7; border-radius: 8px; color: #38bdf8; font-size: 0.75rem; font-weight: 600; cursor: pointer;">
+                    🚚 Cetak Pengantar Ambil Barang
+                </button>
+
                 {{-- Cetak SJ Per-Rit Truk --}}
                 <a href="{{ route('print.order', ['order' => $order->id, 'batch_id' => $batch->id]) }}" target="_blank"
                    style="display: inline-flex; align-items: center; gap: 5px; padding: 6px 14px; background: transparent; border: 1.5px solid #64748b; border-radius: 8px; color: #cbd5e1; font-size: 0.75rem; font-weight: 600; text-decoration: none; cursor: pointer;">

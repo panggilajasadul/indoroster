@@ -11,6 +11,14 @@
     if ($duration < 2000) $duration = 4500;
     $aspectRatio = $data['aspect_ratio'] ?? 'aspect-[21/9] sm:aspect-[24/9] md:aspect-[3/1]';
     $rounded = $data['rounded'] ?? 'rounded-2xl sm:rounded-3xl';
+    $boxStyle = $data['box_style'] ?? 'rounded';
+
+    // Konfigurasi wadah / section background
+    $sectionClasses = match($boxStyle) {
+        'transparent' => 'bg-transparent py-2 sm:py-3',
+        'flat' => "py-8 sm:py-12 {$theme->bgClasses}",
+        default => "py-4 sm:py-6 px-3 sm:px-5 {$theme->bgClasses} rounded-2xl sm:rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-soft-xs",
+    };
     
     // Resolve Items (Custom, Gallery, Video Inspiration)
     $processedItems = [];
@@ -84,8 +92,10 @@
     $totalSlides = count($processedItems);
 @endphp
 
-<section class="py-8 sm:py-12 {{ $theme->bgClasses }} relative overflow-hidden select-none">
-    @include('components.blocks._bg-theme', ['theme' => $theme])
+<section class="{{ $sectionClasses }} relative overflow-hidden select-none">
+    @if($boxStyle !== 'transparent')
+        @include('components.blocks._bg-theme', ['theme' => $theme])
+    @endif
 
     <div class="max-w-[1440px] mx-auto px-3 sm:px-6 lg:px-8 relative z-10">
         {{-- Section Header if set --}}

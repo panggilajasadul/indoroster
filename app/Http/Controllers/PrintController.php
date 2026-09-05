@@ -85,6 +85,111 @@ class PrintController extends Controller
     }
 
     /**
+     * Cetak Surat Perintah Kerja Produksi (SPK) PDF ukuran A4.
+     */
+    public function productionOrder(Order $order, Request $request)
+    {
+        $isAdmin = auth()->check() && auth()->user()->isAdmin();
+        $hasValidSignature = $request->hasValidSignature();
+
+        if (! $isAdmin && ! $hasValidSignature) {
+            abort(403, 'Akses ditolak. Anda tidak memiliki izin untuk mencetak dokumen pengajuan produksi ini.');
+        }
+
+        $order->load(['items.product', 'items.variant.material', 'user', 'batches']);
+
+        $batch = null;
+        if ($request->filled('batch_id')) {
+            $batch = $order->batches()->find($request->get('batch_id'));
+        }
+
+        $sppNumber = 'SPP/'.date('Ymd', strtotime($order->created_at)).'/'.$order->order_number.($batch ? '-B'.$batch->batch_number : '');
+
+        $factoryName = $request->get('factory_name')
+            ?: ($batch?->factory_name ?: ($order->factory_name ?: 'Pabrik Utama Plered (Purwakarta)'));
+        $factoryPicName = $request->get('factory_pic_name')
+            ?: ($batch?->factory_pic_name ?: ($order->factory_pic_name ?: 'Kang Asep (Mandor Pabrik)'));
+        $factoryPicPhone = $request->get('factory_pic_phone')
+            ?: ($batch?->factory_pic_phone ?: ($order->factory_pic_phone ?: ''));
+        $factoryNotes = $request->get('factory_notes')
+            ?: ($batch?->notes ?: ($order->fulfillment_notes ?: $order->admin_notes));
+
+        $targetDate = $batch?->estimated_dispatch_date?->format('d M Y')
+            ?: ($order->ready_shipping_date?->format('d M Y') ?: now()->addDays(7)->format('d M Y'));
+
+        $pdf = Pdf::loadView('print.production-order', [
+            'order' => $order,
+            'batch' => $batch,
+            'sppNumber' => $sppNumber,
+            'spkNumber' => $sppNumber, // fallback alias
+            'factoryName' => $factoryName,
+            'factoryPicName' => $factoryPicName,
+            'factoryPicPhone' => $factoryPicPhone,
+            'factoryNotes' => $factoryNotes,
+            'targetDate' => $targetDate,
+        ])->setPaper('a4', 'portrait');
+
+        $filenameSuffix = $batch ? '-'.str_replace(' ', '', $batch->batch_name) : '';
+
+        return $pdf->stream('SPP-'.$order->order_number.$filenameSuffix.'.pdf');
+    }
+
+    /**
+     * Cetak Surat Pengantar Pengambilan Barang (SPPB) dari Pabrik Rekanan / Vendor PDF ukuran A4.
+     */
+    public function pickupOrder(Order $order, Request $request)
+    {
+        $isAdmin = auth()->check() && auth()->user()->isAdmin();
+        $hasValidSignature = $request->hasValidSignature();
+
+        if (! $isAdmin && ! $hasValidSignature) {
+            abort(403, 'Akses ditolak. Anda tidak memiliki izin untuk mencetak surat pengantar ambil barang ini.');
+        }
+
+        $order->load(['items.product', 'items.variant.material', 'user', 'batches']);
+
+        $batch = null;
+        if ($request->filled('batch_id')) {
+            $batch = $order->batches()->find($request->get('batch_id'));
+        }
+
+        $sppbNumber = 'SPPB/'.date('Ymd', strtotime($order->created_at)).'/'.$order->order_number.($batch ? '-B'.$batch->batch_number : '');
+
+        $factoryName = $request->get('factory_name')
+            ?: ($batch?->factory_name ?: ($order->factory_name ?: 'CV. Sumber Berkah Roster'));
+        $factoryPicName = $request->get('factory_pic_name')
+            ?: ($batch?->factory_pic_name ?: ($order->factory_pic_name ?: 'Pak Asep (Pemilik Pabrik Rekanan)'));
+        $factoryPicPhone = $request->get('factory_pic_phone')
+            ?: ($batch?->factory_pic_phone ?: ($order->factory_pic_phone ?: ''));
+        $factoryAddress = $request->get('factory_address')
+            ?: ($batch?->factory_address ?: ($order->factory_address ?: 'Jl. Raya Anjun No. 45, Plered, Purwakarta'));
+        $pickupDriverName = $request->get('pickup_driver_name')
+            ?: ($batch?->pickup_driver_name ?: ($order->pickup_driver_name ?: ($order->courier ?: 'Supir Internal IndoRoster')));
+        $pickupDriverPlate = $request->get('pickup_driver_plate')
+            ?: ($batch?->pickup_driver_plate ?: ($order->pickup_driver_plate ?: ($order->tracking_number ?: '-')));
+        $factoryNotes = $request->get('factory_notes')
+            ?: ($batch?->notes ?: ($order->fulfillment_notes ?: $order->admin_notes));
+
+        $pdf = Pdf::loadView('print.pickup-order', [
+            'order' => $order,
+            'batch' => $batch,
+            'sppbNumber' => $sppbNumber,
+            'spabNumber' => $sppbNumber, // fallback alias
+            'factoryName' => $factoryName,
+            'factoryPicName' => $factoryPicName,
+            'factoryPicPhone' => $factoryPicPhone,
+            'factoryAddress' => $factoryAddress,
+            'pickupDriverName' => $pickupDriverName,
+            'pickupDriverPlate' => $pickupDriverPlate,
+            'factoryNotes' => $factoryNotes,
+        ])->setPaper('a4', 'portrait');
+
+        $filenameSuffix = $batch ? '-'.str_replace(' ', '', $batch->batch_name) : '';
+
+        return $pdf->stream('SPPB-'.$order->order_number.$filenameSuffix.'.pdf');
+    }
+
+    /**
      * Cetak Label Pengiriman / Resi Thermal ukuran 150x100mm.
      */
     public function shippingLabel(ShippingLabel $shippingLabel)

@@ -184,6 +184,8 @@ if (app()->environment('local')) {
 Route::get('/print/invoice/{invoice}', [PrintController::class, 'invoice'])->name('print.invoice');
 Route::get('/print/receipt/{payment}', [PrintController::class, 'receipt'])->name('print.receipt');
 Route::get('/print/order/{order}', [PrintController::class, 'order'])->name('print.order');
+Route::get('/print/production-order/{order}', [PrintController::class, 'productionOrder'])->name('print.production-order');
+Route::get('/print/pickup-order/{order}', [PrintController::class, 'pickupOrder'])->name('print.pickup-order');
 
 // Print Routes for Admin Only
 Route::middleware(['web', 'auth'])->group(function () {

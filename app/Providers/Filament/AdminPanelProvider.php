@@ -78,6 +78,21 @@ class AdminPanelProvider extends PanelProvider
                         max-height: 75vh !important;
                         overflow-y: auto !important;
                     }
+
+                    /* Header Actions Auto-Wrap: Mencegah tombol header terpotong ke kanan */
+                    header.fi-header {
+                        flex-wrap: wrap !important;
+                        gap: 1rem !important;
+                    }
+                    header.fi-header > div:last-child,
+                    .fi-header-actions,
+                    .fi-ac {
+                        flex-wrap: wrap !important;
+                        flex-shrink: 1 !important;
+                        row-gap: 0.5rem !important;
+                        column-gap: 0.5rem !important;
+                        max-width: 100% !important;
+                    }
                 </style>'
             )
             ->renderHook(
