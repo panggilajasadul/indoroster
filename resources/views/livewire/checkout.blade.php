@@ -570,11 +570,6 @@
                             <span class="font-medium text-slate-900 dark:text-white text-right">
                                 @if($shippingCost > 0)
                                     Rp{{ number_format($shippingCost, 0, ',', '.') }}
-                                    @if($shippingRateType === 'per_pcs')
-                                        <span class="block text-[11px] font-normal text-slate-500 dark:text-slate-400">
-                                            (Rp{{ number_format($shippingCostPerUnit, 0, ',', '.') }}/pcs × {{ number_format($totalQty, 0, ',', '.') }} pcs)
-                                        </span>
-                                    @endif
                                 @elseif($city_id)
                                     <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/50 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800">Dikonfirmasi via WA</span>
                                 @else
