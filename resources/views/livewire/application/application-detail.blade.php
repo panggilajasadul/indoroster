@@ -500,7 +500,7 @@
         {{-- ══════════════════════════════════════════════════════════════
              4. LEVEL 2: LIVE PRODUCT EXPLORER & SEARCH
         ══════════════════════════════════════════════════════════════ --}}
-        <div id="katalog-eksplorasi" class="scroll-mt-24">
+        <div id="katalog-eksplorasi" class="scroll-mt-24" x-data x-init="if (window.location.search.includes('explorerPage=')) { $el.scrollIntoView({ behavior: 'smooth' }) }">
             <div class="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-soft-xs">
                 <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
                     <div>
@@ -528,29 +528,42 @@
                     </div>
                 </div>
 
-                <!-- Products Grid -->
-                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4 mb-6">
-                    @forelse($explorerProducts as $p)
-                        <div class="flex flex-col h-full group/card">
-                            <x-product-card :product="$p" wire:key="explorer-p-{{ $p->id }}" class="flex-grow" />
-                            <a href="{{ route('product.detail', $p->slug) }}" class="mt-2 w-full py-2 px-2 bg-slate-100 hover:bg-terra-500 text-slate-700 hover:text-white dark:bg-slate-800 dark:hover:bg-terra-500 dark:text-slate-300 dark:hover:text-white text-[11px] font-bold rounded-lg flex items-center justify-center gap-1.5 transition-all text-center">
-                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                                </svg>
-                                <span>🛒 Pesan</span>
-                            </a>
+                <!-- Products Grid with Loading State -->
+                <div class="relative min-h-[220px]">
+                    <!-- Loading Overlay -->
+                    <div wire:loading.flex wire:target="previousPage, nextPage, gotoPage, search, selectedCategory" class="absolute inset-0 bg-white/75 dark:bg-slate-900/75 backdrop-blur-xs z-20 flex items-center justify-center rounded-2xl transition-all">
+                        <div class="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 text-xs font-bold shadow-xl border border-slate-700/30">
+                            <svg class="animate-spin h-4 w-4 text-terra-500" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <span>Memuat motif...</span>
                         </div>
-                    @empty
-                    <div class="col-span-full text-center py-12">
-                        <p class="text-slate-400 text-xs">Tidak ada motif yang sesuai dengan pencarian Anda.</p>
                     </div>
-                    @endforelse
+
+                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4 mb-6" wire:loading.class="opacity-40" wire:target="previousPage, nextPage, gotoPage, search, selectedCategory">
+                        @forelse($explorerProducts as $p)
+                            <div class="flex flex-col h-full group/card">
+                                <x-product-card :product="$p" wire:key="explorer-p-{{ $p->id }}" class="flex-grow" />
+                                <a href="{{ route('product.detail', $p->slug) }}" class="mt-2 w-full py-2 px-2 bg-slate-100 hover:bg-terra-500 text-slate-700 hover:text-white dark:bg-slate-800 dark:hover:bg-terra-500 dark:text-slate-300 dark:hover:text-white text-[11px] font-bold rounded-lg flex items-center justify-center gap-1.5 transition-all text-center">
+                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                                    </svg>
+                                    <span>🛒 Pesan</span>
+                                </a>
+                            </div>
+                        @empty
+                        <div class="col-span-full text-center py-12">
+                            <p class="text-slate-400 text-xs">Tidak ada motif yang sesuai dengan pencarian Anda.</p>
+                        </div>
+                        @endforelse
+                    </div>
                 </div>
 
                 <!-- Pagination -->
                 @if($explorerProducts->hasPages())
                 <div class="pt-4 border-t border-slate-100 dark:border-slate-800">
-                    {{ $explorerProducts->links() }}
+                    {{ $explorerProducts->links(data: ['scrollTo' => '#katalog-eksplorasi']) }}
                 </div>
                 @endif
             </div>
