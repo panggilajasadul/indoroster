@@ -19,37 +19,13 @@
     <meta name="theme-color" content="{{ $isDarkInitial ? '#020617' : '#ffffff' }}">
     <meta name="color-scheme" content="{{ $isDarkInitial ? 'dark' : 'light' }}">
 
-    <!-- Google tag (gtag.js) -->
+    {{-- GA4 ID disimpan di PHP variable untuk dipakai di footer (tidak di-render di head) --}}
     @php
         $gaId = \App\Models\SiteSetting::getValue('google_analytics_id', 'G-GZQXJ03B4C');
         if (empty($gaId) || $gaId === 'G-XXXXXXXXXX') {
             $gaId = 'G-GZQXJ03B4C';
         }
     @endphp
-    @if(!empty($gaId))
-    <script async src="https://www.googletagmanager.com/gtag/js?id={{ $gaId }}"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-
-      gtag('config', '{{ $gaId }}');
-      @if($gaId !== 'G-E7GQNHMDCZ')
-      gtag('config', 'G-E7GQNHMDCZ');
-      @endif
-
-      // Livewire SPA Navigation Pageview Tracking
-      document.addEventListener('livewire:navigated', function() {
-        if (typeof gtag === 'function') {
-          gtag('event', 'page_view', {
-            page_title: document.title,
-            page_location: window.location.href,
-            page_path: window.location.pathname + window.location.search
-          });
-        }
-      });
-    </script>
-    @endif
 
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -817,5 +793,51 @@
 
     @livewireScripts
     @stack('scripts')
+
+    {{-- Google Analytics 4 — Lazy load setelah window.load + delay 3 dtk
+         Tidak diletakkan di <head> agar tidak memblokir render (FCP/LCP/TBT).
+         Data konversi & sesi panjang tetap ter-track 100%; hanya bounce < 3 dtk yang terlewat. --}}
+    @if(!empty($gaId))
+    <script>
+      (function() {
+        function loadGA4() {
+          // Muat script GA4 secara dinamis
+          var s = document.createElement('script');
+          s.async = true;
+          s.src = 'https://www.googletagmanager.com/gtag/js?id={{ $gaId }}';
+          document.head.appendChild(s);
+
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){ dataLayer.push(arguments); }
+          window.gtag = gtag;
+          gtag('js', new Date());
+          gtag('config', '{{ $gaId }}');
+          @if($gaId !== 'G-E7GQNHMDCZ')
+          gtag('config', 'G-E7GQNHMDCZ');
+          @endif
+
+          // Livewire SPA Navigation Pageview Tracking
+          document.addEventListener('livewire:navigated', function() {
+            if (typeof gtag === 'function') {
+              gtag('event', 'page_view', {
+                page_title: document.title,
+                page_location: window.location.href,
+                page_path: window.location.pathname + window.location.search
+              });
+            }
+          });
+        }
+
+        // Tunggu halaman selesai render, lalu delay 3 detik sebelum muat GA4
+        if (document.readyState === 'complete') {
+          setTimeout(loadGA4, 3000);
+        } else {
+          window.addEventListener('load', function() {
+            setTimeout(loadGA4, 3000);
+          });
+        }
+      })();
+    </script>
+    @endif
 </body>
 </html>
