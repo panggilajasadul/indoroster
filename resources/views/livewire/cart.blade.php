@@ -84,7 +84,11 @@
 
                             <!-- Unit Price (Col 1) -->
                             <div class="col-span-1 text-slate-500 dark:text-slate-400 text-xs font-medium">
-                                Rp{{ number_format($item->variant ? $item->variant->final_price : ($item->product->discount_price ?: $item->product->price), 0, ',', '.') }}
+                                @if(\App\Models\SiteSetting::showPrices())
+                                    Rp{{ number_format($item->variant ? $item->variant->final_price : ($item->product->discount_price ?: $item->product->price), 0, ',', '.') }}
+                                @else
+                                    <span class="text-[11px] font-bold text-terra-600 dark:text-terra-400">Penawaran</span>
+                                @endif
                             </div>
 
                             <!-- Quantity (Col 2) -->
@@ -98,9 +102,15 @@
 
                             <!-- Subtotal (Col 2) -->
                             <div class="col-span-2 text-right">
-                                <span class="font-display text-base font-black text-terra-600 dark:text-terra-400">
-                                    Rp{{ number_format($item->subtotal, 0, ',', '.') }}
-                                </span>
+                                @if(\App\Models\SiteSetting::showPrices())
+                                    <span class="font-display text-base font-black text-terra-600 dark:text-terra-400">
+                                        Rp{{ number_format($item->subtotal, 0, ',', '.') }}
+                                    </span>
+                                @else
+                                    <span class="text-xs font-bold text-slate-500 dark:text-slate-400">
+                                        Menunggu Penawaran
+                                    </span>
+                                @endif
                             </div>
 
                             <!-- Delete (Col 1) -->
@@ -160,9 +170,15 @@
                                         <input type="number" readonly value="{{ $item->quantity }}" class="w-10 h-full text-center border-0 focus:ring-0 text-slate-900 dark:text-white font-bold p-0 text-xs bg-transparent">
                                         <button wire:click="updateQuantity({{ $item->id }}, {{ $item->quantity + 1 }})" class="w-7 h-full text-slate-500 hover:text-terra-500 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-r-lg transition-colors focus:outline-none font-bold text-xs cursor-pointer">+</button>
                                     </div>
-                                    <div class="font-display text-sm font-black text-terra-600 dark:text-terra-400">
-                                        Rp{{ number_format($item->subtotal, 0, ',', '.') }}
-                                    </div>
+                                    @if(\App\Models\SiteSetting::showPrices())
+                                        <div class="font-display text-sm font-black text-terra-600 dark:text-terra-400">
+                                            Rp{{ number_format($item->subtotal, 0, ',', '.') }}
+                                        </div>
+                                    @else
+                                        <div class="text-xs font-bold text-terra-600 dark:text-terra-400">
+                                            Minta Penawaran
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
                         </li>
@@ -177,38 +193,52 @@
                     <h3 class="font-display text-fluid-h3 font-black text-slate-900 dark:text-white mb-6 pb-4 border-b border-slate-100 dark:border-slate-800">Ringkasan Belanja</h3>
                     
                     <div class="space-y-4 mb-6">
-                        <div class="flex justify-between text-slate-600 dark:text-slate-300">
-                            <span>Total Harga ({{ count($selectedItems) }} Barang)</span>
-                            <span class="font-medium text-slate-900 dark:text-white">Rp{{ number_format($subtotal, 0, ',', '.') }}</span>
-                        </div>
-                        <div class="flex justify-between text-slate-600 dark:text-slate-300">
-                            <span>Ongkos Kirim</span>
-                            <span class="font-medium text-slate-900 dark:text-white italic text-sm">Dihitung saat Checkout</span>
-                        </div>
+                        @if(\App\Models\SiteSetting::showPrices())
+                            <div class="flex justify-between text-slate-600 dark:text-slate-300">
+                                <span>Total Harga ({{ count($selectedItems) }} Barang)</span>
+                                <span class="font-medium text-slate-900 dark:text-white">Rp{{ number_format($subtotal, 0, ',', '.') }}</span>
+                            </div>
+                            <div class="flex justify-between text-slate-600 dark:text-slate-300">
+                                <span>Ongkos Kirim</span>
+                                <span class="font-medium text-slate-900 dark:text-white italic text-sm">Dihitung saat Checkout</span>
+                            </div>
+                        @else
+                            <div class="flex justify-between text-slate-600 dark:text-slate-300">
+                                <span>Item Dipilih</span>
+                                <span class="font-bold text-slate-900 dark:text-white">{{ count($selectedItems) }} Produk</span>
+                            </div>
+                            <div class="flex justify-between text-slate-600 dark:text-slate-300">
+                                <span>Estimasi Biaya</span>
+                                <span class="font-medium text-emerald-600 dark:text-emerald-400 text-xs">Pricelist Pabrik</span>
+                            </div>
+                        @endif
                     </div>
                     
                     <div class="border-t border-slate-100 dark:border-slate-800 pt-4 mb-6">
                         <div class="flex justify-between items-center">
                             <span class="font-bold text-slate-900 dark:text-white text-lg">Subtotal</span>
-                            <span class="font-display font-black text-terra-600 dark:text-terra-400 text-fluid-h2">Rp{{ number_format($subtotal, 0, ',', '.') }}</span>
+                            @if(\App\Models\SiteSetting::showPrices())
+                                <span class="font-display font-black text-terra-600 dark:text-terra-400 text-fluid-h2">Rp{{ number_format($subtotal, 0, ',', '.') }}</span>
+                            @else
+                                <span class="font-display font-bold text-terra-600 dark:text-terra-400 text-xs sm:text-sm text-right">Dihitung pada Surat Penawaran</span>
+                            @endif
                         </div>
                     </div>
                     
                     @if($this->orderMode === 'whatsapp')
                         <div class="mb-4 p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-xl text-emerald-800 dark:text-emerald-300 text-xs flex items-start gap-2">
                             <svg class="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
-                            <span>Pemesanan langsung via WhatsApp Admin aktif. Seluruh item yang Anda centang akan dirangkum otomatis ke dalam chat WhatsApp.</span>
+                            <span>{{ \App\Models\SiteSetting::showPrices() ? 'Pemesanan langsung via WhatsApp Admin aktif. Seluruh item yang Anda centang akan dirangkum otomatis ke dalam chat WhatsApp.' : 'Permintaan penawaran via WhatsApp Admin aktif. Daftar produk dan jumlah pcs akan dirangkum otomatis ke chat WhatsApp.' }}</span>
                         </div>
 
                         <button wire:click="checkoutSelected" wire:loading.attr="disabled" class="font-display w-full flex justify-center items-center bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 px-4 rounded-xl shadow-md shadow-emerald-600/20 transition-all gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer" @if(empty($selectedItems)) disabled @endif>
                             <svg class="h-5 w-5 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
-                            <span wire:loading.remove wire:target="checkoutSelected">Pesan via WhatsApp</span>
-                            <span wire:loading wire:target="checkoutSelected">Mempersiapkan Pesan...</span>
+                            <span wire:loading.remove wire:target="checkoutSelected">{{ \App\Models\SiteSetting::showPrices() ? 'Pesan via WhatsApp' : 'Lanjutkan Minta Penawaran' }}</span>
+                            <span wire:loading wire:target="checkoutSelected">Mempersiapkan...</span>
                         </button>
                     @else
                         <button wire:click="checkoutSelected" class="font-display w-full flex justify-center items-center bg-terra-500 hover:bg-terra-600 text-white font-bold py-4 px-4 rounded-xl shadow-md shadow-terra-500/20 transition-all gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer" @if(empty($selectedItems)) disabled @endif>
-                            Lanjut ke Checkout
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                            {{ \App\Models\SiteSetting::showPrices() ? 'Lanjut ke Checkout' : 'Lanjutkan Minta Penawaran' }}
                         </button>
                     @endif
                 </div>

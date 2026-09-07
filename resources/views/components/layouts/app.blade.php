@@ -198,25 +198,20 @@
     <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('assets/logo_indoroster_no_text.PNG') }}">
 
     <!-- DNS Prefetch & Preconnect -->
-    <link rel="dns-prefetch" href="//res.cloudinary.com">
     <link rel="dns-prefetch" href="//fonts.googleapis.com">
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-    <!-- Google Fonts: Non-blocking async loading with font-display swap -->
-    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@500;700;800&family=Plus+Jakarta+Sans:wght@500;700;800&display=swap">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@500;700;800&family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" media="print" onload="this.media='all'">
+    <!-- Preload LCP (Page-specific Hero Banner/Product Image) -->
+    @stack('preload-lcp')
+
+    <!-- Google Fonts: Inter & Outfit with display=swap -->
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Outfit:wght@700;800&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Outfit:wght@700;800&display=swap" media="print" onload="this.media='all'">
     <noscript>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@500;700;800&family=Plus+Jakarta+Sans:wght@500;700;800&display=swap">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Outfit:wght@700;800&display=swap">
     </noscript>
-
-    <!-- TomSelect CSS (non-blocking) -->
-    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet" media="print" onload="this.media='all'">
-
-    <!-- Leaflet Maps CSS & JS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="" defer></script>
 
     <!-- Primary SEO Meta -->
     <meta name="google-site-verification" content="{{ \App\Models\SiteSetting::getValue('google_site_verification', '5T-7RFSLMEwCNdq2lx93GU5S5BckFBgjFPf5B-HlT1Y') }}" />
@@ -821,8 +816,6 @@
     <x-live-sales-popup />
 
     @livewireScripts
-
-    <!-- TomSelect JS (deferred, non-blocking) -->
-    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js" defer></script>
+    @stack('scripts')
 </body>
 </html>

@@ -6,6 +6,11 @@
         :products="$featuredProducts" 
     />
 @endpush
+@if(isset($banners) && $banners->count() > 0)
+@push('preload-lcp')
+    <link rel="preload" as="image" href="{{ $banners->first()->image_url }}" fetchpriority="high">
+@endpush
+@endif
 @php
     $rawWa = \App\Models\SiteSetting::getValue('whatsapp_number', '0813-8970-9847');
     $waNumber = preg_replace('/[^0-9]/', '', $rawWa);
@@ -247,18 +252,12 @@
                         'https://res.cloudinary.com/indoroster/image/upload/v1765259848/sg-11134201-7ra3x-mbga48q8qh9x40_resize_w450_nl_f9jbbk.webp',
                         'https://res.cloudinary.com/indoroster/image/upload/v1765259830/36_vaxh6k.jpg',
                         'https://res.cloudinary.com/indoroster/image/upload/v1765260059/477127145_935487138780264_8156628137020905763_n_koes6o.jpg',
-                        'https://res.cloudinary.com/indoroster/image/upload/v1765259896/87_pikio2.jpg',
-                        'https://res.cloudinary.com/indoroster/image/upload/v1765259870/146480918_962561287611643_2630009701372432663_n_gugfhr.jpg',
-                        'https://res.cloudinary.com/indoroster/image/upload/v1765260086/23_max5ag.jpg',
-                        'https://res.cloudinary.com/indoroster/image/upload/v1765260071/19_aaa6uf.jpg',
-                        'https://res.cloudinary.com/indoroster/image/upload/v1765260029/17_ifv8eh.jpg',
-                        'https://res.cloudinary.com/indoroster/image/upload/v1765260857/162301330_988931014974670_4453781190506425580_n_iu9gd2.jpg'
                     ];
                 @endphp
                 
                 @foreach(array_merge($showcaseImages, $showcaseImages) as $img)
                 <div class="w-[300px] md:w-[450px] aspect-[4/3] rounded-none overflow-hidden shrink-0 shadow-lg border border-slate-100">
-                    <img src="{{ $img }}" alt="Inspirasi Desain Dinding dan Fasad Roster Beton Minimalis IndoRoster Plered" class="w-full h-full object-cover" loading="lazy">
+                    <img src="{{ $img }}" alt="Inspirasi Desain Dinding dan Fasad Roster Beton Minimalis IndoRoster Plered" class="w-full h-full object-cover" width="450" height="338" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='{{ asset('assets/logo_indoroster_no_text.PNG') }}'">
                 </div>
                 @endforeach
             </div>
@@ -304,10 +303,11 @@
                     <div class="relative aspect-video rounded-3xl overflow-hidden shadow-2xl border-8 border-white group">
                         <video 
                             class="w-full h-full object-cover" 
-                            autoplay 
-                            loop 
+                            preload="none"
                             muted 
+                            loop 
                             playsinline
+                            data-lazy-video
                         >
                             <source src="https://res.cloudinary.com/indoroster/video/upload/v1765639289/1213_h2d5wy.mp4" type="video/mp4">
                         </video>
@@ -404,9 +404,13 @@
                             </div>
 
                             <div class="flex items-center justify-between gap-1 mb-0.5">
-                                <span class="text-sm font-bold text-[#ee4d2d] leading-none">{{ $product->formatted_price_range }}</span>
-                                @if($product->has_discount)
-                                    <span class="text-[9px] text-slate-400 line-through leading-none">Rp{{ number_format($product->original_price, 0, ',', '.') }}</span>
+                                @if(\App\Models\SiteSetting::showPrices())
+                                    <span class="text-sm font-bold text-[#ee4d2d] leading-none">{{ $product->formatted_price_range }}</span>
+                                    @if($product->has_discount)
+                                        <span class="text-[9px] text-slate-400 line-through leading-none">Rp{{ number_format($product->original_price, 0, ',', '.') }}</span>
+                                    @endif
+                                @else
+                                    <span class="text-xs font-bold text-terra-600 leading-none">{{ \App\Models\SiteSetting::hiddenPriceText() }} →</span>
                                 @endif
                             </div>
                         </div>
@@ -502,7 +506,11 @@
                             </div>
 
                             <div class="flex items-baseline justify-between gap-1 flex-wrap pt-2 border-t border-slate-100">
-                                <span class="text-xs font-black text-terra-600 leading-none">{{ $product->formatted_price_range }}</span>
+                                @if(\App\Models\SiteSetting::showPrices())
+                                    <span class="text-xs font-black text-terra-600 leading-none">{{ $product->formatted_price_range }}</span>
+                                @else
+                                    <span class="text-xs font-black text-terra-600 leading-none">{{ \App\Models\SiteSetting::hiddenPriceText() }} →</span>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -555,12 +563,12 @@
                 <div class="relative flex flex-col gap-6">
                     <div class="absolute -inset-4 bg-gradient-to-r from-accent/20 to-accent/40 rounded-2xl opacity-20 blur-2xl"></div>
                     <div class="relative rounded-2xl shadow-2xl border border-slate-700 overflow-hidden aspect-video bg-slate-800">
-                        <video class="w-full h-full object-cover" autoplay loop muted playsinline>
+                        <video class="w-full h-full object-cover" preload="none" muted loop playsinline data-lazy-video>
                             <source src="https://res.cloudinary.com/indoroster/video/upload/v1765640938/1213_5_frvqcr.mp4" type="video/mp4">
                         </video>
                     </div>
                     <div class="relative rounded-2xl shadow-2xl border border-slate-700 overflow-hidden aspect-video bg-slate-800">
-                        <video class="w-full h-full object-cover" autoplay loop muted playsinline>
+                        <video class="w-full h-full object-cover" preload="none" muted loop playsinline data-lazy-video>
                             <source src="https://res.cloudinary.com/indoroster/video/upload/v1765642314/432_nej3an.mp4" type="video/mp4">
                         </video>
                     </div>
@@ -606,7 +614,7 @@
                 </div>
                 <div class="flex-1 w-full relative">
                     <div class="rounded-2xl shadow-xl w-full overflow-hidden aspect-[4/3] bg-slate-100">
-                        <video class="w-full h-full object-cover" autoplay loop muted playsinline>
+                        <video class="w-full h-full object-cover" preload="none" muted loop playsinline data-lazy-video>
                             <source src="https://res.cloudinary.com/indoroster/video/upload/v1765263080/1_beaclb.mp4" type="video/mp4">
                         </video>
                     </div>
@@ -668,8 +676,8 @@
                         <div class="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-slate-800 rounded-b-2xl z-20"></div>
                         
                         <video 
-                            id="reviewVideo"
                             class="w-full h-full object-cover" 
+                            preload="none"
                             loop 
                             playsinline
                             controls
@@ -824,7 +832,7 @@
                     @endphp
                     @foreach($sampleVideos as $vid)
                     <div class="relative aspect-[9/16] rounded-3xl overflow-hidden bg-slate-100 shadow-2xl border-4 border-black/5">
-                        <video src="{{ $vid }}" autoplay muted loop playsinline class="w-full h-full object-cover"></video>
+                        <video src="{{ $vid }}" preload="none" muted loop playsinline data-lazy-video class="w-full h-full object-cover"></video>
                         <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-6">
                             <div class="flex items-center gap-3">
                                 <div class="w-8 h-8 rounded-full bg-accent flex items-center justify-center">
@@ -919,12 +927,23 @@
 
 
     <script>
-    // Force autoplay on all videos (some browsers block autoplay on dynamically loaded content)
     document.addEventListener('DOMContentLoaded', function() {
-        document.querySelectorAll('video[autoplay]').forEach(function(video) {
-            video.muted = true;
-            video.play().catch(function() {});
-        });
+        if ('IntersectionObserver' in window) {
+            var videoObserver = new IntersectionObserver(function(entries) {
+                entries.forEach(function(entry) {
+                    if (entry.isIntersecting) {
+                        entry.target.play().catch(function() {});
+                    } else {
+                        entry.target.pause();
+                    }
+                });
+            }, { threshold: 0.25 });
+
+            document.querySelectorAll('video[data-lazy-video]').forEach(function(video) {
+                video.muted = true;
+                videoObserver.observe(video);
+            });
+        }
     });
     </script>
 </div>

@@ -549,12 +549,12 @@ class OrderResource extends Resource
                             Forms\Components\Section::make('Penjadwalan Ready Stock')
                                 ->visible(fn (Forms\Get $get) => $get('fulfillment_type') === 'ready_stock')
                                 ->schema([
-                                    Forms\Components\TextInput::make('factory_name_ready')
+                                    TextInput::make('factory_name_ready')
                                         ->label('Nama Pabrik / Vendor Penyedia Stok')
                                         ->placeholder('Contoh: CV. Sumber Berkah Roster / Pabrik Utama Plered')
                                         ->datalist(['Pabrik Utama Plered (Purwakarta)', 'Pabrik Anjun Plered', 'Pabrik Cadasmekar', 'CV. Sumber Berkah Roster'])
                                         ->default($record->factory_name ?: 'CV. Sumber Berkah Roster'),
-                                    Forms\Components\TextInput::make('factory_pic_name_ready')
+                                    TextInput::make('factory_pic_name_ready')
                                         ->label('Pemilik / Mandor / PIC Gudang')
                                         ->placeholder('Contoh: Pak Asep Hidayat')
                                         ->default($record->factory_pic_name ?: 'Pak Asep Hidayat'),
@@ -576,12 +576,12 @@ class OrderResource extends Resource
                             Forms\Components\Section::make('Penjadwalan Pre-Order (PO Tunggal)')
                                 ->visible(fn (Forms\Get $get) => $get('fulfillment_type') === 'po_single')
                                 ->schema([
-                                    Forms\Components\TextInput::make('factory_name_po')
+                                    TextInput::make('factory_name_po')
                                         ->label('Nama Pabrik / Vendor Pelaksana Produksi')
                                         ->placeholder('Contoh: Pabrik Utama Plered (Purwakarta)')
                                         ->datalist(['Pabrik Utama Plered (Purwakarta)', 'Pabrik Anjun Plered', 'Pabrik Cadasmekar', 'CV. Sumber Berkah Roster'])
                                         ->default($record->factory_name ?: 'Pabrik Utama Plered (Purwakarta)'),
-                                    Forms\Components\TextInput::make('factory_pic_name_po')
+                                    TextInput::make('factory_pic_name_po')
                                         ->label('Nama Mandor / PIC Pabrik')
                                         ->placeholder('Contoh: Kang Asep')
                                         ->default($record->factory_pic_name ?: 'Kang Asep'),

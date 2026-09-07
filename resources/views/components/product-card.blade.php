@@ -6,7 +6,8 @@
 
 @php
     $displayMedia = $product->primary_media;
-    $hasDiscount = $product->discount_percentage > 0;
+    $showPrices = \App\Models\SiteSetting::showPrices();
+    $hasDiscount = $showPrices && ($product->discount_percentage > 0);
     $isOutOfStock = ($product->total_stock <= 0);
 @endphp
 
@@ -17,7 +18,7 @@
     <div class="relative aspect-square overflow-hidden bg-slate-100 dark:bg-slate-800">
         @if($displayMedia)
             @if($displayMedia->media_type === 'video' && !str_contains($displayMedia->media_url, 'youtube.com') && !str_contains($displayMedia->media_url, 'youtu.be'))
-                <video src="{{ $displayMedia->formatted_url }}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" autoplay muted loop playsinline></video>
+                <video src="{{ $displayMedia->formatted_url }}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" preload="none" muted loop playsinline></video>
             @else
                 <img src="{{ $displayMedia->media_type === 'image' ? $displayMedia->formatted_url : $product->primary_image }}" 
                      alt="{{ $displayMedia->alt_text ?: $product->name }}" 
@@ -98,13 +99,20 @@
 
             <!-- Price Row -->
             <div class="flex items-baseline justify-between gap-1 pt-1.5 border-t border-slate-100 dark:border-slate-800 flex-wrap">
-                <div class="text-xs sm:text-sm font-bold text-[#ee4d2d] dark:text-terra-400">
-                    {{ $product->formatted_price_range }}
-                </div>
-                @if($hasDiscount && $product->original_price)
-                <div class="text-[10px] text-slate-400 dark:text-slate-500 line-through">
-                    Rp{{ number_format($product->original_price, 0, ',', '.') }}
-                </div>
+                @if($showPrices)
+                    <div class="text-xs sm:text-sm font-bold text-[#ee4d2d] dark:text-terra-400">
+                        {{ $product->formatted_price_range }}
+                    </div>
+                    @if($hasDiscount && $product->original_price)
+                    <div class="text-[10px] text-slate-400 dark:text-slate-500 line-through">
+                        Rp{{ number_format($product->original_price, 0, ',', '.') }}
+                    </div>
+                    @endif
+                @else
+                    <div class="inline-flex items-center gap-1 text-xs font-bold text-terra-600 dark:text-terra-400 font-display">
+                        <span>{{ \App\Models\SiteSetting::hiddenPriceText() }}</span>
+                        <span class="text-[11px] group-hover:translate-x-0.5 transition-transform">→</span>
+                    </div>
                 @endif
             </div>
 

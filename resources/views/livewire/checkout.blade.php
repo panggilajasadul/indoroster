@@ -1,3 +1,9 @@
+@push('head-scripts')
+    <!-- TomSelect CSS & JS (Halaman Checkout) -->
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+@endpush
+
 <div class="bg-slate-50 dark:bg-slate-950 min-h-screen py-12"
     x-data
     x-on:open-external-url.window="window.open($event.detail.url, '_blank')">
@@ -512,13 +518,26 @@
                                         <span class="text-slate-500 dark:text-slate-400 font-normal">({{ $item->variant->name }})</span>
                                     @endif
                                 </h4>
-                                <div class="text-xs text-slate-500 dark:text-slate-400">{{ $item->quantity }} x Rp{{ number_format($item->variant ? $item->variant->final_price : ($item->product?->price ?? 0), 0, ',', '.') }}</div>
+                                <div class="text-xs text-slate-500 dark:text-slate-400">
+                                    @if(\App\Models\SiteSetting::showPrices())
+                                        {{ $item->quantity }} x Rp{{ number_format($item->variant ? $item->variant->final_price : ($item->product?->price ?? 0), 0, ',', '.') }}
+                                    @else
+                                        {{ $item->quantity }} pcs
+                                    @endif
+                                </div>
                             </div>
-                            <span class="text-sm font-medium text-slate-900 dark:text-white whitespace-nowrap">Rp{{ number_format($item->subtotal, 0, ',', '.') }}</span>
+                            <span class="text-sm font-medium text-slate-900 dark:text-white whitespace-nowrap">
+                                @if(\App\Models\SiteSetting::showPrices())
+                                    Rp{{ number_format($item->subtotal, 0, ',', '.') }}
+                                @else
+                                    <span class="text-xs text-terra-600 dark:text-terra-400 font-bold">Penawaran</span>
+                                @endif
+                            </span>
                         </li>
                         @endforeach
                     </ul>
                     
+                    @if(\App\Models\SiteSetting::showPrices())
                     <!-- Voucher & Promo Klaim Box -->
                     <div class="mb-5 p-3.5 bg-amber-50/50 dark:bg-slate-800/90 rounded-xl border border-amber-200/80 dark:border-slate-700">
                         <label class="block text-xs font-bold text-slate-800 dark:text-amber-200 uppercase tracking-wider mb-2 flex items-center gap-1.5">
@@ -559,40 +578,64 @@
                             </div>
                         @endif
                     </div>
+                    @endif
 
                     <div class="space-y-3 mb-6 bg-slate-50 dark:bg-slate-800/80 p-4 rounded-xl border border-slate-100 dark:border-slate-700">
-                        <div class="flex justify-between text-slate-600 dark:text-slate-300 text-sm">
-                            <span>Subtotal Produk</span>
-                            <span class="font-medium text-slate-900 dark:text-white">Rp{{ number_format($subtotal, 0, ',', '.') }}</span>
-                        </div>
-                        <div class="flex justify-between text-slate-600 dark:text-slate-300 text-sm">
-                            <span>Ongkos Kirim Armada</span>
-                            <span class="font-medium text-slate-900 dark:text-white text-right">
-                                @if($shippingCost > 0)
-                                    Rp{{ number_format($shippingCost, 0, ',', '.') }}
-                                @elseif($city_id)
-                                    <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/50 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800">Dikonfirmasi via WA</span>
-                                @else
-                                    <span class="text-xs italic text-slate-400 dark:text-slate-500">(Pilih Kota Tujuan)</span>
-                                @endif
-                            </span>
-                        </div>
-                        <div class="text-[11px] text-slate-500 dark:text-slate-400 flex gap-1 items-start leading-normal pt-1 border-t border-dashed border-slate-200 dark:border-slate-700">
-                            <svg class="w-3.5 h-3.5 text-terra-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            <span>Dikirim langsung menggunakan <strong>Armada Truk Pabrik</strong> dari Plered, Purwakarta (Roster dijamin 100% aman sampai lokasi).</span>
-                        </div>
-                        @if($discountAmount > 0)
-                        <div class="flex justify-between text-terra-600 dark:text-terra-400 text-sm">
-                            <span>Diskon Voucher</span>
-                            <span class="font-medium">-Rp{{ number_format($discountAmount, 0, ',', '.') }}</span>
-                        </div>
+                        @if(\App\Models\SiteSetting::showPrices())
+                            <div class="flex justify-between text-slate-600 dark:text-slate-300 text-sm">
+                                <span>Subtotal Produk</span>
+                                <span class="font-medium text-slate-900 dark:text-white">Rp{{ number_format($subtotal, 0, ',', '.') }}</span>
+                            </div>
+                            <div class="flex justify-between text-slate-600 dark:text-slate-300 text-sm">
+                                <span>Ongkos Kirim Armada</span>
+                                <span class="font-medium text-slate-900 dark:text-white text-right">
+                                    @if($shippingCost > 0)
+                                        Rp{{ number_format($shippingCost, 0, ',', '.') }}
+                                    @elseif($city_id)
+                                        <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/50 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800">Dikonfirmasi via WA</span>
+                                    @else
+                                        <span class="text-xs italic text-slate-400 dark:text-slate-500">(Pilih Kota Tujuan)</span>
+                                    @endif
+                                </span>
+                            </div>
+                            <div class="text-[11px] text-slate-500 dark:text-slate-400 flex gap-1 items-start leading-normal pt-1 border-t border-dashed border-slate-200 dark:border-slate-700">
+                                <svg class="w-3.5 h-3.5 text-terra-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <span>Dikirim langsung menggunakan <strong>Armada Truk Pabrik</strong> dari Plered, Purwakarta (Roster dijamin 100% aman sampai lokasi).</span>
+                            </div>
+                            @if($discountAmount > 0)
+                            <div class="flex justify-between text-terra-600 dark:text-terra-400 text-sm">
+                                <span>Diskon Voucher</span>
+                                <span class="font-medium">-Rp{{ number_format($discountAmount, 0, ',', '.') }}</span>
+                            </div>
+                            @endif
+                            <div class="border-t border-slate-200 dark:border-slate-700 pt-3 flex justify-between items-center mt-3">
+                                <span class="font-display font-bold text-slate-900 dark:text-white">{{ ($shippingCost > 0 || $orderMode !== 'whatsapp') ? 'Total Tagihan' : 'Total Harga Barang' }}</span>
+                                <span class="font-display font-black text-terra-600 dark:text-terra-400 text-fluid-h3">Rp{{ number_format($grandTotal, 0, ',', '.') }}</span>
+                            </div>
+                        @else
+                            <div class="flex justify-between text-slate-600 dark:text-slate-300 text-sm">
+                                <span>Total Kuantitas</span>
+                                <span class="font-bold text-slate-900 dark:text-white">{{ $totalQty }} pcs</span>
+                            </div>
+                            <div class="flex justify-between text-slate-600 dark:text-slate-300 text-sm">
+                                <span>Armada Pengiriman</span>
+                                <span class="font-medium text-slate-900 dark:text-white text-right">
+                                    Truk Pabrik Plered
+                                </span>
+                            </div>
+                            <div class="text-[11px] text-slate-500 dark:text-slate-400 flex gap-1 items-start leading-normal pt-1 border-t border-dashed border-slate-200 dark:border-slate-700">
+                                <svg class="w-3.5 h-3.5 text-terra-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <span>Harga grosir volume dan ongkos kirim resmi akan dihitung oleh Tim Sales Proyek dalam <strong>Surat Penawaran Resmi (Quotation)</strong>.</span>
+                            </div>
+                            <div class="border-t border-slate-200 dark:border-slate-700 pt-3 flex justify-between items-center mt-3">
+                                <span class="font-display font-bold text-slate-900 dark:text-white">Status Biaya</span>
+                                <span class="font-display font-bold text-terra-600 dark:text-terra-400 text-sm sm:text-base">Minta Penawaran</span>
+                            </div>
                         @endif
-                        <div class="border-t border-slate-200 dark:border-slate-700 pt-3 flex justify-between items-center mt-3">
-                            <span class="font-display font-bold text-slate-900 dark:text-white">{{ ($shippingCost > 0 || $orderMode !== 'whatsapp') ? 'Total Tagihan' : 'Total Harga Barang' }}</span>
-                            <span class="font-display font-black text-terra-600 dark:text-terra-400 text-fluid-h3">Rp{{ number_format($grandTotal, 0, ',', '.') }}</span>
-                        </div>
                     </div>
 
                     @if($orderMode === 'whatsapp')
@@ -602,9 +645,11 @@
                                 💬
                             </div>
                             <div>
-                                <span class="font-display font-bold block text-sm mb-1 text-emerald-950 dark:text-white">Pemesanan Terhubung ke WhatsApp</span>
+                                <span class="font-display font-bold block text-sm mb-1 text-emerald-950 dark:text-white">{{ \App\Models\SiteSetting::showPrices() ? 'Pemesanan Terhubung ke WhatsApp' : 'Permintaan Penawaran via WhatsApp' }}</span>
                                 <p class="text-emerald-800/90 dark:text-emerald-300">
-                                    Pesanan Anda otomatis tercatat resmi di database IndoRoster. Browser akan langsung membuka WhatsApp Admin beserta <strong>daftar barang, link produk, dan link titik peta Google Maps</strong> untuk konfirmasi ongkir armada & jadwal kirim.
+                                    {{ \App\Models\SiteSetting::showPrices()
+                                        ? 'Pesanan Anda otomatis tercatat resmi di database IndoRoster. Browser akan langsung membuka WhatsApp Admin beserta daftar barang, link produk, dan link titik peta Google Maps untuk konfirmasi ongkir armada & jadwal kirim.'
+                                        : 'Permintaan penawaran Anda otomatis tercatat di database IndoRoster. WhatsApp Admin akan langsung terbuka beserta daftar produk, jumlah pcs, dan titik peta pengiriman untuk penerbitan Surat Penawaran Resmi.' }}
                                 </p>
                             </div>
                         </div>
@@ -638,7 +683,7 @@
                             ">
                             <span wire:loading.remove wire:target="processCheckout, processWhatsappCheckout" class="flex items-center gap-2">
                                 <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
-                                <span>Kirim Pesanan ke WhatsApp</span>
+                                <span>{{ \App\Models\SiteSetting::showPrices() ? 'Kirim Pesanan ke WhatsApp' : 'Kirim Permintaan Penawaran via WhatsApp' }}</span>
                             </span>
                             <span wire:loading wire:target="processCheckout, processWhatsappCheckout" class="flex items-center gap-2.5">
                                 <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">

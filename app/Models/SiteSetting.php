@@ -44,4 +44,20 @@ class SiteSetting extends Model
             ->pluck('value', 'key')
             ->toArray();
     }
+
+    /**
+     * Check if product prices should be displayed on the storefront.
+     */
+    public static function showPrices(): bool
+    {
+        return filter_var(static::getValue('show_product_prices', true), FILTER_VALIDATE_BOOLEAN);
+    }
+
+    /**
+     * Get the fallback label/text when product prices are hidden.
+     */
+    public static function hiddenPriceText(): string
+    {
+        return (string) static::getValue('hidden_price_text', 'Minta Penawaran');
+    }
 }

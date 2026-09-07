@@ -917,8 +917,12 @@ class Checkout extends Component
 
                 // Format WhatsApp Item Line with Direct Link
                 $line = "{$idx}. *".($product?->name ?? 'Produk')."{$varName}*\n";
-                $line .= '   • Jumlah: '.$cartItem->quantity.' pcs × Rp'.number_format($price, 0, ',', '.')."\n";
-                $line .= '   • Subtotal: Rp'.number_format($itemSubtotal, 0, ',', '.');
+                if (SiteSetting::showPrices()) {
+                    $line .= '   • Jumlah: '.$cartItem->quantity.' pcs × Rp'.number_format($price, 0, ',', '.')."\n";
+                    $line .= '   • Subtotal: Rp'.number_format($itemSubtotal, 0, ',', '.');
+                } else {
+                    $line .= '   • Kuantitas: '.$cartItem->quantity.' pcs';
+                }
                 if ($prodUrl) {
                     $line .= "\n   🔗 Link: {$prodUrl}";
                 }

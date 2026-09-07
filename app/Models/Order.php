@@ -802,7 +802,6 @@ class Order extends Model
             $itemLines[] = "• {$item->quantity}x {$item->product_name}{$variant}";
         }
         $itemsString = count($itemLines) > 0 ? implode("\n", $itemLines) : '• (Produk pesanan)';
-        $subtotalFormatted = 'Rp'.number_format($this->subtotal, 0, ',', '.');
 
         $trackingUrl = route('order.tracking', [
             'order_number' => $this->order_number,
@@ -813,6 +812,27 @@ class Order extends Model
         if ($this->shipping_latitude && $this->shipping_longitude) {
             $mapsLink = "\n📍 *Titik Lokasi (Google Maps):* https://maps.google.com/?q={$this->shipping_latitude},{$this->shipping_longitude}";
         }
+
+        if (! SiteSetting::showPrices()) {
+            $waMessage = "Halo Admin IndoRoster, saya ingin meminta penawaran harga resmi melalui website:\n\n"
+                ."📋 *PERMINTAAN PENAWARAN HARGA*\n"
+                ."• No. Permintaan: #{$this->order_number}\n"
+                ."• Tanggal: {$dateNow} WIB\n\n"
+                ."📦 *DAFTAR PRODUK & KUANTITAS:*\n{$itemsString}\n\n"
+                ."💰 *Status Biaya:* Menunggu Surat Penawaran Resmi Pabrik\n\n"
+                ."👤 *DATA PEMESAN & LOKASI PROYEK:*\n"
+                ."• Nama: {$this->shipping_name}\n"
+                ."• No. WhatsApp: {$this->shipping_phone}\n"
+                ."• Alamat Pengiriman: {$this->full_shipping_address}"
+                .$mapsLink."\n"
+                .($this->notes ? "• Catatan: {$this->notes}\n" : '')
+                ."\n🔍 *Lacak Status Permintaan:* {$trackingUrl}\n\n"
+                .'Mohon info ketersediaan stok & kirimkan Surat Penawaran Resmi (Pricelist Volume Pabrik & Estimasi Ongkir Armada) ke lokasi saya. Terima kasih!';
+
+            return 'https://wa.me/'.$waPhone.'?text='.rawurlencode($waMessage);
+        }
+
+        $subtotalFormatted = 'Rp'.number_format($this->subtotal, 0, ',', '.');
 
         $ongkirText = $this->shipping_cost > 0
             ? 'Rp'.number_format($this->shipping_cost, 0, ',', '.')

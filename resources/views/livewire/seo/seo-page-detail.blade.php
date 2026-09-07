@@ -516,7 +516,7 @@
                                         <div class="min-w-0">
                                             <span class="text-[10px] uppercase font-bold text-slate-400 block">Motif Digunakan:</span>
                                             <span class="text-xs font-black text-slate-900 dark:text-white truncate block">{{ $linkedProduct->name }}</span>
-                                            <span class="text-xs font-black text-[#ee4d2d] dark:text-terra-400">{{ $linkedProduct->formatted_price_range }}</span>
+                                            <span class="text-xs font-black text-[#ee4d2d] dark:text-terra-400">{{ \App\Models\SiteSetting::showPrices() ? $linkedProduct->formatted_price_range : \App\Models\SiteSetting::hiddenPriceText() }}</span>
                                         </div>
                                     </div>
                                     <a href="{{ route('product.detail', $linkedProduct->slug) }}" class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-xs font-bold transition flex-shrink-0">
@@ -706,9 +706,9 @@
 
                                 <div class="pt-3 border-t border-slate-200 dark:border-slate-700">
                                     <div class="flex items-center justify-between gap-2 mb-2.5">
-                                        <span class="text-xs text-slate-400 font-medium">Harga Pabrik:</span>
+                                        <span class="text-xs text-slate-400 font-medium">{{ \App\Models\SiteSetting::showPrices() ? 'Harga Pabrik:' : 'Status Harga:' }}</span>
                                         <span class="text-sm font-black text-[#ee4d2d] dark:text-terra-400">
-                                            {{ $product->formatted_price_range }}
+                                            {{ \App\Models\SiteSetting::showPrices() ? $product->formatted_price_range : \App\Models\SiteSetting::hiddenPriceText() }}
                                         </span>
                                     </div>
                                     <div class="flex flex-col sm:flex-row items-center gap-2">
@@ -763,7 +763,7 @@
                                     </a>
                                 </h4>
                                 <span class="text-xs font-black text-[#ee4d2d] dark:text-terra-400 block mb-2">
-                                    {{ $expProduct->formatted_price_range }}
+                                    {{ \App\Models\SiteSetting::showPrices() ? $expProduct->formatted_price_range : \App\Models\SiteSetting::hiddenPriceText() }}
                                 </span>
                             </div>
                             <div class="flex items-center gap-1.5">

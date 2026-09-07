@@ -92,10 +92,12 @@
     "offers": {
         "@@type": "Offer",
         "url": "{{ $productUrl }}",
+        @if(\App\Models\SiteSetting::showPrices())
         "priceCurrency": "{{ $currency }}",
         "price": "{{ $price }}",
         "priceValidUntil": "{{ now()->addYear()->format('Y-m-d') }}",
         "validFrom": "{{ now()->subMonths(6)->format('Y-m-d') }}",
+        @endif
         "availability": "https://schema.org/{{ $stock }}",
         "itemCondition": "https://schema.org/NewCondition",
         "seller": {

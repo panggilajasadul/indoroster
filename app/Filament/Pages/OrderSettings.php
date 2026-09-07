@@ -8,6 +8,7 @@ use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
@@ -38,6 +39,8 @@ class OrderSettings extends Page implements HasForms
 
         $defaults = [
             'order_mode' => 'midtrans',
+            'show_product_prices' => filter_var($settings['show_product_prices'] ?? true, FILTER_VALIDATE_BOOLEAN),
+            'hidden_price_text' => 'Minta Penawaran',
             'order_wa_number' => '081389709847',
             'order_wa_template_product' => "Halo Admin IndoRoster, saya ingin memesan:\n• Produk: {product_name}\n• Varian: {variant}\n• Harga Satuan: {unit_price}\n• Jumlah: {qty} pcs\n• Estimasi Total: {total_price}\n• Link: {product_url}\n\nMohon info ketersediaan stok & perkiraan ongkos kirim ke lokasi saya. Terima kasih.",
             'order_wa_template_cart' => "Halo Admin IndoRoster, saya ingin memesan daftar produk berikut:\n\n{items_list}\n\n• Total Jumlah: {total_qty} pcs\n• Subtotal: {subtotal}\n\nMohon info ketersediaan stok dan perkiraan ongkos kirim ke lokasi saya. Terima kasih.",
@@ -50,6 +53,24 @@ class OrderSettings extends Page implements HasForms
     {
         return $form
             ->schema([
+                Section::make('Tampilan Harga Produk (Storefront & Katalog)')
+                    ->description('Atur apakah nominal harga produk ditampilkan ke pengunjung website atau disembunyikan untuk sistem Permintaan Penawaran (Quotation).')
+                    ->schema([
+                        Toggle::make('show_product_prices')
+                            ->label('Tampilkan Nominal Harga Produk di Website')
+                            ->helperText('Jika dinonaktifkan (OFF), seluruh harga rupiah di katalog, card produk, detail produk, kalkulator, dan checkout akan disembunyikan/diganti label penawaran.')
+                            ->default(true)
+                            ->live(),
+
+                        TextInput::make('hidden_price_text')
+                            ->label('Teks Label Pengganti Harga')
+                            ->placeholder('Minta Penawaran')
+                            ->helperText('Teks yang muncul menggantikan angka harga saat harga dinonaktifkan (misal: "Minta Penawaran").')
+                            ->default('Minta Penawaran')
+                            ->visible(fn ($get) => ! $get('show_product_prices'))
+                            ->required(fn ($get) => ! $get('show_product_prices')),
+                    ]),
+
                 Section::make('Metode Transaksi Aktif')
                     ->description('Tentukan bagaimana pelanggan melakukan pemesanan di seluruh halaman website IndoRoster.')
                     ->schema([

@@ -74,8 +74,10 @@
                     <div class="w-1/2 lg:w-44">
                         <select wire:model.live="sortBy" class="w-full h-11 sm:h-12 border border-slate-200 dark:border-slate-700 rounded-xl px-3 text-xs sm:text-sm font-medium focus:ring-2 focus:ring-terra-500 focus:border-terra-500 bg-slate-50/70 dark:bg-slate-800/80 text-slate-700 dark:text-slate-200 cursor-pointer">
                             <option value="newest">Terbaru</option>
-                            <option value="price_asc">Harga: Termurah</option>
-                            <option value="price_desc">Harga: Termahal</option>
+                            @if(\App\Models\SiteSetting::showPrices())
+                                <option value="price_asc">Harga: Termurah</option>
+                                <option value="price_desc">Harga: Termahal</option>
+                            @endif
                         </select>
                     </div>
                 </div>
