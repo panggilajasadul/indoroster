@@ -449,7 +449,7 @@
                                             {{ $video['product']['name'] }}
                                         </p>
                                         <p class="text-[11px] font-black text-terra-600 mt-0.5">
-                                            {{ $video['product']['formatted_price'] }} • Beli Sekarang
+                                            {{ $video['product']['formatted_price'] }} • {{ \App\Models\SiteSetting::showPrices() ? 'Beli Sekarang' : 'Minta Penawaran' }}
                                         </p>
                                     </div>
 

@@ -258,7 +258,7 @@
                                 @if($prod)
                                     <span class="bg-emerald-600/90 backdrop-blur-md text-white text-[11px] font-bold px-3 py-1 rounded-full border border-emerald-400/30 shadow-md flex items-center gap-1">
                                         <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
-                                        Ada Keranjang Produk
+                                        {{ \App\Models\SiteSetting::showPrices() ? 'Ada Keranjang Produk' : 'Motif Roster Terkait' }}
                                     </span>
                                 @else
                                     <span class="bg-slate-800/80 backdrop-blur-md text-slate-200 text-[11px] font-medium px-2.5 py-1 rounded-full border border-white/10 shadow-md">
@@ -296,12 +296,12 @@
                                         <div class="min-w-0">
                                             <div class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Motif Terkait:</div>
                                             <div class="font-bold text-xs text-slate-900 dark:text-white truncate">{{ $prod->name }}</div>
-                                            <div class="text-xs font-black text-[#ee4d2d] dark:text-terra-400 mt-0.5">{{ $prod->formatted_price_range }}</div>
+                                            <div class="text-xs font-black text-[#ee4d2d] dark:text-terra-400 mt-0.5">{{ \App\Models\SiteSetting::showPrices() ? $prod->formatted_price_range : \App\Models\SiteSetting::hiddenPriceText() }}</div>
                                         </div>
                                     </div>
                                     <a href="{{ route('product.detail', $prod->slug) }}" class="w-full sm:w-auto px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-1.5 shrink-0 whitespace-nowrap">
                                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
-                                        <span>🛒 Masukkan Keranjang</span>
+                                        <span>{{ \App\Models\SiteSetting::showPrices() ? '🛒 Masukkan Keranjang' : 'Minta Penawaran' }}</span>
                                     </a>
                                 </div>
                             @else
@@ -391,7 +391,7 @@
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                             </svg>
-                            <span>Pesan / Masukkan Keranjang</span>
+                            <span>{{ \App\Models\SiteSetting::showPrices() ? 'Pesan / Masukkan Keranjang' : 'Minta Penawaran' }}</span>
                         </a>
                     </div>
                 @endforeach
@@ -549,7 +549,7 @@
                                     <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                                     </svg>
-                                    <span>🛒 Pesan</span>
+                                    <span>{{ \App\Models\SiteSetting::showPrices() ? '🛒 Pesan' : 'Minta Penawaran' }}</span>
                                 </a>
                             </div>
                         @empty
@@ -814,7 +814,7 @@
                             <div class="space-y-2 pt-1">
                                 <a :href="items[activeIndex]?.product_url" class="w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-500 active:scale-98 text-white font-bold text-xs sm:text-sm rounded-xl shadow-lg shadow-emerald-600/30 transition-all flex items-center justify-center gap-2">
                                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
-                                    <span>🛒 Masukkan Keranjang / Beli</span>
+                                    <span>{{ \App\Models\SiteSetting::showPrices() ? '🛒 Masukkan Keranjang / Beli' : 'Minta Penawaran Motif Ini' }}</span>
                                 </a>
                                 <a :href="items[activeIndex]?.wa_link" target="_blank" rel="noopener noreferrer" class="w-full py-2.5 px-4 bg-white/10 hover:bg-white/15 text-white font-semibold text-xs rounded-xl border border-white/10 transition-all flex items-center justify-center gap-2">
                                     <svg class="w-4 h-4 fill-emerald-400" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/></svg>

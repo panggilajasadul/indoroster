@@ -44,7 +44,7 @@
                     </div>
                     <div class="lg:col-span-4 flex flex-col gap-3 sm:gap-4">
                         <a href="{{ route('catalog') }}" class="font-display inline-flex items-center justify-center bg-terra-500 hover:bg-terra-600 text-white font-bold py-4 px-6 rounded-2xl transition-all duration-200 shadow-lg shadow-terra-500/25 text-center text-sm uppercase tracking-wider">
-                            <span>🛒 Cek Katalog & Harga Pabrik</span>
+                            <span>{{ \App\Models\SiteSetting::showPrices() ? '🛒 Cek Katalog & Harga Pabrik' : '🛒 Cek Katalog & Model Roster' }}</span>
                         </a>
                         <a href="{{ route('gallery') }}" class="font-display inline-flex items-center justify-center bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold py-3.5 px-6 rounded-2xl transition-all duration-200 text-center text-sm">
                             <span>📸 Lihat Foto Proyek Terpasang</span>

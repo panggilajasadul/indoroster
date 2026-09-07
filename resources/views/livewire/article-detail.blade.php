@@ -282,7 +282,7 @@
                         <div>
                             <span class="text-[10px] text-terra-600 dark:text-terra-400 font-bold block mb-0.5">{{ $prod->category->name ?? 'Roster Beton' }}</span>
                             <h4 class="font-bold text-xs text-slate-900 dark:text-white line-clamp-1 group-hover:text-terra-600 transition-colors">{{ $prod->name }}</h4>
-                            <div class="text-xs font-black text-[#ee4d2d] dark:text-terra-400 mt-1">{{ $prod->formatted_price_range }}</div>
+                            <div class="text-xs font-black text-[#ee4d2d] dark:text-terra-400 mt-1">{{ \App\Models\SiteSetting::showPrices() ? $prod->formatted_price_range : \App\Models\SiteSetting::hiddenPriceText() }}</div>
                         </div>
                     </a>
                     @endforeach

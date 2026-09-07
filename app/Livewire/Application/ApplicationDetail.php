@@ -704,7 +704,7 @@ class ApplicationDetail extends Component
                     'category' => strtoupper($gal->category ?: 'Arsitektur'),
                     'has_product' => $prod ? true : false,
                     'product_name' => $prod?->name,
-                    'product_price' => $prod?->formatted_price_range,
+                    'product_price' => SiteSetting::showPrices() ? $prod?->formatted_price_range : SiteSetting::hiddenPriceText(),
                     'product_image' => $prod?->primary_image ?: asset('assets/logo_indoroster_no_text.PNG'),
                     'product_url' => $prod ? route('product.detail', $prod->slug) : null,
                     'wa_link' => $prod

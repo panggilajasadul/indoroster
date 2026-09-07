@@ -141,9 +141,9 @@
                         <!-- Price -->
                         <div class="flex items-baseline justify-between mb-3">
                             <div class="text-xs sm:text-sm font-bold text-[#ee4d2d] dark:text-terra-400">
-                                {{ $product->formatted_price_range }}
+                                {{ \App\Models\SiteSetting::showPrices() ? $product->formatted_price_range : \App\Models\SiteSetting::hiddenPriceText() }}
                             </div>
-                            <span class="text-[10px] text-slate-400">Harga Pabrik</span>
+                            <span class="text-[10px] text-slate-400">{{ \App\Models\SiteSetting::showPrices() ? 'Harga Pabrik' : 'Pabrik Langsung' }}</span>
                         </div>
 
                         <div class="grid grid-cols-2 gap-2">
@@ -152,7 +152,7 @@
                             </a>
                             <a href="{{ $itemWaUrl }}" target="_blank" rel="noopener noreferrer" class="py-2 px-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center justify-center gap-1 shadow-sm transition hover:scale-[1.02]">
                                 <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/></svg>
-                                <span>Pesan WA</span>
+                                <span>{{ \App\Models\SiteSetting::showPrices() ? 'Pesan WA' : 'Minta Penawaran' }}</span>
                             </a>
                         </div>
                     </div>

@@ -136,9 +136,9 @@
                         <!-- Price -->
                         <div class="flex items-baseline justify-between mb-3">
                             <div class="text-xs sm:text-sm font-bold text-[#ee4d2d] dark:text-terra-400">
-                                {{ $product->formatted_price_range }}
+                                {{ \App\Models\SiteSetting::showPrices() ? $product->formatted_price_range : \App\Models\SiteSetting::hiddenPriceText() }}
                             </div>
-                            <span class="text-[10px] text-slate-400">Harga Pabrik</span>
+                            <span class="text-[10px] text-slate-400">{{ \App\Models\SiteSetting::showPrices() ? 'Harga Pabrik' : 'Pabrik Langsung' }}</span>
                         </div>
 
                         <div class="grid grid-cols-2 gap-2">

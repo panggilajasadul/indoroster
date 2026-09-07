@@ -438,7 +438,7 @@
                     <div class="px-5 sm:px-6 py-4 border-b border-white/10 bg-slate-950/60">
                         <div class="text-[10px] uppercase font-bold tracking-wider text-emerald-400 mb-2 flex items-center gap-1.5">
                             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
-                            Motif Roster Terkait (Bisa Langsung Beli)
+                            {{ \App\Models\SiteSetting::showPrices() ? 'Motif Roster Terkait (Bisa Langsung Beli)' : 'Motif Roster Terkait' }}
                         </div>
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white/5 backdrop-blur-md p-3.5 rounded-2xl border border-white/10 hover:border-emerald-500/50 transition-all">
                             <!-- Product Image & Details -->
@@ -457,7 +457,7 @@
                                 :href="'/produk/' + photos[activeIndex]?.product?.slug" 
                                 class="w-full sm:w-auto px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-bold text-xs rounded-xl shadow-lg transition-all flex items-center justify-center gap-1.5 shrink-0 whitespace-nowrap">
                                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
-                                <span>🛒 Masukkan Keranjang</span>
+                                <span>{{ \App\Models\SiteSetting::showPrices() ? '🛒 Masukkan Keranjang' : 'Minta Penawaran' }}</span>
                             </a>
                         </div>
                     </div>

@@ -7,6 +7,7 @@ use App\Models\Gallery;
 use App\Models\Like;
 use App\Models\Page;
 use App\Models\ProductReview;
+use App\Models\SiteSetting;
 use App\Notifications\CommentReplied;
 use Illuminate\Support\Str;
 use Livewire\Component;
@@ -159,7 +160,7 @@ class VideoInspiration extends Component
                         'name' => $product->name,
                         'slug' => $product->slug,
                         'price' => $product->price,
-                        'formatted_price' => $product->formatted_price_range,
+                        'formatted_price' => SiteSetting::showPrices() ? $product->formatted_price_range : SiteSetting::hiddenPriceText(),
                         'image' => $product->primary_image,
                     ] : null,
                 ];
