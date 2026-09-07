@@ -20,19 +20,21 @@
             @if($displayMedia->media_type === 'video' && !str_contains($displayMedia->media_url, 'youtube.com') && !str_contains($displayMedia->media_url, 'youtu.be'))
                 <video src="{{ $displayMedia->formatted_url }}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" preload="none" muted loop playsinline></video>
             @else
-                <img src="{{ $displayMedia->media_type === 'image' ? $displayMedia->formatted_url : $product->primary_image }}" 
+                <img src="{{ cloudinary_thumb($displayMedia->media_type === 'image' ? $displayMedia->formatted_url : $product->primary_image, 400) }}" 
                      alt="{{ $displayMedia->alt_text ?: $product->name }}" 
                      class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
                      loading="lazy"
                      decoding="async"
-                     onerror="this.onerror=null; this.src='{{ asset('assets/logo_indoroster_no_text.PNG') }}';">
+                     onerror="this.onerror=null; this.src='{{ asset('assets/logo_indoroster_no_text.PNG') }}';"
+                     width="400" height="400">
             @endif
         @elseif($product->primary_image)
-            <img src="{{ $product->primary_image }}" 
+            <img src="{{ cloudinary_thumb($product->primary_image, 400) }}" 
                  alt="{{ $product->name }}" 
                  class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
                  loading="lazy"
                  decoding="async"
+                 width="400" height="400"
                  onerror="this.onerror=null; this.src='{{ asset('assets/logo_indoroster_no_text.PNG') }}';">
         @else
             <div class="w-full h-full flex flex-col items-center justify-center text-slate-400 p-2 text-center">

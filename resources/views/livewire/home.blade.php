@@ -8,7 +8,7 @@
 @endpush
 @if(isset($banners) && $banners->count() > 0)
 @push('preload-lcp')
-    <link rel="preload" as="image" href="{{ $banners->first()->image_url }}" fetchpriority="high">
+    <link rel="preload" as="image" href="{{ cloudinary_banner($banners->first()->image_url, 1280) }}" fetchpriority="high">
 @endpush
 @endif
 @php
@@ -35,7 +35,7 @@
                     data-slide="{{ $index }}"
                 >
                     <img 
-                        src="{{ $banner->image_url }}" 
+                        src="{{ $index === 0 ? cloudinary_banner($banner->image_url, 1280) : cloudinary_banner($banner->image_url, 900) }}" 
                         alt="{{ $banner->title }} — Roster Beton Minimalis Indoroster Plered Purwakarta" 
                         class="w-full h-full object-cover"
                         style="opacity: 0.40;"
@@ -257,7 +257,7 @@
                 
                 @foreach(array_merge($showcaseImages, $showcaseImages) as $img)
                 <div class="w-[300px] md:w-[450px] aspect-[4/3] rounded-none overflow-hidden shrink-0 shadow-lg border border-slate-100">
-                    <img src="{{ $img }}" alt="Inspirasi Desain Dinding dan Fasad Roster Beton Minimalis IndoRoster Plered" class="w-full h-full object-cover" width="450" height="338" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='{{ asset('assets/logo_indoroster_no_text.PNG') }}'">
+                    <img src="{{ cloudinary_img($img, 450, 338, 'fill') }}" alt="Inspirasi Desain Dinding dan Fasad Roster Beton Minimalis IndoRoster Plered" class="w-full h-full object-cover" width="450" height="338" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='{{ asset('assets/logo_indoroster_no_text.PNG') }}'">
                 </div>
                 @endforeach
             </div>
@@ -356,7 +356,7 @@
                                     class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                                     autoplay muted loop playsinline></video>
                             @else
-                                <img src="{{ $displayMedia->media_type === 'image' ? $displayMedia->formatted_url : $product->primary_image }}" alt="{{ $product->name }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+                                <img src="{{ $displayMedia->media_type === 'image' ? cloudinary_thumb($displayMedia->formatted_url, 400) : cloudinary_thumb($product->primary_image, 400) }}" alt="{{ $product->name }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy" decoding="async">
                             @endif
                         @else
                             <div class="w-full h-full flex items-center justify-center text-slate-400 text-xs">No Image</div>
