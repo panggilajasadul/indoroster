@@ -103,7 +103,9 @@
             @elseif($allPayments->count() > 0 && $remaining > 0)
                 SURAT TAGIHAN PELUNASAN (SISA TERMIN)
             @elseif($order && ($order->status === 'draft' || $order->status === 'pending_payment' || $order->payment_status === 'unpaid' || $invoice->status === 'unpaid'))
-                @if($order->payment_scheme !== 'full' && $order->down_payment_amount > 0 && $order->down_payment_amount < $invoice->grand_total)
+                @if(!\App\Models\SiteSetting::showPrices())
+                    SURAT ESTIMASI PENAWARAN HARGA (BISA NEGO VOLUME)
+                @elseif($order->payment_scheme !== 'full' && $order->down_payment_amount > 0 && $order->down_payment_amount < $invoice->grand_total)
                     SURAT PENAWARAN & TAGIHAN PEMBAYARAN DP
                 @else
                     SURAT PENAWARAN & PROFORMA TAGIHAN
@@ -156,6 +158,8 @@
                             @elseif($order && ($order->status === 'draft' || $order->status === 'pending_payment' || $order->payment_status === 'unpaid'))
                                 @if($order->payment_scheme !== 'full' && $order->down_payment_amount > 0 && $order->down_payment_amount < $invoice->grand_total)
                                     <span class="status" style="background: #fef3c7; color: #b45309; border: 1px solid #fde68a;">MENUNGGU PEMBAYARAN DP (Rp {{ number_format($order->down_payment_amount, 0, ',', '.') }})</span>
+                                @elseif(!\App\Models\SiteSetting::showPrices())
+                                    <span class="status" style="background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0;">ESTIMASI PENAWARAN (BISA NEGO)</span>
                                 @else
                                     <span class="status status-unpaid">MENUNGGU PEMBAYARAN TRANSFER</span>
                                 @endif
@@ -261,9 +265,9 @@
                     </tr>
                     @elseif($dp == 0 && ($invoice->order->status === 'draft' || $invoice->order->status === 'pending_payment' || $invoice->order->payment_status === 'unpaid'))
                         @if($scheme === 'full')
-                        <tr style="background: #fef2f2;">
-                            <td class="label" style="color: #dc2626; font-weight: 700;">TOTAL TAGIHAN TRANSFER<br><small style="font-weight: normal; color: #64748b; font-size: 9px;">(Menunggu Pembayaran Transfer)</small></td>
-                            <td style="color: #dc2626; font-weight: 800; font-size: 13px;">Rp {{ number_format($grandTotalVal, 0, ',', '.') }}</td>
+                        <tr style="background: {{ !\App\Models\SiteSetting::showPrices() ? '#f0fdf4' : '#fef2f2' }};">
+                            <td class="label" style="color: {{ !\App\Models\SiteSetting::showPrices() ? '#15803d' : '#dc2626' }}; font-weight: 700;">{{ !\App\Models\SiteSetting::showPrices() ? 'ESTIMASI TOTAL PENAWARAN' : 'TOTAL TAGIHAN TRANSFER' }}<br><small style="font-weight: normal; color: #64748b; font-size: 9px;">({{ !\App\Models\SiteSetting::showPrices() ? 'Estimasi Awal Pabrik - Bisa Nego Volume' : 'Menunggu Pembayaran Transfer' }})</small></td>
+                            <td style="color: {{ !\App\Models\SiteSetting::showPrices() ? '#15803d' : '#dc2626' }}; font-weight: 800; font-size: 13px;">Rp {{ number_format($grandTotalVal, 0, ',', '.') }}</td>
                         </tr>
                         @elseif($scheme === 'dp_50_50')
                         <tr style="background: #fffbeb;">
@@ -361,6 +365,11 @@
                     @endif
                     * Harap konfirmasikan bukti transfer ke WhatsApp resmi kami (0813-8970-9847) untuk penerbitan Kuitansi Resmi dan verifikasi pesanan.
                 </div>
+                @if(!\App\Models\SiteSetting::showPrices() && $invoice->order && $invoice->order->payment_status !== 'paid')
+                <div style="margin-top: 6px; padding: 6px 10px; background: #f0fdf4; border: 1px solid #86efac; border-radius: 4px; color: #166534; font-size: 9.5px; font-weight: bold; line-height: 1.45;">
+                    💡 CATATAN RESMI PABRIKAN: Harga satuan dan rincian biaya pada surat penawaran ini merupakan estimasi acuan resmi dari Pabrik IndoRoster Plered. Harga masih dapat disesuaikan atau dinegosiasikan sesuai volume pesanan proyek Anda melalui WhatsApp resmi (0813-8970-9847) sebelum proses transfer pembayaran.
+                </div>
+                @endif
                 @if((float)$invoice->shipping_cost == 0 && $invoice->order && $invoice->order->order_source === 'whatsapp' && $invoice->order->payment_status !== 'paid')
                 <div style="margin-top: 6px; padding: 5px 8px; background: #fff7ed; border: 1px solid #fdba74; border-radius: 4px; color: #9a3412; font-size: 9.5px; font-weight: bold; line-height: 1.4;">
                     ⚠️ PERHATIAN: Biaya ongkos kirim armada truk saat ini sedang dihitung oleh tim logistik. Mohon jangan melakukan transfer sebelum total ongkir dikonfirmasi oleh Admin WhatsApp (0813-8970-9847).
