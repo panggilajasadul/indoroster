@@ -20,9 +20,23 @@ class LegacyUrlRedirectService
             return null;
         }
 
-        // 1. Blog index legacy
-        if ($cleanSlug === 'blog') {
-            return url('/artikel');
+        // 1. Static & Page Mapping Legacy dari Website Lama (WordPress)
+        $exactLegacyMap = [
+            'blog' => '/artikel',
+            'real-installations' => '/gallery',
+            'production-process' => '/proses-produksi',
+            'contact' => '/kontak',
+            'about-us' => '/tentang-kami',
+            'about' => '/tentang-kami',
+            'portfolio' => '/gallery',
+            'shop' => '/katalog',
+            'products' => '/katalog',
+            'catalog' => '/katalog',
+            'kalkulator' => '/kalkulator-roster',
+        ];
+
+        if (isset($exactLegacyMap[$cleanSlug])) {
+            return url($exactLegacyMap[$cleanSlug]);
         }
 
         // 2. Pola URL Lokasi Legacy (cth: jual-roster-beton-di-jakarta-selatan, roster-beton-di-bandung, dll)

@@ -47,6 +47,15 @@ Disallow: /member/
 Disallow: /print/
 Disallow: /preview-email
 
+# Blokir jejak sistem WordPress lama
+Disallow: /wp-admin/
+Disallow: /wp-includes/
+Disallow: /wp-content/
+Disallow: /wp-json/
+Disallow: /feed/
+Disallow: /comments/
+Disallow: /xmlrpc.php
+
 # Blokir asset internal
 Disallow: /build/
 Disallow: /vendor/

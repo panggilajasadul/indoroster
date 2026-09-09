@@ -164,6 +164,23 @@ Route::get('/halaman/{slug}', function ($slug) {
     return redirect()->route('dynamic.page', $slug, 301);
 });
 
+// ── Legacy WordPress URL Redirects (301 Permanent Redirect) ──
+Route::redirect('/real-installations', '/gallery', 301);
+Route::redirect('/production-process', '/proses-produksi', 301);
+Route::redirect('/contact', '/kontak', 301);
+Route::redirect('/about-us', '/tentang-kami', 301);
+Route::redirect('/about', '/tentang-kami', 301);
+Route::redirect('/shop', '/katalog', 301);
+
+// ── Legacy WordPress System URLs (410 Gone) ──
+// Memberitahu Googlebot bahwa endpoint internal WordPress lama sudah dihapus permanen
+Route::any('/wp-json/{any?}', fn () => response('410 Gone - WordPress endpoint no longer exists', 410))->where('any', '.*');
+Route::any('/wp-includes/{any?}', fn () => response('410 Gone', 410))->where('any', '.*');
+Route::any('/wp-content/{any?}', fn () => response('410 Gone', 410))->where('any', '.*');
+Route::any('/wp-admin/{any?}', fn () => response('410 Gone', 410))->where('any', '.*');
+Route::any('/comments/{any?}', fn () => response('410 Gone', 410))->where('any', '.*');
+Route::any('/feed/{any?}', fn () => response('410 Gone', 410))->where('any', '.*');
+
 Route::get('/checkout/pending', function () {
     return redirect('/')->with('success', 'Pesanan dibuat! Silakan selesaikan pembayaran Anda.');
 });
