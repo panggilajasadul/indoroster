@@ -763,15 +763,14 @@
         "datePublished": "{{ $photo['created_at'] }}",
         @if(!empty($photo['product']))
         "about": {
-            "@@type": "Product",
+            "@@type": "Thing",
             "name": "{{ e($photo['product']['name']) }}",
-            "url": "{{ url('/produk/' . $photo['product']['slug']) }}",
-            "image": "{{ $photo['product']['image'] }}"
+            "url": "{{ url('/produk/' . $photo['product']['slug']) }}"
         },
         @endif
         "author": {
             "@@type": "Organization",
-            "name": "Indoroster",
+            "name": "IndoRoster",
             "url": "{{ $siteUrl }}"
         }
     }
