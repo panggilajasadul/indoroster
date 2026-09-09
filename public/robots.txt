@@ -30,6 +30,13 @@ Allow: /
 User-agent: msnbot
 Allow: /
 
+# Blokir panel admin & kurir (tidak boleh diindeks)
+Disallow: /admin
+Disallow: /admin/
+Disallow: /courier
+Disallow: /courier/
+Disallow: /email/
+
 # Blokir halaman transaksi & akun pribadi
 Disallow: /keranjang
 Disallow: /checkout

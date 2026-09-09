@@ -30,6 +30,13 @@ class ProductCatalog extends Component
 
     public function mount($categorySlug = null)
     {
+        // Redirect 301: /katalog?category={slug} → /katalog/{slug} (clean canonical URL)
+        // Mencegah duplicate content — semua link lama ?category= diarahkan ke clean URL
+        $qCategory = request()->query('category');
+        if ($qCategory && ! $categorySlug && preg_match('/^[a-z0-9\-]+$/', $qCategory)) {
+            return redirect(route('catalog.category', $qCategory), 301);
+        }
+
         // Baca categorySlug dari route parameter /katalog/{categorySlug}
         if ($categorySlug && empty($this->categorySlug)) {
             $this->categorySlug = $categorySlug;

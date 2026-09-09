@@ -552,9 +552,13 @@ class ProductDetail extends Component
         $metaTitle = $this->product->meta_title
             ?? $this->product->name.' | IndoRoster — Suplier Proyek Jabodetabek & Bandung';
 
-        // Meta description: prefer explicit, otherwise auto-generate
+        // Harga untuk meta description (supaya masuk AI Overview Google)
+        $minPrice = (float) ($this->product->min_price > 0 ? $this->product->min_price : $this->product->price);
+        $priceStr = $minPrice > 0 ? ' harga mulai Rp'.number_format($minPrice, 0, ',', '.').'/pcs' : '';
+
+        // Meta description: prefer explicit, otherwise auto-generate dengan harga
         $metaDescription = $this->product->meta_description
-            ?? 'Jual '.$this->product->name.' harga pabrik termurah kualitas cetak padat dan presisi. Roster beton minimalis modern presisi untuk pagar rumah, fasad dinding, ventilasi udara, dan sekat partisi. Pengiriman Cepat Jabodetabek, Bandung, Karawang, Cirebon & Ekspedisi Nasional. Garansi aman sampai tujuan!';
+            ?? 'Jual '.$this->product->name.$priceStr.' langsung dari pabrik tangan pertama Plered Purwakarta. Roster beton minimalis cetak tumbuk padat presisi untuk pagar rumah, fasad dinding, ventilasi udara, dan sekat partisi. Garansi bebas pecah, pengiriman cepat Jabodetabek, Bandung, Karawang, Cirebon & ekspedisi nasional.';
 
         // Canonical: selalu URL bersih tanpa ?variant untuk menghindari duplicate content
         $canonicalOverride = route('product.detail', $this->product->slug);

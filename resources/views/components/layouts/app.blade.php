@@ -36,18 +36,11 @@
         $pageImage      = $ogImage ?? (\App\Models\SiteSetting::getValue('og_image_default') ?: asset('assets/logo_indoroster_no_text.PNG'));
         $robotsMeta     = $robots ?? 'index, follow';
 
-        // Canonical: strip query params yang berisiko duplicate content
-        // Kecuali ?category yang memang digunakan untuk katalog kategori
-        $currentUrl   = url()->current();
-        $queryString  = request()->getQueryString();
-        $safeParams   = [];
-        if ($queryString) {
-            parse_str($queryString, $queryParams);
-            if (isset($queryParams['category']) && !empty($queryParams['category'])) {
-                $safeParams['category'] = $queryParams['category'];
-            }
-        }
-        $canonicalUrl = $canonicalOverride ?? ($safeParams ? $currentUrl . '?' . http_build_query($safeParams) : $currentUrl);
+        // Canonical: strip SEMUA query params — clean URL /katalog/{slug} sudah
+        // diset sebagai canonicalOverride oleh masing-masing Livewire component.
+        // Tidak ada parameter yang "aman" — ?category pun menyebabkan duplicate content
+        // karena sudah ada clean URL /katalog/{categorySlug}.
+        $canonicalUrl = $canonicalOverride ?? url()->current();
 
         // OG: bisa override title/description secara terpisah dari meta
         $ogTitleFinal = $ogTitle ?? $pageTitle;
@@ -196,8 +189,8 @@
     <meta name="keywords" content="{{ $keywordsMeta }}">
     <meta name="author" content="Indoroster">
     <meta name="robots" content="{{ $robotsMeta }}">
-    <meta name="geo.region" content="ID-JB">
-    <meta name="geo.placename" content="Plered, Purwakarta, Jawa Barat">
+    <meta name="geo.region" content="ID">
+    <meta name="geo.placename" content="Jabodetabek, Bandung, Jawa Barat, Indonesia">
 
     <!-- Canonical -->
     <link rel="canonical" href="{{ $canonicalUrl }}">

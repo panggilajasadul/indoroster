@@ -83,7 +83,7 @@
                                 wire:mouseenter.debounce.100ms="setActiveImage('{{ $mediaUrl }}', '{{ $media->media_type }}')"
                                 class="relative flex-shrink-0 w-18 h-18 sm:w-20 sm:h-20 rounded-2xl overflow-hidden border-2 transition-all {{ $activeImage === $mediaUrl ? 'border-terra-500 shadow-soft-sm scale-105' : 'border-slate-200/80 dark:border-slate-800 hover:border-slate-400 opacity-75 hover:opacity-100' }}">
                                 @if($media->media_type === 'image')
-                                    <img src="{{ $mediaUrl }}" alt="Thumbnail" class="w-full h-full object-cover">
+                                    <img src="{{ $mediaUrl }}" alt="{{ $product->name }} — Foto {{ $loop->iteration }}" class="w-full h-full object-cover">
                                 @elseif($media->media_type === 'video')
                                     @if(str_contains($media->media_url, 'youtube.com') || str_contains($media->media_url, 'youtu.be'))
                                         @php

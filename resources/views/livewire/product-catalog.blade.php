@@ -1,10 +1,5 @@
 <div class="bg-slate-50 dark:bg-slate-950 min-h-screen py-6 sm:py-10">
-    {{-- Dynamic JSON-LD Structured Data for Catalog & Category --}}
-    <x-ecommerce-itemlist-schema 
-        :name="$activeCategory ? 'Katalog ' . $activeCategory->name . ' IndoRoster' : 'Katalog Lengkap Roster Beton & Material IndoRoster'" 
-        :description="$activeCategory ? ($activeCategory->meta_description ?: ($activeCategory->description ?? 'Pilihan terlengkap ' . $activeCategory->name . ' kualitas pabrik IndoRoster.')) : ($page?->meta_description ?: 'Pusat katalog roster beton minimalis, bata expose, dan ornamen dinding langsung dari pabrik tangan pertama IndoRoster Plered Purwakarta.')" 
-        :products="$products" 
-    />
+
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
@@ -192,7 +187,7 @@
                 <a href="/roster-beton" class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/70 dark:border-slate-700/70 hover:border-terra-500 transition group">
                     <div class="text-2xl mb-1">🧱</div>
                     <h4 class="font-bold text-sm text-slate-900 dark:text-white group-hover:text-terra-600 transition-colors">Pilar Roster Beton</h4>
-                    <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">Spesifikasi mutu K-200, cetak tumbuk padat Plered & garansi bebas pecah.</p>
+                    <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">Cetak tumbuk padat pengrajin ahli Plered, presisi siku 90° & garansi bebas pecah.</p>
                 </a>
                 <a href="/roster-minimalis" class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/70 dark:border-slate-700/70 hover:border-terra-500 transition group">
                     <div class="text-2xl mb-1">✨</div>

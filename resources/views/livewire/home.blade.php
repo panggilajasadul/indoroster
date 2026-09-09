@@ -5,6 +5,47 @@
         description="Pabrik & produsen roster beton minimalis presisi harga tangan pertama Plered Purwakarta, siap kirim partai kecil & proyek ke seluruh Indonesia." 
         :products="$featuredProducts" 
     />
+    {{-- FAQPage Schema: target "People Also Ask" box Google untuk keyword produsen/supplier roster beton --}}
+    <script type="application/ld+json">
+    {
+        "@@context": "https://schema.org",
+        "@@type": "FAQPage",
+        "mainEntity": [
+            {
+                "@@type": "Question",
+                "name": "Berapa harga roster beton per pcs dari pabrik Plered Purwakarta?",
+                "acceptedAnswer": {
+                    "@@type": "Answer",
+                    "text": "Harga roster beton IndoRoster mulai Rp 12.000 per pcs untuk ukuran standar 20x20 cm. Tersedia berbagai ukuran dan motif dengan harga berbeda. Harga dapat lebih murah untuk pembelian partai besar di atas 500 pcs. Hubungi tim sales kami via WhatsApp untuk penawaran proyek."
+                }
+            },
+            {
+                "@@type": "Question",
+                "name": "Apa perbedaan roster beton cetak tumbuk padat vs roster press mesin?",
+                "acceptedAnswer": {
+                    "@@type": "Answer",
+                    "text": "Roster beton cetak tumbuk padat IndoRoster dibuat dengan teknik manual oleh pengrajin ahli Plered Purwakarta menggunakan pasir abu batu murni. Hasilnya memiliki kepadatan lebih tinggi, sudut siku 90° lebih presisi, dan permukaan lebih rapi dibandingkan roster press mesin. Roster tumbuk padat lebih kuat, tahan cuaca ekstrem, dan tidak mudah retak."
+                }
+            },
+            {
+                "@@type": "Question",
+                "name": "Apakah IndoRoster melayani pengiriman roster beton ke luar Jawa?",
+                "acceptedAnswer": {
+                    "@@type": "Answer",
+                    "text": "Ya, IndoRoster melayani pengiriman roster beton ke seluruh Indonesia via ekspedisi pilihan. Untuk wilayah Jabodetabek dan Jawa Barat (Bandung, Karawang, Cirebon, Cianjur, Sukabumi), kami menggunakan armada truk pabrik sendiri dengan estimasi 1-3 hari kerja dan garansi 100% ganti baru jika ada yang pecah saat pengiriman."
+                }
+            },
+            {
+                "@@type": "Question",
+                "name": "Apakah bisa pesan roster beton partai kecil dari pabrik?",
+                "acceptedAnswer": {
+                    "@@type": "Answer",
+                    "text": "Ya, IndoRoster melayani pembelian eceran partai kecil mulai dari 1 pcs hingga pemesanan proyek ribuan pcs. Tidak ada minimal order khusus untuk pembelian online. Untuk proyek besar, tersedia harga grosir pabrik dengan negosiasi langsung."
+                }
+            }
+        ]
+    }
+    </script>
 @endpush
 @if(isset($banners) && $banners->count() > 0)
 @push('preload-lcp')
@@ -49,11 +90,11 @@
                                 
                                 <div class="motion-badge">
                                     @if($index === 0)
-                                    <h1 class="text-xs sm:text-sm font-bold text-slate-300 uppercase tracking-widest mb-3 flex items-center gap-2">
+                                    <p class="text-xs sm:text-sm font-bold text-slate-300 uppercase tracking-widest mb-3 flex items-center gap-2">
                                         <span class="w-4 h-px bg-terra-500"></span>
                                         Pabrik Roster Beton Minimalis Plered Purwakarta
                                         <span class="w-4 h-px bg-terra-500"></span>
-                                    </h1>
+                                    </p>
                                     @endif
                                     <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-terra-500/15 border border-terra-500/30 backdrop-blur-md text-terra-400 text-xs sm:text-sm font-bold uppercase tracking-wider mb-4 sm:mb-5 shadow-lg">
                                         <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
@@ -62,9 +103,15 @@
                                 </div>
 
                                 <div class="motion-title">
+                                    @if($index === 0)
+                                    <h1 class="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white leading-[1.12] tracking-tight mb-5 sm:mb-6">
+                                        {!! $banner->title !!}
+                                    </h1>
+                                    @else
                                     <h2 class="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white leading-[1.12] tracking-tight mb-5 sm:mb-6">
                                         {!! $banner->title !!}
                                     </h2>
+                                    @endif
                                 </div>
 
                                 <div class="motion-subtitle">

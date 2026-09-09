@@ -19,9 +19,9 @@ class Home extends Component
         $page = Page::where('slug', 'home')->first();
 
         $metaTitle = $page?->meta_title
-            ?: SiteSetting::getValue('meta_title_default', 'Pabrik Roster Beton Minimalis | Suplier Proyek Jabodetabek & Indonesia');
+            ?: SiteSetting::getValue('meta_title_default', 'Produsen & Pabrik Roster Beton Minimalis Tangan Pertama Plered Purwakarta | IndoRoster');
         $metaDescription = $page?->meta_description
-            ?: SiteSetting::getValue('meta_description_default', 'Pusat produsen tangan pertama roster beton minimalis, bata expose, dan loster arsitektural modern harga pabrik Plered Purwakarta.');
+            ?: SiteSetting::getValue('meta_description_default', 'IndoRoster — produsen dan pabrik tangan pertama roster beton minimalis, bata expose, dan loster arsitektural di Plered Purwakarta. Harga pabrik langsung, cetak tumbuk padat presisi, kirim ke Jabodetabek, Bandung & seluruh Indonesia.');
 
         $topLocations = class_exists(SeoLocation::class)
             ? SeoLocation::where('seo_enabled', true)->orderBy('priority', 'asc')->take(16)->get()
