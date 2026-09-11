@@ -17,9 +17,9 @@ class QuotationRequestResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-document-currency-dollar';
 
-    protected static ?string $navigationGroup = 'Penjualan';
+    protected static ?string $navigationGroup = 'Transaksi';
 
-    protected static ?string $navigationLabel = 'Permintaan Penawaran (RFQ)';
+    protected static ?string $navigationLabel = '📄 Permintaan Penawaran (RFQ)';
 
     protected static ?string $modelLabel = 'Permintaan Penawaran';
 
