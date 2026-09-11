@@ -1,7 +1,9 @@
 @push('head-scripts')
-    <!-- TomSelect CSS & JS (Halaman Checkout) -->
+    <!-- TomSelect CSS & JS + Leaflet (Halaman Checkout) -->
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 @endpush
 
 <div class="bg-slate-50 dark:bg-slate-950 min-h-screen py-12"
@@ -731,20 +733,28 @@
                 map: null,
                 marker: null,
                 initMap() {
+                    const self = this;
                     const initialLat = parseFloat(this.lat) || -6.6689917;
                     const initialLng = parseFloat(this.lng) || 107.3619295;
                     const initialZoom = (this.lat && this.lng) ? 15 : 12;
 
-                    setTimeout(() => {
+                    const tryInit = (attempt = 0) => {
                         const mapEl = document.getElementById('checkout-map-picker');
-                        if (!mapEl || typeof L === 'undefined') return;
+                        if (!mapEl) return;
 
-                        if (this.map) {
-                            this.map.remove();
-                            this.map = null;
+                        if (typeof L === 'undefined') {
+                            if (attempt < 30) {
+                                setTimeout(() => tryInit(attempt + 1), 100);
+                            }
+                            return;
                         }
 
-                        this.map = L.map('checkout-map-picker', {
+                        if (self.map) {
+                            self.map.remove();
+                            self.map = null;
+                        }
+
+                        self.map = L.map('checkout-map-picker', {
                             center: [initialLat, initialLng],
                             zoom: initialZoom,
                             zoomControl: true
@@ -765,12 +775,12 @@
                         const satelliteLayer = L.layerGroup([satTiles, satLabels]);
 
                         // Default aktifkan Peta Jalan (Jelas Nama Jalan & Gang)
-                        streetLayer.addTo(this.map);
+                        streetLayer.addTo(self.map);
 
                         L.control.layers({
                             "🗺️ Peta Jalan (Nama Jalan Jelas)": streetLayer,
                             "🛰️ Foto Satelit (Atap Rumah)": satelliteLayer
-                        }, null, { position: 'topright' }).addTo(this.map);
+                        }, null, { position: 'topright' }).addTo(self.map);
 
                         const getPinIcon = () => {
                             return L.divIcon({
@@ -781,34 +791,37 @@
                             });
                         };
 
-                        if (this.lat && this.lng) {
-                            this.marker = L.marker([initialLat, initialLng], { icon: getPinIcon(), draggable: true }).addTo(this.map);
-                            this.marker.on('dragend', (e) => {
+                        if (self.lat && self.lng) {
+                            self.marker = L.marker([initialLat, initialLng], { icon: getPinIcon(), draggable: true }).addTo(self.map);
+                            self.marker.on('dragend', (e) => {
                                 const pos = e.target.getLatLng();
-                                this.lat = pos.lat.toFixed(7);
-                                this.lng = pos.lng.toFixed(7);
+                                self.lat = pos.lat.toFixed(7);
+                                self.lng = pos.lng.toFixed(7);
                             });
                         }
 
-                        this.map.on('click', (e) => {
+                        self.map.on('click', (e) => {
                             const { lat, lng } = e.latlng;
-                            this.lat = lat.toFixed(7);
-                            this.lng = lng.toFixed(7);
-                            if (this.marker) {
-                                this.marker.setLatLng([lat, lng]);
+                            self.lat = lat.toFixed(7);
+                            self.lng = lng.toFixed(7);
+                            if (self.marker) {
+                                self.marker.setLatLng([lat, lng]);
                             } else {
-                                this.marker = L.marker([lat, lng], { icon: getPinIcon(), draggable: true }).addTo(this.map);
-                                this.marker.on('dragend', (ev) => {
+                                self.marker = L.marker([lat, lng], { icon: getPinIcon(), draggable: true }).addTo(self.map);
+                                self.marker.on('dragend', (ev) => {
                                     const pos = ev.target.getLatLng();
-                                    this.lat = pos.lat.toFixed(7);
-                                    this.lng = pos.lng.toFixed(7);
+                                    self.lat = pos.lat.toFixed(7);
+                                    self.lng = pos.lng.toFixed(7);
                                 });
                             }
                         });
 
-                        this.map.invalidateSize();
-                        setTimeout(() => { if (this.map) this.map.invalidateSize(); }, 250);
-                    }, 150);
+                        self.map.invalidateSize();
+                        setTimeout(() => { if (self.map) self.map.invalidateSize(); }, 250);
+                        setTimeout(() => { if (self.map) self.map.invalidateSize(); }, 600);
+                    };
+
+                    setTimeout(() => tryInit(0), 100);
                 },
                 setLocationOnMap(lat, lng, zoomLevel = 17) {
                     this.lat = parseFloat(lat).toFixed(7);
