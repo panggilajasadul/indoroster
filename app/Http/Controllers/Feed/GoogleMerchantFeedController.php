@@ -33,8 +33,11 @@ class GoogleMerchantFeedController extends Controller
         foreach ($products as $product) {
             $id = 'IR-'.($product->sku ?: str_pad((string) $product->id, 4, '0', STR_PAD_LEFT));
 
-            // Bersihkan nama produk dari duplikasi kata "Roster" / "Loster"
-            $cleanName = trim(preg_replace('/^(roster\s+|loster\s+)+/i', '', $product->name));
+            // Bersihkan nama produk dari duplikasi kata dan entitas HTML
+            $rawName = html_entity_decode((string) $product->name, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+            $cleanName = trim(preg_replace('/^(roster\s+|loster\s+)+/i', '', $rawName));
+            $cleanName = preg_replace('/\s+/', ' ', $cleanName);
+
             $dim = $product->dimensions ? trim($product->dimensions) : '20x20x10 cm';
             if (! str_contains(strtolower($dim), 'cm')) {
                 $dim .= ' cm';
@@ -46,12 +49,16 @@ class GoogleMerchantFeedController extends Controller
                 $title = mb_substr($title, 0, 147).'...';
             }
 
-            // Deskripsi Produk SEO Kaya Kata Kunci Teknis & Kejujuran Bahan Baku
+            // Deskripsi Produk SEO Murni Tanpa Kode HTML Mentah (&nbsp;)
             $material = $product->material ?: 'Pasir abu batu murni / dolomit putih / terakota merah';
             $cleanDesc = "Roster beton minimalis motif {$cleanName} ukuran {$dim}. Diproduksi langsung oleh pabrik IndoRoster sentra Plered Purwakarta dengan metode cetak tumbuk padat plat baja presisi siku 90°. Bahan baku alami berkualitas tahan lumut ({$material}), bobot padat 3.8-4.2 kg, ideal untuk fasad secondary skin peredam panas 40%, pagar, dan partisi ventilasi anti-tampias. Jaminan garansi 100% ganti baru jika pecah di jalan.";
 
             $productUrl = route('product.detail', $product->slug);
             $imageUrl = $product->primary_image ?: asset('assets/logo_indoroster_no_text.PNG');
+            // Pastikan URL gambar selalu absolut HTTPS di produksi
+            if (str_starts_with($imageUrl, 'http://') && ! str_contains($imageUrl, 'localhost')) {
+                $imageUrl = 'https://'.substr($imageUrl, 7);
+            }
 
             // Format nominal harga (GMC mewajibkan format e.g. "13000.00 IDR")
             $priceNominal = $product->price && $product->price > 0 ? (float) $product->price : 13000.0;
