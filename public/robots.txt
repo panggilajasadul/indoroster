@@ -47,12 +47,20 @@ Disallow: /member/
 Disallow: /print/
 Disallow: /preview-email
 
+# Googlebot-Image & Google Merchant Center Feed
+User-agent: Googlebot-Image
+Allow: /storage/
+Allow: /wp-content/uploads/
+Allow: /assets/
+Allow: /
+
+# Izinkan Feed Google Merchant Center
+Allow: /feed/google-merchant.xml
+
 # Blokir jejak sistem WordPress lama
 Disallow: /wp-admin/
 Disallow: /wp-includes/
-Disallow: /wp-content/
 Disallow: /wp-json/
-Disallow: /feed/
 Disallow: /comments/
 Disallow: /xmlrpc.php
 
