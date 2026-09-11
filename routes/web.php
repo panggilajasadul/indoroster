@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Feed\GoogleMerchantFeedController;
 use App\Http\Controllers\PrintController;
 use App\Http\Controllers\SitemapController;
 use App\Livewire\AboutUs;
@@ -35,6 +36,8 @@ use App\Livewire\Member\OrderHistory;
 use App\Livewire\Member\Profile;
 use App\Livewire\OrderSuccess;
 use App\Livewire\OrderTracking;
+use App\Livewire\Policy\ReturnPolicy;
+use App\Livewire\Policy\ShippingPolicy;
 use App\Livewire\ProductCatalog;
 use App\Livewire\ProductDetail;
 use App\Livewire\ProductionProcess;
@@ -159,6 +162,13 @@ Route::get('/export', ExportHub::class)->name('export.hub');
 Route::get('/export/gallery', ExportGallery::class)->name('export.gallery');
 Route::get('/export/catalog', ExportCatalog::class)->name('export.catalog');
 Route::get('/export/{countrySlug}', ExportCountry::class)->name('export.country');
+
+// Official Policy & Trust Pages (GMC & AI Compliance)
+Route::get('/kebijakan-garansi-pengembalian', ReturnPolicy::class)->name('policy.return');
+Route::get('/kebijakan-pengiriman', ShippingPolicy::class)->name('policy.shipping');
+
+// Google Merchant Center RSS 2.0 XML Feed (Free Listings & Gemini Product Cards)
+Route::get('/feed/google-merchant.xml', [GoogleMerchantFeedController::class, 'index'])->name('feed.google-merchant');
 
 // Dynamic Pages (/page/{slug} as requested, /halaman/{slug} redirects with 301)
 Route::get('/page/{slug}', DynamicPage::class)->name('dynamic.page');

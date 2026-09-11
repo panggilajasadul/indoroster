@@ -743,7 +743,7 @@
                         </li>
                         <li class="flex items-center gap-3 text-sm text-slate-400">
                             <svg class="w-5 h-5 text-terra-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
-                            <span>{{ \App\Models\SiteSetting::getValue('contact_email', 'hello@indoroster.com') }}</span>
+                            <span>{{ \App\Models\SiteSetting::getValue('contact_email', 'abdulhamid66266@gmail.com') }}</span>
                         </li>
                     </ul>
                 </div>
@@ -752,7 +752,11 @@
             <div class="border-t border-slate-900 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
                 <div class="flex flex-col sm:flex-row items-center gap-2 sm:gap-6 text-xs text-slate-500 text-center sm:text-left">
                     <p>&copy; {{ date('Y') }} INDOROSTER Indonesia. Hak Cipta Dilindungi.</p>
-                    <div class="flex items-center gap-3 text-slate-400 font-medium">
+                    <div class="flex flex-wrap items-center justify-center sm:justify-start gap-x-3 gap-y-1 text-slate-400 font-medium">
+                        <a href="{{ route('policy.return') }}" class="hover:text-terra-400 transition-colors">Garansi & Pengembalian</a>
+                        <span class="text-slate-700">•</span>
+                        <a href="{{ route('policy.shipping') }}" class="hover:text-terra-400 transition-colors">Kebijakan Pengiriman</a>
+                        <span class="text-slate-700">•</span>
                         <a href="{{ route('dynamic.page', 'syarat-dan-ketentuan') }}" class="hover:text-terra-400 transition-colors">Syarat & Ketentuan</a>
                         <span class="text-slate-700">•</span>
                         <a href="{{ route('dynamic.page', 'kebijakan-privasi') }}" class="hover:text-terra-400 transition-colors">Kebijakan Privasi</a>

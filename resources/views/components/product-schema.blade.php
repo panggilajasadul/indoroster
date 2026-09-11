@@ -22,17 +22,32 @@
         $imageUrls = [asset('assets/logo_indoroster_no_text.PNG')];
     }
 
-    // additionalProperty untuk material, dimensi, berat (Google Shopping fitur)
+    // additionalProperty untuk spesifikasi teknis lengkap (Google Shopping & AI Parsing)
     $additionalProperties = [];
     if ($product->material) {
         $additionalProperties[] = ['name' => 'Material', 'value' => $product->material];
+    } else {
+        $additionalProperties[] = ['name' => 'Material', 'value' => 'Pasir Abu Batu Murni / Dolomit / Terakota Plered'];
     }
-    if ($product->dimensions) {
-        $additionalProperties[] = ['name' => 'Dimensi', 'value' => $product->dimensions . ' cm'];
+    
+    $dimValue = $product->dimensions ? $product->dimensions : '20 x 20 x 10 cm';
+    $additionalProperties[] = ['name' => 'Dimensi', 'value' => $dimValue];
+    
+    // Hitung estimasi kebutuhan modular per m²
+    if (str_contains($dimValue, '30 x 15') || str_contains($dimValue, '30x15')) {
+        $additionalProperties[] = ['name' => 'Kebutuhan per m²', 'value' => '22.2 pcs / m²'];
+    } elseif (str_contains($dimValue, '25 x 15') || str_contains($dimValue, '25x15')) {
+        $additionalProperties[] = ['name' => 'Kebutuhan per m²', 'value' => '26.7 pcs / m²'];
+    } elseif (str_contains($dimValue, '20 x 10') || str_contains($dimValue, '20x10')) {
+        $additionalProperties[] = ['name' => 'Kebutuhan per m²', 'value' => '50 pcs / m²'];
+    } else {
+        $additionalProperties[] = ['name' => 'Kebutuhan per m²', 'value' => '25 pcs / m²'];
     }
-    if ($product->weight) {
-        $additionalProperties[] = ['name' => 'Berat', 'value' => $product->weight . ' kg'];
-    }
+
+    $weightValue = $product->weight ? $product->weight . ' kg' : '3.8 - 4.2 kg';
+    $additionalProperties[] = ['name' => 'Berat Satuan', 'value' => $weightValue];
+    $additionalProperties[] = ['name' => 'Metode Produksi', 'value' => 'Cetak Tumbuk Padat Plat Baja Siku 90° Presisi Plered'];
+    $additionalProperties[] = ['name' => 'Finishing & Fitur', 'value' => '2 Sisi Halus Presisi & Anti-Tampias Hujan'];
 
     // Breadcrumb: gunakan clean category URL
     $breadcrumbItems = [

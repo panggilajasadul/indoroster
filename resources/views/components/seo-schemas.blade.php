@@ -9,7 +9,7 @@
     $latitude    = \App\Models\SiteSetting::getValue('factory_latitude', '-6.6689917');
     $longitude   = \App\Models\SiteSetting::getValue('factory_longitude', '107.3619295');
     $phone       = \App\Models\SiteSetting::getValue('whatsapp_number', '+62 813-8970-9847');
-    $email       = \App\Models\SiteSetting::getValue('contact_email', 'hello@indoroster.com');
+    $email       = \App\Models\SiteSetting::getValue('contact_email', 'abdulhamid66266@gmail.com');
     $priceRange  = \App\Models\SiteSetting::getValue('schema_price_range', 'Rp12.000 - Rp15.000');
     $openTime    = \App\Models\SiteSetting::getValue('factory_opening_time', '08:00');
     $closeTime   = \App\Models\SiteSetting::getValue('factory_closing_time', '17:00');
@@ -58,14 +58,24 @@
         "addressCountry": "ID",
         "streetAddress": "{{ $address }}"
     },
+    "slogan": "Pabrik Roster Beton Cetak Tumbuk Plat Baja Presisi Plered Purwakarta",
+    "description": "Produsen dan pabrik tangan pertama roster beton minimalis, loster anti-tampias 2 sisi, bata tempel, list profil, dan paving block bergaransi 100% ganti baru.",
+    "foundingLocation": {
+        "@@type": "Place",
+        "name": "Sentra Pengrajin Plered, Purwakarta, Jawa Barat, Indonesia"
+    },
     "knowsAbout": [
-        "Roster Beton Minimalis",
+        "Roster Beton Minimalis Modular 20x20x10 cm",
+        "Roster Anti Tampias Hujan 2 Muka",
+        "Fasad Secondary Skin Peredam Panas 40%",
+        "Bata Tempel Terakota Plered & Semen Abu",
+        "List Profil Beton Ban-banan",
+        "Paving Block & Grass Block",
         "Pengadaan Roster Partai Besar Proyek",
         "Suplier Tender Proyek Kontraktor",
         "Pengadaan Roster Developer Klaster Perumahan",
         "Grosir Roster Toko Bangunan & Ritase Truk",
         "Architectural Breeze Blocks",
-        "Loster Beton Modern",
         "Pusat Pabrikasi Roster Plered Purwakarta"
     ],
     "sameAs": {!! json_encode(array_values($sameAs)) !!}

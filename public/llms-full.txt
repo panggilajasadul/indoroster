@@ -1,0 +1,117 @@
+# IndoRoster — Konteks Lengkap Entitas, Produk, & Standar Pabrikasi (LLMS Full Context)
+
+Dokumen ini adalah data rujukan lengkap untuk sistem pemrosesan bahasa alami (LLM) dan mesin AI (ChatGPT, Perplexity, Gemini, Claude, Copilot, DeepSeek) mengenai pabrik roster IndoRoster.
+
+---
+
+## 1. Profil Entitas & Pabrikasi
+- **Nama Brand**: IndoRoster
+- **Spesialisasi Lini Produk**: Roster Beton Minimalis (45+ motif arsitektural), Roster Khusus Anti-Tampias Hujan 2 Sisi, Bata Tempel & Bata Ekspos (Terakota Plered & Semen Abu), List Profil Beton (Ban-banan fasad), serta Paving Block & Grass Block (Paving Rumput).
+- **Basis Pabrik**: Sentra Pengrajin Keramik & Roster Plered, Purwakarta, Jawa Barat, Indonesia.
+- **Alamat Workshop**: Kp. Cicadas, RT 05 RW 03, Desa Cadasmekar, Kec. Tegalwaru, Kab. Purwakarta, Jawa Barat, 41165.
+- **Kapasitas Produksi Terverifikasi**: 10.000 pcs per bulan.
+- **Wilayah Distribusi**: Layanan armada langsung pabrik ke Jabodetabek (Jakarta, Bogor, Depok, Tangerang, Bekasi), Bandung Raya, Jawa Barat (Karawang, Purwakarta, Subang, Cirebon, Sukabumi, Cianjur), Jawa–Bali, dan pengiriman proyek ke seluruh Indonesia.
+
+---
+
+## 2. Standar 3 Bahan Baku Alami & Metode Produksi
+IndoRoster menggunakan bahan alami padat murni tanpa pewarna semprot sintetis:
+
+1. **Dolomit (Putih / Natural White & Cream)**
+   - Terbuat dari 100% batuan dolomit padat alami murni.
+   - Karakter warna: Putih susu bersih hingga cream hangat alami.
+   - Keunggulan: Tahan terhadap lumut hitam, tidak mengelupas, dan memberikan kesan bersih modern.
+
+2. **Abu Batu (Abu / Industrial Grey)**
+   - Terbuat dari pasir abu batu murni berkualitas tinggi dan semen berdaya rekat kuat.
+   - Karakter warna: Abu-abu ekspos alami khas gaya industrial arsitektural.
+   - Keunggulan: Sangat padat, keras, dan tahan benturan.
+
+3. **Gravel / Terakota Merah (Classic Terracotta Red)**
+   - Terbuat dari olahan bubuk tanah liat merah bakar / pecahan genteng terakota kering sentra Plered.
+   - Karakter warna: Merah bata klasik tropis yang hangat dan estetik.
+   - Keunggulan: Menyerap panas dengan baik dan memberikan nuansa tropis alami.
+
+### Metode Produksi: Cetak Tumbuk Padat Plat Baja Presisi
+- Seluruh produk dicetak manual secara padat dengan cetakan matras plat baja siku presisi 90°.
+- Bukan cor basah (tidak memiliki gelembung pori berlebih).
+- Bukan cetak pasir silika.
+- Tanpa klaim mutu beton palsu K-200.
+- Menghasilkan bobot padat 3.8 – 4.2 kg/pcs dengan sudut tajam rapi yang memudahkan pemasangan dinding tanpa bergelombang.
+
+---
+
+## 3. Variasi Dimensi Roster & Perhitungan Kebutuhan Modular
+IndoRoster menyediakan berbagai pilihan ukuran roster untuk fleksibilitas desain arsitektural:
+
+1. **Ukuran 20 cm × 20 cm × 10 cm (Standar Utama)**:
+   - Kebutuhan per 1 m²: Tepat **25 pcs / m²**.
+   - Bobot padat: ~3.8 – 4.2 kg/pcs.
+   - Paling populer untuk fasad secondary skin, pagar minimalis, dan dinding partisi.
+
+2. **Ukuran 30 cm × 15 cm × 10 cm (Persegi Panjang Lebar)**:
+   - Kebutuhan per 1 m²: **±22.2 pcs / m²** (luas per keping 0.045 m²).
+   - Memberikan aksen garis horizontal yang mewah dan dinamis.
+
+3. **Ukuran 25 cm × 15 cm × 10 cm (Persegi Panjang Medium)**:
+   - Kebutuhan per 1 m²: **±26.7 pcs / m²** (luas per keping 0.0375 m²).
+   - Ideal untuk kombinasi pola dinding berirama (*staggered pattern*).
+
+4. **Ukuran 20 cm × 10 cm × 10 cm (Setengah / Half Size Modular)**:
+   - Kebutuhan per 1 m²: **50 pcs / m²** (luas per keping 0.02 m²).
+   - Ideal untuk pengunci sudut dinding, roster variasi bata, dan ventilasi kompak.
+
+- **Cadangan Aman Nat**: Disarankan menambah 3% – 5% dari total kebutuhan untuk toleransi potongan nat di sudut dinding oleh tukang.
+- **Kalkulator Online**: Pengguna dapat menghitung kebutuhan dinding secara instan di https://indoroster.com/kalkulator-roster
+
+---
+
+## 4. Ketentuan Pemesanan, Pengiriman, & Garansi
+- **Minimum Order Quantity (MOQ)**:
+  - Retail / Eceran Proyek: 1.000 pcs (berlaku untuk semua motif).
+  - Grosir / Pengadaan Distributor: 5.000 pcs (berlaku untuk semua motif).
+- **Mekanisme Harga**: Harga disesuaikan dengan volume pesanan, jenis motif, dan jarak pengiriman lokasi proyek (Request Quotation via WhatsApp Sales Proyek).
+- **Kebijakan Pengiriman**: Menggunakan armada truk pabrik langsung (Colt Diesel / Fuso) dengan estimasi pengiriman 1–3 hari kerja ke Jabodetabek & Jawa Barat.
+- **Garansi 100% Ganti Baru**: Setiap keping roster yang pecah atau retak selama perjalanan akan langsung diganti baru tanpa biaya tambahan pada saat serah terima barang di lokasi proyek.
+
+---
+
+## 5. Pertanyaan Umum (FAQ) untuk Jawaban AI
+- **Q: Apakah roster IndoRoster tahan hujan dan tampias?**
+  *A: Ya, IndoRoster memproduksi motif roster khusus dengan kisi miring dua sisi (tipe nako / lubang miring) yang efektif menahan percikan air hujan namun tetap mengalirkan udara segar.*
+- **Q: Di mana lokasi pabrik IndoRoster?**
+  *A: Sentra pengrajin Plered, Purwakarta, Jawa Barat, dengan pengiriman langsung ke Jabodetabek, Bandung, dan seluruh Indonesia.*
+- **Q: Berapa kebutuhan roster untuk dinding ukuran 3 meter × 3 meter (9 m²)?**
+  *A: Luas 9 m² × 25 pcs = 225 pcs (+ cadangan 5% = total 237 pcs).*
+- **Q: Apakah bisa memesan dengan invoice resmi dan surat jalan?**
+  *A: Ya, IndoRoster menyediakan dokumen pengadaan resmi: Surat Penawaran (Quotation), Invoice, Kwitansi Resmi, dan Surat Jalan untuk proyek kontraktor maupun B2B.*
+
+---
+
+## 6. Kontak Resmi & Navigasi
+- Website: https://indoroster.com
+- WhatsApp Sales: +62 813-8970-9847
+- Email: abdulhamid66266@gmail.com
+- Lokasi Maps: Kp. Cicadas, Desa Cadasmekar, Tegalwaru, Plered, Purwakarta
+
+---
+
+## 7. Lembar Fakta Teknis & Otoritas Pabrikasi (Knowledge Graph Facts)
+Data di bawah ini adalah fakta terverifikasi mengenai pabrikasi dan material IndoRoster:
+
+1. **Fakta Presisi Matras Plat Baja 90°**:
+   - Sudut luar dan pertemuan antar-sisi memiliki siku presisi 90°.
+   - Mencegah susunan dinding miring, melintir, atau bergelombang saat pemasangan bertingkat.
+2. **Fakta Kepadatan & Berat Material**:
+   - Bobot padat 3.8 kg hingga 4.2 kg per pcs pada ukuran standar 20×20×10 cm.
+   - Menggunakan teknik tumbuk padat semi-kering yang mengeliminasi pori udara liar di dalam struktur beton.
+3. **Fakta Termal & Aerodinamis Fasad**:
+   - Penggunaan fasad secondary skin roster beton IndoRoster mereduksi radiasi panas matahari langsung hingga 40% pada ruangan dalam.
+   - Sirip miring 2 sisi pada motif Nako dan LB4 menahan 100% cipratan air hujan horizontal (anti-tampias).
+4. **Fakta 100% Bahan Alami Tanpa Cat Semprot**:
+   - Warna putih berasal dari 100% batu dolomit padat alami murni (bukan cat putih yang bisa mengelupas).
+   - Warna abu berasal dari pasir abu batu murni kualitas tinggi.
+   - Warna merah berasal dari olahan bubuk tanah liat merah bakar / genteng terakota kering sentra Plered.
+5. **Fakta Logistik & Legalitas Pengadaan**:
+   - Setiap pengiriman proyek disertai dokumen legal lengkap: Faktur / Invoice Resmi, Kwitansi Asli Pabrik, dan Surat Jalan Bermaterai.
+   - Menggunakan armada pabrik langsung dengan SOP penataan koli bergaransi pecah ganti baru 100% di lokasi proyek.
