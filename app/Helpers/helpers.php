@@ -6,11 +6,10 @@ if (! function_exists('cloudinary_img')) {
     /**
      * Transformasi URL Cloudinary ke WebP + resize + quality otomatis.
      *
-     * @param  string|null $url    URL Cloudinary asli
-     * @param  int|null    $width  Lebar (px), null = auto
-     * @param  int|null    $height Tinggi (px), null = auto
-     * @param  string      $crop   Mode crop: scale, fill, fit, thumb
-     * @return string
+     * @param  string|null  $url  URL Cloudinary asli
+     * @param  int|null  $width  Lebar (px), null = auto
+     * @param  int|null  $height  Tinggi (px), null = auto
+     * @param  string  $crop  Mode crop: scale, fill, fit, thumb
      */
     function cloudinary_img(?string $url, ?int $width = null, ?int $height = null, string $crop = 'scale'): string
     {

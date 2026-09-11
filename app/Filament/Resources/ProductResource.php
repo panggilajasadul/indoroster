@@ -335,13 +335,17 @@ class ProductResource extends Resource
                                     ->suffix('kg'),
                             ]),
 
-                        Forms\Components\Section::make('Status')
+                        Forms\Components\Section::make('Status & Penawaran')
                             ->schema([
                                 Forms\Components\Toggle::make('is_active')
                                     ->label('Produk Aktif')
                                     ->default(true),
                                 Forms\Components\Toggle::make('is_featured')
                                     ->label('Tampil di Halaman Depan'),
+                                Forms\Components\Toggle::make('hide_price')
+                                    ->label('Sembunyikan Harga (Mode Minta Penawaran / RFQ)')
+                                    ->helperText('Jika aktif, pembeli tidak akan melihat harga nominal melainkan tombol Permintaan Penawaran Resmi.')
+                                    ->default(false),
                             ]),
 
                         Forms\Components\Section::make('SEO & Meta Data')
@@ -474,6 +478,13 @@ class ProductResource extends Resource
                 Tables\Columns\IconColumn::make('is_featured')
                     ->label('Featured')
                     ->boolean(),
+                Tables\Columns\IconColumn::make('hide_price')
+                    ->label('Minta Penawaran')
+                    ->boolean()
+                    ->trueIcon('heroicon-o-document-text')
+                    ->trueColor('warning')
+                    ->falseIcon('heroicon-o-minus')
+                    ->falseColor('gray'),
                 Tables\Columns\IconColumn::make('is_active')
                     ->label('Aktif')
                     ->boolean(),

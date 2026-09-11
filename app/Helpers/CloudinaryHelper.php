@@ -21,12 +21,12 @@ class CloudinaryHelper
     /**
      * Transformasi URL Cloudinary dengan parameter custom.
      *
-     * @param  string  $url      URL Cloudinary asli
-     * @param  int|null $width   Lebar target (pixel)
-     * @param  int|null $height  Tinggi target (pixel), null = auto
-     * @param  string  $crop    Mode crop: scale, fill, fit, thumb, crop
-     * @param  string  $quality Kualitas: auto, auto:good, auto:eco, atau angka 1-100
-     * @return string  URL yang sudah dioptimasi
+     * @param  string  $url  URL Cloudinary asli
+     * @param  int|null  $width  Lebar target (pixel)
+     * @param  int|null  $height  Tinggi target (pixel), null = auto
+     * @param  string  $crop  Mode crop: scale, fill, fit, thumb, crop
+     * @param  string  $quality  Kualitas: auto, auto:good, auto:eco, atau angka 1-100
+     * @return string URL yang sudah dioptimasi
      */
     public static function transform(
         ?string $url,
@@ -66,7 +66,7 @@ class CloudinaryHelper
         // Contoh: .../image/upload/v1234/file.jpg → .../image/upload/f_auto,q_auto,w_800/v1234/file.jpg
         return preg_replace(
             '#(res\.cloudinary\.com/.+/image/upload/)#',
-            '$1' . $transformation . '/',
+            '$1'.$transformation.'/',
             $url
         );
     }

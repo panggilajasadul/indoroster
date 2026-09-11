@@ -431,6 +431,15 @@ class ProductDetail extends Component
             return false;
         }
 
+        // If product price is hidden, redirect directly to quotation form
+        if ($this->product->isPriceHidden()) {
+            return redirect()->route('product.quotation', [
+                'slug' => $this->product->slug,
+                'variant' => $this->selectedVariant,
+                'qty' => $this->quantity,
+            ]);
+        }
+
         session()->put('buy_now_item', [
             'product_id' => $this->product->id,
             'product_variant_id' => $this->selectedVariant,
@@ -438,6 +447,15 @@ class ProductDetail extends Component
         ]);
 
         return redirect()->route('checkout', ['mode' => 'buy_now']);
+    }
+
+    public function requestQuotation()
+    {
+        return redirect()->route('product.quotation', [
+            'slug' => $this->product->slug,
+            'variant' => $this->selectedVariant,
+            'qty' => $this->quantity,
+        ]);
     }
 
     public function getCalculatedRequirementProperty()

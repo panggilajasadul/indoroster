@@ -38,6 +38,7 @@ use App\Livewire\OrderTracking;
 use App\Livewire\ProductCatalog;
 use App\Livewire\ProductDetail;
 use App\Livewire\ProductionProcess;
+use App\Livewire\RequestQuotation;
 use App\Livewire\Seo\SeoPageDetailFallback;
 use App\Livewire\Tools\RosterCalculator;
 use App\Livewire\VideoInspiration;
@@ -66,6 +67,7 @@ Route::get('/katalog', ProductCatalog::class)->name('catalog');
 Route::redirect('/produk', '/katalog', 301);
 Route::get('/katalog/{categorySlug}', ProductCatalog::class)->name('catalog.category');
 Route::get('/produk/{slug}', ProductDetail::class)->name('product.detail');
+Route::get('/minta-penawaran/{slug}', RequestQuotation::class)->name('product.quotation');
 Route::get('/keranjang', Cart::class)->name('cart');
 
 // Artikel & Blog CMS Routes

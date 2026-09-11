@@ -94,7 +94,7 @@ class ProductPriceVisibilityTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee('Minta Penawaran');
         $response->assertDontSee('+ Keranjang');
-        $response->assertSee('Minta Penawaran Sekarang');
+        $response->assertSee('Minta Penawaran Resmi (RFQ)');
 
         // Cart Page
         Cart::create([

@@ -21,6 +21,7 @@ class Product extends Model
         'weight',
         'price',
         'original_price',
+        'hide_price',
         'min_order',
         'stock',
         'is_featured',
@@ -47,6 +48,7 @@ class Product extends Model
         return [
             'price' => 'decimal:2',
             'original_price' => 'decimal:2',
+            'hide_price' => 'boolean',
             'weight' => 'decimal:2',
             'is_featured' => 'boolean',
             'is_active' => 'boolean',
@@ -58,6 +60,18 @@ class Product extends Model
             'opportunity_score' => 'integer',
             'seo_last_analyzed' => 'datetime',
         ];
+    }
+
+    /**
+     * Check if product price should be hidden (either per-product setting or site-wide setting).
+     */
+    public function isPriceHidden(): bool
+    {
+        if ($this->hide_price) {
+            return true;
+        }
+
+        return ! SiteSetting::showPrices();
     }
 
     public function reviews(): HasMany
