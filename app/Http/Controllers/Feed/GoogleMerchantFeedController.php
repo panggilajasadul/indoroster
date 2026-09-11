@@ -32,18 +32,23 @@ class GoogleMerchantFeedController extends Controller
 
         foreach ($products as $product) {
             $id = 'IR-'.($product->sku ?: str_pad((string) $product->id, 4, '0', STR_PAD_LEFT));
-            $title = 'Roster Beton Minimalis '.$product->name.' 20x20 cm - IndoRoster';
 
-            $rawDesc = $product->description ?: $product->short_description;
-            if (empty($rawDesc)) {
-                $rawDesc = "Roster beton minimalis motif {$product->name} ukuran 20x20x10 cm cetak tumbuk padat plat baja presisi pengrajin sentra Plered Purwakarta. Menggunakan bahan baku alami berkualitas tahan lumut. Garansi pengiriman aman ganti baru 100%.";
-            } else {
-                $rawDesc = strip_tags($rawDesc);
+            // Bersihkan nama produk dari duplikasi kata "Roster" / "Loster"
+            $cleanName = trim(preg_replace('/^(roster\s+|loster\s+)+/i', '', $product->name));
+            $dim = $product->dimensions ? trim($product->dimensions) : '20x20x10 cm';
+            if (! str_contains(strtolower($dim), 'cm')) {
+                $dim .= ' cm';
             }
-            $cleanDesc = trim(preg_replace('/\s+/', ' ', $rawDesc));
-            if (mb_strlen($cleanDesc) > 4900) {
-                $cleanDesc = mb_substr($cleanDesc, 0, 4900).'...';
+
+            // Title SEO Bersih & Profesional untuk Google Shopping
+            $title = 'Roster Beton Minimalis '.$cleanName.' '.$dim.' - IndoRoster';
+            if (mb_strlen($title) > 150) {
+                $title = mb_substr($title, 0, 147).'...';
             }
+
+            // Deskripsi Produk SEO Kaya Kata Kunci Teknis & Kejujuran Bahan Baku
+            $material = $product->material ?: 'Pasir abu batu murni / dolomit putih / terakota merah';
+            $cleanDesc = "Roster beton minimalis motif {$cleanName} ukuran {$dim}. Diproduksi langsung oleh pabrik IndoRoster sentra Plered Purwakarta dengan metode cetak tumbuk padat plat baja presisi siku 90°. Bahan baku alami berkualitas tahan lumut ({$material}), bobot padat 3.8-4.2 kg, ideal untuk fasad secondary skin peredam panas 40%, pagar, dan partisi ventilasi anti-tampias. Jaminan garansi 100% ganti baru jika pecah di jalan.";
 
             $productUrl = route('product.detail', $product->slug);
             $imageUrl = $product->primary_image ?: asset('assets/logo_indoroster_no_text.PNG');
@@ -52,7 +57,8 @@ class GoogleMerchantFeedController extends Controller
             $priceNominal = $product->price && $product->price > 0 ? (float) $product->price : 13000.0;
             $formattedPrice = number_format($priceNominal, 2, '.', '').' IDR';
 
-            $stockStatus = ($product->stock === null || $product->stock > 0) ? 'in_stock' : 'out_of_stock';
+            // Produk pabrik aktif selalu siap produksi (in_stock)
+            $stockStatus = 'in_stock';
 
             $xml .= '    <item>'."\n";
             $xml .= '      <g:id>'.htmlspecialchars($id, ENT_XML1, 'UTF-8').'</g:id>'."\n";
@@ -67,11 +73,6 @@ class GoogleMerchantFeedController extends Controller
             $xml .= '      <g:google_product_category>5543</g:google_product_category>'."\n";
             $xml .= '      <g:product_type>Bahan Bangunan &gt; Roster Beton Minimalis</g:product_type>'."\n";
             $xml .= '      <g:identifier_exists>no</g:identifier_exists>'."\n";
-            $xml .= '      <g:shipping>'."\n";
-            $xml .= '        <g:country>ID</g:country>'."\n";
-            $xml .= '        <g:service>Armada Pabrik IndoRoster</g:service>'."\n";
-            $xml .= '        <g:price>0.00 IDR</g:price>'."\n";
-            $xml .= '      </g:shipping>'."\n";
             $xml .= '    </item>'."\n";
         }
 
