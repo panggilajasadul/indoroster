@@ -64,11 +64,11 @@
                     <div class="absolute top-0 right-1/4 w-96 h-96 bg-terra-500/10 dark:bg-terra-500/5 rounded-full blur-3xl pointer-events-none -z-10"></div>
                     <div class="absolute bottom-10 left-10 w-80 h-80 bg-amber-500/10 dark:bg-amber-500/5 rounded-full blur-3xl pointer-events-none -z-10"></div>
             
-                    <div class="max-w-6xl mx-auto px-4 sm:px-6">
-                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+                    <div class="max-w-6xl mx-auto px-4 sm:px-6" x-data="{ heroLightbox: false, lightboxUrl: '', lightboxType: 'image' }">
+                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
                             
                             {{-- Left: Copywriting --}}
-                            <div class="lg:col-span-7 space-y-5 text-center lg:text-left">
+                            <div class="lg:col-span-6 space-y-5 text-center lg:text-left">
                                 
                                 {{-- Badges Stack --}}
                                 <div class="flex flex-wrap items-center justify-center lg:justify-start gap-2">
@@ -141,46 +141,86 @@
             
                             </div>
             
-                            {{-- Right: Visual Card (Image or Video) --}}
-                            <div class="lg:col-span-5 relative">
-                                <div class="relative rounded-3xl overflow-hidden border-2 border-terra-500/30 dark:border-terra-500/20 shadow-2xl bg-slate-900 group">
+                            {{-- Right: Visual Showcase (Image or Video - Clean, Large & Card Below) --}}
+                            <div class="lg:col-span-6 flex flex-col gap-3.5">
+                                
+                                {{-- 1. Main Media Box (Jauh Lebih Besar di Desktop, Jelas Tanpa Tertutup Card) --}}
+                                <div class="relative rounded-3xl overflow-hidden border-2 border-terra-500/40 dark:border-terra-500/30 shadow-2xl bg-slate-950 aspect-[4/3] sm:aspect-[16/10] lg:aspect-[4/3] min-h-[300px] sm:min-h-[400px] lg:min-h-[460px] w-full flex items-center justify-center group cursor-pointer"
+                                     @click="@if(!empty($heroVideoUrl)) lightboxUrl = '{{ $heroVideoUrl }}'; lightboxType = 'video'; heroLightbox = true; @elseif(!empty($heroImageUrl)) lightboxUrl = '{{ $heroImageUrl }}'; lightboxType = 'image'; heroLightbox = true; @endif">
                                     
                                     @if(!empty($heroVideoUrl))
                                         <video src="{{ $heroVideoUrl }}" 
                                                autoplay muted loop playsinline 
-                                               class="w-full h-80 sm:h-96 object-cover object-center"></video>
+                                               class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"></video>
                                     @elseif(!empty($heroImageUrl))
-                                        <img src="{{ cloudinary_thumb($heroImageUrl, 600) }}" 
+                                        <img src="{{ cloudinary_thumb($heroImageUrl, 1000) }}" 
                                              alt="Roster Beton Minimalis IndoRoster" 
-                                             class="w-full h-80 sm:h-96 object-cover object-center group-hover:scale-105 transition-transform duration-700"
+                                             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                                              onerror="this.src='{{ asset('assets/logo_indoroster_no_text.PNG') }}'">
                                     @else
                                         <img src="{{ asset('assets/logo_indoroster_no_text.PNG') }}" 
                                              alt="Roster Beton Minimalis IndoRoster" 
-                                             class="w-full h-80 sm:h-96 object-cover object-center group-hover:scale-105 transition-transform duration-700 opacity-90">
+                                             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-90">
                                     @endif
-                                    
-                                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/30 to-transparent"></div>
-            
-                                    {{-- Floating Highlight Card --}}
-                                    <div class="absolute bottom-4 left-4 right-4 p-4 rounded-2xl bg-slate-900/90 backdrop-blur-md border border-white/10 text-white space-y-2">
-                                        <div class="flex items-center justify-between">
-                                            <span class="text-xs font-black uppercase tracking-wider text-terra-400">Pabrik Tangan Pertama</span>
-                                            <span class="text-[11px] font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">{{ $hero['card_badge'] ?? '🚚 Siap Kirim' }}</span>
-                                        </div>
-                                        <p class="text-sm font-bold text-slate-100">
-                                            {{ $hero['card_title'] ?? 'Siku 90° Presisi Milimeter — Fasad Rapi, Tukang Pasang Cepat & Hemat Semen' }}
-                                        </p>
-                                        <div class="flex items-center justify-between text-[11px] text-slate-300 pt-1 border-t border-white/10">
-                                            <span>{{ $cityName }}</span>
-                                            <span class="text-amber-400 font-black">{{ $hero['card_price'] ?? 'Mulai Rp 12.500/pcs' }}</span>
-                                        </div>
+
+                                    {{-- Zoom / Enlarge Button Hint --}}
+                                    <div class="absolute top-3 right-3 z-10 opacity-80 group-hover:opacity-100 transition-opacity">
+                                        <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-extrabold bg-slate-950/80 backdrop-blur-md text-white border border-white/20 shadow-md">
+                                            🔍 Klik Perbesar
+                                        </span>
                                     </div>
-            
                                 </div>
+
+                                {{-- 2. Highlight Card (Foto 2 - Ditaruh Rapi Di Bawah Foto/Video agar Visual Bersih 100%) --}}
+                                <div class="p-4 sm:p-5 rounded-3xl bg-slate-900/95 dark:bg-slate-900 border border-slate-800 text-white shadow-xl space-y-2.5">
+                                    <div class="flex items-center justify-between gap-2">
+                                        <span class="text-xs font-black uppercase tracking-wider text-terra-400">
+                                            Pabrik Tangan Pertama
+                                        </span>
+                                        <span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                                            {{ $hero['card_badge'] ?? '🚚 Siap Kirim' }}
+                                        </span>
+                                    </div>
+                                    <p class="text-xs sm:text-sm font-bold text-slate-100 leading-snug">
+                                        {{ $hero['card_title'] ?? 'Siku 90° Presisi Milimeter — Fasad Rapi, Tukang Pasang Cepat & Hemat Semen' }}
+                                    </p>
+                                    <div class="flex items-center justify-between text-xs text-slate-300 pt-2 border-t border-white/10">
+                                        <span class="font-medium">📍 {{ $cityName }}</span>
+                                        <span class="text-amber-400 font-black text-xs sm:text-sm">{{ $hero['card_price'] ?? 'Mulai Rp 12.500/pcs' }}</span>
+                                    </div>
+                                </div>
+
                             </div>
             
                         </div>
+
+                        {{-- Lightbox Modal Fullscreen Saat Diklik --}}
+                        <div x-show="heroLightbox" 
+                             x-cloak 
+                             @click.self="heroLightbox = false"
+                             @keydown.escape.window="heroLightbox = false"
+                             class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 sm:p-8"
+                             x-transition:enter="transition ease-out duration-300"
+                             x-transition:enter-start="opacity-0 scale-95"
+                             x-transition:enter-end="opacity-100 scale-100"
+                             x-transition:leave="transition ease-in duration-200"
+                             x-transition:leave-start="opacity-100 scale-100"
+                             x-transition:leave-end="opacity-0 scale-95">
+                            
+                            <button @click="heroLightbox = false" class="absolute top-4 right-4 z-50 text-white bg-slate-800/80 hover:bg-slate-700 w-10 h-10 rounded-full flex items-center justify-center font-bold text-xl border border-white/20 shadow-xl">
+                                ✕
+                            </button>
+
+                            <div class="relative max-w-5xl w-full max-h-[90vh] flex items-center justify-center rounded-3xl overflow-hidden border border-white/10 shadow-2xl bg-black">
+                                <template x-if="lightboxType === 'video'">
+                                    <video :src="lightboxUrl" controls autoplay class="max-h-[85vh] w-auto max-w-full rounded-2xl"></video>
+                                </template>
+                                <template x-if="lightboxType === 'image'">
+                                    <img :src="lightboxUrl" alt="Roster IndoRoster Preview" class="max-h-[85vh] w-auto max-w-full object-contain rounded-2xl">
+                                </template>
+                            </div>
+                        </div>
+
                     </div>
                 </section>
         @elseif($sectionKey === 'cost_comparison')
