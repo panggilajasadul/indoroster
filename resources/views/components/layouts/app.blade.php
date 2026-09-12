@@ -925,10 +925,150 @@
     @endphp
 
     <!-- Global Fast WhatsApp Lead Modal (EMQ Booster 8.5 - 9.5) -->
-    <div x-data="window.fastWaLeadModal()" 
+    <div x-data="{
+            isOpen: false,
+            targetWaUrl: '',
+            contentName: 'WhatsApp Consultation',
+            leadName: '',
+            leadPhone: '',
+            leadCity: '',
+            leadQty: '',
+
+            init() {
+                try {
+                    const saved = JSON.parse(localStorage.getItem('indoroster_lead_user') || '{}');
+                    if (saved.name) this.leadName = saved.name;
+                    if (saved.phone) this.leadPhone = saved.phone;
+                    if (saved.city) this.leadCity = saved.city;
+                    if (saved.qty) this.leadQty = saved.qty;
+                } catch(e) {}
+            },
+
+            openModal(url, name, defaultCity) {
+                this.targetWaUrl = url || 'https://wa.me/6281389709847';
+                this.contentName = name || 'WhatsApp Consultation';
+
+                try {
+                    const saved = JSON.parse(localStorage.getItem('indoroster_lead_user') || '{}');
+                    if (saved.name) this.leadName = saved.name;
+                    if (saved.phone) this.leadPhone = saved.phone;
+                    if (saved.city) this.leadCity = saved.city;
+                    if (saved.qty) this.leadQty = saved.qty;
+                } catch(e) {}
+
+                if (!this.leadCity && defaultCity) {
+                    this.leadCity = defaultCity;
+                }
+
+                this.isOpen = true;
+            },
+
+            closeModal() {
+                this.isOpen = false;
+            },
+
+            submitLead() {
+                if (!this.leadName || !this.leadPhone) return;
+
+                try {
+                    localStorage.setItem('indoroster_lead_user', JSON.stringify({
+                        name: this.leadName,
+                        phone: this.leadPhone,
+                        city: this.leadCity,
+                        qty: this.leadQty
+                    }));
+                } catch(e) {}
+
+                const userData = {
+                    ph: this.leadPhone,
+                    name: this.leadName,
+                    ct: this.leadCity
+                };
+
+                if (typeof window.trackMetaEvent === 'function') {
+                    window.trackMetaEvent('Contact', {
+                        content_name: this.contentName,
+                        currency: 'IDR'
+                    }, userData);
+
+                    window.trackMetaEvent('Lead', {
+                        content_name: this.contentName,
+                        currency: 'IDR'
+                    }, userData);
+                }
+
+                let waPhone = '6281389709847';
+                if (this.targetWaUrl) {
+                    const phoneMatch = this.targetWaUrl.match(/wa\.me\/([0-9]+)/);
+                    if (phoneMatch && phoneMatch[1]) {
+                        waPhone = phoneMatch[1];
+                    }
+                }
+
+                // Extract existing message text or product info if any
+                let originalText = '';
+                try {
+                    if (this.targetWaUrl && this.targetWaUrl.includes('text=')) {
+                        const urlObj = new URL(this.targetWaUrl);
+                        originalText = urlObj.searchParams.get('text') || '';
+                    }
+                } catch(e) {
+                    const textMatch = this.targetWaUrl.match(/text=([^&]+)/);
+                    if (textMatch && textMatch[1]) {
+                        originalText = decodeURIComponent(textMatch[1]);
+                    }
+                }
+
+                const cityName = this.leadCity ? this.leadCity : 'Jabodetabek & Jawa Barat';
+                const qtyText = this.leadQty ? this.leadQty : '100+ pcs / Sesuai Rekomendasi';
+
+                // If originalText contains specific motif or detail, extract motif if possible
+                let motifDetail = '';
+                if (originalText) {
+                    const motifMatch = originalText.match(/Pilihan Motif:\s*\*?([^\n\*]+)\*?/i);
+                    if (motifMatch && motifMatch[1]) {
+                        motifDetail = `\n• *Pilihan Motif:* ${motifMatch[1].trim()}`;
+                    }
+                }
+
+                const messageText = `Halo Tim Sales Pabrik IndoRoster, saya *${this.leadName}* ingin klaim Promo Harga Pabrik & Cek Ongkir:\n\n` +
+                    `📋 *DATA KONSULTASI / PENAWARAN:*\n` +
+                    `• *Nama:* ${this.leadName}\n` +
+                    `• *WhatsApp:* ${this.leadPhone}\n` +
+                    `• *Lokasi Kirim:* ${cityName}\n` +
+                    `• *Jumlah Kebutuhan:* ${qtyText}` +
+                    motifDetail + `\n` +
+                    `• *Halaman:* ${this.contentName}\n\n` +
+                    `Mohon info ketersediaan stok, total penawaran harga promo pabrik, dan estimasi jadwal kirim armada ke lokasi saya. Terima kasih!`;
+
+                const finalUrl = `https://wa.me/${waPhone}?text=${encodeURIComponent(messageText)}`;
+
+                this.closeModal();
+                const win = window.open(finalUrl, '_blank');
+                if (!win || win.closed || typeof win.closed === 'undefined') {
+                    window.location.href = finalUrl;
+                }
+            },
+
+            skipAndOpen() {
+                if (typeof window.trackMetaEvent === 'function') {
+                    window.trackMetaEvent('Contact', {
+                        content_name: this.contentName,
+                        currency: 'IDR'
+                    });
+                }
+                this.closeModal();
+                const targetUrl = this.targetWaUrl || 'https://wa.me/6281389709847';
+                const win = window.open(targetUrl, '_blank');
+                if (!win || win.closed || typeof win.closed === 'undefined') {
+                    window.location.href = targetUrl;
+                }
+            }
+         }" 
+         @open-fast-wa-modal.window="openModal($event.detail.url, $event.detail.name, $event.detail.city)"
          x-show="isOpen" 
          x-cloak 
-         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-xs transition-opacity"
+         class="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-xs transition-opacity"
          @keydown.escape.window="closeModal()">
         
         <div class="relative w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden"
@@ -943,7 +1083,7 @@
             
             <!-- Header with Badge -->
             <div class="bg-gradient-to-r from-terra-600 via-terra-500 to-amber-500 p-5 sm:p-6 text-white relative">
-                <button type="button" @click="closeModal()" class="absolute top-4 right-4 text-white/80 hover:text-white p-1 rounded-full hover:bg-white/10 transition-colors">
+                <button type="button" @click="closeModal()" class="absolute top-4 right-4 text-white/80 hover:text-white p-1.5 rounded-full hover:bg-white/10 transition-colors cursor-pointer">
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
                 </button>
                 <span class="inline-flex items-center gap-1 bg-white/20 text-white text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full mb-2 tracking-wide">
@@ -958,7 +1098,7 @@
             </div>
 
             <!-- Form Body -->
-            <form @submit.prevent="submitLead()" class="p-5 sm:p-6 space-y-4">
+            <form @submit.prevent="submitLead()" class="p-5 sm:p-6 space-y-3.5">
                 <div>
                     <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Nama Lengkap / Panggilan <span class="text-terra-500">*</span></label>
                     <input type="text" x-model="leadName" required placeholder="Contoh: Pak Bambang / Ibu Maya" class="w-full h-11 px-3.5 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-terra-500 focus:border-terra-500 transition-all font-medium">
@@ -969,9 +1109,16 @@
                     <input type="tel" x-model="leadPhone" required placeholder="Contoh: 081234567890" class="w-full h-11 px-3.5 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-terra-500 focus:border-terra-500 transition-all font-medium">
                 </div>
 
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Kota / Lokasi Pengiriman</label>
-                    <input type="text" x-model="leadCity" placeholder="Contoh: Jakarta Selatan / Bandung / Karawang" class="w-full h-11 px-3.5 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-terra-500 focus:border-terra-500 transition-all font-medium">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Kota / Lokasi Kirim</label>
+                        <input type="text" x-model="leadCity" placeholder="Contoh: Jakarta / Bekasi / Bandung" class="w-full h-11 px-3.5 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-terra-500 focus:border-terra-500 transition-all font-medium">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Jumlah Pesanan (Pcs)</label>
+                        <input type="text" x-model="leadQty" placeholder="Contoh: 200 pcs / Luas 15 m²" class="w-full h-11 px-3.5 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-terra-500 focus:border-terra-500 transition-all font-medium">
+                    </div>
                 </div>
 
                 <div class="pt-2 space-y-2">
@@ -980,7 +1127,7 @@
                         <span>Lanjut Chat WhatsApp Resmi ➔</span>
                     </button>
 
-                    <button type="button" @click="skipLeadAndOpenWa()" class="w-full text-center text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 py-1 transition-colors">
+                    <button type="button" @click="skipAndOpen()" class="w-full text-center text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 py-1 transition-colors cursor-pointer">
                         Langsung ke WhatsApp tanpa isi data
                     </button>
                 </div>
@@ -1057,105 +1204,6 @@
             }
         });
 
-        // Fast WhatsApp Lead Modal Alpine Store/State
-        window.fastWaLeadModal = function() {
-            return {
-                isOpen: false,
-                targetWaUrl: '',
-                contentName: 'WhatsApp Consultation',
-                leadName: '',
-                leadPhone: '',
-                leadCity: '',
-
-                init() {
-                    window.openFastWaModal = (url, name, defaultCity) => {
-                        this.targetWaUrl = url;
-                        this.contentName = name || 'WhatsApp Consultation';
-
-                        // Pre-populate if saved
-                        try {
-                            const saved = JSON.parse(localStorage.getItem('indoroster_lead_user') || '{}');
-                            if (saved.name) this.leadName = saved.name;
-                            if (saved.phone) this.leadPhone = saved.phone;
-                            if (saved.city) this.leadCity = saved.city;
-                        } catch(e) {}
-
-                        if (!this.leadCity && defaultCity) {
-                            this.leadCity = defaultCity;
-                        }
-
-                        // If user already has phone & name, skip modal directly to WA with full tracking
-                        if (this.leadName && this.leadPhone) {
-                            this.dispatchLeadAndOpen(false);
-                            return;
-                        }
-
-                        this.isOpen = true;
-                    };
-                },
-
-                closeModal() {
-                    this.isOpen = false;
-                },
-
-                submitLead() {
-                    if (!this.leadName || !this.leadPhone) return;
-
-                    // Save locally for next time
-                    try {
-                        localStorage.setItem('indoroster_lead_user', JSON.stringify({
-                            name: this.leadName,
-                            phone: this.leadPhone,
-                            city: this.leadCity
-                        }));
-                    } catch(e) {}
-
-                    this.dispatchLeadAndOpen(true);
-                    this.closeModal();
-                },
-
-                dispatchLeadAndOpen(isNewForm = true) {
-                    const userData = {
-                        ph: this.leadPhone,
-                        name: this.leadName,
-                        ct: this.leadCity
-                    };
-
-                    // Send Contact + Lead events with high EMQ user_data
-                    window.trackMetaEvent('Contact', {
-                        content_name: this.contentName,
-                        currency: 'IDR'
-                    }, userData);
-
-                    if (isNewForm) {
-                        window.trackMetaEvent('Lead', {
-                            content_name: this.contentName,
-                            currency: 'IDR'
-                        }, userData);
-                    }
-
-                    let finalUrl = this.targetWaUrl || 'https://wa.me/6281389709847';
-                    
-                    // Personalize WA greeting if possible
-                    if (this.leadName && finalUrl.includes('text=')) {
-                        const greetingPrefix = encodeURIComponent(`Halo Tim Sales IndoRoster, saya ${this.leadName}${this.leadCity ? ' dari ' + this.leadCity : ''}. `);
-                        finalUrl = finalUrl.replace('text=', 'text=' + greetingPrefix);
-                    }
-
-                    window.open(finalUrl, '_blank');
-                },
-
-                skipLeadAndOpenWa() {
-                    window.trackMetaEvent('Contact', {
-                        content_name: this.contentName,
-                        currency: 'IDR'
-                    });
-                    this.closeModal();
-                    window.open(this.targetWaUrl || 'https://wa.me/6281389709847', '_blank');
-                }
-            };
-        };
-
         // Intercept click on WhatsApp links
         document.addEventListener('click', function(e) {
             const target = e.target.closest('a[href*="wa.me"], a[href*="whatsapp.com"], [data-meta-event="Contact"]');
@@ -1165,14 +1213,18 @@
                 const defaultCity = target.getAttribute('data-city') || '';
                 const href = target.getAttribute('href');
 
-                if (window.openFastWaModal && !isSkipModal && href && (href.includes('wa.me') || href.includes('whatsapp.com'))) {
+                if (!isSkipModal && href && (href.includes('wa.me') || href.includes('whatsapp.com'))) {
                     e.preventDefault();
-                    window.openFastWaModal(href, contentName, defaultCity);
+                    window.dispatchEvent(new CustomEvent('open-fast-wa-modal', {
+                        detail: { url: href, name: contentName, city: defaultCity }
+                    }));
                 } else {
-                    window.trackMetaEvent('Contact', {
-                        content_name: contentName,
-                        currency: 'IDR'
-                    });
+                    if (typeof window.trackMetaEvent === 'function') {
+                        window.trackMetaEvent('Contact', {
+                            content_name: contentName,
+                            currency: 'IDR'
+                        });
+                    }
                 }
             }
         }, { capture: true });

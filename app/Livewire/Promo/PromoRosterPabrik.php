@@ -6,6 +6,7 @@ use App\Models\Gallery;
 use App\Models\Product;
 use App\Models\PromoPage;
 use App\Models\SiteSetting;
+use App\Services\MetaConversionsService;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
 use Livewire\Component;
@@ -37,6 +38,19 @@ class PromoRosterPabrik extends Component
     public string $customerName = '';
 
     public string $customerAddress = '';
+
+    // Direct Embedded Lead Form properties
+    public string $lead_name = '';
+
+    public string $lead_phone = '';
+
+    public string $lead_city = '';
+
+    public string $lead_motif = '';
+
+    public string $lead_qty = '';
+
+    public bool $isLeadSubmitted = false;
 
     public ?string $pageSlug = null;
 
@@ -165,6 +179,89 @@ class PromoRosterPabrik extends Component
         }
 
         return 'https://wa.me/'.$waNumber.'?text='.rawurlencode($message);
+    }
+
+    /**
+     * Handle submission of embedded Lead Form on Promo Landing Page.
+     */
+    public function submitLeadForm(): void
+    {
+        $this->validate([
+            'lead_name' => 'required|min:2|max:100',
+            'lead_phone' => 'required|min:8|max:25',
+            'lead_city' => 'nullable|max:100',
+            'lead_motif' => 'nullable|max:100',
+            'lead_qty' => 'nullable|max:100',
+        ], [
+            'lead_name.required' => 'Nama lengkap wajib diisi.',
+            'lead_phone.required' => 'Nomor WhatsApp aktif wajib diisi.',
+            'lead_phone.min' => 'Nomor WhatsApp minimal 8 digit.',
+        ]);
+
+        $promoPage = $this->promoPage;
+        $rawWa = ! empty($promoPage?->whatsapp_number)
+            ? $promoPage->whatsapp_number
+            : SiteSetting::getValue('whatsapp_number', '0813-8970-9847');
+
+        $waNumber = preg_replace('/[^0-9]/', '', $rawWa);
+        if (str_starts_with($waNumber, '0')) {
+            $waNumber = '62'.substr($waNumber, 1);
+        }
+
+        $cityName = ! empty($this->lead_city) ? $this->lead_city : (! empty($this->city) ? $this->city : 'Jabodetabek & Jawa Barat');
+        $motif = ! empty($this->lead_motif) ? $this->lead_motif : 'Motif Minimalis Terlaris';
+        $qty = ! empty($this->lead_qty) ? $this->lead_qty : (! empty($this->estimatedPcs) ? "{$this->estimatedPcs} pcs" : '100+ pcs');
+
+        $message = "Halo Tim Sales Pabrik IndoRoster, saya *{$this->lead_name}* ingin klaim Promo Harga Pabrik & Cek Ongkir:\n\n".
+            "📋 *DATA KONSULTASI / PENAWARAN:*\n".
+            "• *Nama:* {$this->lead_name}\n".
+            "• *WhatsApp:* {$this->lead_phone}\n".
+            "• *Lokasi Kirim:* {$cityName}\n".
+            "• *Rencana Kebutuhan:* {$qty}\n".
+            "• *Pilihan Motif:* {$motif}\n\n".
+            'Mohon info ketersediaan stok, total penawaran harga promo, dan estimasi jadwal kirim armada ke lokasi saya. Terima kasih!';
+
+        $waUrl = 'https://wa.me/'.$waNumber.'?text='.rawurlencode($message);
+
+        // Kirim Meta Conversions API (Lead & Contact dengan High-EMQ Matching 8.5 - 9.5)
+        try {
+            app(MetaConversionsService::class)->sendEvent(
+                'Lead',
+                [
+                    'content_name' => 'Embedded Promo Lead Form',
+                    'currency' => 'IDR',
+                ],
+                [
+                    'ph' => $this->lead_phone,
+                    'name' => $this->lead_name,
+                    'ct' => $cityName,
+                ]
+            );
+
+            app(MetaConversionsService::class)->sendEvent(
+                'Contact',
+                [
+                    'content_name' => 'WhatsApp Lead Form Submit',
+                    'currency' => 'IDR',
+                ],
+                [
+                    'ph' => $this->lead_phone,
+                    'name' => $this->lead_name,
+                    'ct' => $cityName,
+                ]
+            );
+        } catch (\Throwable $e) {
+        }
+
+        $this->isLeadSubmitted = true;
+
+        // Dispatch JS event to open WhatsApp and save localStorage
+        $this->dispatch('lead-submitted-open-wa', [
+            'waUrl' => $waUrl,
+            'name' => $this->lead_name,
+            'phone' => $this->lead_phone,
+            'city' => $cityName,
+        ]);
     }
 
     public function render()

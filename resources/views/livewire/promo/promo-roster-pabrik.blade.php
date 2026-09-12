@@ -23,6 +23,7 @@
             'received_proof',
             'gallery',
             'calculator',
+            'lead_form',
             'shipping_coverage',
             'tiering',
             'faq',
@@ -1005,6 +1006,111 @@
             
                     </div>
                 </section>
+        @elseif($sectionKey === 'lead_form')
+            {{-- 9. FORMULIR KONSULTASI PABRIK & KLAIM ONGKIR (High Conversion & High EMQ 9.5) --}}
+            <section id="form-konsultasi-section" class="py-12 md:py-18 bg-gradient-to-b from-slate-900 via-slate-950 to-slate-900 text-white border-b border-slate-800 relative overflow-hidden">
+                <!-- Background glow -->
+                <div class="absolute -top-24 right-10 w-96 h-96 bg-terra-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="absolute -bottom-24 left-10 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+                <div class="max-w-4xl mx-auto px-4 sm:px-6 relative z-10">
+                    <div class="bg-slate-800/90 dark:bg-slate-900/95 border border-slate-700/80 rounded-3xl p-6 sm:p-10 shadow-2xl backdrop-blur-md">
+                        
+                        <div class="text-center max-w-2xl mx-auto mb-8 space-y-2">
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 uppercase tracking-wide">
+                                💬 Formulir Konsultasi Resmi Pabrik
+                            </span>
+                            <h2 class="text-2xl sm:text-3xl md:text-4xl font-black text-white font-display">
+                                Minta Pricelist & Cek Ongkir ke <span class="text-transparent bg-clip-text bg-gradient-to-r from-terra-400 to-amber-400">{{ $cityName }}</span>
+                            </h2>
+                            <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                                Isi data singkat di bawah ini. Tim teknis & sales pabrik akan langsung mengirimkan katalog motif lengkap, hitungan kebutuhan, dan konfirmasi jadwal armada gratis ongkir via WhatsApp.
+                            </p>
+                        </div>
+
+                        <form wire:submit.prevent="submitLeadForm" class="space-y-5">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">
+                                        Nama Lengkap / Panggilan <span class="text-terra-400">*</span>
+                                    </label>
+                                    <input type="text" 
+                                           wire:model="lead_name" 
+                                           required 
+                                           placeholder="Contoh: Pak Hendra / Ibu Maya" 
+                                           class="w-full h-12 px-4 text-sm bg-slate-900/90 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:ring-2 focus:ring-terra-500 focus:border-terra-500 transition-all font-medium">
+                                    @error('lead_name') <span class="text-red-400 text-xs mt-1 block">{{ $message }}</span> @enderror
+                                </div>
+
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">
+                                        Nomor WhatsApp Aktif <span class="text-terra-400">*</span>
+                                    </label>
+                                    <input type="tel" 
+                                           wire:model="lead_phone" 
+                                           required 
+                                           placeholder="Contoh: 081234567890" 
+                                           class="w-full h-12 px-4 text-sm bg-slate-900/90 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:ring-2 focus:ring-terra-500 focus:border-terra-500 transition-all font-medium">
+                                    @error('lead_phone') <span class="text-red-400 text-xs mt-1 block">{{ $message }}</span> @enderror
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">
+                                        Kota / Lokasi Pengiriman
+                                    </label>
+                                    <input type="text" 
+                                           wire:model="lead_city" 
+                                           placeholder="Contoh: {{ $cityName }}" 
+                                           class="w-full h-12 px-4 text-sm bg-slate-900/90 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:ring-2 focus:ring-terra-500 focus:border-terra-500 transition-all font-medium">
+                                </div>
+
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">
+                                        Pilihan Motif (Opsional)
+                                    </label>
+                                    <input type="text" 
+                                           wire:model="lead_motif" 
+                                           placeholder="Contoh: Nako Sipit / MMC / Bebas" 
+                                           class="w-full h-12 px-4 text-sm bg-slate-900/90 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:ring-2 focus:ring-terra-500 focus:border-terra-500 transition-all font-medium">
+                                </div>
+
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">
+                                        Estimasi Jumlah (Pcs)
+                                    </label>
+                                    <input type="text" 
+                                           wire:model="lead_qty" 
+                                           placeholder="Contoh: 200 pcs / Luas 15 m²" 
+                                           class="w-full h-12 px-4 text-sm bg-slate-900/90 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:ring-2 focus:ring-terra-500 focus:border-terra-500 transition-all font-medium">
+                                </div>
+                            </div>
+
+                            <div class="pt-3 space-y-3">
+                                <button type="submit" 
+                                        wire:loading.attr="disabled"
+                                        class="w-full h-14 rounded-2xl bg-gradient-to-r from-emerald-600 via-emerald-500 to-emerald-600 hover:from-emerald-500 hover:to-emerald-500 text-white font-black text-base sm:text-lg shadow-xl shadow-emerald-600/30 flex items-center justify-center gap-3 hover:scale-[1.01] active:scale-[0.99] transition-all cursor-pointer">
+                                    <svg class="w-6 h-6 fill-current animate-bounce" viewBox="0 0 24 24">
+                                        <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.275.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.099.824z"/>
+                                    </svg>
+                                    <span wire:loading.remove wire:target="submitLeadForm">Kirim & Lanjut Chat WhatsApp Resmi ➔</span>
+                                    <span wire:loading wire:target="submitLeadForm">Menyiapkan Penawaran WhatsApp...</span>
+                                </button>
+
+                                <div class="flex items-center justify-center gap-4 text-xs text-slate-400 flex-wrap pt-1">
+                                    <span>🛡️ Garansi 100% Pecah Ganti Baru</span>
+                                    <span>•</span>
+                                    <span>🚚 Armada Langsung Pabrik Plered</span>
+                                    <span>•</span>
+                                    <span>⚡ Respon Sales < 5 Menit</span>
+                                </div>
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+            </section>
         @elseif($sectionKey === 'shipping_coverage')
             {{-- 10. TRANSPARANSI PENGIRIMAN & ESTIMASI ONGKIR ARMADA PABRIK --}}
                 @php
@@ -1321,4 +1427,23 @@
         </a>
     </div>
 
+    @script
+    <script>
+        $wire.on('lead-submitted-open-wa', (event) => {
+            const data = event[0] || event;
+            try {
+                localStorage.setItem('indoroster_lead_user', JSON.stringify({
+                    name: data.name,
+                    phone: data.phone,
+                    city: data.city
+                }));
+            } catch(e) {}
+            if (data.waUrl) {
+                window.open(data.waUrl, '_blank');
+            }
+        });
+    </script>
+    @endscript
+
 </div>
+
