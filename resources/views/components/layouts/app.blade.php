@@ -1250,6 +1250,14 @@
             }
         });
 
+        // Listen to Livewire-dispatched Meta events (e.g. AddToCart, InitiateCheckout)
+        window.addEventListener('meta-track-event', function(e) {
+            const data = Array.isArray(e.detail) ? e.detail[0] : e.detail;
+            if (data && data.event && typeof window.trackMetaEvent === 'function') {
+                window.trackMetaEvent(data.event, data.custom_data || {}, data.user_data || {});
+            }
+        });
+
         // Intercept click on WhatsApp links
         document.addEventListener('click', function(e) {
             const target = e.target.closest('a[href*="wa.me"], a[href*="whatsapp.com"], [data-meta-event="Contact"]');

@@ -383,6 +383,24 @@ class ProductDetail extends Component
         }
 
         $this->dispatch('cart-updated');
+
+        $price = $this->activePrice;
+        $activeVariants = $this->product->variants->where('is_active', true);
+        $variantName = $this->selectedVariant ? ($activeVariants->firstWhere('id', (int) $this->selectedVariant)?->name ?? '') : '';
+
+        $this->dispatch('meta-track-event', [
+            'event' => 'AddToCart',
+            'custom_data' => [
+                'content_name' => $this->product->name.($variantName ? " - {$variantName}" : ''),
+                'content_category' => $this->product->category?->name ?? 'Roster Beton',
+                'content_ids' => [(string) $this->product->id],
+                'content_type' => 'product',
+                'value' => (float) ($price * $this->quantity),
+                'currency' => 'IDR',
+                'num_items' => $this->quantity,
+            ],
+        ]);
+
         session()->flash('success', 'Produk berhasil ditambahkan ke keranjang.');
 
         return true;
