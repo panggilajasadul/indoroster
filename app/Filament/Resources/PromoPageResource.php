@@ -186,6 +186,17 @@ class PromoPageResource extends Resource
                                         Forms\Components\TextInput::make('sections.hero.video_url')
                                             ->label('Atau Link Video (Cloudinary / YouTube)')
                                             ->placeholder('https://...'),
+
+                                        Forms\Components\TextInput::make('sections.hero.card_title')
+                                            ->label('Teks Kartu Melayang di Atas Foto')
+                                            ->default('Siku 90° Presisi Milimeter — Fasad Rapi, Tukang Pasang Cepat & Hemat Semen')
+                                            ->columnSpan(2),
+                                        Forms\Components\TextInput::make('sections.hero.card_price')
+                                            ->label('Teks Harga Kartu')
+                                            ->default('Mulai Rp 12.500/pcs'),
+                                        Forms\Components\TextInput::make('sections.hero.card_badge')
+                                            ->label('Badge Status Kartu')
+                                            ->default('🚚 Siap Kirim'),
                                     ]),
                                 ]),
                         ]),
@@ -381,7 +392,7 @@ class PromoPageResource extends Resource
                         ->icon('heroicon-o-photo')
                         ->schema([
                             Forms\Components\Section::make('Inspirasi Pemasangan Roster (3 Kolom ke Samping, Sisanya ke Bawah)')
-                                ->description('Admin dapat memilih foto inspirasi dari Galeri Proyek yang sudah ada di database.')
+                                ->description('Pilih foto inspirasi dari Galeri Proyek yang sudah ada di database, atau unggah foto dokumentasi kustom.')
                                 ->schema([
                                     Forms\Components\Grid::make(2)->schema([
                                         Forms\Components\TextInput::make('sections.gallery.title')
@@ -400,17 +411,55 @@ class PromoPageResource extends Resource
                                         ->searchable()
                                         ->preload()
                                         ->options(function () {
-                                            return Gallery::with('product')
+                                            return Gallery::with(['media', 'product'])
                                                 ->orderBy('category')
                                                 ->get()
                                                 ->mapWithKeys(function ($g) {
                                                     $cat = strtoupper($g->category ?: 'UMUM');
                                                     $loc = $g->location ? " ({$g->location})" : '';
+                                                    $hasMedia = $g->media->isNotEmpty() || ($g->product && ! empty($g->product->primary_image));
+                                                    $mediaBadge = $hasMedia ? ' [📷 Foto Siap]' : '';
 
-                                                    return [$g->id => "[{$cat}] {$g->title}{$loc}"];
+                                                    return [$g->id => "[{$cat}] {$g->title}{$loc}{$mediaBadge}"];
                                                 });
                                         })
                                         ->helperText('Pilih foto proyek yang ingin ditampilkan. Jika kosong, sistem otomatis menampilkan 6 galeri terpopuler.')
+                                        ->columnSpanFull(),
+
+                                    Forms\Components\Repeater::make('sections.gallery.items')
+                                        ->label('Atau Tambah Foto/Video Dokumentasi Kustom')
+                                        ->schema([
+                                            Forms\Components\TextInput::make('title')
+                                                ->label('Judul / Nama Proyek')
+                                                ->required()
+                                                ->placeholder('Contoh: Pagar Depan Roster Nako Sipit'),
+                                            Forms\Components\TextInput::make('location')
+                                                ->label('Lokasi Proyek')
+                                                ->placeholder('Contoh: Bandung / Jakarta Selatan'),
+                                            Forms\Components\FileUpload::make('image_upload')
+                                                ->label('Upload Gambar Proyek')
+                                                ->directory('promo/gallery')
+                                                ->image()
+                                                ->imagePreviewHeight('140')
+                                                ->maxSize(5120),
+                                            Forms\Components\TextInput::make('image_url')
+                                                ->label('Atau URL Gambar / Cloudinary')
+                                                ->placeholder('https://res.cloudinary.com/... atau https://...'),
+                                            Forms\Components\FileUpload::make('video_upload')
+                                                ->label('Upload Video Singkat (Opsional)')
+                                                ->directory('promo/gallery_videos')
+                                                ->acceptedFileTypes(['video/*'])
+                                                ->maxSize(20480),
+                                            Forms\Components\TextInput::make('caption')
+                                                ->label('Catatan / Keterangan')
+                                                ->placeholder('Contoh: Standar Presisi IndoRoster • Terpasang Rapi')
+                                                ->columnSpanFull(),
+                                        ])
+                                        ->columns(2)
+                                        ->collapsible()
+                                        ->collapsed()
+                                        ->itemLabel(fn (array $state): ?string => $state['title'] ?? 'Foto Dokumentasi')
+                                        ->addActionLabel('+ Tambah Foto Proyek Kustom')
                                         ->columnSpanFull(),
                                 ]),
                         ]),

@@ -211,13 +211,13 @@ class PromoRosterPabrik extends Component
         $galleryIds = $sections['gallery']['gallery_ids'] ?? [];
         if (! empty($galleryIds)) {
             $installationGalleries = Gallery::query()
-                ->with(['media'])
+                ->with(['media', 'product.media'])
                 ->whereIn('id', $galleryIds)
                 ->where('is_active', true)
                 ->get();
         } else {
             $installationGalleries = Gallery::query()
-                ->with(['media'])
+                ->with(['media', 'product.media'])
                 ->where('is_active', true)
                 ->whereHas('media')
                 ->inRandomOrder()
@@ -226,7 +226,7 @@ class PromoRosterPabrik extends Component
 
             if ($installationGalleries->isEmpty()) {
                 $installationGalleries = Gallery::query()
-                    ->with(['media'])
+                    ->with(['media', 'product.media'])
                     ->where('is_active', true)
                     ->take(6)
                     ->get();
@@ -234,7 +234,7 @@ class PromoRosterPabrik extends Component
         }
 
         if (! $heroImageUrl && $installationGalleries->isNotEmpty()) {
-            $heroImageUrl = $installationGalleries->first()->media->first()?->media_url;
+            $heroImageUrl = $installationGalleries->first()->primary_image;
         }
 
         $defaultCityName = $promoPage?->default_city ?: 'Jabodetabek & Jawa Barat';

@@ -166,7 +166,7 @@
                                     <div class="absolute bottom-4 left-4 right-4 p-4 rounded-2xl bg-slate-900/90 backdrop-blur-md border border-white/10 text-white space-y-2">
                                         <div class="flex items-center justify-between">
                                             <span class="text-xs font-black uppercase tracking-wider text-terra-400">Pabrik Tangan Pertama</span>
-                                            <span class="text-[11px] font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">🚚 Siap Kirim</span>
+                                            <span class="text-[11px] font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">{{ $hero['card_badge'] ?? '🚚 Siap Kirim' }}</span>
                                         </div>
                                         <p class="text-sm font-bold text-slate-100">
                                             {{ $hero['card_title'] ?? 'Siku 90° Presisi Milimeter — Fasad Rapi, Tukang Pasang Cepat & Hemat Semen' }}
@@ -706,7 +706,10 @@
                 @endif
         @elseif($sectionKey === 'gallery')
             {{-- 8. GALERI FOTO PEMASANGAN NYATA (Foto 1 - 3 Kolom ke Samping, Sisanya ke Bawah) --}}
-                @if($installationGalleries->isNotEmpty())
+                @php
+                    $customGalleryItems = $gallerySection['items'] ?? [];
+                @endphp
+                @if(!empty($customGalleryItems) || $installationGalleries->isNotEmpty())
                 <section class="py-12 md:py-18 bg-white dark:bg-slate-900 border-b border-slate-200/80 dark:border-slate-800">
                     <div class="max-w-6xl mx-auto px-4 sm:px-6">
                         
@@ -724,46 +727,90 @@
             
                         {{-- 3 Kolom ke Samping, Sisanya ke Bawah --}}
                         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                            @foreach($installationGalleries as $gallery)
-                                @php
-                                    $media = $gallery->media->first();
-                                    $imgUrl = $media?->media_url ?? '';
-                                @endphp
-                                <div class="group rounded-3xl overflow-hidden bg-white dark:bg-slate-850 border border-slate-200 dark:border-slate-800 shadow-lg flex flex-col justify-between hover:border-terra-400 transition-all">
-                                    
-                                    {{-- Photo View (Clean & Bright - NO HEAVY OVERLAY) --}}
-                                    <div class="relative aspect-4/3 bg-slate-100 dark:bg-slate-800 overflow-hidden">
-                                        @if(!empty($imgUrl))
-                                            <img src="{{ cloudinary_thumb($imgUrl, 600) }}" 
-                                                 alt="{{ $gallery->title }}" 
-                                                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                                                 loading="lazy"
-                                                 onerror="this.src='{{ asset('assets/logo_indoroster_no_text.PNG') }}'">
-                                        @else
-                                            <div class="w-full h-full bg-gradient-to-br from-terra-100 to-slate-200 dark:from-terra-900 dark:to-slate-800 flex items-center justify-center p-3 text-center">
-                                                <span class="text-3xl">🏛️</span>
+                            {{-- 1. Custom Items from Repeater if configured --}}
+                            @if(!empty($customGalleryItems))
+                                @foreach($customGalleryItems as $item)
+                                    @php
+                                        $itemImg = !empty($item['image_upload']) ? asset('storage/'.$item['image_upload']) : ($item['image_url'] ?? '');
+                                        $itemVideo = !empty($item['video_upload']) ? asset('storage/'.$item['video_upload']) : ($item['video_url'] ?? '');
+                                    @endphp
+                                    <div class="group rounded-3xl overflow-hidden bg-white dark:bg-slate-850 border border-slate-200 dark:border-slate-800 shadow-lg flex flex-col justify-between hover:border-terra-400 transition-all">
+                                        <div class="relative aspect-4/3 bg-slate-100 dark:bg-slate-800 overflow-hidden">
+                                            @if(!empty($itemVideo))
+                                                <video src="{{ $itemVideo }}" autoplay muted loop playsinline class="w-full h-full object-cover"></video>
+                                            @elseif(!empty($itemImg))
+                                                <img src="{{ cloudinary_thumb($itemImg, 600) }}" 
+                                                     alt="{{ $item['title'] ?? 'Dokumentasi Pemasangan Roster' }}" 
+                                                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                                     loading="lazy"
+                                                     onerror="this.src='{{ asset('assets/logo_indoroster_no_text.PNG') }}'">
+                                            @else
+                                                <div class="w-full h-full bg-gradient-to-br from-terra-100 to-slate-200 dark:from-terra-900 dark:to-slate-800 flex items-center justify-center p-3 text-center">
+                                                    <span class="text-3xl">🏛️</span>
+                                                </div>
+                                            @endif
+
+                                            <div class="absolute top-3 left-3 z-10">
+                                                <span class="bg-slate-900/80 backdrop-blur-xs text-amber-300 text-[10px] font-black uppercase px-2.5 py-1 rounded-full shadow-md">
+                                                    📍 {{ $item['location'] ?? $cityName }}
+                                                </span>
                                             </div>
-                                        @endif
-            
-                                        {{-- Clean Location Badge --}}
-                                        <div class="absolute top-3 left-3 z-10">
-                                            <span class="bg-slate-900/80 backdrop-blur-xs text-amber-300 text-[10px] font-black uppercase px-2.5 py-1 rounded-full shadow-md">
-                                                📍 {{ $gallery->location ?: 'Jabodetabek' }}
-                                            </span>
+                                        </div>
+
+                                        <div class="p-5 bg-white dark:bg-slate-900 space-y-1">
+                                            <h4 class="text-sm sm:text-base font-black text-slate-900 dark:text-white line-clamp-2 group-hover:text-terra-600 transition-colors leading-snug">
+                                                {{ $item['title'] ?? 'Inspirasi Pemasangan Roster' }}
+                                            </h4>
+                                            <p class="text-xs text-slate-500 dark:text-slate-400 line-clamp-1">
+                                                {{ $item['caption'] ?? 'Standar Presisi IndoRoster • Terpasang Rapi' }}
+                                            </p>
                                         </div>
                                     </div>
-            
-                                    {{-- Caption Info Below --}}
-                                    <div class="p-5 bg-white dark:bg-slate-900 space-y-1">
-                                        <h4 class="text-sm sm:text-base font-black text-slate-900 dark:text-white line-clamp-2 group-hover:text-terra-600 transition-colors leading-snug">
-                                            {{ $gallery->title }}
-                                        </h4>
-                                        <p class="text-xs text-slate-500 dark:text-slate-400 line-clamp-1">
-                                            Standar Presisi IndoRoster • Terpasang Rapi
-                                        </p>
+                                @endforeach
+                            @endif
+
+                            {{-- 2. Database Galleries (selected or active) --}}
+                            @if(empty($customGalleryItems) || !empty($gallerySection['gallery_ids']))
+                                @foreach($installationGalleries as $gallery)
+                                    @php
+                                        $primaryImg = $gallery->primary_image ?: ($gallery->media->first()?->formatted_url ?: ($gallery->product?->primary_image ?? ''));
+                                    @endphp
+                                    <div class="group rounded-3xl overflow-hidden bg-white dark:bg-slate-850 border border-slate-200 dark:border-slate-800 shadow-lg flex flex-col justify-between hover:border-terra-400 transition-all">
+                                        
+                                        {{-- Photo View (Clean & Bright - NO HEAVY OVERLAY) --}}
+                                        <div class="relative aspect-4/3 bg-slate-100 dark:bg-slate-800 overflow-hidden">
+                                            @if(!empty($primaryImg))
+                                                <img src="{{ cloudinary_thumb($primaryImg, 600) }}" 
+                                                     alt="{{ $gallery->title }}" 
+                                                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                                     loading="lazy"
+                                                     onerror="this.src='{{ asset('assets/logo_indoroster_no_text.PNG') }}'">
+                                            @else
+                                                <div class="w-full h-full bg-gradient-to-br from-terra-100 to-slate-200 dark:from-terra-900 dark:to-slate-800 flex items-center justify-center p-3 text-center">
+                                                    <span class="text-3xl">🏛️</span>
+                                                </div>
+                                            @endif
+                                
+                                            {{-- Clean Location Badge --}}
+                                            <div class="absolute top-3 left-3 z-10">
+                                                <span class="bg-slate-900/80 backdrop-blur-xs text-amber-300 text-[10px] font-black uppercase px-2.5 py-1 rounded-full shadow-md">
+                                                    📍 {{ $gallery->location ?: $cityName }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                
+                                        {{-- Caption Info Below --}}
+                                        <div class="p-5 bg-white dark:bg-slate-900 space-y-1">
+                                            <h4 class="text-sm sm:text-base font-black text-slate-900 dark:text-white line-clamp-2 group-hover:text-terra-600 transition-colors leading-snug">
+                                                {{ $gallery->title }}
+                                            </h4>
+                                            <p class="text-xs text-slate-500 dark:text-slate-400 line-clamp-1">
+                                                {{ $gallery->description ?: 'Standar Presisi IndoRoster • Terpasang Rapi' }}
+                                            </p>
+                                        </div>
                                     </div>
-                                </div>
-                            @endforeach
+                                @endforeach
+                            @endif
                         </div>
             
                         <div class="text-center mt-10">

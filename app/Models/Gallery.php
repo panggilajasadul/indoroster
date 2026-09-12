@@ -66,4 +66,35 @@ class Gallery extends Model
     {
         return $query->where('is_active', true);
     }
+
+    /**
+     * Get primary media object.
+     */
+    public function getPrimaryMediaAttribute(): ?GalleryMedia
+    {
+        return $this->media()->where('media_type', 'image')->first()
+            ?? $this->media()->first();
+    }
+
+    /**
+     * Get primary image formatted URL.
+     */
+    public function getPrimaryImageAttribute(): ?string
+    {
+        $imageMedia = $this->media()->where('media_type', 'image')->first();
+        if ($imageMedia) {
+            return $imageMedia->formatted_url;
+        }
+
+        $firstMedia = $this->media()->first();
+        if ($firstMedia) {
+            return $firstMedia->formatted_url;
+        }
+
+        if ($this->product) {
+            return $this->product->primary_image;
+        }
+
+        return null;
+    }
 }
