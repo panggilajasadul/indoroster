@@ -84,11 +84,11 @@
                     @endphp
                     <div class="relative rounded-3xl overflow-hidden aspect-video sm:aspect-[4/3] lg:aspect-square {{ $videoBoxClass }}">
                         @if($isVideo)
-                        <video class="w-full h-full object-cover" autoplay loop muted playsinline>
+                        <video class="w-full h-full object-cover" preload="none" loop muted playsinline data-lazy-video>
                             <source src="{{ $finalVideoUrl }}">
                         </video>
                         @elseif($finalVideoUrl)
-                        <img src="{{ $finalVideoUrl }}" class="w-full h-full object-cover" alt="{{ $title }}">
+                        <img src="{{ $finalVideoUrl }}" class="w-full h-full object-cover" alt="{{ $title }}" loading="lazy" decoding="async">
                         @endif
                     </div>
                     @endforeach

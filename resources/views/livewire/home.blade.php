@@ -401,7 +401,7 @@
                             @if($displayMedia->media_type === 'video' && !str_contains($displayMedia->media_url, 'youtube.com') && !str_contains($displayMedia->media_url, 'youtu.be'))
                                 <video src="{{ $displayMedia->formatted_url }}" 
                                     class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                                    autoplay muted loop playsinline></video>
+                                    preload="none" muted loop playsinline data-lazy-video></video>
                             @else
                                 <img src="{{ $displayMedia->media_type === 'image' ? cloudinary_thumb($displayMedia->formatted_url, 400) : cloudinary_thumb($product->primary_image, 400) }}" alt="{{ $product->name }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy" decoding="async">
                             @endif
@@ -504,9 +504,9 @@
                             @if($displayMedia->media_type === 'video' && !str_contains($displayMedia->media_url, 'youtube.com') && !str_contains($displayMedia->media_url, 'youtu.be'))
                                 <video src="{{ $displayMedia->formatted_url }}" 
                                     class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                                    autoplay muted loop playsinline></video>
+                                    preload="none" muted loop playsinline data-lazy-video></video>
                             @else
-                                <img src="{{ $displayMedia->media_type === 'image' ? $displayMedia->formatted_url : $product->primary_image }}" alt="{{ $product->name }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+                                <img src="{{ $displayMedia->media_type === 'image' ? $displayMedia->formatted_url : $product->primary_image }}" alt="{{ $product->name }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy" decoding="async">
                             @endif
                         @else
                             <div class="w-full h-full flex items-center justify-center text-slate-400 text-xs">No Image</div>

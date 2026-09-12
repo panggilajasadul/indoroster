@@ -31,9 +31,9 @@
             @endphp
             <div class="group relative aspect-square overflow-hidden rounded-2xl bg-slate-900">
                 @if($isVideo)
-                <video src="{{ $imageUrl }}" class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 opacity-70 group-hover:opacity-100" autoplay loop muted playsinline></video>
+                <video src="{{ $imageUrl }}" class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 opacity-70 group-hover:opacity-100" preload="none" loop muted playsinline data-lazy-video></video>
                 @elseif($imageUrl)
-                <img src="{{ $imageUrl }}" alt="{{ $item['title'] ?? '' }}" class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 opacity-70 group-hover:opacity-100">
+                <img src="{{ $imageUrl }}" alt="{{ $item['title'] ?? '' }}" class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 opacity-70 group-hover:opacity-100" loading="lazy" decoding="async">
                 @endif
                 <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80"></div>
                 <div class="absolute bottom-0 left-0 right-0 p-8 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">

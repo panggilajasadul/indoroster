@@ -57,11 +57,11 @@
                         $isVideo = in_array(strtolower($ext), ['mp4', 'webm', 'ogg', 'mov', 'm4v', 'avi', 'mkv', '3gp']) || str_contains(strtolower($finalVideoUrl), 'video');
                     @endphp
                     @if($isVideo)
-                    <video class="w-full h-full object-cover" autoplay loop muted playsinline>
+                    <video class="w-full h-full object-cover" preload="none" loop muted playsinline data-lazy-video>
                         <source src="{{ $finalVideoUrl }}">
                     </video>
                     @elseif($finalVideoUrl)
-                    <img src="{{ $finalVideoUrl }}" class="w-full h-full object-cover" alt="Uji Kekuatan Roster">
+                    <img src="{{ $finalVideoUrl }}" class="w-full h-full object-cover" alt="Uji Kekuatan Roster" loading="lazy" decoding="async">
                     @else
                     <div class="w-full h-full flex flex-col items-center justify-center bg-slate-900 text-slate-400 p-8 text-center">
                         <div class="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center mb-3">

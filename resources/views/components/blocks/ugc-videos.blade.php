@@ -63,9 +63,9 @@
                 @endphp
                 <div class="relative aspect-[9/16] rounded-3xl overflow-hidden {{ $frameClass }} group transition-all duration-300">
                     @if($isVideo)
-                    <video src="{{ $videoUrl }}" autoplay muted loop playsinline class="w-full h-full object-cover"></video>
+                    <video src="{{ $videoUrl }}" preload="none" muted loop playsinline data-lazy-video class="w-full h-full object-cover"></video>
                     @elseif($videoUrl)
-                    <img src="{{ $videoUrl }}" class="w-full h-full object-cover" alt="Video Inspirasi">
+                    <img src="{{ $videoUrl }}" class="w-full h-full object-cover" alt="Video Inspirasi" loading="lazy" decoding="async">
                     @endif
                     <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent flex items-end p-4 sm:p-5">
                         <div class="flex items-center gap-2.5">

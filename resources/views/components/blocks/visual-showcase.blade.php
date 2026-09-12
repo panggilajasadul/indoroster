@@ -53,9 +53,9 @@
                 @endphp
                 <div class="w-[280px] sm:w-[380px] md:w-[440px] aspect-[4/3] rounded-2xl sm:rounded-3xl overflow-hidden shrink-0 shadow-lg dark:shadow-2xl/40 border border-slate-200/50 dark:border-slate-800/60 bg-slate-900/40 transition-transform duration-300 hover:scale-[1.02]">
                     @if($isVideo)
-                    <video src="{{ $src }}" class="w-full h-full object-cover" autoplay loop muted playsinline></video>
+                    <video src="{{ $src }}" class="w-full h-full object-cover" preload="none" loop muted playsinline data-lazy-video></video>
                     @elseif($src)
-                    <img src="{{ $src }}" alt="Inspirasi Estetika Roster Minimalis" class="w-full h-full object-cover select-none pointer-events-none" loading="lazy">
+                    <img src="{{ $src }}" alt="Inspirasi Estetika Roster Minimalis" class="w-full h-full object-cover select-none pointer-events-none" loading="lazy" decoding="async">
                     @endif
                 </div>
                 @endforeach
