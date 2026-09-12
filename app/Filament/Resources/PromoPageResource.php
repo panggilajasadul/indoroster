@@ -76,14 +76,25 @@ class PromoPageResource extends Resource
                                     ->numeric()
                                     ->default(0),
 
+                                Forms\Components\Select::make('robots')
+                                    ->label('Status Indeks Google & Sitemap (Robots Meta)')
+                                    ->options([
+                                        'index, follow' => '🟢 Masuk Google Search & Sitemap XML (Diindeks)',
+                                        'noindex, follow' => '🟡 Khusus Iklan Ads Saja (Noindex / Tidak Masuk Sitemap)',
+                                    ])
+                                    ->default('index, follow')
+                                    ->helperText('Pilih status indeks. Jika diset "Masuk Google Search", halaman ini otomatis masuk ke sitemap.xml IndoRoster.')
+                                    ->required(),
+
                                 Forms\Components\TextInput::make('meta_title')
-                                    ->label('Meta Title (Judul Tab Browser)')
+                                    ->label('Meta Title (Judul Tab Browser & Google Snippet)')
                                     ->placeholder('IndoRoster — Pusat Roster Beton Minimalis')
                                     ->columnSpanFull(),
 
                                 Forms\Components\Textarea::make('meta_description')
-                                    ->label('Meta Description')
+                                    ->label('Meta Description (Ringkasan Snippet Google)')
                                     ->rows(2)
+                                    ->placeholder('Deskripsi singkat penawaran yang muncul di hasil pencarian Google...')
                                     ->columnSpanFull(),
 
                                 Forms\Components\Section::make('Susunan & Urutan Tampilan Section')

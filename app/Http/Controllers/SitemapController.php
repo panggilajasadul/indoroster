@@ -8,6 +8,7 @@ use App\Models\ExportPage;
 use App\Models\Gallery;
 use App\Models\Page;
 use App\Models\Product;
+use App\Models\PromoPage;
 use App\Models\SeoLocation;
 use App\Models\SeoPage;
 use Carbon\Carbon;
@@ -208,6 +209,33 @@ class SitemapController extends Controller
                         ->setLastModificationDate($p->updated_at ?? Carbon::now())
                         ->setChangeFrequency(Url::CHANGE_FREQUENCY_MONTHLY)
                         ->setPriority(0.6)
+                );
+            }
+        }
+
+        // Promo Pages & Dedicated Landing Pages (Halaman Promo & Penawaran Pabrik)
+        if (Schema::hasTable('promo_pages')) {
+            $promoPages = PromoPage::where('is_active', true)
+                ->where(function ($q) {
+                    $q->whereNull('robots')
+                        ->orWhere('robots', 'NOT LIKE', '%noindex%');
+                })
+                ->orderBy('updated_at', 'desc')
+                ->get();
+
+            foreach ($promoPages as $pr) {
+                $promoUrl = match ($pr->slug) {
+                    'promo' => $baseUrl.'/promo',
+                    'penawaran-proyek' => $baseUrl.'/penawaran-proyek',
+                    'roster-pabrik' => $baseUrl.'/promo/roster-pabrik',
+                    default => $baseUrl.'/promo/'.trim($pr->slug),
+                };
+
+                $sitemapPages->add(
+                    Url::create($promoUrl)
+                        ->setLastModificationDate($pr->updated_at ?? Carbon::now())
+                        ->setChangeFrequency(Url::CHANGE_FREQUENCY_WEEKLY)
+                        ->setPriority(0.85)
                 );
             }
         }
@@ -504,14 +532,15 @@ class SitemapController extends Controller
         // ==========================================
         $sitemapSeo = Sitemap::create();
         if (Schema::hasTable('seo_pages')) {
-            $seoPages = SeoPage::where('status', 'published')
-                ->where('noindex', false)
-                ->orderBy('priority_score', 'desc')
-                ->orderBy('updated_at', 'desc')
-                ->get(['slug', 'priority_score', 'updated_at']);
+            $hasQualityScore = Schema::hasColumn('seo_pages', 'quality_score');
+            $query = SeoPage::where('status', 'published')->where('noindex', false);
+            if ($hasQualityScore) {
+                $query->orderBy('quality_score', 'desc');
+            }
+            $seoPages = $query->orderBy('updated_at', 'desc')->get();
 
             foreach ($seoPages as $sp) {
-                $rawScore = ($sp->priority_score && $sp->priority_score > 0) ? $sp->priority_score : 85;
+                $rawScore = ($sp->quality_score && $sp->quality_score > 0) ? $sp->quality_score : 85;
                 $prio = round($rawScore / 100, 2);
                 $prio = max(0.70, min(1.0, $prio));
                 $sitemapSeo->add(

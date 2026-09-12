@@ -10,6 +10,7 @@ use App\Models\Gallery;
 use App\Models\Order;
 use App\Models\Page;
 use App\Models\Product;
+use App\Models\PromoPage;
 use App\Models\SeoLocation;
 use App\Models\SeoPage;
 use App\Models\SiteSetting;
@@ -112,6 +113,8 @@ class AppServiceProvider extends ServiceProvider
         SeoPage::deleted($sitemapGenerator);
         ExportPage::saved($sitemapGenerator);
         ExportPage::deleted($sitemapGenerator);
+        PromoPage::saved($sitemapGenerator);
+        PromoPage::deleted($sitemapGenerator);
 
         // Custom professional verification email narrative
         VerifyEmail::toMailUsing(function (object $notifiable, string $url) {
