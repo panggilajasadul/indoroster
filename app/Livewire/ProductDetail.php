@@ -229,10 +229,10 @@ class ProductDetail extends Component
         if ($this->selectedVariant) {
             $variant = $this->product->variants->where('is_active', true)->firstWhere('id', (int) $this->selectedVariant);
 
-            return $variant ? (float) $variant->final_price : (float) $this->product->price;
+            return $variant ? (float) $variant->final_price : (float) ($this->product->min_price > 0 ? $this->product->min_price : $this->product->price);
         }
 
-        return (float) $this->product->price;
+        return (float) ($this->product->min_price > 0 ? $this->product->min_price : $this->product->price);
     }
 
     public function getActiveStockProperty()

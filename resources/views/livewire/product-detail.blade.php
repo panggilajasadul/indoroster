@@ -15,7 +15,7 @@
                     content_category: @json($product->category?->name ?? 'Roster Beton'),
                     content_ids: [@json((string) $product->id)],
                     content_type: 'product',
-                    value: {{ (float) ($product->price ?? 0) }},
+                    value: {{ (float) ($product->min_price > 0 ? $product->min_price : ($product->price ?? 0)) }},
                     currency: 'IDR'
                 });
             }
