@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Schema;
 
 class FullSeoPageSyncSeeder extends Seeder
 {
@@ -44,28 +45,48 @@ class FullSeoPageSyncSeeder extends Seeder
         $chunks = array_chunk($records, 250);
         $inserted = 0;
 
+        $validColumns = Schema::getColumnListing('seo_pages');
+        $validColumnsFlip = array_flip($validColumns);
+
         foreach ($chunks as $index => $chunk) {
-            // Hilangkan kolom 'id' agar auto-increment atau gunakan upsert berdasarkan slug
-            $upsertData = array_map(function ($item) {
-                unset($item['id']);
+            $upsertData = [];
+            foreach ($chunk as $item) {
+                $row = array_intersect_key($item, $validColumnsFlip);
+                unset($row['id']);
 
-                return $item;
-            }, $chunk);
+                if (isset($row['secondary_keywords']) && is_array($row['secondary_keywords'])) {
+                    $row['secondary_keywords'] = json_encode($row['secondary_keywords']);
+                }
+                if (isset($row['quality_details']) && is_array($row['quality_details'])) {
+                    $row['quality_details'] = json_encode($row['quality_details']);
+                }
+                if (isset($row['audit_checklist']) && is_array($row['audit_checklist'])) {
+                    $row['audit_checklist'] = json_encode($row['audit_checklist']);
+                }
+                if (isset($row['product_ids']) && is_array($row['product_ids'])) {
+                    $row['product_ids'] = json_encode($row['product_ids']);
+                }
+                if (isset($row['related_page_ids']) && is_array($row['related_page_ids'])) {
+                    $row['related_page_ids'] = json_encode($row['related_page_ids']);
+                }
+                if (empty($row['status'])) {
+                    $row['status'] = 'published';
+                }
 
-            DB::table('seo_pages')->upsert(
-                $upsertData,
-                ['slug'],
-                [
-                    'page_type', 'primary_keyword', 'secondary_keywords', 'search_intent',
-                    'buyer_type', 'project_type', 'use_case', 'seo_location_id', 'location_name',
-                    'title', 'meta_description', 'og_title', 'og_description', 'og_image',
-                    'canonical_url', 'noindex', 'h1', 'opening_text', 'unique_value_proposition',
-                    'unique_evidence', 'unique_angle', 'cta_type', 'cta_text', 'cta_wa_message',
-                    'product_matching_rule', 'product_ids', 'parent_page_id', 'related_page_ids',
-                    'structured_data_type', 'priority_score', 'quality_score', 'quality_details',
-                    'status', 'published_at', 'last_reviewed_at', 'updated_at',
-                ]
-            );
+                $upsertData[] = $row;
+            }
+
+            if (! empty($upsertData)) {
+                $updateColumns = array_keys($upsertData[0]);
+                // Hilangkan 'slug' dan 'created_at' dari daftar kolom update
+                $updateColumns = array_values(array_diff($updateColumns, ['slug', 'created_at']));
+
+                DB::table('seo_pages')->upsert(
+                    $upsertData,
+                    ['slug'],
+                    $updateColumns
+                );
+            }
 
             $inserted += count($chunk);
             $this->command->line("Progress: {$inserted}/{$total} halaman SEO disinkronkan...");
