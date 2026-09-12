@@ -18,6 +18,13 @@ class MetaEventController extends Controller
      */
     public function dispatchEvent(Request $request): JsonResponse
     {
+        if (empty($request->all()) && ! empty($request->getContent())) {
+            $json = json_decode($request->getContent(), true);
+            if (is_array($json)) {
+                $request->merge($json);
+            }
+        }
+
         $validated = $request->validate([
             'event_name' => 'required|string|max:100',
             'event_id' => 'nullable|string|max:100',

@@ -234,7 +234,6 @@
     s.parentNode.insertBefore(t,s)}(window, document,'script',
     'https://connect.facebook.net/en_US/fbevents.js');
     fbq('init', '{{ $metaPixelId }}');
-    fbq('track', 'PageView');
     </script>
     @endif
     <!-- End Meta Pixel Code -->
@@ -1135,10 +1134,20 @@
         </div>
     </div>
 
+    @php
+        $currentUser = auth()->user();
+        $authUserData = $currentUser ? [
+            'em' => $currentUser->email,
+            'ph' => $currentUser->phone ?? '',
+            'name' => $currentUser->name ?? '',
+            'external_id' => (string) $currentUser->id,
+        ] : null;
+    @endphp
+
     <!-- Meta Hybrid Tracker (Pixel + Conversions API Deduplication & High-EMQ Matching) -->
     <script>
     (function() {
-        // 1. Capture fbclid to _fbc cookie automatically
+        // 1. Capture fbclid to _fbc cookie automatically (90 days expiry)
         try {
             const urlParams = new URLSearchParams(window.location.search);
             const fbclid = urlParams.get('fbclid');
@@ -1148,6 +1157,15 @@
         } catch(e) {}
 
         window.indorosterAuthUser = @json($authUserData);
+
+        function getCookie(name) {
+            try {
+                const value = "; " + document.cookie;
+                const parts = value.split("; " + name + "=");
+                if (parts.length === 2) return parts.pop().split(";").shift();
+            } catch(e) {}
+            return '';
+        }
 
         function generateEventId() {
             return 'evt_' + Date.now() + '_' + Math.random().toString(36).substring(2, 11);
@@ -1162,45 +1180,73 @@
             const authUser = window.indorosterAuthUser || {};
 
             return Object.assign({}, {
-                em: authUser.em || savedLead.em || '',
-                ph: authUser.ph || savedLead.phone || '',
-                name: authUser.name || savedLead.name || '',
-                ct: savedLead.city || '',
-                country: 'id'
+                em: (explicitUserData.em || authUser.em || savedLead.em || '').trim(),
+                ph: (explicitUserData.ph || authUser.ph || savedLead.phone || '').trim(),
+                name: (explicitUserData.name || authUser.name || savedLead.name || '').trim(),
+                ct: (explicitUserData.ct || savedLead.city || '').trim(),
+                country: 'id',
+                fbp: getCookie('_fbp') || '',
+                fbc: getCookie('_fbc') || ''
             }, explicitUserData);
         }
 
-        window.trackMetaEvent = function(eventName, customData = {}, userData = {}) {
-            const eventId = generateEventId();
+        window.trackMetaEvent = function(eventName, customData = {}, userData = {}, givenEventId = null) {
+            const eventId = givenEventId || generateEventId();
             const finalUserData = getMergedUserData(userData);
 
+            // 1. Browser Pixel Track with eventID for Deduplication
             if (typeof fbq === 'function') {
                 fbq('track', eventName, customData, { eventID: eventId });
             }
 
-            try {
-                fetch('/api/meta-events', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
-                    body: JSON.stringify({
-                        event_name: eventName,
-                        event_id: eventId,
-                        event_source_url: window.location.href,
-                        custom_data: customData,
-                        user_data: finalUserData
-                    }),
-                    keepalive: true
-                }).catch(function() {});
-            } catch(e) {}
+            // 2. Server-side CAPI Track with identical event_id
+            const payload = JSON.stringify({
+                event_name: eventName,
+                event_id: eventId,
+                event_source_url: window.location.href,
+                custom_data: customData,
+                user_data: finalUserData
+            });
+
+            // Try navigator.sendBeacon first for non-blocking, reliable delivery across page transitions
+            let beaconSent = false;
+            if (navigator.sendBeacon) {
+                try {
+                    const blob = new Blob([payload], { type: 'application/json' });
+                    beaconSent = navigator.sendBeacon('/api/meta-events', blob);
+                } catch(e) {
+                    beaconSent = false;
+                }
+            }
+
+            // Fallback to fetch with keepalive if beacon was not sent
+            if (!beaconSent) {
+                try {
+                    fetch('/api/meta-events', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: payload,
+                        keepalive: true
+                    }).catch(function() {});
+                } catch(e) {}
+            }
+
+            return eventId;
         };
 
+        // Dual-Track PageView (Browser Pixel + Server CAPI) on initial page load
+        if (typeof window.trackMetaEvent === 'function') {
+            window.trackMetaEvent('PageView');
+        }
+
+        // Dual-Track PageView on Livewire SPA navigation
         document.addEventListener('livewire:navigated', function() {
-            if (typeof fbq === 'function') {
-                fbq('track', 'PageView');
+            if (typeof window.trackMetaEvent === 'function') {
+                window.trackMetaEvent('PageView');
             }
         });
 

@@ -5,8 +5,11 @@
 @push('head-scripts')
 <script>
     (function() {
+        let viewContentFired = false;
         function triggerViewContent() {
+            if (viewContentFired) return;
             if (typeof window.trackMetaEvent === 'function') {
+                viewContentFired = true;
                 window.trackMetaEvent('ViewContent', {
                     content_name: @json($product->name),
                     content_category: @json($product->category?->name ?? 'Roster Beton'),
@@ -17,10 +20,13 @@
                 });
             }
         }
-        if (document.readyState === 'complete') {
+
+        if (typeof window.trackMetaEvent === 'function') {
             triggerViewContent();
         } else {
+            document.addEventListener('DOMContentLoaded', triggerViewContent);
             window.addEventListener('load', triggerViewContent);
+            setTimeout(triggerViewContent, 300);
         }
     })();
 </script>

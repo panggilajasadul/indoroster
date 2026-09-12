@@ -15,7 +15,7 @@ class MetaConversionsService
 
     protected ?string $testEventCode;
 
-    protected string $apiVersion = 'v19.0';
+    protected string $apiVersion = 'v20.0';
 
     public function __construct()
     {
@@ -138,35 +138,42 @@ class MetaConversionsService
         $userData = [];
 
         // 1. Client IP Address (Do NOT hash)
-        if ($request) {
-            $ip = $request->header('CF-Connecting-IP')
+        if (! empty($inputUserData['client_ip_address'])) {
+            $userData['client_ip_address'] = trim($inputUserData['client_ip_address']);
+        } elseif ($request) {
+            $rawIp = $request->header('CF-Connecting-IP')
                 ?: $request->header('X-Forwarded-For')
+                ?: $request->header('X-Real-IP')
                 ?: $request->ip();
 
-            if (! empty($ip) && $ip !== '127.0.0.1' && $ip !== '::1') {
-                $userData['client_ip_address'] = explode(',', $ip)[0];
+            if (! empty($rawIp)) {
+                $firstIp = trim(explode(',', $rawIp)[0]);
+                if (! empty($firstIp) && $firstIp !== '127.0.0.1' && $firstIp !== '::1') {
+                    $userData['client_ip_address'] = $firstIp;
+                }
             }
+        }
 
-            // 2. Client User Agent (Do NOT hash)
-            $userAgent = $request->userAgent();
-            if (! empty($userAgent)) {
-                $userData['client_user_agent'] = $userAgent;
-            }
+        // 2. Client User Agent (Do NOT hash)
+        if (! empty($inputUserData['client_user_agent'])) {
+            $userData['client_user_agent'] = trim($inputUserData['client_user_agent']);
+        } elseif ($request && ! empty($request->userAgent())) {
+            $userData['client_user_agent'] = $request->userAgent();
+        }
 
-            // 3. Meta Cookies (fbp & fbc) (Do NOT hash)
-            $fbp = $inputUserData['fbp'] ?? $request->cookie('_fbp');
-            if (! empty($fbp)) {
-                $userData['fbp'] = $fbp;
-            }
+        // 3. Meta Cookies (fbp & fbc) (Do NOT hash)
+        $fbp = $inputUserData['fbp'] ?? ($request ? $request->cookie('_fbp') : null);
+        if (! empty($fbp)) {
+            $userData['fbp'] = trim($fbp);
+        }
 
-            $fbc = $inputUserData['fbc'] ?? $request->cookie('_fbc');
-            // If fbclid query param is present on current request but no cookie yet, construct fbc
-            if (empty($fbc) && $request->has('fbclid')) {
-                $fbc = 'fb.1.'.time().'.'.$request->query('fbclid');
-            }
-            if (! empty($fbc)) {
-                $userData['fbc'] = $fbc;
-            }
+        $fbc = $inputUserData['fbc'] ?? ($request ? $request->cookie('_fbc') : null);
+        // If fbclid query param is present on current request but no cookie yet, construct fbc
+        if (empty($fbc) && $request && $request->has('fbclid')) {
+            $fbc = 'fb.1.'.time().'.'.$request->query('fbclid');
+        }
+        if (! empty($fbc)) {
+            $userData['fbc'] = trim($fbc);
         }
 
         // 4. Hashable Fields (SHA-256 after trim + lowercase)
@@ -175,34 +182,42 @@ class MetaConversionsService
         }
 
         if (! empty($inputUserData['ph'])) {
-            // Clean phone: digits only, convert leading 0 to 62
-            $cleanedPhone = preg_replace('/[^0-9]/', '', $inputUserData['ph']);
+            // Clean phone: digits only, convert 08xx or 8xx to 628xx (E.164 international standard)
+            $cleanedPhone = preg_replace('/[^0-9]/', '', (string) $inputUserData['ph']);
             if (str_starts_with($cleanedPhone, '0')) {
                 $cleanedPhone = '62'.substr($cleanedPhone, 1);
+            } elseif (str_starts_with($cleanedPhone, '8')) {
+                $cleanedPhone = '62'.$cleanedPhone;
             }
-            $userData['ph'] = [hash('sha256', $cleanedPhone)];
+
+            if (strlen($cleanedPhone) >= 9) {
+                $userData['ph'] = [hash('sha256', $cleanedPhone)];
+            }
         }
 
         if (! empty($inputUserData['ct'])) {
-            $userData['ct'] = [hash('sha256', strtolower(trim($inputUserData['ct'])))];
+            $cleanedCity = strtolower(trim(preg_replace('/[^a-zA-Z0-9\s]/', '', $inputUserData['ct'])));
+            $userData['ct'] = [hash('sha256', $cleanedCity)];
         }
 
         if (! empty($inputUserData['st'])) {
-            $userData['st'] = [hash('sha256', strtolower(trim($inputUserData['st'])))];
+            $cleanedState = strtolower(trim(preg_replace('/[^a-zA-Z0-9\s]/', '', $inputUserData['st'])));
+            $userData['st'] = [hash('sha256', $cleanedState)];
         }
 
         if (! empty($inputUserData['country'])) {
-            $userData['country'] = [hash('sha256', strtolower(trim($inputUserData['country'])))];
+            $cleanedCountry = strtolower(trim($inputUserData['country']));
+            $userData['country'] = [hash('sha256', $cleanedCountry)];
         } else {
-            $userData['country'] = [hash('sha256', 'id')]; // Default Indonesia
+            $userData['country'] = [hash('sha256', 'id')]; // Default Indonesia (ISO 2-letter)
         }
 
         // Split name into first and last name if provided as single string
         if (empty($inputUserData['fn']) && ! empty($inputUserData['name'])) {
-            $parts = explode(' ', trim($inputUserData['name']), 2);
-            $inputUserData['fn'] = $parts[0];
-            if (! empty($parts[1])) {
-                $inputUserData['ln'] = $parts[1];
+            $nameParts = preg_split('/\s+/', trim($inputUserData['name']), 2);
+            $inputUserData['fn'] = $nameParts[0] ?? '';
+            if (! empty($nameParts[1])) {
+                $inputUserData['ln'] = $nameParts[1];
             }
         }
 
