@@ -198,6 +198,21 @@ class ProductDetail extends Component
                 : asset('storage/'.$variant->image_url);
             $this->activeMediaType = 'image';
         }
+
+        if ($variant) {
+            $variantPrice = (float) $variant->final_price;
+            $this->dispatch('meta-track-event', [
+                'event' => 'ViewContent',
+                'custom_data' => [
+                    'content_name' => $this->product->name.' - '.$variant->name,
+                    'content_category' => $this->product->category?->name ?? 'Roster Beton',
+                    'content_ids' => [(string) $this->product->id, (string) $variant->id],
+                    'content_type' => 'product',
+                    'value' => $variantPrice,
+                    'currency' => 'IDR',
+                ],
+            ]);
+        }
     }
 
     public function incrementQuantity()
