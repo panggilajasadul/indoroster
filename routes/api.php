@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\GeocodeController;
+use App\Http\Controllers\Api\MetaEventController;
 use App\Http\Controllers\Api\PaymentCallbackController;
 use App\Http\Controllers\Api\SeoController;
 use Illuminate\Http\Request;
@@ -12,6 +13,9 @@ Route::get('/user', function (Request $request) {
 
 // Midtrans Webhook
 Route::post('/payments/midtrans-callback', [PaymentCallbackController::class, 'midtransCallback']);
+
+// Meta Conversions API (CAPI) Event Dispatch Endpoint
+Route::post('/meta-events', [MetaEventController::class, 'dispatchEvent']);
 
 // Geocoding Proxy Endpoint (Bebas CORS & Rate Limit)
 Route::get('/geocode', [GeocodeController::class, 'search']);

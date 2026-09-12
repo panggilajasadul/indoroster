@@ -41,6 +41,7 @@ use App\Livewire\Policy\ShippingPolicy;
 use App\Livewire\ProductCatalog;
 use App\Livewire\ProductDetail;
 use App\Livewire\ProductionProcess;
+use App\Livewire\Promo\PromoRosterPabrik;
 use App\Livewire\RequestQuotation;
 use App\Livewire\Seo\SeoPageDetailFallback;
 use App\Livewire\Tools\RosterCalculator;
@@ -148,6 +149,13 @@ Route::get('/roster-beton-proyek', ProjectHub::class)->name('b2b.project');
 
 // Interactive Tools & Calculation Engine
 Route::get('/kalkulator-roster', RosterCalculator::class)->name('tools.calculator');
+
+// Promotional & Paid Ads Campaign Landing Pages (Meta Ads / FB Ads Min. 100 Pcs)
+Route::get('/promo', PromoRosterPabrik::class)->name('promo.index');
+Route::get('/promo/roster-pabrik', PromoRosterPabrik::class)->name('promo.roster-pabrik');
+Route::get('/penawaran-proyek', PromoRosterPabrik::class)->name('promo.project-offer');
+Route::get('/promo/roster-minimalis', PromoRosterPabrik::class)->name('promo.roster-minimalis');
+Route::get('/promo/{slug}', PromoRosterPabrik::class)->name('promo.detail');
 
 // Architectural Use-Case Landing Pages
 Route::get('/aplikasi', ApplicationHub::class)->name('application.index');

@@ -45,4 +45,10 @@ return [
         'repo' => env('GITHUB_REPO'),
     ],
 
+    'meta' => [
+        'pixel_id' => env('META_PIXEL_ID', '947593387751313'),
+        'access_token' => env('META_CAPI_ACCESS_TOKEN', 'EABEbPpACKgwBSWp3ggEAgihnWDu3ZC6Oa0eS6J0HZCWANEduZBEL0rvb1Mq8RxlHrvsCfTZBKyZBBNREZBLGUGs6MZC66uXNEDLa0z8RYSJVFLKqKPdbvQPB1KFaTPd7yvd9Nngel9sZAdhyv7WBrWcZCymsLSDpmqPLihC4BvQqxsXbfOTYQp1Ctl46ZAxtKIz7KkZAAZDZD'),
+        'test_event_code' => env('META_TEST_EVENT_CODE'),
+    ],
+
 ];

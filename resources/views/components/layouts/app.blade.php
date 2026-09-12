@@ -19,12 +19,13 @@
     <meta name="theme-color" content="{{ $isDarkInitial ? '#020617' : '#ffffff' }}">
     <meta name="color-scheme" content="{{ $isDarkInitial ? 'dark' : 'light' }}">
 
-    {{-- GA4 ID disimpan di PHP variable untuk dipakai di footer (tidak di-render di head) --}}
+    {{-- GA4 ID & Meta Pixel ID --}}
     @php
         $gaId = \App\Models\SiteSetting::getValue('google_analytics_id', 'G-GZQXJ03B4C');
         if (empty($gaId) || $gaId === 'G-XXXXXXXXXX') {
             $gaId = 'G-GZQXJ03B4C';
         }
+        $metaPixelId = config('services.meta.pixel_id') ?: \App\Models\SiteSetting::getValue('meta_pixel_id', '947593387751313');
     @endphp
 
     <meta charset="utf-8">
@@ -221,6 +222,23 @@
     @livewireStyles
     @stack('head-scripts')
 
+    <!-- Meta Pixel Code -->
+    @if(!empty($metaPixelId))
+    <script>
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window, document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '{{ $metaPixelId }}');
+    fbq('track', 'PageView');
+    </script>
+    @endif
+    <!-- End Meta Pixel Code -->
+
     <!-- Global Structured Data (Organization, LocalBusiness, WebSite) -->
     <x-seo-schemas />
 
@@ -229,6 +247,11 @@
 </head>
 
 <body class="font-sans antialiased bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 selection:bg-terra-500 selection:text-white flex flex-col min-h-screen relative" x-data="{ mobileMenuOpen: false }">
+    @if(!empty($metaPixelId))
+    <noscript><img height="1" width="1" style="display:none"
+    src="https://www.facebook.com/tr?id={{ $metaPixelId }}&ev=PageView&noscript=1"
+    /></noscript>
+    @endif
     
     @php
         $navigationMenus = \App\Models\NavigationMenu::where('is_active', true)->orderBy('order', 'asc')->get();
@@ -238,6 +261,8 @@
             'right' => 'justify-end',
             default => 'justify-start',
         };
+        $showNavbarLayout = filter_var($showNavbar ?? false, FILTER_VALIDATE_BOOLEAN);
+        $isPromoPage = (request()->routeIs('promo.*') || request()->is('promo*') || request()->is('penawaran-proyek*')) && ! $showNavbarLayout;
     @endphp
 
     <!-- Sticky Announcement / Trust Strip -->
@@ -248,7 +273,7 @@
         $topBarTrackingText = \App\Models\SiteSetting::getValue('top_bar_tracking_text', 'Lacak Pengiriman');
     @endphp
 
-    @if($topBarActive)
+    @if($topBarActive && !$isPromoPage)
     <div class="bg-slate-900 dark:bg-slate-950 text-slate-300 text-xs py-2 px-4 border-b border-slate-800 hidden sm:block">
         <div class="max-w-screen-2xl mx-auto flex items-center justify-between">
             <div class="flex items-center gap-4">
@@ -281,6 +306,31 @@
     </div>
     @endif
 
+    @if($isPromoPage)
+    <!-- Minimalist Distraction-Free Header for Ads (Zero Menu Bounce) -->
+    <header class="sticky top-0 z-50 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800/80 py-3.5 shadow-xs transition-all">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+                <img src="{{ asset('assets/logo_indoroster_no_text.PNG') }}" alt="IndoRoster" class="h-8 sm:h-9 w-auto">
+                <div class="flex flex-col">
+                    <span class="text-base sm:text-lg font-black tracking-widest text-slate-900 dark:text-white uppercase font-display leading-tight">INDOROSTER</span>
+                    <span class="text-[9px] font-bold text-terra-600 dark:text-terra-400 uppercase tracking-wider">Pusat Roster Beton Minimalis</span>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <div class="hidden sm:flex flex-col text-right">
+                    <span class="text-[10px] font-bold uppercase text-slate-400">Layanan Konsultasi & RAB</span>
+                    <span class="text-xs font-black text-slate-800 dark:text-slate-100">{{ $rawWa }}</span>
+                </div>
+                <a href="https://wa.me/{{ $waNumber }}" target="_blank" data-meta-event="Contact" data-content-name="Promo Header Fast WA" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black shadow-xs hover:scale-105 active:scale-95 transition-all">
+                    <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.275.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.099.824z"/></svg>
+                    <span>Chat Sales Pabrik</span>
+                </a>
+            </div>
+        </div>
+    </header>
+    @else
     <!-- Master Header (Glassmorphic) -->
     <header class="glass-header sticky top-0 z-50 border-b border-slate-200/80 dark:border-slate-800/80 shadow-xs transition-all duration-300">
         <nav class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8" aria-label="Top">
@@ -470,7 +520,9 @@
             </div>
         </nav>
     </header>
+    @endif
 
+    @if(!$isPromoPage)
     <!-- Side Drawer Menu (Mobile & Tablet) -->
     <div x-show="mobileMenuOpen" class="fixed inset-0 z-[100]" style="display: none;" aria-labelledby="slide-over-title" role="dialog" aria-modal="true">
         <!-- Background overlay -->
@@ -601,9 +653,12 @@
             </div>
         </div>
     </div>
+    @endif
 
+    @if(!$isPromoPage)
     <!-- Trust Top Announcement Bar with Hover Tooltips (seperti referensi Toco) -->
     <x-trust-top-bar />
+    @endif
 
     <!-- Main Content Shell -->
     <main class="flex-grow pb-24 lg:pb-0 relative">
@@ -658,6 +713,7 @@
         {{ $slot }}
     </main>
 
+    @if(!$isPromoPage)
     <!-- Mobile Bottom Navigation Bar (App Experience) -->
     <nav class="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 px-3 py-2 shadow-luxury dark:shadow-luxury-dark flex items-center justify-around">
         <a href="{{ route('home') }}" class="flex flex-col items-center gap-1 text-slate-600 dark:text-slate-400 hover:text-terra-600 dark:hover:text-terra-400 transition {{ request()->routeIs('home') ? 'text-terra-600 dark:text-terra-400 font-bold' : '' }}">
@@ -681,7 +737,22 @@
             <span class="text-[10px]">{{ auth()->check() ? 'Pesanan' : 'Masuk' }}</span>
         </a>
     </nav>
+    @endif
 
+    @if($isPromoPage)
+    <!-- Minimalist High-Trust Footer for Promo Page -->
+    <footer class="bg-slate-950 text-slate-400 pt-8 pb-24 md:pb-10 border-t border-slate-800/80 text-xs">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
+            <div class="space-y-1">
+                <p class="font-bold text-slate-200">INDOROSTER — Pusat Roster Beton Minimalis</p>
+                <p class="text-[11px] text-slate-500">Garansi 100% Pecah Ganti Baru di Tempat • Pengiriman Armada Langsung Pabrik • Layanan WA: {{ $rawWa }}</p>
+            </div>
+            <div class="text-[11px] text-slate-500">
+                &copy; {{ date('Y') }} IndoRoster Indonesia. Hak Cipta Dilindungi.
+            </div>
+        </div>
+    </footer>
+    @else
     <!-- Footer -->
     <footer class="bg-slate-950 text-slate-300 border-t border-slate-900 pt-16 pb-12 mt-auto">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -781,12 +852,15 @@
             </div>
         </div>
     </footer>
+    @endif
 
+    @if(!$isPromoPage)
     <!-- Floating Interactive WhatsApp Widget (Pulse + Badge + Chat Modal) -->
     <x-whatsapp-widget />
 
     <!-- Live Recent Purchase Social Proof Popup -->
     <x-live-sales-popup />
+    @endif
 
     @livewireScripts
     @stack('scripts')
@@ -836,5 +910,58 @@
       })();
     </script>
     @endif
+
+    <!-- Meta Hybrid Tracker (Pixel + Conversions API Deduplication) -->
+    <script>
+    (function() {
+        function generateEventId() {
+            return 'evt_' + Date.now() + '_' + Math.random().toString(36).substring(2, 11);
+        }
+
+        window.trackMetaEvent = function(eventName, customData = {}, userData = {}) {
+            const eventId = generateEventId();
+
+            if (typeof fbq === 'function') {
+                fbq('track', eventName, customData, { eventID: eventId });
+            }
+
+            try {
+                fetch('/api/meta-events', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({
+                        event_name: eventName,
+                        event_id: eventId,
+                        event_source_url: window.location.href,
+                        custom_data: customData,
+                        user_data: userData
+                    }),
+                    keepalive: true
+                }).catch(function() {});
+            } catch(e) {}
+        };
+
+        document.addEventListener('livewire:navigated', function() {
+            if (typeof fbq === 'function') {
+                fbq('track', 'PageView');
+            }
+        });
+
+        document.addEventListener('click', function(e) {
+            const target = e.target.closest('a[href*="wa.me"], a[href*="whatsapp.com"], [data-meta-event="Contact"]');
+            if (target) {
+                const contentName = target.getAttribute('data-content-name') || 'WhatsApp Consultation';
+                window.trackMetaEvent('Contact', {
+                    content_name: contentName,
+                    currency: 'IDR'
+                });
+            }
+        }, { capture: true });
+    })();
+    </script>
 </body>
 </html>
