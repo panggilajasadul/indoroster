@@ -2,6 +2,29 @@
 @push('seo')
     <x-product-schema :product="$product" />    
 @endpush
+@push('head-scripts')
+<script>
+    (function() {
+        function triggerViewContent() {
+            if (typeof window.trackMetaEvent === 'function') {
+                window.trackMetaEvent('ViewContent', {
+                    content_name: @json($product->name),
+                    content_category: @json($product->category?->name ?? 'Roster Beton'),
+                    content_ids: [@json((string) $product->id)],
+                    content_type: 'product',
+                    value: {{ (float) ($product->price ?? 0) }},
+                    currency: 'IDR'
+                });
+            }
+        }
+        if (document.readyState === 'complete') {
+            triggerViewContent();
+        } else {
+            window.addEventListener('load', triggerViewContent);
+        }
+    })();
+</script>
+@endpush
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         <!-- Breadcrumb Navigation -->

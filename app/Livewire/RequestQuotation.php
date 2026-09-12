@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Models\Product;
 use App\Models\QuotationRequest;
+use App\Services\MetaConversionsService;
 use Laravolt\Indonesia\Models\City;
 use Laravolt\Indonesia\Models\Province;
 use Livewire\Component;
@@ -193,6 +194,27 @@ class RequestQuotation extends Component
         $this->isSubmitted = true;
         $this->submittedReference = $quotation->reference_number;
         $this->whatsAppUrl = $quotation->getWhatsAppUrl();
+
+        // Kirim Meta Conversions API (Lead Event dengan High-EMQ Matching 8.5 - 9.5)
+        try {
+            app(MetaConversionsService::class)->sendEvent(
+                'Lead',
+                [
+                    'content_name' => 'Request Quotation - '.$this->product->name,
+                    'content_ids' => [(string) $this->product->id],
+                    'content_type' => 'product',
+                    'currency' => 'IDR',
+                ],
+                [
+                    'em' => $this->email ?: '',
+                    'ph' => $this->phone,
+                    'name' => $this->name,
+                    'ct' => $this->selectedCityName,
+                    'st' => $this->selectedProvinceName,
+                ]
+            );
+        } catch (\Throwable $e) {
+        }
 
         // Dispatch JS event to open WhatsApp
         $this->dispatch('open-external-url', url: $this->whatsAppUrl);

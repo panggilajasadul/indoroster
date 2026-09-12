@@ -14,6 +14,7 @@ use App\Models\ProductVariant;
 use App\Models\ShippingRate;
 use App\Models\SiteSetting;
 use App\Models\Voucher;
+use App\Services\MetaConversionsService;
 use App\Services\MidtransService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cookie;
@@ -783,6 +784,29 @@ class Checkout extends Component
 
             DB::commit();
 
+            // Kirim Meta Conversions API (Purchase Event dengan High-EMQ Matching 8.5 - 9.5)
+            try {
+                app(MetaConversionsService::class)->sendEvent(
+                    'Purchase',
+                    [
+                        'content_type' => 'product',
+                        'value' => (float) $order->grand_total,
+                        'currency' => 'IDR',
+                        'order_id' => $order->order_number,
+                        'num_items' => count($this->cartItems),
+                    ],
+                    [
+                        'em' => $order->shipping_email ?: '',
+                        'ph' => $order->shipping_phone ?: '',
+                        'name' => $order->shipping_name ?: '',
+                        'ct' => $order->shipping_city ?: '',
+                        'st' => $order->shipping_province ?: '',
+                        'zp' => $order->shipping_postal_code ?: '',
+                    ]
+                );
+            } catch (\Throwable $e) {
+            }
+
             // Trigger JS to open Snap
             $this->dispatch('snap-pay', token: $this->snapToken, order_id: $order->order_number);
 
@@ -952,6 +976,29 @@ class Checkout extends Component
             }
 
             DB::commit();
+
+            // Kirim Meta Conversions API (Purchase Event dengan High-EMQ Matching 8.5 - 9.5)
+            try {
+                app(MetaConversionsService::class)->sendEvent(
+                    'Purchase',
+                    [
+                        'content_type' => 'product',
+                        'value' => (float) $order->grand_total,
+                        'currency' => 'IDR',
+                        'order_id' => $order->order_number,
+                        'num_items' => count($this->cartItems),
+                    ],
+                    [
+                        'em' => $order->shipping_email ?: '',
+                        'ph' => $order->shipping_phone ?: '',
+                        'name' => $order->shipping_name ?: '',
+                        'ct' => $order->shipping_city ?: '',
+                        'st' => $order->shipping_province ?: '',
+                        'zp' => $order->shipping_postal_code ?: '',
+                    ]
+                );
+            } catch (\Throwable $e) {
+            }
 
             // Pastikan Dokumen Invoice / Penawaran terbuat
             Invoice::firstOrCreate(

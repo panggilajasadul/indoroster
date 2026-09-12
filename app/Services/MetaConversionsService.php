@@ -197,12 +197,28 @@ class MetaConversionsService
             $userData['country'] = [hash('sha256', 'id')]; // Default Indonesia
         }
 
+        // Split name into first and last name if provided as single string
+        if (empty($inputUserData['fn']) && ! empty($inputUserData['name'])) {
+            $parts = explode(' ', trim($inputUserData['name']), 2);
+            $inputUserData['fn'] = $parts[0];
+            if (! empty($parts[1])) {
+                $inputUserData['ln'] = $parts[1];
+            }
+        }
+
         if (! empty($inputUserData['fn'])) {
             $userData['fn'] = [hash('sha256', strtolower(trim($inputUserData['fn'])))];
         }
 
         if (! empty($inputUserData['ln'])) {
             $userData['ln'] = [hash('sha256', strtolower(trim($inputUserData['ln'])))];
+        }
+
+        if (! empty($inputUserData['zp'])) {
+            $cleanedZp = preg_replace('/[^0-9]/', '', (string) $inputUserData['zp']);
+            if (! empty($cleanedZp)) {
+                $userData['zp'] = [hash('sha256', $cleanedZp)];
+            }
         }
 
         if (! empty($inputUserData['external_id'])) {

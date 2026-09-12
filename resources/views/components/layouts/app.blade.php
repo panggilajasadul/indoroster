@@ -911,15 +911,121 @@
     </script>
     @endif
 
-    <!-- Meta Hybrid Tracker (Pixel + Conversions API Deduplication) -->
+    @php
+        $authUserData = [];
+        if (auth()->check()) {
+            $u = auth()->user();
+            $authUserData = array_filter([
+                'em' => $u->email,
+                'ph' => $u->phone,
+                'name' => $u->name,
+                'external_id' => (string) $u->id,
+            ]);
+        }
+    @endphp
+
+    <!-- Global Fast WhatsApp Lead Modal (EMQ Booster 8.5 - 9.5) -->
+    <div x-data="window.fastWaLeadModal()" 
+         x-show="isOpen" 
+         x-cloak 
+         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-xs transition-opacity"
+         @keydown.escape.window="closeModal()">
+        
+        <div class="relative w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden"
+             @click.outside="closeModal()"
+             x-show="isOpen"
+             x-transition:enter="ease-out duration-300"
+             x-transition:enter-start="opacity-0 scale-95"
+             x-transition:enter-end="opacity-100 scale-100"
+             x-transition:leave="ease-in duration-200"
+             x-transition:leave-start="opacity-100 scale-100"
+             x-transition:leave-end="opacity-0 scale-95">
+            
+            <!-- Header with Badge -->
+            <div class="bg-gradient-to-r from-terra-600 via-terra-500 to-amber-500 p-5 sm:p-6 text-white relative">
+                <button type="button" @click="closeModal()" class="absolute top-4 right-4 text-white/80 hover:text-white p-1 rounded-full hover:bg-white/10 transition-colors">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+                <span class="inline-flex items-center gap-1 bg-white/20 text-white text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full mb-2 tracking-wide">
+                    💬 Respon Cepat Sales Pabrik
+                </span>
+                <h3 class="text-lg sm:text-xl font-black font-display text-white leading-tight">
+                    Konsultasi & Cek Ongkir Resmi
+                </h3>
+                <p class="text-xs text-white/90 mt-1 leading-relaxed">
+                    Dapatkan penawaran harga pabrik tangan pertama & konfirmasi jadwal armada kirim ke lokasi Anda.
+                </p>
+            </div>
+
+            <!-- Form Body -->
+            <form @submit.prevent="submitLead()" class="p-5 sm:p-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Nama Lengkap / Panggilan <span class="text-terra-500">*</span></label>
+                    <input type="text" x-model="leadName" required placeholder="Contoh: Pak Bambang / Ibu Maya" class="w-full h-11 px-3.5 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-terra-500 focus:border-terra-500 transition-all font-medium">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Nomor WhatsApp Aktif <span class="text-terra-500">*</span></label>
+                    <input type="tel" x-model="leadPhone" required placeholder="Contoh: 081234567890" class="w-full h-11 px-3.5 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-terra-500 focus:border-terra-500 transition-all font-medium">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Kota / Lokasi Pengiriman</label>
+                    <input type="text" x-model="leadCity" placeholder="Contoh: Jakarta Selatan / Bandung / Karawang" class="w-full h-11 px-3.5 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-terra-500 focus:border-terra-500 transition-all font-medium">
+                </div>
+
+                <div class="pt-2 space-y-2">
+                    <button type="submit" class="w-full h-12 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-600 text-white font-black text-sm shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2 hover:scale-[1.01] active:scale-[0.99] transition-all cursor-pointer">
+                        <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.275.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.099.824z"/></svg>
+                        <span>Lanjut Chat WhatsApp Resmi ➔</span>
+                    </button>
+
+                    <button type="button" @click="skipLeadAndOpenWa()" class="w-full text-center text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 py-1 transition-colors">
+                        Langsung ke WhatsApp tanpa isi data
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Meta Hybrid Tracker (Pixel + Conversions API Deduplication & High-EMQ Matching) -->
     <script>
     (function() {
+        // 1. Capture fbclid to _fbc cookie automatically
+        try {
+            const urlParams = new URLSearchParams(window.location.search);
+            const fbclid = urlParams.get('fbclid');
+            if (fbclid) {
+                document.cookie = "_fbc=fb.1." + Date.now() + "." + encodeURIComponent(fbclid) + "; path=/; max-age=7776000; SameSite=Lax";
+            }
+        } catch(e) {}
+
+        window.indorosterAuthUser = @json($authUserData);
+
         function generateEventId() {
             return 'evt_' + Date.now() + '_' + Math.random().toString(36).substring(2, 11);
         }
 
+        function getMergedUserData(explicitUserData = {}) {
+            let savedLead = {};
+            try {
+                savedLead = JSON.parse(localStorage.getItem('indoroster_lead_user') || '{}');
+            } catch(e) {}
+
+            const authUser = window.indorosterAuthUser || {};
+
+            return Object.assign({}, {
+                em: authUser.em || savedLead.em || '',
+                ph: authUser.ph || savedLead.phone || '',
+                name: authUser.name || savedLead.name || '',
+                ct: savedLead.city || '',
+                country: 'id'
+            }, explicitUserData);
+        }
+
         window.trackMetaEvent = function(eventName, customData = {}, userData = {}) {
             const eventId = generateEventId();
+            const finalUserData = getMergedUserData(userData);
 
             if (typeof fbq === 'function') {
                 fbq('track', eventName, customData, { eventID: eventId });
@@ -938,7 +1044,7 @@
                         event_id: eventId,
                         event_source_url: window.location.href,
                         custom_data: customData,
-                        user_data: userData
+                        user_data: finalUserData
                     }),
                     keepalive: true
                 }).catch(function() {});
@@ -951,14 +1057,123 @@
             }
         });
 
+        // Fast WhatsApp Lead Modal Alpine Store/State
+        window.fastWaLeadModal = function() {
+            return {
+                isOpen: false,
+                targetWaUrl: '',
+                contentName: 'WhatsApp Consultation',
+                leadName: '',
+                leadPhone: '',
+                leadCity: '',
+
+                init() {
+                    window.openFastWaModal = (url, name, defaultCity) => {
+                        this.targetWaUrl = url;
+                        this.contentName = name || 'WhatsApp Consultation';
+
+                        // Pre-populate if saved
+                        try {
+                            const saved = JSON.parse(localStorage.getItem('indoroster_lead_user') || '{}');
+                            if (saved.name) this.leadName = saved.name;
+                            if (saved.phone) this.leadPhone = saved.phone;
+                            if (saved.city) this.leadCity = saved.city;
+                        } catch(e) {}
+
+                        if (!this.leadCity && defaultCity) {
+                            this.leadCity = defaultCity;
+                        }
+
+                        // If user already has phone & name, skip modal directly to WA with full tracking
+                        if (this.leadName && this.leadPhone) {
+                            this.dispatchLeadAndOpen(false);
+                            return;
+                        }
+
+                        this.isOpen = true;
+                    };
+                },
+
+                closeModal() {
+                    this.isOpen = false;
+                },
+
+                submitLead() {
+                    if (!this.leadName || !this.leadPhone) return;
+
+                    // Save locally for next time
+                    try {
+                        localStorage.setItem('indoroster_lead_user', JSON.stringify({
+                            name: this.leadName,
+                            phone: this.leadPhone,
+                            city: this.leadCity
+                        }));
+                    } catch(e) {}
+
+                    this.dispatchLeadAndOpen(true);
+                    this.closeModal();
+                },
+
+                dispatchLeadAndOpen(isNewForm = true) {
+                    const userData = {
+                        ph: this.leadPhone,
+                        name: this.leadName,
+                        ct: this.leadCity
+                    };
+
+                    // Send Contact + Lead events with high EMQ user_data
+                    window.trackMetaEvent('Contact', {
+                        content_name: this.contentName,
+                        currency: 'IDR'
+                    }, userData);
+
+                    if (isNewForm) {
+                        window.trackMetaEvent('Lead', {
+                            content_name: this.contentName,
+                            currency: 'IDR'
+                        }, userData);
+                    }
+
+                    let finalUrl = this.targetWaUrl || 'https://wa.me/6281389709847';
+                    
+                    // Personalize WA greeting if possible
+                    if (this.leadName && finalUrl.includes('text=')) {
+                        const greetingPrefix = encodeURIComponent(`Halo Tim Sales IndoRoster, saya ${this.leadName}${this.leadCity ? ' dari ' + this.leadCity : ''}. `);
+                        finalUrl = finalUrl.replace('text=', 'text=' + greetingPrefix);
+                    }
+
+                    window.open(finalUrl, '_blank');
+                },
+
+                skipLeadAndOpenWa() {
+                    window.trackMetaEvent('Contact', {
+                        content_name: this.contentName,
+                        currency: 'IDR'
+                    });
+                    this.closeModal();
+                    window.open(this.targetWaUrl || 'https://wa.me/6281389709847', '_blank');
+                }
+            };
+        };
+
+        // Intercept click on WhatsApp links
         document.addEventListener('click', function(e) {
             const target = e.target.closest('a[href*="wa.me"], a[href*="whatsapp.com"], [data-meta-event="Contact"]');
             if (target) {
+                const isSkipModal = target.getAttribute('data-skip-modal') === 'true';
                 const contentName = target.getAttribute('data-content-name') || 'WhatsApp Consultation';
-                window.trackMetaEvent('Contact', {
-                    content_name: contentName,
-                    currency: 'IDR'
-                });
+                const defaultCity = target.getAttribute('data-city') || '';
+                const href = target.getAttribute('href');
+
+                if (window.openFastWaModal && !isSkipModal && href && (href.includes('wa.me') || href.includes('whatsapp.com'))) {
+                    e.preventDefault();
+                    window.openFastWaModal(href, contentName, defaultCity);
+                } else {
+                    window.trackMetaEvent('Contact', {
+                        content_name: contentName,
+                        currency: 'IDR'
+                    });
+                }
             }
         }, { capture: true });
     })();
