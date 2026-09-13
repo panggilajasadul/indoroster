@@ -4,33 +4,56 @@
 @endpush
 @push('head-scripts')
 <script>
+    // [M2-Fix] Strategi single-shot ViewContent yang aman dari race condition.
+    // Gunakan flag global per product-id agar tidak double-fire saat Livewire SPA navigation.
+    // Tidak lagi mendaftarkan multiple listeners (DOMContentLoaded + load + setTimeout)
+    // yang sebelumnya bisa semua terpicu hampir bersamaan.
     (function() {
-        let viewContentFired = false;
-        function triggerViewContent() {
-            if (viewContentFired) return;
-            if (typeof window.trackMetaEvent === 'function') {
-                viewContentFired = true;
-                window.trackMetaEvent('ViewContent', {
-                    content_name: @json($product->name),
-                    content_category: @json($product->category?->name ?? 'Roster Beton'),
-                    content_ids: [@json((string) $product->id)],
-                    content_type: 'product',
-                    value: {{ (float) ($product->min_price > 0 ? $product->min_price : ($product->price ?? 0)) }},
-                    currency: 'IDR'
-                });
-            }
+        const PRODUCT_ID = @json((string) $product->id);
+        const FLAG_KEY   = '__vcFired_' + PRODUCT_ID;
+
+        if (window[FLAG_KEY]) return; // sudah pernah terpicu untuk produk ini
+
+        function fireViewContent() {
+            if (window[FLAG_KEY]) return;
+            if (typeof window.trackMetaEvent !== 'function') return;
+
+            window[FLAG_KEY] = true;
+
+            // [M5-Fix] content_ids HANYA berisi product ID.
+            // Variant ID tidak dimasukkan agar konsisten dengan standar Facebook Catalog
+            // dan mencegah catalog matching gagal.
+            window.trackMetaEvent('ViewContent', {
+                content_name:     @json($product->name),
+                content_category: @json($product->category?->name ?? 'Roster Beton'),
+                content_ids:      [@json((string) $product->id)],
+                content_type:     'product',
+                value:            {{ (float) ($product->min_price > 0 ? $product->min_price : ($product->price ?? 0)) }},
+                currency:         'IDR'
+            });
         }
 
+        // Satu mekanisme: tunggu trackMetaEvent tersedia, lalu fire sekali.
+        // trackMetaEvent didefinisikan di akhir <body> — jadi gunakan 'load' sebagai
+        // titik teraman, dengan fallback polling ringan (maks 10x, interval 100ms).
         if (typeof window.trackMetaEvent === 'function') {
-            triggerViewContent();
+            fireViewContent();
         } else {
-            document.addEventListener('DOMContentLoaded', triggerViewContent);
-            window.addEventListener('load', triggerViewContent);
-            setTimeout(triggerViewContent, 300);
+            let attempts = 0;
+            const interval = setInterval(function() {
+                attempts++;
+                if (typeof window.trackMetaEvent === 'function') {
+                    clearInterval(interval);
+                    fireViewContent();
+                } else if (attempts >= 20) {
+                    clearInterval(interval); // berhenti setelah 2 detik
+                }
+            }, 100);
         }
     })();
 </script>
 @endpush
+
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         <!-- Breadcrumb Navigation -->

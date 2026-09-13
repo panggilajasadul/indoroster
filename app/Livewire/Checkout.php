@@ -332,6 +332,28 @@ class Checkout extends Component
         } else {
             $this->savedAddresses = collect([]);
         }
+
+        // [M7-Fix] Track InitiateCheckout via CAPI saat user masuk halaman checkout.
+        // Penting untuk funnel attribution dan optimasi iklan Meta — sebelumnya tidak ada event ini.
+        try {
+            app(MetaConversionsService::class)->sendEvent(
+                'InitiateCheckout',
+                [
+                    'content_type' => 'product',
+                    'num_items' => collect($this->cartItems)->count(),
+                    'value' => (float) $this->grandTotal,
+                    'currency' => 'IDR',
+                    'content_ids' => collect($this->cartItems)
+                        ->pluck('product_id')
+                        ->filter()
+                        ->unique()
+                        ->map(fn ($id) => (string) $id)
+                        ->values()
+                        ->toArray(),
+                ]
+            );
+        } catch (\Throwable $e) {
+        }
     }
 
     public function selectAddress($addressId)
@@ -790,6 +812,15 @@ class Checkout extends Component
                     'Purchase',
                     [
                         'content_type' => 'product',
+                        // [M6-Fix] Tambahkan content_ids agar Meta bisa attribut konversi
+                        // ke produk yang tepat dan optimasi iklan ROAS lebih akurat
+                        'content_ids' => collect($this->cartItems)
+                            ->pluck('product_id')
+                            ->filter()
+                            ->unique()
+                            ->map(fn ($id) => (string) $id)
+                            ->values()
+                            ->toArray(),
                         'value' => (float) $order->grand_total,
                         'currency' => 'IDR',
                         'order_id' => $order->order_number,
@@ -983,6 +1014,15 @@ class Checkout extends Component
                     'Purchase',
                     [
                         'content_type' => 'product',
+                        // [M6-Fix] Tambahkan content_ids agar Meta bisa attribut konversi
+                        // ke produk yang tepat dan optimasi iklan ROAS lebih akurat
+                        'content_ids' => collect($this->cartItems)
+                            ->pluck('product_id')
+                            ->filter()
+                            ->unique()
+                            ->map(fn ($id) => (string) $id)
+                            ->values()
+                            ->toArray(),
                         'value' => (float) $order->grand_total,
                         'currency' => 'IDR',
                         'order_id' => $order->order_number,

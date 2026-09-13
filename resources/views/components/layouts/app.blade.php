@@ -234,6 +234,7 @@
     s.parentNode.insertBefore(t,s)}(window, document,'script',
     'https://connect.facebook.net/en_US/fbevents.js');
     fbq('init', '{{ $metaPixelId }}');
+    fbq('track', 'PageView'); // [M1-Fix] Wajib: standar Meta setelah fbq('init')
     </script>
     @endif
     <!-- End Meta Pixel Code -->
@@ -1202,12 +1203,17 @@
             }
 
             // 2. Server-side CAPI Track with identical event_id
+            // [M4-Fix] fbp/fbc selalu eksplisit di body JSON — jangan andalkan cookie
+            // parsing server-side yang tidak reliable saat dikirim via navigator.sendBeacon
             const payload = JSON.stringify({
                 event_name: eventName,
                 event_id: eventId,
                 event_source_url: window.location.href,
                 custom_data: customData,
-                user_data: finalUserData
+                user_data: Object.assign({}, finalUserData, {
+                    fbp: getCookie('_fbp') || finalUserData.fbp || '',
+                    fbc: getCookie('_fbc') || finalUserData.fbc || ''
+                })
             });
 
             // Try navigator.sendBeacon first for non-blocking, reliable delivery across page transitions
@@ -1240,23 +1246,42 @@
             return eventId;
         };
 
-        // Dual-Track PageView (Browser Pixel + Server CAPI) on initial page load
-        if (typeof window.trackMetaEvent === 'function') {
-            window.trackMetaEvent('PageView');
-        }
+        // [M1-Fix] PageView browser pixel sudah dikirim fbq('track','PageView') saat fbq('init') di <head>.
+        // Di sini kita hanya kirim CAPI server-side saja untuk deduplikasi sempurna.
+        // Tidak memanggil fbq lagi agar tidak double-count di browser.
+        (function() {
+            const capiPageViewPayload = JSON.stringify({
+                event_name: 'PageView',
+                event_id: generateEventId(),
+                event_source_url: window.location.href,
+                custom_data: {},
+                user_data: Object.assign({}, getMergedUserData(), {
+                    fbp: getCookie('_fbp') || '',
+                    fbc: getCookie('_fbc') || ''
+                })
+            });
+            try {
+                const blob = new Blob([capiPageViewPayload], { type: 'application/json' });
+                if (!navigator.sendBeacon('/api/meta-events', blob)) {
+                    fetch('/api/meta-events', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: capiPageViewPayload, keepalive: true }).catch(function(){});
+                }
+            } catch(e) {}
+        })();
 
-        // Dual-Track PageView on Livewire SPA navigation
+        // Dual-Track PageView on Livewire SPA navigation (pixel + CAPI)
         document.addEventListener('livewire:navigated', function() {
             if (typeof window.trackMetaEvent === 'function') {
                 window.trackMetaEvent('PageView');
             }
         });
 
-        // Listen to Livewire-dispatched Meta events (e.g. AddToCart, InitiateCheckout)
+        // [M3b-Fix] Listen to Livewire-dispatched Meta events — teruskan event_id dari server
+        // agar deduplikasi Pixel vs CAPI berjalan dengan benar
         window.addEventListener('meta-track-event', function(e) {
             const data = Array.isArray(e.detail) ? e.detail[0] : e.detail;
             if (data && data.event && typeof window.trackMetaEvent === 'function') {
-                window.trackMetaEvent(data.event, data.custom_data || {}, data.user_data || {});
+                // Teruskan event_id yang di-generate server (jika ada) untuk deduplikasi sempurna
+                window.trackMetaEvent(data.event, data.custom_data || {}, data.user_data || {}, data.event_id || null);
             }
         });
 

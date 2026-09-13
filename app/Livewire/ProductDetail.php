@@ -6,6 +6,7 @@ use App\Models\Cart;
 use App\Models\Product;
 use App\Models\ProductReview;
 use App\Models\SiteSetting;
+use App\Services\MetaConversionsService;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Str;
 use Livewire\Component;
@@ -201,17 +202,44 @@ class ProductDetail extends Component
 
         if ($variant) {
             $variantPrice = (float) $variant->final_price;
+
+            // [M3-Fix] Generate event_id di server dan kirim ke client via dispatch.
+            // Dengan ini, browser pixel dan CAPI server menggunakan event_id yang identik
+            // sehingga deduplikasi Meta berjalan sempurna dan tidak double-count.
+            // [M5-Fix] content_ids hanya product ID — variant ID dihapus agar konsisten
+            // dengan standar Facebook Catalog dan initial page load ViewContent.
+            $eventId = 'evt_vc_'.$this->product->id.'_'.time().'_'.substr(md5(uniqid('', true)), 0, 8);
+
             $this->dispatch('meta-track-event', [
                 'event' => 'ViewContent',
+                'event_id' => $eventId,
                 'custom_data' => [
                     'content_name' => $this->product->name.' - '.$variant->name,
                     'content_category' => $this->product->category?->name ?? 'Roster Beton',
-                    'content_ids' => [(string) $this->product->id, (string) $variant->id],
+                    'content_ids' => [(string) $this->product->id],
                     'content_type' => 'product',
                     'value' => $variantPrice,
                     'currency' => 'IDR',
                 ],
             ]);
+
+            // Kirim CAPI server-side dengan event_id yang sama untuk deduplikasi sempurna
+            try {
+                app(MetaConversionsService::class)->sendEvent(
+                    'ViewContent',
+                    [
+                        'content_name' => $this->product->name.' - '.$variant->name,
+                        'content_category' => $this->product->category?->name ?? 'Roster Beton',
+                        'content_ids' => [(string) $this->product->id],
+                        'content_type' => 'product',
+                        'value' => $variantPrice,
+                        'currency' => 'IDR',
+                    ],
+                    [],
+                    $eventId
+                );
+            } catch (\Throwable $e) {
+            }
         }
     }
 
@@ -403,8 +431,13 @@ class ProductDetail extends Component
         $activeVariants = $this->product->variants->where('is_active', true);
         $variantName = $this->selectedVariant ? ($activeVariants->firstWhere('id', (int) $this->selectedVariant)?->name ?? '') : '';
 
+        // [M3-Fix] Generate event_id di server, kirim ke client via dispatch.
+        // Browser pixel akan memakai event_id yang sama dengan CAPI server untuk deduplikasi.
+        $addToCartEventId = 'evt_atc_'.$this->product->id.'_'.time().'_'.substr(md5(uniqid('', true)), 0, 8);
+
         $this->dispatch('meta-track-event', [
             'event' => 'AddToCart',
+            'event_id' => $addToCartEventId,
             'custom_data' => [
                 'content_name' => $this->product->name.($variantName ? " - {$variantName}" : ''),
                 'content_category' => $this->product->category?->name ?? 'Roster Beton',
@@ -415,6 +448,25 @@ class ProductDetail extends Component
                 'num_items' => $this->quantity,
             ],
         ]);
+
+        // Kirim CAPI server-side dengan event_id yang sama
+        try {
+            app(MetaConversionsService::class)->sendEvent(
+                'AddToCart',
+                [
+                    'content_name' => $this->product->name.($variantName ? " - {$variantName}" : ''),
+                    'content_category' => $this->product->category?->name ?? 'Roster Beton',
+                    'content_ids' => [(string) $this->product->id],
+                    'content_type' => 'product',
+                    'value' => (float) ($price * $this->quantity),
+                    'currency' => 'IDR',
+                    'num_items' => $this->quantity,
+                ],
+                [],
+                $addToCartEventId
+            );
+        } catch (\Throwable $e) {
+        }
 
         session()->flash('success', 'Produk berhasil ditambahkan ke keranjang.');
 

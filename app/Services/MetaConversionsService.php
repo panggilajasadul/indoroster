@@ -15,7 +15,7 @@ class MetaConversionsService
 
     protected ?string $testEventCode;
 
-    protected string $apiVersion = 'v20.0';
+    protected string $apiVersion = 'v22.0'; // Upgrade ke versi CAPI terbaru 2026
 
     public function __construct()
     {
@@ -236,8 +236,13 @@ class MetaConversionsService
             }
         }
 
+        // External ID dari user login atau session ID untuk visitor anonim
+        // [Enhancement] external_id untuk visitor anonim meningkatkan EMQ
+        // sehingga Meta bisa mencocokkan event dengan lebih akurat tanpa email/phone
         if (! empty($inputUserData['external_id'])) {
             $userData['external_id'] = [hash('sha256', (string) $inputUserData['external_id'])];
+        } elseif ($request && session()->isStarted() && session()->getId()) {
+            $userData['external_id'] = [hash('sha256', session()->getId())];
         }
 
         return $userData;
