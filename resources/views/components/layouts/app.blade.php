@@ -923,7 +923,8 @@
         }
     @endphp
 
-    <!-- Global Fast WhatsApp Lead Modal (EMQ Booster 8.5 - 9.5) -->
+    @if(request()->routeIs('promo.*') || request()->is('promo*') || request()->is('penawaran-proyek*'))
+    <!-- Fast WhatsApp Lead Modal (Khusus Promo / Landing Campaign EMQ Booster) -->
     <div x-data="{
             isOpen: false,
             targetWaUrl: '',
@@ -1133,6 +1134,7 @@
             </form>
         </div>
     </div>
+    @endif
 
     @php
         $currentUser = auth()->user();
@@ -1258,30 +1260,34 @@
             }
         });
 
-        // Intercept click on WhatsApp links
+        // Non-intrusive Meta Track & Explicit Lead Modal trigger
         document.addEventListener('click', function(e) {
+            // 1. Explicit Lead Modal Trigger: HANYA aktif jika elemen memiliki atribut data-fast-lead-modal="true" atau data-open-lead-modal="true"
+            const leadModalTrigger = e.target.closest('[data-fast-lead-modal="true"], [data-open-lead-modal="true"]');
+            if (leadModalTrigger) {
+                const contentName = leadModalTrigger.getAttribute('data-content-name') || 'WhatsApp Consultation';
+                const defaultCity = leadModalTrigger.getAttribute('data-city') || '';
+                const href = leadModalTrigger.getAttribute('href') || leadModalTrigger.getAttribute('data-wa-url');
+
+                e.preventDefault();
+                window.dispatchEvent(new CustomEvent('open-fast-wa-modal', {
+                    detail: { url: href, name: contentName, city: defaultCity }
+                }));
+                return;
+            }
+
+            // 2. Passive Meta Contact tracking for standard WhatsApp links (TIDAK mengintersep/merusak link atau template pesan asli)
             const target = e.target.closest('a[href*="wa.me"], a[href*="whatsapp.com"], [data-meta-event="Contact"]');
             if (target) {
-                const isSkipModal = target.getAttribute('data-skip-modal') === 'true';
-                const contentName = target.getAttribute('data-content-name') || 'WhatsApp Consultation';
-                const defaultCity = target.getAttribute('data-city') || '';
-                const href = target.getAttribute('href');
-
-                if (!isSkipModal && href && (href.includes('wa.me') || href.includes('whatsapp.com'))) {
-                    e.preventDefault();
-                    window.dispatchEvent(new CustomEvent('open-fast-wa-modal', {
-                        detail: { url: href, name: contentName, city: defaultCity }
-                    }));
-                } else {
-                    if (typeof window.trackMetaEvent === 'function') {
-                        window.trackMetaEvent('Contact', {
-                            content_name: contentName,
-                            currency: 'IDR'
-                        });
-                    }
+                const contentName = target.getAttribute('data-content-name') || target.getAttribute('title') || 'WhatsApp Contact';
+                if (typeof window.trackMetaEvent === 'function') {
+                    window.trackMetaEvent('Contact', {
+                        content_name: contentName,
+                        currency: 'IDR'
+                    });
                 }
             }
-        }, { capture: true });
+        });
     })();
     </script>
 </body>
