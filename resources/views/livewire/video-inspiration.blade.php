@@ -202,18 +202,27 @@
                     class="group relative aspect-[9/16] bg-black rounded-2xl md:rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-1 md:hover:-translate-y-2 border border-slate-200 cursor-pointer"
                     @click="openModal({{ $index }})">
                     
-                    {{-- Video Element — preload="metadata" agar frame pertama muncul sebagai thumbnail --}}
+                    {{-- Video Element — preload="none" hemat bandwidth, play saat klik --}}
                     <video 
                         wire:ignore
                         x-ref="videoElement"
                         @timeupdate="updateProgress"
                         src="{{ $video['url'] }}" 
                         class="w-full h-full object-cover"
-                        preload="metadata"
+                        preload="none"
                         muted 
                         loop 
                         playsinline>
                     </video>
+
+                    {{-- Play icon overlay — muncul saat video belum diplay, hilang saat hover --}}
+                    <div class="absolute inset-0 flex items-center justify-center pointer-events-none group-hover:opacity-0 transition-opacity duration-300">
+                        <div class="w-14 h-14 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center border border-white/30">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" class="w-6 h-6 ml-1">
+                                <path d="M8 5.14v14l11-7-11-7z"/>
+                            </svg>
+                        </div>
+                    </div>
 
                     {{-- Link Badge if associated with product --}}
                     @if(!empty($video['product']))
