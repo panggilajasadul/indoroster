@@ -1,6 +1,7 @@
 import './bootstrap';
 
-// Global Smart Video Lazy-Player (Saves RAM & GPU on Mobile)
+// Global Smart Video Lazy-Player (Hemat RAM & GPU Mobile)
+// HANYA menarget video[autoplay] dan video[data-lazy-video] — TIDAK video[loop] umum
 let videoObserver = null;
 
 function initSmartVideoLazyPlayer() {
@@ -14,7 +15,7 @@ function initSmartVideoLazyPlayer() {
         entries.forEach((entry) => {
             const video = entry.target;
             if (entry.isIntersecting && entry.intersectionRatio >= 0.15) {
-                // If video has lazy source elements, populate src now
+                // Jika video punya source[data-src], populate src sekarang
                 const sources = video.querySelectorAll('source[data-src]');
                 let needsLoad = false;
                 sources.forEach((s) => {
@@ -31,7 +32,7 @@ function initSmartVideoLazyPlayer() {
                     video.load();
                 }
 
-                // Video in viewport: play quietly
+                // Video masuk viewport: play diam-diam
                 if (video.paused) {
                     const playPromise = video.play();
                     if (playPromise !== undefined) {
@@ -39,7 +40,7 @@ function initSmartVideoLazyPlayer() {
                     }
                 }
             } else {
-                // Video scrolled out of view: pause to free up GPU decoder & RAM
+                // Video keluar viewport: pause untuk hemat GPU & RAM
                 if (!video.paused) {
                     video.pause();
                 }
@@ -50,21 +51,20 @@ function initSmartVideoLazyPlayer() {
         rootMargin: '150px 0px 150px 0px'
     });
 
-    const videos = document.querySelectorAll('video[autoplay], video[data-lazy-video], video[loop]');
+    // HANYA video dengan autoplay atau data-lazy-video — BUKAN semua video[loop]
+    const videos = document.querySelectorAll('video[autoplay], video[data-lazy-video]');
     videos.forEach((video) => {
-        // Ensure muted and playsinline for smooth hardware playback
         video.muted = true;
         video.setAttribute('playsinline', '');
         videoObserver.observe(video);
     });
 }
 
-// Initialize Motion System for IndoRoster (Optimized for Mobile)
-function initIndoRosterMotion() {
-    const isDesktopPointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
-    const isMobile = window.innerWidth < 768;
+// Scroll Reveal berbasis IntersectionObserver native (tanpa library motion eksternal)
+let motionObserver = null;
 
-    // Dynamic Header Glassmorphism blur intensifier
+function initIndoRosterMotion() {
+    // Dynamic Header Glassmorphism
     const header = document.querySelector('header.glass-header');
     if (header) {
         const updateHeaderBlur = () => {
@@ -80,85 +80,67 @@ function initIndoRosterMotion() {
         updateHeaderBlur();
     }
 
-    // 1. Scroll-Triggered Staggered Elements (Cards, Grid items)
-    document.querySelectorAll('[data-motion="stagger"]').forEach((container) => {
-        const items = container.querySelectorAll('[data-motion-item]');
-        if (items.length > 0) {
-            inView(container, () => {
-                animate(
-                    items,
-                    { opacity: [0, 1], y: [20, 0], scale: [0.98, 1] },
-                    { delay: stagger(isMobile ? 0.04 : 0.08), duration: isMobile ? 0.45 : 0.65, easing: [0.16, 1, 0.3, 1] }
-                );
-            }, { margin: '-5% 0px -5% 0px' });
-        }
+    // Scroll-reveal untuk elemen [data-motion] via CSS class
+    if (motionObserver) motionObserver.disconnect();
+
+    motionObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('motion-revealed');
+                motionObserver.unobserve(entry.target);
+            }
+        });
+    }, { rootMargin: '-5% 0px -5% 0px', threshold: 0.1 });
+
+    document.querySelectorAll('[data-motion]').forEach((el) => {
+        motionObserver.observe(el);
     });
 
-    // 2. Individual Fade Up & Reveal
-    document.querySelectorAll('[data-motion="fade-up"]').forEach((el) => {
-        inView(el, () => {
-            animate(
-                el,
-                { opacity: [0, 1], y: [18, 0] },
-                { duration: isMobile ? 0.5 : 0.7, easing: [0.16, 1, 0.3, 1] }
-            );
-        }, { margin: '-5% 0px -5% 0px' });
-    });
-
-    // 3. Scale In Elements
-    document.querySelectorAll('[data-motion="scale"]').forEach((el) => {
-        inView(el, () => {
-            animate(
-                el,
-                { opacity: [0, 1], scale: [0.94, 1] },
-                { duration: isMobile ? 0.45 : 0.65, easing: [0.16, 1, 0.3, 1] }
-            );
-        }, { margin: '-5% 0px -5% 0px' });
-    });
-
-    // 4. Kinetic Number Counters
+    // Kinetic Number Counters (native requestAnimationFrame)
     document.querySelectorAll('[data-counter]').forEach((el) => {
+        if (el.dataset.counterDone) return;
         const targetValue = parseInt(el.getAttribute('data-counter'), 10);
         const suffix = el.getAttribute('data-suffix') || '';
         const prefix = el.getAttribute('data-prefix') || '';
-        
-        if (!isNaN(targetValue)) {
-            inView(el, () => {
-                animate(0, targetValue, {
-                    duration: 1.5,
-                    easing: [0.16, 1, 0.3, 1],
-                    onUpdate: (latest) => {
-                        el.textContent = `${prefix}${Math.round(latest).toLocaleString('id-ID')}${suffix}`;
-                    }
-                });
-            }, { margin: '-5% 0px -5% 0px' });
-        }
+        if (isNaN(targetValue)) return;
+
+        const counterObs = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (!entry.isIntersecting) return;
+                el.dataset.counterDone = '1';
+                counterObs.disconnect();
+                const duration = 1500;
+                const start = performance.now();
+                const tick = (now) => {
+                    const elapsed = now - start;
+                    const progress = Math.min(elapsed / duration, 1);
+                    const eased = 1 - Math.pow(1 - progress, 3);
+                    el.textContent = `${prefix}${Math.round(eased * targetValue).toLocaleString('id-ID')}${suffix}`;
+                    if (progress < 1) requestAnimationFrame(tick);
+                };
+                requestAnimationFrame(tick);
+            });
+        }, { rootMargin: '-5% 0px -5% 0px' });
+        counterObs.observe(el);
     });
 
-    // 5. 3D Tilt Effect on Hover (DESKTOP ONLY - Ignored on Touchscreens)
+    // 3D Tilt & Magnetic — Desktop only
+    const isDesktopPointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
     if (isDesktopPointer) {
         document.querySelectorAll('[data-tilt]').forEach((card) => {
             card.style.transformStyle = 'preserve-3d';
             card.style.transition = 'transform 0.15s ease-out';
-
             card.addEventListener('mousemove', (e) => {
                 const rect = card.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
-                const centerX = rect.width / 2;
-                const centerY = rect.height / 2;
-                const rotateX = ((y - centerY) / centerY) * -8;
-                const rotateY = ((x - centerX) / centerX) * 8;
-
+                const rotateX = ((e.clientY - rect.top - rect.height / 2) / (rect.height / 2)) * -8;
+                const rotateY = ((e.clientX - rect.left - rect.width / 2) / (rect.width / 2)) * 8;
                 card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
             });
-
             card.addEventListener('mouseleave', () => {
                 card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
             });
         });
 
-        // 6. Magnetic Buttons (Tactile Floating Effect - DESKTOP ONLY)
         document.querySelectorAll('[data-magnetic]').forEach((btn) => {
             btn.addEventListener('mousemove', (e) => {
                 const rect = btn.getBoundingClientRect();
@@ -166,30 +148,28 @@ function initIndoRosterMotion() {
                 const y = e.clientY - rect.top - rect.height / 2;
                 btn.style.transform = `translate(${x * 0.22}px, ${y * 0.22}px)`;
             });
-
             btn.addEventListener('mouseleave', () => {
                 btn.style.transform = 'translate(0px, 0px)';
                 btn.style.transition = 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)';
             });
-
             btn.addEventListener('mouseenter', () => {
                 btn.style.transition = 'transform 0.1s ease-out';
             });
         });
     }
 
-    // Initialize Smart Video Lazy-Player
+    // Inisialisasi Smart Video Lazy-Player
     initSmartVideoLazyPlayer();
 }
 
-// Run on page load
+// Jalankan saat halaman load
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initIndoRosterMotion);
 } else {
     initIndoRosterMotion();
 }
 
-// Re-initialize when Livewire navigates or updates
+// Re-inisialisasi saat Livewire navigasi atau update
 document.addEventListener('livewire:navigated', () => {
     initIndoRosterMotion();
 });
