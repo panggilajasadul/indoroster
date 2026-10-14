@@ -1315,5 +1315,51 @@
         });
     })();
     </script>
+
+    <!-- Universal Video Lazy Loader & Bandwidth Saver -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            function initLazyVideos() {
+                var lazyVideos = document.querySelectorAll('video[data-lazy-video], video[data-lazy], video.lazy-video');
+                if ('IntersectionObserver' in window) {
+                    var videoObserver = new IntersectionObserver(function (entries) {
+                        entries.forEach(function (entry) {
+                            var video = entry.target;
+                            if (entry.isIntersecting) {
+                                var sources = video.querySelectorAll('source[data-src]');
+                                var needsLoad = false;
+                                sources.forEach(function (source) {
+                                    if (source.dataset.src && !source.getAttribute('src')) {
+                                        source.src = source.dataset.src;
+                                        needsLoad = true;
+                                    }
+                                });
+                                if (video.dataset.src && !video.getAttribute('src')) {
+                                    video.src = video.dataset.src;
+                                    needsLoad = true;
+                                }
+                                if (needsLoad) {
+                                    video.load();
+                                }
+                                if (video.paused) {
+                                    video.play().catch(function () {});
+                                }
+                            } else {
+                                if (!video.paused && typeof video.pause === 'function') {
+                                    video.pause();
+                                }
+                            }
+                        });
+                    }, { rootMargin: '200px 0px' });
+
+                    lazyVideos.forEach(function (v) {
+                        videoObserver.observe(v);
+                    });
+                }
+            }
+            initLazyVideos();
+            document.addEventListener('livewire:navigated', initLazyVideos);
+        });
+    </script>
 </body>
 </html>

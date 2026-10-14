@@ -1,5 +1,4 @@
 import './bootstrap';
-import { animate, inView, stagger } from 'motion';
 
 // Global Smart Video Lazy-Player (Saves RAM & GPU on Mobile)
 let videoObserver = null;
@@ -14,8 +13,25 @@ function initSmartVideoLazyPlayer() {
     videoObserver = new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
             const video = entry.target;
-            if (entry.isIntersecting && entry.intersectionRatio >= 0.25) {
-                // Video in viewport: load and play quietly
+            if (entry.isIntersecting && entry.intersectionRatio >= 0.15) {
+                // If video has lazy source elements, populate src now
+                const sources = video.querySelectorAll('source[data-src]');
+                let needsLoad = false;
+                sources.forEach((s) => {
+                    if (!s.getAttribute('src')) {
+                        s.src = s.dataset.src;
+                        needsLoad = true;
+                    }
+                });
+                if (video.dataset.src && !video.getAttribute('src')) {
+                    video.src = video.dataset.src;
+                    needsLoad = true;
+                }
+                if (needsLoad) {
+                    video.load();
+                }
+
+                // Video in viewport: play quietly
                 if (video.paused) {
                     const playPromise = video.play();
                     if (playPromise !== undefined) {
@@ -30,8 +46,8 @@ function initSmartVideoLazyPlayer() {
             }
         });
     }, {
-        threshold: [0, 0.25, 0.75],
-        rootMargin: '50px 0px 50px 0px'
+        threshold: [0, 0.15, 0.75],
+        rootMargin: '150px 0px 150px 0px'
     });
 
     const videos = document.querySelectorAll('video[autoplay], video[data-lazy-video], video[loop]');

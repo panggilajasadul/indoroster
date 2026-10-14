@@ -128,6 +128,11 @@
     Header set X-XSS-Protection "1; mode=block"
     Header set X-Frame-Options "SAMEORIGIN"
     Header set Referrer-Policy "strict-origin-when-cross-origin"
+
+    # CSP - Allow Livewire / Alpine unsafe-eval and Cloudinary media
+    Header unset Content-Security-Policy
+    Header always unset Content-Security-Policy
+    Header always set Content-Security-Policy "default-src * 'unsafe-inline' 'unsafe-eval' data: blob:; script-src * 'unsafe-inline' 'unsafe-eval' blob:; img-src * data: blob: https:; media-src * data: blob: https:; connect-src * 'unsafe-inline'; font-src * data:; style-src * 'unsafe-inline';"
 </IfModule>
 
 <FilesMatch "\.(mp4|webm|ogg|mov|m4v|avi|mkv|3gp)$">

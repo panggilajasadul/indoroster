@@ -84,7 +84,7 @@
                     @endphp
                     @if($isVideo)
                     <video class="w-full h-full object-cover" preload="none" loop muted playsinline data-lazy-video>
-                        <source src="{{ $finalVideoUrl }}">
+                        <source data-src="{{ $finalVideoUrl }}">
                     </video>
                     @elseif($finalVideoUrl)
                     <img src="{{ $finalVideoUrl }}" class="w-full h-full object-cover" alt="Pengiriman Roster" loading="lazy" decoding="async">

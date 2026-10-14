@@ -259,7 +259,7 @@
 
                 <div class="rounded-3xl overflow-hidden shadow-soft-xs border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 group">
                     <div class="h-60 overflow-hidden relative">
-                        <img src="https://res.cloudinary.com/indoroster/image/upload/v1765262980/2_zurmam.jpg" alt="Roster Beton Minimalis Presisi" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                        <img src="{{ asset('assets/indoroster-production-place.png') }}" alt="Roster Beton Minimalis Presisi" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy">
                         <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
                         <span class="absolute bottom-3 left-4 text-xs font-bold text-white uppercase tracking-wider bg-black/40 backdrop-blur-xs px-3 py-1 rounded-full">Katalog Produk</span>
                     </div>
