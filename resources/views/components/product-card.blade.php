@@ -18,7 +18,7 @@
     <div class="relative aspect-square overflow-hidden bg-slate-100 dark:bg-slate-800">
         @if($displayMedia)
             @if($displayMedia->media_type === 'video' && !str_contains($displayMedia->media_url, 'youtube.com') && !str_contains($displayMedia->media_url, 'youtu.be'))
-                <video src="{{ $displayMedia->formatted_url }}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" preload="none" muted loop playsinline></video>
+                <video data-src="{{ $displayMedia->formatted_url }}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" preload="none" muted loop playsinline data-lazy-video></video>
             @else
                 <img src="{{ cloudinary_thumb($displayMedia->media_type === 'image' ? $displayMedia->formatted_url : $product->primary_image, 400) }}" 
                      alt="{{ $displayMedia->alt_text ?: $product->name }}" 

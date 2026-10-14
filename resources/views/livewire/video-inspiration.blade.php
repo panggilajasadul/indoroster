@@ -202,14 +202,14 @@
                     class="group relative aspect-[9/16] bg-black rounded-2xl md:rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-1 md:hover:-translate-y-2 border border-slate-200 cursor-pointer"
                     @click="openModal({{ $index }})">
                     
-                    {{-- Video Element --}}
+                    {{-- Video Element — preload="metadata" agar frame pertama muncul sebagai thumbnail --}}
                     <video 
                         wire:ignore
                         x-ref="videoElement"
                         @timeupdate="updateProgress"
                         src="{{ $video['url'] }}" 
                         class="w-full h-full object-cover"
-                        preload="none"
+                        preload="metadata"
                         muted 
                         loop 
                         playsinline>
