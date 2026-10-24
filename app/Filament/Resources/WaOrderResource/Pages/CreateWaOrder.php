@@ -34,7 +34,7 @@ class CreateWaOrder extends CreateRecord
             } else {
                 $dp = isset($data['down_payment_amount']) && $data['down_payment_amount'] !== null && $data['down_payment_amount'] !== ''
                     ? (float) $data['down_payment_amount']
-                    : ($scheme === 'dp_50_50' ? round($grandTotal * 0.5) : ($scheme === 'termin_3x' ? round($grandTotal * 0.3) : 0.0));
+                    : ($scheme === 'dp_10_90' ? round($grandTotal * 0.1) : ($scheme === 'dp_30_70' ? round($grandTotal * 0.3) : ($scheme === 'dp_50_50' ? round($grandTotal * 0.5) : ($scheme === 'termin_3x' ? round($grandTotal * 0.3) : 0.0))));
                 $data['down_payment_amount'] = $dp;
                 $data['remaining_balance'] = max(0, $grandTotal - $dp);
             }
@@ -86,6 +86,7 @@ class CreateWaOrder extends CreateRecord
                 'invoice_date' => now(),
                 'subtotal' => $order->subtotal,
                 'shipping_cost' => $order->shipping_cost,
+                'shipping_type' => $order->shipping_type ?: ($order->shipping_cost > 0 ? 'paid' : ($order->grand_total > 0 ? 'free' : 'unconfirmed')),
                 'discount_amount' => $order->discount_amount,
                 'grand_total' => $order->grand_total,
                 'payment_scheme' => $order->payment_scheme ?: 'full',

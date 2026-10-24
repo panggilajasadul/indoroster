@@ -42,6 +42,8 @@
             </span>
             <span style="color: #94a3b8; font-size: 0.75rem;">
                 Skema: {{ match($order->payment_scheme) {
+                    'dp_10_90' => 'DP 10% + Pelunasan 90%',
+                    'dp_30_70' => 'DP 30% + Pelunasan 70%',
                     'dp_50_50' => 'DP 50% + Pelunasan 50%',
                     'termin_3x' => 'Termin 3x (30% + 40% + 30%)',
                     'custom_dp' => 'Kustom DP / Bertahap',
@@ -76,7 +78,13 @@
         
         {{-- 1. TAHAP AWAL: SURAT PENAWARAN HARGA / TAGIHAN DP PROFORMA --}}
         @php
-            $dpInitial = (float) ($order->down_payment_amount ?: ($order->payment_scheme === 'dp_50_50' ? round($grandTotal * 0.5) : ($order->payment_scheme === 'termin_3x' ? round($grandTotal * 0.3) : $grandTotal)));
+            $dpInitial = (float) ($order->down_payment_amount ?: match($order->payment_scheme) {
+                'dp_10_90' => round($grandTotal * 0.1),
+                'dp_30_70' => round($grandTotal * 0.3),
+                'dp_50_50' => round($grandTotal * 0.5),
+                'termin_3x' => round($grandTotal * 0.3),
+                default => $grandTotal,
+            });
             $isDpScheme = ($order->payment_scheme !== 'full' && $dpInitial > 0 && $dpInitial < $grandTotal);
         @endphp
         <div style="background: #1e293b; border-radius: 10px; border: 1px solid #334155; padding: 14px 16px;">

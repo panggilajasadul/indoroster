@@ -11,6 +11,7 @@ use App\Models\Product;
 use App\Models\PromoPage;
 use App\Models\SeoLocation;
 use App\Models\SeoPage;
+use App\Services\ExportCountryService;
 use Carbon\Carbon;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Schema;
@@ -307,19 +308,80 @@ class SitemapController extends Controller
                 ->setPriority(0.9)
         );
 
+        // Kumpulkan slug negara dari DB (jika ada) lalu merge dengan default dari JSON/service
+        // supaya 110 halaman negara selalu masuk sitemap meskipun tabel export_pages kosong
+        $indexedSlugs = [];
+
         if (Schema::hasTable('export_pages')) {
             $exportPages = ExportPage::where('is_active', true)
                 ->orderBy('updated_at', 'desc')
                 ->get(['country_slug', 'updated_at']);
 
             foreach ($exportPages as $ep) {
+                $slug = trim($ep->country_slug);
+                $indexedSlugs[$slug] = true;
                 $sitemapExports->add(
-                    Url::create($baseUrl.'/export/'.trim($ep->country_slug))
+                    Url::create($baseUrl.'/export/'.$slug)
                         ->setLastModificationDate($ep->updated_at ?? Carbon::now())
                         ->setChangeFrequency(Url::CHANGE_FREQUENCY_WEEKLY)
                         ->setPriority(0.85)
                 );
             }
+        }
+
+        // TIER 1 — ASEAN (prioritas tertinggi, transit singkat, nilai pasar tinggi)
+        $tier1Slugs = [
+            'singapore', 'malaysia', 'brunei', 'thailand', 'philippines',
+            'vietnam', 'indonesia-export', 'maldives',
+        ];
+        // TIER 2 — Middle East (nilai transaksi premium, Mashrabiya demand)
+        $tier2Slugs = [
+            'uae', 'saudi-arabia', 'qatar', 'kuwait', 'oman', 'bahrain',
+            'jordan', 'egypt', 'turkey', 'iran', 'iraq', 'lebanon',
+        ];
+        // TIER 3 — Asia Pasifik & Oceania
+        $tier3Slugs = [
+            'australia', 'new-zealand', 'japan', 'south-korea', 'china',
+            'taiwan', 'hong-kong', 'india', 'pakistan', 'bangladesh', 'sri-lanka',
+            'myanmar', 'cambodia', 'laos',
+        ];
+        // TIER 4 — Eropa
+        $tier4Slugs = [
+            'uk', 'france', 'germany', 'italy', 'spain', 'portugal',
+            'greece', 'netherlands', 'belgium', 'austria', 'switzerland',
+            'sweden', 'norway', 'denmark', 'finland', 'ireland',
+            'poland', 'russia', 'czech-republic', 'hungary', 'romania',
+        ];
+        // TIER 5 — Americas & Afrika
+        $tier5Slugs = [
+            'usa', 'canada', 'mexico', 'brazil', 'argentina', 'chile',
+            'colombia', 'peru',
+            'south-africa', 'nigeria', 'kenya', 'ethiopia', 'ghana',
+            'morocco', 'tanzania', 'uganda', 'mozambique', 'namibia',
+        ];
+        // TIER 6 — Negara lain dari ExportCountryService JSON (semua sisa)
+        $allDefaultSlugs = array_keys(ExportCountryService::getDefaultConfigs());
+
+        $prioritizedSlugs = array_unique(array_merge(
+            $tier1Slugs, $tier2Slugs, $tier3Slugs, $tier4Slugs, $tier5Slugs, $allDefaultSlugs
+        ));
+
+        foreach ($prioritizedSlugs as $idx => $slug) {
+            if (isset($indexedSlugs[$slug])) {
+                continue; // Sudah ditambahkan dari DB record
+            }
+            // Priority: Tier 1 = 0.90, Tier 2 = 0.88, sisanya 0.80
+            $priority = in_array($slug, $tier1Slugs) ? 0.90
+                : (in_array($slug, $tier2Slugs) ? 0.88
+                : (in_array($slug, $tier3Slugs) ? 0.85
+                : (in_array($slug, $tier4Slugs) ? 0.82 : 0.80)));
+
+            $sitemapExports->add(
+                Url::create($baseUrl.'/export/'.$slug)
+                    ->setLastModificationDate(Carbon::now())
+                    ->setChangeFrequency(Url::CHANGE_FREQUENCY_WEEKLY)
+                    ->setPriority($priority)
+            );
         }
 
         self::saveSitemapFile($sitemapExports, 'sitemap-exports.xml', $baseUrl, 'Exports');

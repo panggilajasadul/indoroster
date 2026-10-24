@@ -96,22 +96,20 @@
         @endphp
 
         <div class="title">
-            @if($paymentStage)
+            @if(!empty($invoice->document_title))
+                {{ strtoupper($invoice->document_title) }}
+            @elseif($paymentStage)
                 INVOICE {{ strtoupper($paymentStage->installment_title) }}
             @elseif($isStageLunas)
                 INVOICE FINAL / FAKTUR PENJUALAN RESMI (LUNAS)
             @elseif($allPayments->count() > 0 && $remaining > 0)
                 SURAT TAGIHAN PELUNASAN (SISA TERMIN)
-            @elseif($order && ($order->status === 'draft' || $order->status === 'pending_payment' || $order->payment_status === 'unpaid' || $invoice->status === 'unpaid'))
-                @if(!\App\Models\SiteSetting::showPrices())
-                    SURAT ESTIMASI PENAWARAN HARGA (BISA NEGO VOLUME)
-                @elseif($order->payment_scheme !== 'full' && $order->down_payment_amount > 0 && $order->down_payment_amount < $invoice->grand_total)
-                    SURAT PENAWARAN & TAGIHAN PEMBAYARAN DP
-                @else
-                    SURAT PENAWARAN & PROFORMA TAGIHAN
-                @endif
+            @elseif($order && $order->payment_scheme === 'quotation')
+                SURAT ESTIMASI PENAWARAN HARGA (QUOTATION)
+            @elseif($order && in_array($order->payment_scheme, ['dp_10_90', 'dp_30_70', 'dp_50_50', 'termin_3x', 'custom_dp']) && $order->down_payment_amount > 0 && $order->down_payment_amount < $invoice->grand_total)
+                INVOICE & SURAT TAGIHAN PEMBAYARAN DP
             @else
-                SURAT PENAWARAN & PROFORMA TAGIHAN
+                INVOICE TAGIHAN PENJUALAN RESMI
             @endif
         </div>
 
@@ -202,7 +200,7 @@
             <div class="summary-col">
                 <div class="notes">
                     <strong>Catatan & Keterangan Pengiriman:</strong><br>
-                    {{ $invoice->order->notes ?: 'Material pesanan diproduksi langsung dari pabrik IndoRoster Purwakarta dengan standar cetak padat presisi.' }}
+                    {{ !empty($invoice->document_notes) ? $invoice->document_notes : ($invoice->order->notes ?: 'Material pesanan diproduksi langsung dari pabrik IndoRoster Purwakarta dengan standar cetak padat presisi.') }}
                     @if($invoice->order->shipping_latitude && $invoice->order->shipping_longitude)
                         <br><br><strong>Titik Koordinat Google Maps:</strong><br>
                         {{ $invoice->order->shipping_latitude }}, {{ $invoice->order->shipping_longitude }}
@@ -210,6 +208,11 @@
                 </div>
             </div>
             <div class="summary-totals">
+                @php
+                    $shippingType = $invoice->shipping_type ?: ($invoice->order->shipping_type ?? 'paid');
+                    $isFreeShipping = ($shippingType === 'free');
+                    $isUnconfirmedShipping = ($shippingType === 'unconfirmed' || (!$isFreeShipping && (float)$invoice->shipping_cost == 0 && $invoice->order && $invoice->order->order_source === 'whatsapp' && $invoice->order->payment_status !== 'paid'));
+                @endphp
                 <table class="totals">
                     <tr>
                         <td class="label">Subtotal</td>
@@ -219,7 +222,9 @@
                         <td class="label">Ongkos Kirim</td>
                         @if((float)$invoice->shipping_cost > 0)
                             <td>Rp {{ number_format($invoice->shipping_cost, 0, ',', '.') }}</td>
-                        @elseif($invoice->order && $invoice->order->order_source === 'whatsapp' && $invoice->order->payment_status !== 'paid')
+                        @elseif($isFreeShipping)
+                            <td style="color: #15803d; font-weight: 700;">Rp 0 <span style="font-size: 9.5px; background: #dcfce7; color: #166534; padding: 1.5px 5px; border-radius: 4px; border: 1px solid #86efac;">GRATIS ONGKIR</span></td>
+                        @elseif($isUnconfirmedShipping)
                             <td style="color: #b45309; font-style: italic; font-size: 11px;">[Menunggu Konfirmasi Pabrik]</td>
                         @else
                             <td>Rp 0</td>
@@ -238,64 +243,123 @@
                     </tr>
                     @endif
                     <tr class="bold">
-                        <td class="label">{{ ((float)$invoice->shipping_cost == 0 && $invoice->order && $invoice->order->order_source === 'whatsapp' && $invoice->order->payment_status !== 'paid') ? 'TOTAL SEMENTARA (BELUM TERMASUK ONGKIR)' : 'GRAND TOTAL' }}</td>
+                        <td class="label">{{ ($isUnconfirmedShipping) ? 'TOTAL SEMENTARA (BELUM TERMASUK ONGKIR)' : 'GRAND TOTAL' }}</td>
                         <td>Rp {{ number_format($invoice->grand_total, 0, ',', '.') }}</td>
                     </tr>
                     @php
-                        $scheme = $invoice->order->payment_scheme ?? 'full';
+                        $scheme = $invoice->order->payment_scheme ?? $invoice->payment_scheme ?? 'full';
                         $grandTotalVal = (float) $invoice->grand_total;
+                        $showSchedule = $invoice->show_payment_schedule ?? true;
                     @endphp
-                    @if($dp > 0 && $remaining > 0)
-                    <tr>
-                        <td class="label" style="color: #059669; font-weight: 600;">{{ $paymentStage ? 'Total Masuk (s/d ' . $paymentStage->installment_title . ')' : 'Total DP / Telah Dibayar' }}</td>
-                        <td style="color: #059669; font-weight: 600;">Rp {{ number_format($dp, 0, ',', '.') }}</td>
-                    </tr>
-                    <tr class="bold" style="background: #fef2f2;">
-                        <td class="label" style="color: #dc2626;">SISA TAGIHAN PELUNASAN<br><small style="font-weight: normal; color: #64748b; font-size: 9px;">(Saat Barang Siap Dikirim)</small></td>
-                        <td style="color: #dc2626; font-size: 13px; font-weight: 800;">Rp {{ number_format($remaining, 0, ',', '.') }}</td>
-                    </tr>
-                    @elseif($isStageLunas && $dp > 0)
-                    <tr style="background: #f0fdf4;">
-                        <td class="label" style="color: #15803d; font-weight: 700;">TOTAL PEMBAYARAN MASUK (100%)</td>
-                        <td style="color: #15803d; font-weight: 800; font-size: 13px;">Rp {{ number_format($dp, 0, ',', '.') }}</td>
-                    </tr>
-                    <tr style="background: #f0fdf4;">
-                        <td class="label" style="color: #15803d; font-weight: 700;">SISA TAGIHAN</td>
-                        <td style="color: #15803d; font-weight: 800; font-size: 13px;">Rp 0 (LUNAS)</td>
-                    </tr>
-                    @elseif($dp == 0 && ($invoice->order->status === 'draft' || $invoice->order->status === 'pending_payment' || $invoice->order->payment_status === 'unpaid'))
-                        @if($scheme === 'full')
-                        <tr style="background: {{ !\App\Models\SiteSetting::showPrices() ? '#f0fdf4' : '#fef2f2' }};">
-                            <td class="label" style="color: {{ !\App\Models\SiteSetting::showPrices() ? '#15803d' : '#dc2626' }}; font-weight: 700;">{{ !\App\Models\SiteSetting::showPrices() ? 'ESTIMASI TOTAL PENAWARAN' : 'TOTAL TAGIHAN TRANSFER' }}<br><small style="font-weight: normal; color: #64748b; font-size: 9px;">({{ !\App\Models\SiteSetting::showPrices() ? 'Estimasi Awal Pabrik - Bisa Nego Volume' : 'Menunggu Pembayaran Transfer' }})</small></td>
-                            <td style="color: {{ !\App\Models\SiteSetting::showPrices() ? '#15803d' : '#dc2626' }}; font-weight: 800; font-size: 13px;">Rp {{ number_format($grandTotalVal, 0, ',', '.') }}</td>
-                        </tr>
+
+                    @if($showSchedule)
+                        @if($scheme === 'dp_10_90')
+                            @php
+                                $targetDp = round($grandTotalVal * 0.1);
+                                $targetPelunasan = $grandTotalVal - $targetDp;
+                            @endphp
+                            <tr style="background: #fffbeb;">
+                                <td class="label" style="color: #b45309; font-weight: 700;">
+                                    Tahap 1: Tagihan DP Awal (10%)<br>
+                                    <small style="font-weight: normal; color: #64748b; font-size: 9px;">(Untuk Konfirmasi & Antrean Cetak Pabrik)</small>
+                                </td>
+                                <td style="color: #b45309; font-weight: 800; font-size: 12px;">Rp {{ number_format($targetDp, 0, ',', '.') }}</td>
+                            </tr>
+                            <tr>
+                                <td class="label" style="color: #475569;">
+                                    Tahap 2: Sisa Pelunasan (90%)<br>
+                                    <small style="font-weight: normal; color: #64748b; font-size: 9px;">(Pelunasan Saat Material Siap Dikirim)</small>
+                                </td>
+                                <td style="color: #475569; font-weight: 600;">Rp {{ number_format($targetPelunasan, 0, ',', '.') }}</td>
+                            </tr>
+                        @elseif($scheme === 'dp_30_70')
+                            @php
+                                $targetDp = round($grandTotalVal * 0.3);
+                                $targetPelunasan = $grandTotalVal - $targetDp;
+                            @endphp
+                            <tr style="background: #fffbeb;">
+                                <td class="label" style="color: #b45309; font-weight: 700;">
+                                    Tahap 1: Tagihan DP Awal (30%)<br>
+                                    <small style="font-weight: normal; color: #64748b; font-size: 9px;">(Untuk Konfirmasi & Jadwal Produksi Pabrik)</small>
+                                </td>
+                                <td style="color: #b45309; font-weight: 800; font-size: 12px;">Rp {{ number_format($targetDp, 0, ',', '.') }}</td>
+                            </tr>
+                            <tr>
+                                <td class="label" style="color: #475569;">
+                                    Tahap 2: Sisa Pelunasan (70%)<br>
+                                    <small style="font-weight: normal; color: #64748b; font-size: 9px;">(Pelunasan Saat Material Siap Dikirim)</small>
+                                </td>
+                                <td style="color: #475569; font-weight: 600;">Rp {{ number_format($targetPelunasan, 0, ',', '.') }}</td>
+                            </tr>
                         @elseif($scheme === 'dp_50_50')
-                        <tr style="background: #fffbeb;">
-                            <td class="label" style="color: #b45309; font-weight: 700;">Tagihan DP Awal (50%)<br><small style="font-weight: normal; color: #64748b; font-size: 9px;">(Untuk Konfirmasi Cetak Pabrik)</small></td>
-                            <td style="color: #b45309; font-weight: 800; font-size: 12px;">Rp {{ number_format(round($grandTotalVal * 0.5), 0, ',', '.') }}</td>
-                        </tr>
-                        <tr>
-                            <td class="label" style="color: #475569;">Sisa Pelunasan (50%)<br><small style="font-weight: normal; color: #64748b; font-size: 9px;">(Saat Barang Siap Dikirim)</small></td>
-                            <td style="color: #475569; font-weight: 600;">Rp {{ number_format(round($grandTotalVal * 0.5), 0, ',', '.') }}</td>
-                        </tr>
+                            @php
+                                $targetDp = round($grandTotalVal * 0.5);
+                                $targetPelunasan = $grandTotalVal - $targetDp;
+                            @endphp
+                            <tr style="background: #fffbeb;">
+                                <td class="label" style="color: #b45309; font-weight: 700;">
+                                    Tahap 1: Tagihan DP Awal (50%)<br>
+                                    <small style="font-weight: normal; color: #64748b; font-size: 9px;">(Untuk Konfirmasi Cetak Pabrik)</small>
+                                </td>
+                                <td style="color: #b45309; font-weight: 800; font-size: 12px;">Rp {{ number_format($targetDp, 0, ',', '.') }}</td>
+                            </tr>
+                            <tr>
+                                <td class="label" style="color: #475569;">
+                                    Tahap 2: Sisa Pelunasan (50%)<br>
+                                    <small style="font-weight: normal; color: #64748b; font-size: 9px;">(Saat Barang Siap Dikirim)</small>
+                                </td>
+                                <td style="color: #475569; font-weight: 600;">Rp {{ number_format($targetPelunasan, 0, ',', '.') }}</td>
+                            </tr>
                         @elseif($scheme === 'termin_3x')
-                        <tr style="background: #fffbeb;">
-                            <td class="label" style="color: #b45309; font-weight: 700;">Tagihan DP #1 (30%)</td>
-                            <td style="color: #b45309; font-weight: 800;">Rp {{ number_format(round($grandTotalVal * 0.3), 0, ',', '.') }}</td>
+                            @php
+                                $t1 = round($grandTotalVal * 0.3);
+                                $t2 = round($grandTotalVal * 0.4);
+                                $t3 = $grandTotalVal - $t1 - $t2;
+                            @endphp
+                            <tr style="background: #fffbeb;">
+                                <td class="label" style="color: #b45309; font-weight: 700;">Tahap 1: Tagihan DP Awal (30%)</td>
+                                <td style="color: #b45309; font-weight: 800;">Rp {{ number_format($t1, 0, ',', '.') }}</td>
+                            </tr>
+                            <tr>
+                                <td class="label" style="color: #475569;">Tahap 2: Progres Produksi (40%)</td>
+                                <td style="color: #475569; font-weight: 600;">Rp {{ number_format($t2, 0, ',', '.') }}</td>
+                            </tr>
+                            <tr>
+                                <td class="label" style="color: #475569;">Tahap 3: Pelunasan Akhir (30%)</td>
+                                <td style="color: #475569; font-weight: 600;">Rp {{ number_format($t3, 0, ',', '.') }}</td>
+                            </tr>
+                        @elseif($scheme === 'custom_dp' && ($invoice->order->down_payment_amount ?? $invoice->down_payment_amount ?? 0) > 0)
+                            @php
+                                $customDp = (float) ($invoice->order->down_payment_amount ?? $invoice->down_payment_amount);
+                                $customRemaining = max(0, $grandTotalVal - $customDp);
+                            @endphp
+                            <tr style="background: #fffbeb;">
+                                <td class="label" style="color: #b45309; font-weight: 700;">Tagihan DP Awal Disepakati</td>
+                                <td style="color: #b45309; font-weight: 800; font-size: 12px;">Rp {{ number_format($customDp, 0, ',', '.') }}</td>
+                            </tr>
+                            <tr>
+                                <td class="label" style="color: #475569;">Sisa Pelunasan Disepakati</td>
+                                <td style="color: #475569; font-weight: 600;">Rp {{ number_format($customRemaining, 0, ',', '.') }}</td>
+                            </tr>
+                        @endif
+
+                        @if($dp > 0 && $remaining > 0)
+                        <tr style="background: #f0fdf4;">
+                            <td class="label" style="color: #059669; font-weight: 700;">{{ $paymentStage ? 'Total Masuk (s/d ' . $paymentStage->installment_title . ')' : 'TOTAL PEMBAYARAN DP MASUK' }}</td>
+                            <td style="color: #059669; font-weight: 800; font-size: 13px;">Rp {{ number_format($dp, 0, ',', '.') }}</td>
                         </tr>
-                        <tr>
-                            <td class="label" style="color: #475569;">Termin #2 (40%) / Pelunasan #3 (30%)<br><small style="font-weight: normal; color: #64748b; font-size: 9px;">(Pelunasan Saat Barang Siap Dikirim)</small></td>
-                            <td style="color: #475569; font-weight: 600;">Rp {{ number_format(round($grandTotalVal * 0.7), 0, ',', '.') }}</td>
+                        <tr class="bold" style="background: #fef2f2;">
+                            <td class="label" style="color: #dc2626;">SISA TAGIHAN PELUNASAN<br><small style="font-weight: normal; color: #64748b; font-size: 9px;">(Sebelum Armada Truk Berangkat)</small></td>
+                            <td style="color: #dc2626; font-size: 13px; font-weight: 800;">Rp {{ number_format($remaining, 0, ',', '.') }}</td>
                         </tr>
-                        @elseif($scheme === 'custom_dp' && ($invoice->order->down_payment_amount ?? 0) > 0)
-                        @php $customDp = (float) $invoice->order->down_payment_amount; @endphp
-                        <tr style="background: #fffbeb;">
-                            <td class="label" style="color: #b45309; font-weight: 700;">Tagihan DP Awal Disepakati</td>
-                            <td style="color: #b45309; font-weight: 800; font-size: 12px;">Rp {{ number_format($customDp, 0, ',', '.') }}</td>
+                        @elseif($isStageLunas && $dp > 0)
+                        <tr style="background: #f0fdf4;">
+                            <td class="label" style="color: #15803d; font-weight: 700;">TOTAL PEMBAYARAN MASUK (100%)</td>
+                            <td style="color: #15803d; font-weight: 800; font-size: 13px;">Rp {{ number_format($dp, 0, ',', '.') }}</td>
                         </tr>
-                        <tr>
-                            <td class="label" style="color: #475569;">Sisa Pelunasan<br><small style="font-weight: normal; color: #64748b; font-size: 9px;">(Saat Barang Siap Dikirim)</small></td>
-                            <td style="color: #475569; font-weight: 600;">Rp {{ number_format(max(0, $grandTotalVal - $customDp), 0, ',', '.') }}</td>
+                        <tr style="background: #f0fdf4;">
+                            <td class="label" style="color: #15803d; font-weight: 700;">SISA TAGIHAN</td>
+                            <td style="color: #15803d; font-weight: 800; font-size: 13px;">Rp 0 (LUNAS)</td>
                         </tr>
                         @endif
                     @endif
@@ -333,49 +397,62 @@
             </table>
         </div>
         @endif
-        @if($remaining > 0 || $dp == 0)
-        <!-- Petunjuk Rekening Pembayaran Resmi Pabrik -->
-        <div class="bank-instruction-box avoid-break" style="margin-top: 10px; background: #fffdfa; border: 1.5px solid #fed7aa; border-left: 5px solid #ea580c; border-radius: 6px; padding: 8px 12px; font-size: 10.5px; page-break-inside: avoid !important; break-inside: avoid !important;">
-            <div style="color: #9a3412; font-weight: 800; text-transform: uppercase; font-size: 10.5px; margin-bottom: 3px; letter-spacing: 0.03em;">
-                Petunjuk Pembayaran & Rekening Resmi:
+        @php
+            $bankAccounts = $invoice->bank_accounts_override ?: \App\Models\SiteSetting::getBankAccounts();
+            $showBankSection = $invoice->show_bank_accounts ?? true;
+        @endphp
+        @if($showBankSection && ($remaining > 0 || $dp == 0))
+        <!-- Petunjuk Rekening Pembayaran Resmi Pabrik (Support 3 Rekening Sekaligus) -->
+        <div class="bank-instruction-box avoid-break" style="margin-top: 10px; background: #fffdfa; border: 1.5px solid #fed7aa; border-left: 5px solid #ea580c; border-radius: 6px; padding: 8px 12px; font-size: 10px; page-break-inside: avoid !important; break-inside: avoid !important;">
+            <div style="color: #9a3412; font-weight: 800; text-transform: uppercase; font-size: 10.5px; margin-bottom: 4px; letter-spacing: 0.03em;">
+                🏛️ Petunjuk Pembayaran & Rekening Bank Resmi Pabrik:
             </div>
-            <div style="color: #334155; line-height: 1.45;">
+            <div style="color: #475569; font-size: 9.5px; margin-bottom: 5px;">
                 @if($scheme === 'full')
-                    Silakan melakukan transfer pembayaran penuh (100%) ke rekening resmi berikut:
+                    Silakan melakukan transfer pelunasan (100%) ke salah satu rekening bank resmi IndoRoster berikut:
                 @else
-                    Silakan melakukan transfer pembayaran / DP ke rekening resmi berikut:
-                @endif
-                <table style="margin-top: 3px; font-size: 10.5px; border-collapse: collapse;">
-                    <tr>
-                        <td style="padding: 1.5px 0; color: #64748b; width: 100px;">Bank Tujuan</td>
-                        <td style="padding: 1.5px 0; font-weight: 700; color: #0f172a;">: Bank BRI (Bank Rakyat Indonesia)</td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 1.5px 0; color: #64748b;">Nomor Rekening</td>
-                        <td style="padding: 1.5px 0; font-weight: 800; font-family: monospace; font-size: 12px; color: #ea580c;">: 4356-01-009396-50-2 <span style="font-weight: normal; font-size: 9.5px; color: #64748b;">(435601009396502)</span></td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 1.5px 0; color: #64748b;">Atas Nama</td>
-                        <td style="padding: 1.5px 0; font-weight: 700; color: #0f172a;">: ABDUL HAMID</td>
-                    </tr>
-                </table>
-                <div style="margin-top: 4px; font-size: 9.5px; color: #9a3412; font-style: italic; line-height: 1.35;">
-                    @if($scheme !== 'full')
-                    * Sisa pelunasan diselesaikan saat material telah selesai diproduksi & siap dikirim dari pabrik.<br>
-                    @endif
-                    * Harap konfirmasikan bukti transfer ke WhatsApp resmi kami (0813-8970-9847) untuk penerbitan Kuitansi Resmi dan verifikasi pesanan.
-                </div>
-                @if(!\App\Models\SiteSetting::showPrices() && $invoice->order && $invoice->order->payment_status !== 'paid')
-                <div style="margin-top: 6px; padding: 6px 10px; background: #f0fdf4; border: 1px solid #86efac; border-radius: 4px; color: #166534; font-size: 9.5px; font-weight: bold; line-height: 1.45;">
-                    💡 CATATAN RESMI PABRIKAN: Harga satuan dan rincian biaya pada surat penawaran ini merupakan estimasi acuan resmi dari Pabrik IndoRoster Plered. Harga masih dapat disesuaikan atau dinegosiasikan sesuai volume pesanan proyek Anda melalui WhatsApp resmi (0813-8970-9847) sebelum proses transfer pembayaran.
-                </div>
-                @endif
-                @if((float)$invoice->shipping_cost == 0 && $invoice->order && $invoice->order->order_source === 'whatsapp' && $invoice->order->payment_status !== 'paid')
-                <div style="margin-top: 6px; padding: 5px 8px; background: #fff7ed; border: 1px solid #fdba74; border-radius: 4px; color: #9a3412; font-size: 9.5px; font-weight: bold; line-height: 1.4;">
-                    ⚠️ PERHATIAN: Biaya ongkos kirim armada truk saat ini sedang dihitung oleh tim logistik. Mohon jangan melakukan transfer sebelum total ongkir dikonfirmasi oleh Admin WhatsApp (0813-8970-9847).
-                </div>
+                    Silakan melakukan transfer pembayaran DP / Termin ke salah satu rekening bank resmi IndoRoster berikut:
                 @endif
             </div>
+
+            <table style="width: 100%; border-collapse: collapse; margin-top: 2px;">
+                <tr>
+                    @php $activeBanks = collect($bankAccounts)->filter(fn($b) => !empty($b['is_active']))->values(); @endphp
+                    @foreach($activeBanks as $idx => $bank)
+                        <td style="width: {{ count($activeBanks) > 0 ? round(100 / count($activeBanks), 1) : 33.33 }}%; vertical-align: top; padding: 4px 6px; background: #ffffff; border: 1px solid #fed7aa; border-radius: 4px;">
+                            <div style="font-weight: 800; color: #0f172a; font-size: 10px; border-bottom: 1px dashed #fdba74; padding-bottom: 2px; margin-bottom: 2px;">
+                                {{ $bank['bank_name'] }}
+                            </div>
+                            <div style="font-size: 8.5px; color: #64748b;">No. Rekening:</div>
+                            <div style="font-family: monospace; font-weight: 800; font-size: 11px; color: #ea580c; margin: 1px 0;">
+                                {{ $bank['account_number'] }}
+                            </div>
+                            <div style="font-size: 8.5px; color: #475569;">
+                                a/n <strong style="color: #0f172a;">{{ $bank['account_name'] }}</strong>
+                            </div>
+                        </td>
+                    @endforeach
+                </tr>
+            </table>
+
+            <div style="margin-top: 5px; font-size: 9px; color: #9a3412; font-style: italic; line-height: 1.35;">
+                @if($scheme !== 'full')
+                * Sisa pelunasan diselesaikan saat material telah selesai diproduksi & siap dikirim dari pabrik.<br>
+                @endif
+                * Harap konfirmasikan bukti transfer ke WhatsApp resmi kami (0813-8970-9847) untuk verifikasi pesanan dan penerbitan Kuitansi Resmi.
+            </div>
+
+            @if(!empty($invoice->show_nego_note))
+            <div style="margin-top: 6px; padding: 5px 8px; background: #f0fdf4; border: 1px solid #86efac; border-radius: 4px; color: #166534; font-size: 9.5px; font-weight: bold; line-height: 1.45;">
+                💡 CATATAN RESMI PABRIKAN: Harga satuan dan rincian biaya pada surat penawaran ini merupakan estimasi acuan resmi dari Pabrik IndoRoster Plered. Harga masih dapat disesuaikan atau dinegosiasikan sesuai volume pesanan proyek Anda melalui WhatsApp resmi (0813-8970-9847) sebelum proses transfer pembayaran.
+            </div>
+            @endif
+
+            @if($isUnconfirmedShipping && ($invoice->show_shipping_warning ?? true))
+            <div style="margin-top: 6px; padding: 5px 8px; background: #fff7ed; border: 1px solid #fdba74; border-radius: 4px; color: #9a3412; font-size: 9.5px; font-weight: bold; line-height: 1.4;">
+                ⚠️ PERHATIAN: Biaya ongkos kirim armada truk saat ini sedang dihitung oleh tim logistik. Mohon jangan melakukan transfer sebelum total ongkir dikonfirmasi oleh Admin WhatsApp (0813-8970-9847).
+            </div>
+            @endif
         </div>
         @endif
 
@@ -384,11 +461,17 @@
             <tr>
                 <td style="width: 55%; vertical-align: top; font-size: 11px; color: #64748b; line-height: 1.5; padding-right: 20px;">
                     <strong style="color: #334155;">Syarat & Ketentuan Pengiriman:</strong>
-                    <ul style="margin: 4px 0 0 16px; padding: 0;">
-                        <li>Penurunan material dilakukan di titik bongkar yang dapat diakses armada truk.</li>
-                        <li>Klaim garansi pecah wajib disertakan bukti foto saat serah terima barang.</li>
-                        <li>Dokumen ini merupakan bukti transaksi sah yang diterbitkan otomatis oleh sistem.</li>
-                    </ul>
+                    @if(!empty($invoice->document_terms))
+                        <div style="margin-top: 4px; font-size: 10px; line-height: 1.45; color: #475569;">
+                            {!! nl2br(e($invoice->document_terms)) !!}
+                        </div>
+                    @else
+                        <ul style="margin: 4px 0 0 16px; padding: 0;">
+                            <li>Penurunan material dilakukan di titik bongkar yang dapat diakses armada truk.</li>
+                            <li>Klaim garansi pecah wajib disertakan bukti foto saat serah terima barang.</li>
+                            <li>Dokumen ini merupakan bukti transaksi sah yang diterbitkan otomatis oleh sistem.</li>
+                        </ul>
+                    @endif
                 </td>
                 <td style="width: 45%; vertical-align: top; text-align: center;">
                     <div style="font-size: 12px; color: #475569; margin-bottom: 3px;">

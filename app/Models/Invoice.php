@@ -20,6 +20,15 @@ class Invoice extends Model
         'payment_scheme',
         'down_payment_amount',
         'remaining_balance',
+        'shipping_type',
+        'document_title',
+        'document_notes',
+        'document_terms',
+        'show_nego_note',
+        'show_shipping_warning',
+        'show_payment_schedule',
+        'show_bank_accounts',
+        'bank_accounts_override',
         'status',
         'notes',
         'paid_at',
@@ -38,6 +47,11 @@ class Invoice extends Model
             'down_payment_amount' => 'decimal:2',
             'remaining_balance' => 'decimal:2',
             'paid_at' => 'datetime',
+            'show_nego_note' => 'boolean',
+            'show_shipping_warning' => 'boolean',
+            'show_payment_schedule' => 'boolean',
+            'show_bank_accounts' => 'boolean',
+            'bank_accounts_override' => 'array',
         ];
     }
 

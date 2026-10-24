@@ -163,10 +163,43 @@
                     @php
                         $dp = $invoice->down_payment_amount ?: ($invoice->order->down_payment_amount ?? 0);
                         $remaining = $invoice->remaining_balance > 0 ? $invoice->remaining_balance : ($invoice->order->remaining_balance ?? max(0, $invoice->grand_total - $dp));
+                        $scheme = $invoice->order->payment_scheme ?? $invoice->payment_scheme ?? 'full';
+                        $grandTotalVal = (float) $invoice->grand_total;
                     @endphp
+                    @if($scheme === 'dp_10_90')
+                        @php $targetDp = round($grandTotalVal * 0.1); $targetPel = $grandTotalVal - $targetDp; @endphp
+                        <tr style="background: #fffbeb;">
+                            <td class="label" style="color: #b45309; font-weight: 700;">Tahap 1: Tagihan DP 10%</td>
+                            <td style="color: #b45309; font-weight: 800;">Rp {{ number_format($targetDp, 0, ',', '.') }}</td>
+                        </tr>
+                        <tr>
+                            <td class="label" style="color: #475569;">Tahap 2: Sisa Pelunasan 90%</td>
+                            <td style="color: #475569; font-weight: 600;">Rp {{ number_format($targetPel, 0, ',', '.') }}</td>
+                        </tr>
+                    @elseif($scheme === 'dp_30_70')
+                        @php $targetDp = round($grandTotalVal * 0.3); $targetPel = $grandTotalVal - $targetDp; @endphp
+                        <tr style="background: #fffbeb;">
+                            <td class="label" style="color: #b45309; font-weight: 700;">Tahap 1: Tagihan DP 30%</td>
+                            <td style="color: #b45309; font-weight: 800;">Rp {{ number_format($targetDp, 0, ',', '.') }}</td>
+                        </tr>
+                        <tr>
+                            <td class="label" style="color: #475569;">Tahap 2: Sisa Pelunasan 70%</td>
+                            <td style="color: #475569; font-weight: 600;">Rp {{ number_format($targetPel, 0, ',', '.') }}</td>
+                        </tr>
+                    @elseif($scheme === 'dp_50_50')
+                        @php $targetDp = round($grandTotalVal * 0.5); $targetPel = $grandTotalVal - $targetDp; @endphp
+                        <tr style="background: #fffbeb;">
+                            <td class="label" style="color: #b45309; font-weight: 700;">Tahap 1: Tagihan DP 50%</td>
+                            <td style="color: #b45309; font-weight: 800;">Rp {{ number_format($targetDp, 0, ',', '.') }}</td>
+                        </tr>
+                        <tr>
+                            <td class="label" style="color: #475569;">Tahap 2: Sisa Pelunasan 50%</td>
+                            <td style="color: #475569; font-weight: 600;">Rp {{ number_format($targetPel, 0, ',', '.') }}</td>
+                        </tr>
+                    @endif
                     @if($dp > 0 && $remaining > 0)
                     <tr>
-                        <td class="label" style="color: #059669; font-weight: 600;">DP / Telah Dibayar</td>
+                        <td class="label" style="color: #059669; font-weight: 600;">Total DP Masuk</td>
                         <td style="color: #059669; font-weight: 600;">Rp {{ number_format($dp, 0, ',', '.') }}</td>
                     </tr>
                     <tr class="bold" style="background: #fef2f2;">
@@ -178,31 +211,40 @@
             </div>
         </div>
 
-        @if($remaining > 0 || $dp == 0)
-        <!-- Petunjuk Rekening Pembayaran Resmi Pabrik -->
+        @php
+            $bankAccounts = $invoice->bank_accounts_override ?: \App\Models\SiteSetting::getBankAccounts();
+            $showBankSection = $invoice->show_bank_accounts ?? true;
+        @endphp
+        @if($showBankSection && ($remaining > 0 || $dp == 0))
+        <!-- Petunjuk Rekening Pembayaran Resmi Pabrik (Support 3 Bank) -->
         <div style="margin-top: 14px; background: #fffdfa; border: 1.5px solid #fed7aa; border-left: 5px solid #ea580c; border-radius: 6px; padding: 10px 14px; font-size: 11px;">
             <div style="color: #9a3412; font-weight: 800; text-transform: uppercase; font-size: 11px; margin-bottom: 4px; letter-spacing: 0.03em;">
-                Petunjuk Pembayaran & Rekening Resmi:
+                🏛️ Petunjuk Pembayaran & Rekening Bank Resmi Pabrik:
             </div>
-            <div style="color: #334155; line-height: 1.5;">
-                Silakan melakukan transfer pembayaran / DP ke rekening resmi berikut:
-                <table style="margin-top: 4px; font-size: 11px; border-collapse: collapse;">
-                    <tr>
-                        <td style="padding: 2px 0; color: #64748b; width: 110px;">Bank Tujuan</td>
-                        <td style="padding: 2px 0; font-weight: 700; color: #0f172a;">: Bank BRI (Bank Rakyat Indonesia)</td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 2px 0; color: #64748b;">Nomor Rekening</td>
-                        <td style="padding: 2px 0; font-weight: 800; font-family: monospace; font-size: 12.5px; color: #ea580c;">: 4356-01-009396-50-2 <span style="font-weight: normal; font-size: 10px; color: #64748b;">(435601009396502)</span></td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 2px 0; color: #64748b;">Atas Nama</td>
-                        <td style="padding: 2px 0; font-weight: 700; color: #0f172a;">: ABDUL HAMID</td>
-                    </tr>
-                </table>
-                <div style="margin-top: 4px; font-size: 10px; color: #9a3412; font-style: italic;">
-                    * Harap konfirmasikan bukti transfer ke WhatsApp resmi kami (0813-8970-9847) untuk penerbitan Kuitansi Resmi dan verifikasi antrean cetak pabrik.
-                </div>
+            <div style="color: #334155; line-height: 1.5; margin-bottom: 6px;">
+                Silakan melakukan transfer pembayaran / DP ke salah satu rekening resmi berikut:
+            </div>
+            <table style="width: 100%; border-collapse: collapse; margin-top: 4px;">
+                <tr>
+                    @php $activeBanks = collect($bankAccounts)->filter(fn($b) => !empty($b['is_active']))->values(); @endphp
+                    @foreach($activeBanks as $idx => $bank)
+                        <td style="width: {{ count($activeBanks) > 0 ? round(100 / count($activeBanks), 1) : 33.33 }}%; vertical-align: top; padding: 6px 8px; background: #ffffff; border: 1px solid #fed7aa; border-radius: 4px;">
+                            <div style="font-weight: 800; color: #0f172a; font-size: 11px; border-bottom: 1px dashed #fdba74; padding-bottom: 2px; margin-bottom: 3px;">
+                                {{ $bank['bank_name'] }}
+                            </div>
+                            <div style="font-size: 10px; color: #64748b;">No. Rekening:</div>
+                            <div style="font-family: monospace; font-weight: 800; font-size: 12px; color: #ea580c; margin: 2px 0;">
+                                {{ $bank['account_number'] }}
+                            </div>
+                            <div style="font-size: 10px; color: #475569;">
+                                a/n <strong style="color: #0f172a;">{{ $bank['account_name'] }}</strong>
+                            </div>
+                        </td>
+                    @endforeach
+                </tr>
+            </table>
+            <div style="margin-top: 6px; font-size: 10px; color: #9a3412; font-style: italic;">
+                * Harap konfirmasikan bukti transfer ke WhatsApp resmi kami (0813-8970-9847) untuk penerbitan Kuitansi Resmi dan verifikasi antrean cetak pabrik.
             </div>
         </div>
         @endif

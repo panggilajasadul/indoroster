@@ -19,6 +19,7 @@ class Order extends Model
         'payment_status',
         'subtotal',
         'shipping_cost',
+        'shipping_type',
         'discount_amount',
         'grand_total',
         'snap_token',
@@ -583,7 +584,9 @@ class Order extends Model
 
         $schemeLabel = match ($this->payment_scheme) {
             'quotation' => 'Tahap Pengajuan Penawaran Harga (Quotation Resmi)',
-            'dp_50_50' => 'DP 50% di Awal (Pelunasan 50% saat barang siap dikirim)',
+            'dp_10_90' => '2x Bayar: DP 10% di Awal + Pelunasan 90%',
+            'dp_30_70' => '2x Bayar: DP 30% di Awal + Pelunasan 70%',
+            'dp_50_50' => '2x Bayar: DP 50% di Awal + Pelunasan 50%',
             'termin_3x' => 'Termin 3x (30% + 40% + 30%)',
             'custom_dp' => 'Kustom DP / Bertahap',
             default => 'Lunas Langsung di Muka (100%)',
@@ -607,7 +610,13 @@ class Order extends Model
 
         $text .= "*💰 Ringkasan Keuangan:*\n";
         $text .= '• Subtotal Produk: Rp '.number_format($this->subtotal, 0, ',', '.')."\n";
-        $text .= '• Biaya Pengiriman: Rp '.number_format($this->shipping_cost, 0, ',', '.')."\n";
+        if ($this->shipping_type === 'free' || ($this->shipping_cost == 0 && $this->shipping_type !== 'unconfirmed')) {
+            $text .= "• Biaya Pengiriman: *GRATIS ONGKIR* (Rp 0 / Bebas Ongkir Pabrik)\n";
+        } elseif ($this->shipping_type === 'unconfirmed') {
+            $text .= "• Biaya Pengiriman: _[Belum Termasuk Ongkir - Menunggu Hitungan Logistik]_\n";
+        } else {
+            $text .= '• Biaya Pengiriman: Rp '.number_format($this->shipping_cost, 0, ',', '.')."\n";
+        }
         if ($this->discount_amount > 0) {
             $text .= '• Diskon: -Rp '.number_format($this->discount_amount, 0, ',', '.')."\n";
         }
@@ -615,20 +624,32 @@ class Order extends Model
 
         $text .= "*💳 Skema Pembayaran:*\n";
         $text .= "• Skema: {$schemeLabel}\n";
-        if ($this->payment_scheme === 'dp_50_50' || $this->payment_scheme === 'termin_3x' || ($this->down_payment_amount > 0 && $this->down_payment_amount < $this->grand_total)) {
+        if (in_array($this->payment_scheme, ['dp_10_90', 'dp_30_70', 'dp_50_50', 'termin_3x', 'custom_dp']) || ($this->down_payment_amount > 0 && $this->down_payment_amount < $this->grand_total)) {
             $dpVal = (float) $this->down_payment_amount > 0
                 ? (float) $this->down_payment_amount
-                : ($this->payment_scheme === 'dp_50_50' ? round($this->grand_total * 0.5) : ($this->payment_scheme === 'termin_3x' ? round($this->grand_total * 0.3) : $this->grand_total));
+                : ($this->payment_scheme === 'dp_10_90'
+                    ? round($this->grand_total * 0.1)
+                    : ($this->payment_scheme === 'dp_30_70'
+                        ? round($this->grand_total * 0.3)
+                        : ($this->payment_scheme === 'dp_50_50'
+                            ? round($this->grand_total * 0.5)
+                            : ($this->payment_scheme === 'termin_3x'
+                                ? round($this->grand_total * 0.3)
+                                : $this->grand_total))));
             $remainingVal = max(0, $this->grand_total - $dpVal);
             $text .= '• Tagihan DP Awal: *Rp '.number_format($dpVal, 0, ',', '.')."*\n";
             $text .= '• Sisa Pelunasan: Rp '.number_format($remainingVal, 0, ',', '.')." (Saat Barang Siap Kirim)\n";
         }
         $text .= "\n";
 
-        $text .= "*🏛️ Rekening Sah Pembayaran Pabrik:*\n";
-        $text .= "• Bank: *Bank BRI*\n";
-        $text .= "• No. Rekening: *4356-01-009396-50-2*\n";
-        $text .= "• Atas Nama: *ABDUL HAMID*\n\n";
+        $text .= "*🏛️ Rekening Resmi Pembayaran Pabrik:*\n";
+        $bankAccounts = SiteSetting::getBankAccounts();
+        foreach ($bankAccounts as $bank) {
+            if (! empty($bank['is_active'])) {
+                $text .= "• *{$bank['bank_name']}*: {$bank['account_number']} (a/n {$bank['account_name']})\n";
+            }
+        }
+        $text .= "\n";
 
         $invoiceUrl = $this->invoice ? route('print.invoice', $this->invoice) : route('print.order', ['order' => $this->id]);
         $text .= "📄 *Download Dokumen Surat Penawaran / Invoice Sah:*\n{$invoiceUrl}\n\n";
@@ -701,9 +722,13 @@ class Order extends Model
         $text .= "• *SISA TAGIHAN PELUNASAN:* *{$remainingFormatted}*\n\n";
 
         $text .= "*🏛️ Rekening Resmi Pembayaran Pabrik:*\n";
-        $text .= "• Bank: *Bank BRI*\n";
-        $text .= "• No. Rekening: *4356-01-009396-50-2*\n";
-        $text .= "• Atas Nama: *ABDUL HAMID*\n\n";
+        $bankAccounts = SiteSetting::getBankAccounts();
+        foreach ($bankAccounts as $bank) {
+            if (! empty($bank['is_active'])) {
+                $text .= "• *{$bank['bank_name']}*: {$bank['account_number']} (a/n {$bank['account_name']})\n";
+            }
+        }
+        $text .= "\n";
 
         $text .= "📄 *Download Surat Tagihan Pelunasan Sah (TTD & Stempel):*\n{$invoiceUrl}\n\n";
         $text .= "Mohon dapat melakukan pelunasan sisa tagihan tersebut dan mengirimkan konfirmasi bukti transfer agar jadwal kirim / armada pengiriman dapat langsung diberangkatkan ke lokasi.\n\nSalam hormat,\n*Administrasi Keuangan Pabrik IndoRoster*";

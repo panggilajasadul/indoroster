@@ -300,13 +300,16 @@ class ViewWaOrder extends ViewRecord
                 });
         }
 
-        // Cetak Invoice
+        // Cetak & Sesuaikan Dokumen (Invoice / Penawaran)
         $actions[] = Actions\Action::make('print_invoice')
-            ->label('📄 Cetak Invoice')
+            ->label('📄 Cetak & Edit Dokumen')
             ->icon('heroicon-o-document-text')
             ->color('success')
             ->visible(fn ($record) => $record->invoice !== null || $record->status !== 'draft')
-            ->url(function ($record) {
+            ->modalHeading(fn ($record) => "📄 Sesuaikan & Cetak Dokumen (#{$record->order_number})")
+            ->modalDescription('Pilih judul dokumen, sesuaikan catatan atau sembunyikan baris yang tidak perlu sebelum mengunduh PDF.')
+            ->modalWidth('3xl')
+            ->mountUsing(function (Forms\ComponentContainer $form, $record) {
                 $invoice = $record->invoice ?: Invoice::firstOrCreate(
                     ['order_id' => $record->id],
                     [
@@ -314,6 +317,7 @@ class ViewWaOrder extends ViewRecord
                         'invoice_date' => now(),
                         'subtotal' => $record->subtotal,
                         'shipping_cost' => $record->shipping_cost,
+                        'shipping_type' => $record->shipping_type ?: 'paid',
                         'discount_amount' => $record->discount_amount,
                         'grand_total' => $record->grand_total,
                         'payment_scheme' => $record->payment_scheme ?: 'full',
@@ -324,9 +328,123 @@ class ViewWaOrder extends ViewRecord
                     ]
                 );
 
-                return URL::signedRoute('print.invoice', ['invoice' => $invoice->id]);
+                $defaultTitle = $invoice->document_title ?: match (true) {
+                    $record->payment_status === 'paid' => 'INVOICE FINAL / FAKTUR PENJUALAN RESMI (LUNAS)',
+                    $record->payment_scheme === 'quotation' => 'SURAT ESTIMASI PENAWARAN HARGA (QUOTATION)',
+                    in_array($record->payment_scheme, ['dp_10_90', 'dp_30_70', 'dp_50_50', 'termin_3x', 'custom_dp']) && $record->down_payment_amount > 0 => 'INVOICE & SURAT TAGIHAN PEMBAYARAN DP',
+                    default => 'INVOICE TAGIHAN PENJUALAN RESMI',
+                };
+
+                $form->fill([
+                    'document_title' => $defaultTitle,
+                    'shipping_type' => $record->shipping_type ?: ($invoice->shipping_type ?: 'paid'),
+                    'show_nego_note' => $invoice->show_nego_note ?? ($record->payment_scheme === 'quotation'),
+                    'show_shipping_warning' => $invoice->show_shipping_warning ?? ($record->shipping_type === 'unconfirmed'),
+                    'show_payment_schedule' => $invoice->show_payment_schedule ?? true,
+                    'show_bank_accounts' => $invoice->show_bank_accounts ?? true,
+                    'document_notes' => $invoice->document_notes ?: $record->notes,
+                    'document_terms' => $invoice->document_terms ?: "1. Penurunan material dilakukan di titik bongkar yang dapat diakses armada truk.\n2. Klaim garansi pecah wajib disertakan bukti foto saat serah terima barang.\n3. Dokumen ini merupakan bukti transaksi sah yang diterbitkan otomatis oleh sistem.",
+                ]);
             })
-            ->openUrlInNewTab();
+            ->form([
+                Forms\Components\Grid::make(2)->schema([
+                    Forms\Components\TextInput::make('document_title')
+                        ->label('Judul Header Dokumen')
+                        ->helperText('Contoh: INVOICE, SURAT ESTIMASI PENAWARAN HARGA, INVOICE TAGIHAN DP')
+                        ->required()
+                        ->columnSpan(2),
+
+                    Forms\Components\Select::make('shipping_type')
+                        ->label('Status Ongkos Kirim')
+                        ->options([
+                            'paid' => 'Tarif Ongkir Dihitung',
+                            'free' => '🎁 Gratis Ongkir (Rp 0)',
+                            'unconfirmed' => '⏳ Belum Termasuk Ongkir (Dihitung Terpisah)',
+                        ])
+                        ->required(),
+
+                    Forms\Components\Toggle::make('show_payment_schedule')
+                        ->label('Tampilkan Rincian DP 1 & Jadwal Pelunasan')
+                        ->default(true),
+
+                    Forms\Components\Toggle::make('show_bank_accounts')
+                        ->label('Tampilkan 3 Rekening Bank Resmi Pabrik')
+                        ->default(true),
+
+                    Forms\Components\Toggle::make('show_nego_note')
+                        ->label('Tampilkan Catatan "Bisa Nego Pabrik"')
+                        ->helperText('Matikan jika ini invoice resmi agar pembeli tidak menawar')
+                        ->default(false),
+
+                    Forms\Components\Toggle::make('show_shipping_warning')
+                        ->label('Tampilkan Peringatan Estimasi Ongkir Pabrik')
+                        ->default(false),
+                ]),
+
+                Forms\Components\Textarea::make('document_notes')
+                    ->label('Catatan Dokumen untuk Pembeli (Dinamis)')
+                    ->placeholder('Hapus atau edit catatan bila tidak diperlukan...')
+                    ->rows(2)
+                    ->columnSpanFull(),
+
+                Forms\Components\Textarea::make('document_terms')
+                    ->label('Syarat & Ketentuan Pengiriman (Dinamis)')
+                    ->helperText('Hapus kalimat yang tidak perlu sebelum dokumen diunduh')
+                    ->rows(3)
+                    ->columnSpanFull(),
+            ])
+            ->modalSubmitActionLabel('🖨️ Simpan & Buka PDF Dokumen')
+            ->action(function (array $data, $record) {
+                $invoice = $record->invoice ?: Invoice::firstOrCreate(
+                    ['order_id' => $record->id],
+                    [
+                        'invoice_number' => Invoice::generateWaInvoiceNumber(),
+                        'invoice_date' => now(),
+                        'subtotal' => $record->subtotal,
+                        'shipping_cost' => $record->shipping_cost,
+                        'shipping_type' => $data['shipping_type'] ?? 'paid',
+                        'discount_amount' => $record->discount_amount,
+                        'grand_total' => $record->grand_total,
+                        'payment_scheme' => $record->payment_scheme ?: 'full',
+                        'down_payment_amount' => $record->down_payment_amount ?: 0,
+                        'remaining_balance' => $record->remaining_balance ?: 0,
+                        'status' => $record->payment_status === 'paid' ? 'paid' : ($record->status === 'draft' ? 'draft' : 'sent'),
+                        'paid_at' => $record->payment_status === 'paid' ? now() : null,
+                    ]
+                );
+
+                $invoice->update([
+                    'document_title' => $data['document_title'] ?? null,
+                    'shipping_type' => $data['shipping_type'] ?? 'paid',
+                    'show_nego_note' => (bool) ($data['show_nego_note'] ?? false),
+                    'show_shipping_warning' => (bool) ($data['show_shipping_warning'] ?? false),
+                    'show_payment_schedule' => (bool) ($data['show_payment_schedule'] ?? true),
+                    'show_bank_accounts' => (bool) ($data['show_bank_accounts'] ?? true),
+                    'document_notes' => $data['document_notes'] ?? null,
+                    'document_terms' => $data['document_terms'] ?? null,
+                ]);
+
+                if (! empty($data['shipping_type']) && $data['shipping_type'] !== $record->shipping_type) {
+                    $record->update(['shipping_type' => $data['shipping_type']]);
+                }
+
+                $printUrl = URL::signedRoute('print.invoice', ['invoice' => $invoice->id]);
+
+                $this->js("window.open('{$printUrl}', '_blank');");
+
+                Notification::make()
+                    ->title('Dokumen Berhasil Disesuaikan & Dicetak 🖨️')
+                    ->body('Dokumen PDF sedang dibuka di tab baru.')
+                    ->success()
+                    ->actions([
+                        Action::make('open_doc_view')
+                            ->label('🖨️ Buka PDF')
+                            ->url($printUrl, shouldOpenInNewTab: true)
+                            ->button()
+                            ->color('success'),
+                    ])
+                    ->send();
+            });
 
         // ============================================================
         // 0. CETAK SPP PRODUKSI & SURAT PENGANTAR AMBIL BARANG

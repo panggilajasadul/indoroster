@@ -15,6 +15,7 @@ use Filament\Forms\Get;
 use Filament\Forms\Set;
 use Filament\Infolists;
 use Filament\Infolists\Infolist;
+use Filament\Notifications\Actions\Action;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -444,7 +445,7 @@ class WaOrderResource extends Resource
                             }),
 
                         // KALKULASI ONGKIR & TOTAL
-                        Forms\Components\Grid::make(3)
+                        Forms\Components\Grid::make(4)
                             ->schema([
                                 Forms\Components\TextInput::make('subtotal')
                                     ->label('Subtotal Produk (Rp)')
@@ -454,16 +455,34 @@ class WaOrderResource extends Resource
                                     ->dehydrated()
                                     ->required(),
 
+                                Forms\Components\Select::make('shipping_type')
+                                    ->label('Opsi Biaya Ongkir')
+                                    ->options([
+                                        'paid' => '🚚 Ada Biaya Ongkir',
+                                        'free' => '🎁 Gratis Ongkir (Rp 0)',
+                                        'unconfirmed' => '⏳ Belum Termasuk Ongkir (Nanti)',
+                                    ])
+                                    ->default('paid')
+                                    ->live()
+                                    ->afterStateUpdated(function ($state, Set $set, Get $get) {
+                                        if ($state === 'free') {
+                                            $set('shipping_cost', 0);
+                                        }
+                                        self::calculateGrandTotal($get, $set);
+                                    }),
+
                                 Forms\Components\TextInput::make('shipping_cost')
-                                    ->label('Ongkir Armada Truk Pabrik (Rp)')
+                                    ->label('Ongkir Armada Pabrik (Rp)')
                                     ->prefix('Rp')
                                     ->numeric()
                                     ->default(0)
+                                    ->disabled(fn (Get $get) => $get('shipping_type') === 'free')
+                                    ->dehydrated()
                                     ->live(onBlur: true)
                                     ->afterStateUpdated(fn (Get $get, Set $set) => self::calculateGrandTotal($get, $set)),
 
                                 Forms\Components\TextInput::make('discount_amount')
-                                    ->label('Potongan Diskon Khusus (Rp)')
+                                    ->label('Potongan Diskon (Rp)')
                                     ->prefix('Rp')
                                     ->numeric()
                                     ->default(0)
@@ -797,6 +816,8 @@ class WaOrderResource extends Resource
                             ->options([
                                 'quotation' => '📜 Surat Penawaran Harga (Tahap Penawaran / Belum Deal)',
                                 'full' => '💵 Lunas Langsung di Muka (100%)',
+                                'dp_10_90' => '💳 DP 10% di Awal + Pelunasan 90% (2x Bayar)',
+                                'dp_30_70' => '💳 DP 30% di Awal + Pelunasan 70% (2x Bayar)',
                                 'dp_50_50' => '💳 DP 50% di Awal + Pelunasan 50% saat Siap Kirim (2x Bayar)',
                                 'termin_3x' => '🏗️ Termin 3x (DP 30% + Produksi 40% + Pelunasan 30%)',
                                 'custom_dp' => '✏️ Kustom Nominal DP / Termin Bebas',
@@ -908,7 +929,8 @@ class WaOrderResource extends Resource
             $subtotal += ($qty * $price);
         }
 
-        $shipping = (float) ($get('shipping_cost') ?? 0);
+        $shippingType = $get('shipping_type') ?? 'paid';
+        $shipping = ($shippingType === 'free') ? 0 : (float) ($get('shipping_cost') ?? 0);
         $discount = (float) ($get('discount_amount') ?? 0);
         $grandTotal = max(0, $subtotal + $shipping - $discount);
 
@@ -936,6 +958,16 @@ class WaOrderResource extends Resource
         if ($scheme === 'quotation' || $scheme === 'full') {
             $set('down_payment_amount', 0);
             $set('remaining_balance', $grandTotal);
+            $set('payment_status', 'unpaid');
+        } elseif ($scheme === 'dp_10_90') {
+            $dp = round($grandTotal * 0.1);
+            $set('down_payment_amount', $dp);
+            $set('remaining_balance', $grandTotal - $dp);
+            $set('payment_status', 'unpaid');
+        } elseif ($scheme === 'dp_30_70') {
+            $dp = round($grandTotal * 0.3);
+            $set('down_payment_amount', $dp);
+            $set('remaining_balance', $grandTotal - $dp);
             $set('payment_status', 'unpaid');
         } elseif ($scheme === 'dp_50_50') {
             $dp = round($grandTotal * 0.5);
@@ -1068,8 +1100,10 @@ class WaOrderResource extends Resource
                 Tables\Filters\SelectFilter::make('payment_scheme')
                     ->label('Filter Skema Bayar')
                     ->options([
-                        'full' => 'Lunas Langsung',
-                        'dp_50_50' => 'DP 50%',
+                        'full' => 'Lunas Langsung (100%)',
+                        'dp_10_90' => 'DP 10% + Pelunasan 90%',
+                        'dp_30_70' => 'DP 30% + Pelunasan 70%',
+                        'dp_50_50' => 'DP 50% + Pelunasan 50%',
                         'termin_3x' => 'Termin 3x',
                         'custom_dp' => 'Kustom DP',
                     ]),
@@ -1291,12 +1325,15 @@ class WaOrderResource extends Resource
                         return redirect()->away($waUrl);
                     }),
 
-                // 2. CETAK INVOICE BER-TTD & STEMPEL
+                // 2. CETAK & EDIT DOKUMEN INVOICE / PENAWARAN
                 Tables\Actions\Action::make('print_invoice')
                     ->label('Invoice')
                     ->icon('heroicon-m-document-text')
                     ->color('warning')
-                    ->url(function (Order $record) {
+                    ->modalHeading(fn (Order $record) => "📄 Sesuaikan & Cetak Dokumen (#{$record->order_number})")
+                    ->modalDescription('Pilih judul dokumen, sesuaikan catatan atau hapus klausul yang tidak perlu sebelum mengunduh PDF.')
+                    ->modalWidth('3xl')
+                    ->mountUsing(function (Forms\ComponentContainer $form, Order $record) {
                         $invoice = $record->invoice ?: Invoice::firstOrCreate(
                             ['order_id' => $record->id],
                             [
@@ -1304,6 +1341,7 @@ class WaOrderResource extends Resource
                                 'invoice_date' => now(),
                                 'subtotal' => $record->subtotal,
                                 'shipping_cost' => $record->shipping_cost,
+                                'shipping_type' => $record->shipping_type ?: ($record->shipping_cost > 0 ? 'paid' : 'unconfirmed'),
                                 'discount_amount' => $record->discount_amount,
                                 'grand_total' => $record->grand_total,
                                 'payment_scheme' => $record->payment_scheme ?: 'full',
@@ -1314,9 +1352,136 @@ class WaOrderResource extends Resource
                             ]
                         );
 
-                        return URL::signedRoute('print.invoice', ['invoice' => $invoice->id]);
+                        $defaultTitle = $record->payment_status === 'paid'
+                            ? 'INVOICE FINAL / FAKTUR PENJUALAN RESMI (LUNAS)'
+                            : ($record->payment_scheme === 'quotation'
+                                ? 'SURAT PENAWARAN HARGA RESMI PABRIK'
+                                : ($record->down_payment_amount > 0 ? 'INVOICE & SURAT TAGIHAN PEMBAYARAN DP' : 'INVOICE TAGIHAN PENJUALAN RESMI'));
+
+                        $form->fill([
+                            'document_title' => $invoice->document_title ?: $defaultTitle,
+                            'shipping_type' => $invoice->shipping_type ?: ($record->shipping_type ?: ($record->shipping_cost > 0 ? 'paid' : ($record->grand_total > 0 ? 'free' : 'unconfirmed'))),
+                            'show_payment_schedule' => $invoice->show_payment_schedule ?? true,
+                            'show_bank_accounts' => $invoice->show_bank_accounts ?? true,
+                            'show_nego_note' => $invoice->show_nego_note ?? ($record->payment_scheme === 'quotation'),
+                            'show_shipping_warning' => $invoice->show_shipping_warning ?? false,
+                            'document_notes' => $invoice->document_notes ?: $record->notes,
+                            'document_terms' => $invoice->document_terms ?: "1. Harga penawaran/invoice berlaku 14 hari kerja sejak diterbitkan.\n2. Pembongkaran muatan di lokasi proyek menjadi tanggung jawab pihak pemesan.\n3. Barang yang sudah diproduksi & dikirim tidak dapat dibatalkan secara sepihak.\n4. Segala bentuk komplain fisik wajib disertakan video unboxing saat armada tiba di lokasi.",
+                        ]);
                     })
-                    ->openUrlInNewTab(),
+                    ->form([
+                        Forms\Components\Grid::make(2)
+                            ->schema([
+                                Forms\Components\Select::make('document_title')
+                                    ->label('Judul Header Dokumen')
+                                    ->options([
+                                        'INVOICE TAGIHAN PENJUALAN RESMI' => 'INVOICE TAGIHAN PENJUALAN RESMI',
+                                        'INVOICE & SURAT TAGIHAN PEMBAYARAN DP' => 'INVOICE & SURAT TAGIHAN PEMBAYARAN DP',
+                                        'INVOICE FINAL / FAKTUR PENJUALAN RESMI (LUNAS)' => 'INVOICE FINAL / FAKTUR PENJUALAN RESMI (LUNAS)',
+                                        'SURAT PENAWARAN HARGA RESMI PABRIK' => 'SURAT PENAWARAN HARGA RESMI PABRIK',
+                                        'FAKTUR PENJUALAN & PENGIRIMAN BARANG' => 'FAKTUR PENJUALAN & PENGIRIMAN BARANG',
+                                    ])
+                                    ->required()
+                                    ->columnSpan(1),
+
+                                Forms\Components\Select::make('shipping_type')
+                                    ->label('Status Ongkos Kirim')
+                                    ->options([
+                                        'paid' => '🚚 Ada Biaya Ongkir',
+                                        'free' => '🎁 Gratis Ongkir (Rp 0)',
+                                        'unconfirmed' => '⏳ Belum Termasuk Ongkir (Konfirmasi Nanti)',
+                                    ])
+                                    ->required()
+                                    ->columnSpan(1),
+                            ]),
+
+                        Forms\Components\Section::make('Visibilitas Elemen Dokumen')
+                            ->description('Centang elemen yang ingin ditampilkan pada lembar cetak.')
+                            ->schema([
+                                Forms\Components\Toggle::make('show_payment_schedule')
+                                    ->label('Tampilkan Rincian Tahapan Bayar (DP / Pelunasan / Lunas)')
+                                    ->default(true),
+
+                                Forms\Components\Toggle::make('show_bank_accounts')
+                                    ->label('Tampilkan Instruksi 3 Rekening Bank Resmi Pabrik')
+                                    ->default(true),
+
+                                Forms\Components\Toggle::make('show_nego_note')
+                                    ->label('Tampilkan Kotak Hijau "Bisa Nego Pabrik Langsung"')
+                                    ->default(false),
+
+                                Forms\Components\Toggle::make('show_shipping_warning')
+                                    ->label('Tampilkan Peringatan Kuning Ongkir Belum Terkonfirmasi')
+                                    ->default(false),
+                            ])->columns(2),
+
+                        Forms\Components\Textarea::make('document_notes')
+                            ->label('Catatan Khusus Dokumen (Opsional)')
+                            ->placeholder('Contoh: Pengiriman via armada CDD Pabrik langsung ke gudang pembeli.')
+                            ->rows(2),
+
+                        Forms\Components\Textarea::make('document_terms')
+                            ->label('Syarat & Ketentuan Pengiriman')
+                            ->helperText('Anda bisa mengubah atau menghapus klausul kalimat yang tidak diinginkan.')
+                            ->rows(4),
+                    ])
+                    ->modalSubmitActionLabel('💾 Simpan & Buka Dokumen PDF')
+                    ->action(function (array $data, Order $record) {
+                        $invoice = $record->invoice ?: Invoice::firstOrCreate(
+                            ['order_id' => $record->id],
+                            [
+                                'invoice_number' => Invoice::generateWaInvoiceNumber(),
+                                'invoice_date' => now(),
+                                'subtotal' => $record->subtotal,
+                                'shipping_cost' => $record->shipping_cost,
+                                'shipping_type' => $data['shipping_type'] ?? ($record->shipping_type ?: 'paid'),
+                                'discount_amount' => $record->discount_amount,
+                                'grand_total' => $record->grand_total,
+                                'payment_scheme' => $record->payment_scheme ?: 'full',
+                                'down_payment_amount' => $record->down_payment_amount ?: 0,
+                                'remaining_balance' => $record->remaining_balance ?: 0,
+                                'status' => $record->payment_status === 'paid' ? 'paid' : ($record->status === 'draft' ? 'draft' : 'sent'),
+                                'paid_at' => $record->payment_status === 'paid' ? now() : null,
+                            ]
+                        );
+
+                        $invoice->update([
+                            'document_title' => $data['document_title'] ?? null,
+                            'shipping_type' => $data['shipping_type'] ?? 'paid',
+                            'show_payment_schedule' => (bool) ($data['show_payment_schedule'] ?? true),
+                            'show_bank_accounts' => (bool) ($data['show_bank_accounts'] ?? true),
+                            'show_nego_note' => (bool) ($data['show_nego_note'] ?? false),
+                            'show_shipping_warning' => (bool) ($data['show_shipping_warning'] ?? false),
+                            'document_notes' => $data['document_notes'] ?? null,
+                            'document_terms' => $data['document_terms'] ?? null,
+                        ]);
+
+                        if (isset($data['shipping_type']) && $data['shipping_type'] !== $record->shipping_type) {
+                            $orderUpdate = ['shipping_type' => $data['shipping_type']];
+                            if ($data['shipping_type'] === 'free') {
+                                $orderUpdate['shipping_cost'] = 0;
+                                $orderUpdate['grand_total'] = max(0, (float) $record->subtotal - (float) $record->discount_amount);
+                            }
+                            $record->update($orderUpdate);
+                        }
+
+                        $pdfUrl = URL::signedRoute('print.invoice', ['invoice' => $invoice->id]);
+
+                        Notification::make()
+                            ->title('Dokumen Berhasil Disesuaikan! 📄')
+                            ->body('Klik tautan berikut jika jendela PDF tidak terbuka otomatis.')
+                            ->success()
+                            ->actions([
+                                Action::make('open_pdf')
+                                    ->label('🖨️ Buka PDF Sekarang')
+                                    ->url($pdfUrl, shouldOpenInNewTab: true)
+                                    ->button()
+                                    ->color('success'),
+                            ])
+                            ->send();
+
+                        return redirect()->away($pdfUrl);
+                    }),
 
                 // 3. CETAK SURAT JALAN
                 Tables\Actions\Action::make('print_order')
@@ -1418,6 +1583,8 @@ class WaOrderResource extends Resource
                                         ->label('Skema Pembayaran')
                                         ->formatStateUsing(fn ($state) => match ($state) {
                                             'full' => '💵 Lunas Langsung (100%)',
+                                            'dp_10_90' => '💳 DP 10% + Pelunasan 90%',
+                                            'dp_30_70' => '💳 DP 30% + Pelunasan 70%',
                                             'dp_50_50' => '💳 DP 50% + Pelunasan 50%',
                                             'termin_3x' => '🏗️ Termin 3x',
                                             'custom_dp' => '✏️ Kustom DP / Termin',
