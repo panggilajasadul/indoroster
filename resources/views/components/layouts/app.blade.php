@@ -784,6 +784,7 @@
                         <li><a href="{{ route('b2b.project') }}" class="text-sm text-slate-400 hover:text-terra-400 transition-colors">Proyek Fasad & Gedung</a></li>
                         <li><a href="{{ route('tools.calculator') }}" class="text-sm text-slate-400 hover:text-terra-400 transition-colors text-terra-400/90 font-medium">🧮 Kalkulator Dinding</a></li>
                         <li><a href="{{ route('location.index') }}" class="text-sm text-slate-400 hover:text-terra-400 transition-colors">📍 Area Layanan Kirim</a></li>
+                        <li><a href="{{ url('/export') }}" class="text-sm text-emerald-400 hover:text-emerald-300 transition-colors font-medium">🌐 Export Supply (110 Countries)</a></li>
                     </ul>
                 </div>
 

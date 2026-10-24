@@ -468,7 +468,13 @@
                             <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-4 sm:p-5 flex flex-col justify-between hover:border-terra-400 dark:hover:border-terra-500/80 shadow-soft-xs hover:shadow-soft-lg transition-all group">
                                 <div>
                                     <div class="aspect-square bg-slate-50 dark:bg-slate-950 rounded-xl overflow-hidden p-3 flex items-center justify-center mb-3 relative border border-slate-100 dark:border-slate-800/80">
-                                        <img src="{{ $imgUrl }}" alt="{{ $product->name }}" class="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-300" loading="lazy">
+                                        <img src="{{ $imgUrl }}"
+                                             alt="{{ $product->name }} — Precision Concrete Breeze Block for {{ $countryName }} Export | IndoRoster"
+                                             title="{{ $product->name }} — Architectural Screen Block"
+                                             class="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-300"
+                                             loading="lazy"
+                                             width="400"
+                                             height="400">
                                         <span class="absolute top-2.5 left-2.5 px-2 py-0.5 rounded bg-slate-900/90 text-[10px] font-mono font-bold text-slate-200 border border-slate-700">
                                             {{ $product->sku ?: 'IR-'.str_pad($product->id, 3, '0', STR_PAD_LEFT) }}
                                         </span>

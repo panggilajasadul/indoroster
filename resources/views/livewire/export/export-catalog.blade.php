@@ -23,11 +23,50 @@
             ],
         ],
     ];
+
+    $catalogItemListSchema = [
+        '@context' => 'https://schema.org',
+        '@type' => 'ItemList',
+        'name' => 'IndoRoster Architectural Concrete Breeze Blocks Export Catalog',
+        'description' => 'Export collection of 90° precision steel-mould concrete breeze blocks, screen blocks, and architectural ventilation blocks manufactured in Indonesia.',
+        'numberOfItems' => $products->count(),
+        'itemListElement' => $products->take(24)->values()->map(function ($p, $idx) {
+            $media = $p->primary_media;
+            $img = ($media && $media->media_type === 'image') ? $media->formatted_url : ($p->primary_image ?: asset('assets/logo_indoroster_no_text.PNG'));
+            return [
+                '@type' => 'ListItem',
+                'position' => $idx + 1,
+                'item' => [
+                    '@type' => 'Product',
+                    'name' => $p->name . ' — Architectural Breeze Block',
+                    'image' => $img,
+                    'description' => 'Precision 90° steel-mould architectural concrete breeze block (' . ($p->dimensions ?: '20×20×10 cm') . ') for export supply by IndoRoster.',
+                    'sku' => $p->sku ?: 'IR-' . str_pad($p->id, 3, '0', STR_PAD_LEFT),
+                    'brand' => [
+                        '@type' => 'Brand',
+                        'name' => 'IndoRoster',
+                    ],
+                    'material' => 'Natural stone ash and high-density concrete',
+                    'offers' => [
+                        '@type' => 'Offer',
+                        'priceCurrency' => 'USD',
+                        'price' => '0.00',
+                        'priceValidUntil' => date('Y-12-31'),
+                        'availability' => 'https://schema.org/InStock',
+                        'url' => url('/export/catalog'),
+                    ],
+                ],
+            ];
+        })->toArray(),
+    ];
 @endphp
 
 @push('seo')
     <script type="application/ld+json">
     {!! json_encode($breadcrumbSchema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
+    </script>
+    <script type="application/ld+json">
+    {!! json_encode($catalogItemListSchema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
     </script>
 @endpush
 
@@ -114,7 +153,13 @@
                     <div>
                         {{-- Product Thumbnail with Dimensions & SKU Tag --}}
                         <div class="aspect-square bg-slate-50 dark:bg-slate-950 rounded-xl overflow-hidden p-3 flex items-center justify-center mb-3 relative border border-slate-100 dark:border-slate-800/80">
-                            <img src="{{ $imgUrl }}" alt="{{ $product->name }}" class="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-300" loading="lazy">
+                            <img src="{{ $imgUrl }}"
+                                 alt="{{ $product->name }} — Architectural Concrete Breeze Block ({{ $product->dimensions ?: '20×20×10 cm' }}) IndoRoster Export"
+                                 title="{{ $product->name }} — 90° Precision Steel Mould Screen Block"
+                                 class="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-300"
+                                 loading="lazy"
+                                 width="400"
+                                 height="400">
                             <span class="absolute top-2.5 left-2.5 px-2 py-0.5 rounded bg-slate-900/90 text-[10px] font-mono font-bold text-slate-200 border border-slate-700">
                                 {{ $product->sku ?: 'IR-'.str_pad($product->id, 3, '0', STR_PAD_LEFT) }}
                             </span>

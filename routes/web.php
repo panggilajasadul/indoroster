@@ -23,6 +23,7 @@ use App\Livewire\Checkout;
 use App\Livewire\Contact;
 use App\Livewire\DynamicPage;
 use App\Livewire\Export\ExportCatalog;
+use App\Livewire\Export\ExportContent;
 use App\Livewire\Export\ExportCountry;
 use App\Livewire\Export\ExportGallery;
 use App\Livewire\Export\ExportHub;
@@ -165,10 +166,34 @@ Route::get('/aplikasi/{slug}', ApplicationDetail::class)->name('application.deta
 Route::get('/lokasi', LocationHub::class)->name('location.index');
 Route::get('/lokasi/{slug}', LocationDetail::class)->name('location.detail');
 
-// International Export Gateway (Singapore, Malaysia, Brunei)
+// International Export Gateway — Portal & 110 Negara
 Route::get('/export', ExportHub::class)->name('export.hub');
 Route::get('/export/gallery', ExportGallery::class)->name('export.gallery');
 Route::get('/export/catalog', ExportCatalog::class)->name('export.catalog');
+
+// Halaman Konten Export — Keyword Clusters (SEO/AEO/GEO)
+// HARUS di atas route {countrySlug} agar tidak terambil sebagai slug negara
+Route::get('/export/breeze-blocks', ExportContent::class)->name('export.content.breeze-blocks');
+Route::get('/export/concrete-screen-blocks', ExportContent::class)->name('export.content.concrete-screen-blocks');
+Route::get('/export/ventilation-blocks', ExportContent::class)->name('export.content.ventilation-blocks');
+Route::get('/export/mashrabiya', ExportContent::class)->name('export.content.mashrabiya');
+Route::get('/export/decorative-blocks', ExportContent::class)->name('export.content.decorative-blocks');
+Route::get('/export/screen-walls', ExportContent::class)->name('export.content.screen-walls');
+Route::get('/export/cobogo-blocks', ExportContent::class)->name('export.content.cobogo-blocks');
+Route::get('/export/claustra-blocks', ExportContent::class)->name('export.content.claustra-blocks');
+
+// Halaman Aplikasi / Use-Case Export
+Route::get('/export/for-villas', ExportContent::class)->name('export.content.for-villas');
+Route::get('/export/for-hotels', ExportContent::class)->name('export.content.for-hotels');
+Route::get('/export/for-resorts', ExportContent::class)->name('export.content.for-resorts');
+Route::get('/export/for-commercial', ExportContent::class)->name('export.content.for-commercial');
+
+// Halaman B2B Export
+Route::get('/export/wholesale', ExportContent::class)->name('export.content.wholesale');
+Route::get('/export/request-quote', ExportContent::class)->name('export.content.request-quote');
+Route::get('/export/fob-shipping', ExportContent::class)->name('export.content.fob-shipping');
+
+// Halaman per Negara — HARUS di bawah semua route konten di atas
 Route::get('/export/{countrySlug}', ExportCountry::class)->name('export.country');
 
 // Official Policy & Trust Pages (GMC & AI Compliance)

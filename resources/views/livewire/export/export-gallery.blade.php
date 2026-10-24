@@ -23,11 +23,34 @@
             ],
         ],
     ];
+
+    $gallerySchema = [
+        '@context' => 'https://schema.org',
+        '@type' => 'ImageGallery',
+        'name' => 'IndoRoster Architectural Concrete Breeze Block Projects Portfolio',
+        'description' => 'Real architectural installations of 90° precision steel-mould concrete breeze blocks, screen walls, and ventilation masonry for villas, hotels, and modern facades.',
+        'url' => url('/export/gallery'),
+        'image' => $photos->take(24)->values()->map(function ($item) {
+            $g = $item->gallery;
+            $title = $g ? $g->title : 'Architectural Breeze Block Installation';
+            $loc = $g && $g->location ? $g->location : 'Architectural Project';
+            return [
+                '@type' => 'ImageObject',
+                'contentUrl' => $item->formatted_url,
+                'name' => $title . ' — Concrete Breeze Block Screen Wall',
+                'caption' => $title . ' in ' . $loc . ' by IndoRoster Indonesia.',
+                'representativeOfPage' => true,
+            ];
+        })->toArray(),
+    ];
 @endphp
 
 @push('seo')
     <script type="application/ld+json">
     {!! json_encode($breadcrumbSchema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
+    </script>
+    <script type="application/ld+json">
+    {!! json_encode($gallerySchema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
     </script>
 @endpush
 
@@ -183,7 +206,13 @@
                 <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 overflow-hidden shadow-soft-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between group">
                     <div class="relative aspect-4/3 w-full bg-slate-950 overflow-hidden cursor-pointer"
                          @click="openLightbox('{{ $photoUrl }}', '{{ addslashes($title) }}', '{{ addslashes($location) }}', '{{ addslashes($desc) }}', '{{ addslashes($patternName) }}')">
-                        <img src="{{ $photoUrl }}" alt="{{ $title }}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy">
+                        <img src="{{ $photoUrl }}"
+                             alt="{{ $title }} — Concrete Breeze Block Installation in {{ $location }} by IndoRoster"
+                             title="{{ $title }} — {{ $patternName }}"
+                             class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                             loading="lazy"
+                             width="600"
+                             height="450">
                         
                         <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent opacity-70 group-hover:opacity-90 transition-opacity"></div>
 
@@ -216,7 +245,13 @@
                                 @php
                                     $prodImg = $linkedProduct->primary_image ?: asset('assets/logo_indoroster_no_text.PNG');
                                 @endphp
-                                <img src="{{ $prodImg }}" alt="{{ $linkedProduct->name }}" class="w-9 h-9 rounded-lg object-contain bg-white dark:bg-slate-900 p-1 border border-slate-200 dark:border-slate-700 flex-shrink-0">
+                                <img src="{{ $prodImg }}"
+                                     alt="{{ $linkedProduct->name }} — Architectural Screen Block Motif"
+                                     title="{{ $linkedProduct->name }}"
+                                     class="w-9 h-9 rounded-lg object-contain bg-white dark:bg-slate-900 p-1 border border-slate-200 dark:border-slate-700 flex-shrink-0"
+                                     loading="lazy"
+                                     width="36"
+                                     height="36">
                                 <div class="min-w-0">
                                     <span class="text-[10px] text-terra-600 dark:text-terra-400 font-bold block truncate">Pattern Used:</span>
                                     <h4 class="font-bold text-xs text-slate-900 dark:text-white truncate">{{ $linkedProduct->name }}</h4>

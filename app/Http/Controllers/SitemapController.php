@@ -11,7 +11,6 @@ use App\Models\Product;
 use App\Models\PromoPage;
 use App\Models\SeoLocation;
 use App\Models\SeoPage;
-use App\Services\ExportCountryService;
 use Carbon\Carbon;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Schema;
@@ -286,102 +285,175 @@ class SitemapController extends Controller
         self::saveSitemapFile($sitemapApps, 'sitemap-applications.xml', $baseUrl, 'Applications');
 
         // ==========================================
-        // 3. SITEMAP EXPORTS (113 Portal & Negara Ekspor Global)
+        // 3. SITEMAP EXPORTS (110+ Portal, Negara, Konten Ekspor Global)
         // ==========================================
         $sitemapExports = Sitemap::create();
-        $sitemapExports->add(
-            Url::create($baseUrl.'/export')
-                ->setLastModificationDate(Carbon::now())
-                ->setChangeFrequency(Url::CHANGE_FREQUENCY_DAILY)
-                ->setPriority(1.0)
-        );
-        $sitemapExports->add(
-            Url::create($baseUrl.'/export/catalog')
-                ->setLastModificationDate(Carbon::now())
-                ->setChangeFrequency(Url::CHANGE_FREQUENCY_WEEKLY)
-                ->setPriority(0.9)
-        );
-        $sitemapExports->add(
-            Url::create($baseUrl.'/export/gallery')
-                ->setLastModificationDate(Carbon::now())
-                ->setChangeFrequency(Url::CHANGE_FREQUENCY_WEEKLY)
-                ->setPriority(0.9)
-        );
 
-        // Kumpulkan slug negara dari DB (jika ada) lalu merge dengan default dari JSON/service
-        // supaya 110 halaman negara selalu masuk sitemap meskipun tabel export_pages kosong
-        $indexedSlugs = [];
+        // --- Portal Utama & Sub-Portal ---
+        $exportPortalPages = [
+            ['url' => '/export',          'priority' => 1.0,  'freq' => Url::CHANGE_FREQUENCY_DAILY],
+            ['url' => '/export/catalog',  'priority' => 0.9,  'freq' => Url::CHANGE_FREQUENCY_WEEKLY],
+            ['url' => '/export/gallery',  'priority' => 0.9,  'freq' => Url::CHANGE_FREQUENCY_WEEKLY],
+            // Halaman Konten Export — Keyword Clusters (SEO/AEO/GEO)
+            ['url' => '/export/breeze-blocks',             'priority' => 0.9,  'freq' => Url::CHANGE_FREQUENCY_WEEKLY],
+            ['url' => '/export/concrete-screen-blocks',    'priority' => 0.9,  'freq' => Url::CHANGE_FREQUENCY_WEEKLY],
+            ['url' => '/export/ventilation-blocks',        'priority' => 0.85, 'freq' => Url::CHANGE_FREQUENCY_WEEKLY],
+            ['url' => '/export/mashrabiya',                'priority' => 0.85, 'freq' => Url::CHANGE_FREQUENCY_WEEKLY],
+            ['url' => '/export/decorative-blocks',         'priority' => 0.85, 'freq' => Url::CHANGE_FREQUENCY_WEEKLY],
+            ['url' => '/export/screen-walls',              'priority' => 0.85, 'freq' => Url::CHANGE_FREQUENCY_WEEKLY],
+            ['url' => '/export/cobogo-blocks',             'priority' => 0.8,  'freq' => Url::CHANGE_FREQUENCY_WEEKLY],
+            ['url' => '/export/claustra-blocks',           'priority' => 0.8,  'freq' => Url::CHANGE_FREQUENCY_WEEKLY],
+            // Halaman Aplikasi / Use-Case Global
+            ['url' => '/export/for-villas',               'priority' => 0.85, 'freq' => Url::CHANGE_FREQUENCY_WEEKLY],
+            ['url' => '/export/for-hotels',               'priority' => 0.85, 'freq' => Url::CHANGE_FREQUENCY_WEEKLY],
+            ['url' => '/export/for-resorts',              'priority' => 0.85, 'freq' => Url::CHANGE_FREQUENCY_WEEKLY],
+            ['url' => '/export/for-commercial',           'priority' => 0.8,  'freq' => Url::CHANGE_FREQUENCY_WEEKLY],
+            // Halaman B2B Export
+            ['url' => '/export/wholesale',                'priority' => 0.85, 'freq' => Url::CHANGE_FREQUENCY_WEEKLY],
+            ['url' => '/export/request-quote',            'priority' => 0.85, 'freq' => Url::CHANGE_FREQUENCY_WEEKLY],
+            ['url' => '/export/fob-shipping',             'priority' => 0.8,  'freq' => Url::CHANGE_FREQUENCY_WEEKLY],
+        ];
 
+        // Foto produk dan galeri untuk Google Images di portal ekspor
+        $exportSampleProducts = Schema::hasTable('products')
+            ? Product::where('is_active', true)->with(['media' => fn ($q) => $q->where('media_type', 'image')->orderBy('is_primary', 'desc')])->take(8)->get()
+            : collect();
+
+        $exportSampleGalleries = Schema::hasTable('gallery_media')
+            ? GalleryMedia::with('gallery.product')->where('media_type', 'image')->take(6)->get()
+            : collect();
+
+        foreach ($exportPortalPages as $ep) {
+            $portalUrl = Url::create($baseUrl.$ep['url'])
+                ->setLastModificationDate(Carbon::now())
+                ->setChangeFrequency($ep['freq'])
+                ->setPriority($ep['priority']);
+
+            // Lampirkan gambar Google Images yang sesuai konteks halaman
+            if ($ep['url'] === '/export/gallery') {
+                foreach ($exportSampleGalleries as $gItem) {
+                    $gTitle = $gItem->gallery ? $gItem->gallery->title : 'Architectural Breeze Block Project';
+                    $gLoc = ($gItem->gallery && $gItem->gallery->location) ? $gItem->gallery->location : 'Indonesia';
+                    $portalUrl->addImage(
+                        $gItem->formatted_url,
+                        $gTitle.' - Architectural Screen Wall in '.$gLoc,
+                        'Purwakarta, Jawa Barat, Indonesia',
+                        $gTitle.' - IndoRoster Export Portfolio'
+                    );
+                }
+            } else {
+                foreach ($exportSampleProducts->take(4) as $pItem) {
+                    $m = $pItem->media->first();
+                    if ($m && ! empty($m->media_url)) {
+                        $imgUrl = str_starts_with($m->media_url, 'http') ? $m->media_url : $baseUrl.'/storage/'.ltrim($m->media_url, '/');
+                        $portalUrl->addImage(
+                            $imgUrl,
+                            $pItem->name.' - Concrete Breeze Block ('.($pItem->dimensions ?: '20x20x10 cm').')',
+                            'Purwakarta, Jawa Barat, Indonesia',
+                            $pItem->name.' - '.($ep['title'] ?? 'IndoRoster Export')
+                        );
+                    }
+                }
+            }
+
+            $sitemapExports->add($portalUrl);
+        }
+
+        // --- 110 Halaman Negara ---
+        // Didahulukan dari DB (jika sudah terisi), fallback ke daftar slug hardcoded
+        $seededCountrySlugs = [];
         if (Schema::hasTable('export_pages')) {
-            $exportPages = ExportPage::where('is_active', true)
+            $dbExportPages = ExportPage::where('is_active', true)
                 ->orderBy('updated_at', 'desc')
                 ->get(['country_slug', 'updated_at']);
 
-            foreach ($exportPages as $ep) {
+            foreach ($dbExportPages as $ep) {
                 $slug = trim($ep->country_slug);
-                $indexedSlugs[$slug] = true;
-                $sitemapExports->add(
-                    Url::create($baseUrl.'/export/'.$slug)
-                        ->setLastModificationDate($ep->updated_at ?? Carbon::now())
-                        ->setChangeFrequency(Url::CHANGE_FREQUENCY_WEEKLY)
-                        ->setPriority(0.85)
-                );
+                $seededCountrySlugs[$slug] = true;
+                $countryUrl = Url::create($baseUrl.'/export/'.$slug)
+                    ->setLastModificationDate($ep->updated_at ?? Carbon::now())
+                    ->setChangeFrequency(Url::CHANGE_FREQUENCY_WEEKLY)
+                    ->setPriority(0.85);
+
+                $countryName = ucwords(str_replace('-', ' ', $slug));
+                foreach ($exportSampleProducts->take(2) as $pItem) {
+                    $m = $pItem->media->first();
+                    if ($m && ! empty($m->media_url)) {
+                        $imgUrl = str_starts_with($m->media_url, 'http') ? $m->media_url : $baseUrl.'/storage/'.ltrim($m->media_url, '/');
+                        $countryUrl->addImage(
+                            $imgUrl,
+                            $pItem->name.' - Architectural Breeze Blocks for '.$countryName.' Export',
+                            'Purwakarta, Jawa Barat, Indonesia',
+                            $pItem->name.' - IndoRoster '.$countryName
+                        );
+                    }
+                }
+
+                $sitemapExports->add($countryUrl);
             }
         }
 
-        // TIER 1 — ASEAN (prioritas tertinggi, transit singkat, nilai pasar tinggi)
-        $tier1Slugs = [
+        // Fallback hardcoded: semua slug negara dari ExportHub.php
+        // Ditambahkan hanya jika belum ada dari DB di atas
+        $allCountrySlugs = [
+            // ASEAN
             'singapore', 'malaysia', 'brunei', 'thailand', 'philippines',
-            'vietnam', 'indonesia-export', 'maldives',
+            'vietnam', 'cambodia',
+            // Middle East
+            'uae', 'saudi-arabia', 'qatar', 'kuwait', 'oman', 'bahrain', 'jordan',
+            // South & East Asia
+            'india', 'maldives', 'sri-lanka', 'nepal', 'pakistan',
+            'japan', 'south-korea', 'taiwan', 'hong-kong',
+            // Central Asia
+            'uzbekistan', 'kazakhstan', 'azerbaijan', 'georgia',
+            // Oceania
+            'australia', 'new-zealand', 'fiji', 'french-polynesia',
+            'vanuatu', 'samoa', 'new-caledonia', 'guam',
+            // Europe
+            'uk', 'france', 'spain', 'portugal', 'italy', 'germany',
+            'greece', 'netherlands', 'belgium', 'switzerland', 'austria',
+            'sweden', 'denmark', 'norway', 'finland', 'ireland',
+            'croatia', 'poland', 'czech-republic', 'hungary', 'bulgaria',
+            'romania', 'turkey', 'cyprus', 'malta', 'monaco', 'montenegro',
+            'albania', 'luxembourg', 'andorra', 'liechtenstein', 'gibraltar',
+            'channel-islands', 'estonia', 'latvia', 'serbia', 'russia',
+            // Americas
+            'usa', 'canada', 'mexico', 'brazil', 'colombia',
+            'costa-rica', 'caribbean', 'panama', 'el-salvador', 'guatemala',
+            'nicaragua', 'honduras', 'uruguay', 'argentina', 'chile',
+            'ecuador', 'peru', 'dominican-republic', 'turks-and-caicos',
+            'cayman-islands', 'saint-lucia', 'barbados', 'antigua-and-barbuda',
+            'virgin-islands', 'dutch-caribbean',
+            // Africa
+            'south-africa', 'tanzania', 'mauritius', 'egypt', 'morocco',
+            'tunisia', 'algeria', 'kenya', 'nigeria', 'ghana',
+            'ivory-coast', 'mozambique', 'namibia',
         ];
-        // TIER 2 — Middle East (nilai transaksi premium, Mashrabiya demand)
-        $tier2Slugs = [
-            'uae', 'saudi-arabia', 'qatar', 'kuwait', 'oman', 'bahrain',
-            'jordan', 'egypt', 'turkey', 'iran', 'iraq', 'lebanon',
-        ];
-        // TIER 3 — Asia Pasifik & Oceania
-        $tier3Slugs = [
-            'australia', 'new-zealand', 'japan', 'south-korea', 'china',
-            'taiwan', 'hong-kong', 'india', 'pakistan', 'bangladesh', 'sri-lanka',
-            'myanmar', 'cambodia', 'laos',
-        ];
-        // TIER 4 — Eropa
-        $tier4Slugs = [
-            'uk', 'france', 'germany', 'italy', 'spain', 'portugal',
-            'greece', 'netherlands', 'belgium', 'austria', 'switzerland',
-            'sweden', 'norway', 'denmark', 'finland', 'ireland',
-            'poland', 'russia', 'czech-republic', 'hungary', 'romania',
-        ];
-        // TIER 5 — Americas & Afrika
-        $tier5Slugs = [
-            'usa', 'canada', 'mexico', 'brazil', 'argentina', 'chile',
-            'colombia', 'peru',
-            'south-africa', 'nigeria', 'kenya', 'ethiopia', 'ghana',
-            'morocco', 'tanzania', 'uganda', 'mozambique', 'namibia',
-        ];
-        // TIER 6 — Negara lain dari ExportCountryService JSON (semua sisa)
-        $allDefaultSlugs = array_keys(ExportCountryService::getDefaultConfigs());
 
-        $prioritizedSlugs = array_unique(array_merge(
-            $tier1Slugs, $tier2Slugs, $tier3Slugs, $tier4Slugs, $tier5Slugs, $allDefaultSlugs
-        ));
-
-        foreach ($prioritizedSlugs as $idx => $slug) {
-            if (isset($indexedSlugs[$slug])) {
-                continue; // Sudah ditambahkan dari DB record
+        foreach ($allCountrySlugs as $cSlug) {
+            if (isset($seededCountrySlugs[$cSlug])) {
+                continue; // Sudah ditambahkan dari DB
             }
-            // Priority: Tier 1 = 0.90, Tier 2 = 0.88, sisanya 0.80
-            $priority = in_array($slug, $tier1Slugs) ? 0.90
-                : (in_array($slug, $tier2Slugs) ? 0.88
-                : (in_array($slug, $tier3Slugs) ? 0.85
-                : (in_array($slug, $tier4Slugs) ? 0.82 : 0.80)));
+            $countryUrl = Url::create($baseUrl.'/export/'.$cSlug)
+                ->setLastModificationDate(Carbon::now())
+                ->setChangeFrequency(Url::CHANGE_FREQUENCY_WEEKLY)
+                ->setPriority(0.85);
 
-            $sitemapExports->add(
-                Url::create($baseUrl.'/export/'.$slug)
-                    ->setLastModificationDate(Carbon::now())
-                    ->setChangeFrequency(Url::CHANGE_FREQUENCY_WEEKLY)
-                    ->setPriority($priority)
-            );
+            $countryName = ucwords(str_replace('-', ' ', $cSlug));
+            foreach ($exportSampleProducts->take(2) as $pItem) {
+                $m = $pItem->media->first();
+                if ($m && ! empty($m->media_url)) {
+                    $imgUrl = str_starts_with($m->media_url, 'http') ? $m->media_url : $baseUrl.'/storage/'.ltrim($m->media_url, '/');
+                    $countryUrl->addImage(
+                        $imgUrl,
+                        $pItem->name.' - Architectural Breeze Blocks for '.$countryName.' Export',
+                        'Purwakarta, Jawa Barat, Indonesia',
+                        $pItem->name.' - IndoRoster '.$countryName
+                    );
+                }
+            }
+
+            $sitemapExports->add($countryUrl);
         }
 
         self::saveSitemapFile($sitemapExports, 'sitemap-exports.xml', $baseUrl, 'Exports');

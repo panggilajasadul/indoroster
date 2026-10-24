@@ -201,6 +201,137 @@
         </div>
 
         {{-- ══════════════════════════════════════════════════════════════
+             SECTION 03.5 — GLOBAL ARCHITECTURAL TOPICS & KEYWORD GUIDES (15 PAGES)
+        ══════════════════════════════════════════════════════════════ --}}
+        <div class="space-y-8">
+            <div class="text-center max-w-3xl mx-auto">
+                <span class="text-xs font-bold uppercase tracking-wider text-terra-600 dark:text-terra-400">Global Knowledge & Product Guides</span>
+                <h2 class="text-2xl sm:text-4xl font-black text-slate-900 dark:text-white mt-1">
+                    Breeze Blocks & Screen Blocks Knowledge Hub
+                </h2>
+                <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-2">
+                    In-depth guides on product terminology, architectural applications, project specifications, and FOB export logistics.
+                </p>
+            </div>
+
+            {{-- 3 Category Tabs/Columns --}}
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                
+                {{-- Column 1: Core Product Types --}}
+                <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 p-6 sm:p-8 flex flex-col justify-between shadow-soft-xs">
+                    <div>
+                        <div class="flex items-center gap-2.5 mb-4 text-terra-600 dark:text-terra-400">
+                            <span class="text-2xl">🧱</span>
+                            <h3 class="text-lg font-black text-slate-900 dark:text-white">Product Terminology</h3>
+                        </div>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mb-6">
+                            Explore definitions, technical specifications, and pattern options across global architectural nomenclature:
+                        </p>
+                        <div class="space-y-3">
+                            <a href="{{ url('/export/breeze-blocks') }}" class="group block p-3 rounded-2xl bg-slate-50 dark:bg-slate-950/60 hover:bg-terra-50 dark:hover:bg-terra-950/30 border border-slate-100 dark:border-slate-800/80 hover:border-terra-300 dark:hover:border-terra-800 transition">
+                                <strong class="text-xs font-bold text-slate-900 dark:text-white group-hover:text-terra-600 dark:group-hover:text-terra-400 block transition-colors">Concrete Breeze Blocks &rarr;</strong>
+                                <span class="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-1">Mid-century modern & contemporary modular breeze blocks manufacturer.</span>
+                            </a>
+                            <a href="{{ url('/export/concrete-screen-blocks') }}" class="group block p-3 rounded-2xl bg-slate-50 dark:bg-slate-950/60 hover:bg-terra-50 dark:hover:bg-terra-950/30 border border-slate-100 dark:border-slate-800/80 hover:border-terra-300 dark:hover:border-terra-800 transition">
+                                <strong class="text-xs font-bold text-slate-900 dark:text-white group-hover:text-terra-600 dark:group-hover:text-terra-400 block transition-colors">Concrete Screen Blocks &rarr;</strong>
+                                <span class="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-1">Precision architectural screen blocks for facade sun-shading & privacy.</span>
+                            </a>
+                            <a href="{{ url('/export/ventilation-blocks') }}" class="group block p-3 rounded-2xl bg-slate-50 dark:bg-slate-950/60 hover:bg-terra-50 dark:hover:bg-terra-950/30 border border-slate-100 dark:border-slate-800/80 hover:border-terra-300 dark:hover:border-terra-800 transition">
+                                <strong class="text-xs font-bold text-slate-900 dark:text-white group-hover:text-terra-600 dark:group-hover:text-terra-400 block transition-colors">Concrete Ventilation Blocks &rarr;</strong>
+                                <span class="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-1">Passive natural airflow masonry units for tropical & desert climates.</span>
+                            </a>
+                            <a href="{{ url('/export/mashrabiya') }}" class="group block p-3 rounded-2xl bg-slate-50 dark:bg-slate-950/60 hover:bg-terra-50 dark:hover:bg-terra-950/30 border border-slate-100 dark:border-slate-800/80 hover:border-terra-300 dark:hover:border-terra-800 transition">
+                                <strong class="text-xs font-bold text-slate-900 dark:text-white group-hover:text-terra-600 dark:group-hover:text-terra-400 block transition-colors">Modern Mashrabiya Screens &rarr;</strong>
+                                <span class="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-1">Islamic & geometric latticework screens for Middle East & global projects.</span>
+                            </a>
+                            <a href="{{ url('/export/decorative-blocks') }}" class="group block p-3 rounded-2xl bg-slate-50 dark:bg-slate-950/60 hover:bg-terra-50 dark:hover:bg-terra-950/30 border border-slate-100 dark:border-slate-800/80 hover:border-terra-300 dark:hover:border-terra-800 transition">
+                                <strong class="text-xs font-bold text-slate-900 dark:text-white group-hover:text-terra-600 dark:group-hover:text-terra-400 block transition-colors">Decorative Concrete Blocks &rarr;</strong>
+                                <span class="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-1">45+ artistic geometric motifs for interior & exterior architectural feature walls.</span>
+                            </a>
+                            <a href="{{ url('/export/screen-walls') }}" class="group block p-3 rounded-2xl bg-slate-50 dark:bg-slate-950/60 hover:bg-terra-50 dark:hover:bg-terra-950/30 border border-slate-100 dark:border-slate-800/80 hover:border-terra-300 dark:hover:border-terra-800 transition">
+                                <strong class="text-xs font-bold text-slate-900 dark:text-white group-hover:text-terra-600 dark:group-hover:text-terra-400 block transition-colors">Perforated Screen Walls &rarr;</strong>
+                                <span class="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-1">Structural & aesthetic porous walls for daylight diffusion and perimeter barriers.</span>
+                            </a>
+                            <a href="{{ url('/export/cobogo-blocks') }}" class="group block p-3 rounded-2xl bg-slate-50 dark:bg-slate-950/60 hover:bg-terra-50 dark:hover:bg-terra-950/30 border border-slate-100 dark:border-slate-800/80 hover:border-terra-300 dark:hover:border-terra-800 transition">
+                                <strong class="text-xs font-bold text-slate-900 dark:text-white group-hover:text-terra-600 dark:group-hover:text-terra-400 block transition-colors">Cobogó Concrete Blocks &rarr;</strong>
+                                <span class="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-1">Brazilian modernist aesthetic elements with hollow geometry.</span>
+                            </a>
+                            <a href="{{ url('/export/claustra-blocks') }}" class="group block p-3 rounded-2xl bg-slate-50 dark:bg-slate-950/60 hover:bg-terra-50 dark:hover:bg-terra-950/30 border border-slate-100 dark:border-slate-800/80 hover:border-terra-300 dark:hover:border-terra-800 transition">
+                                <strong class="text-xs font-bold text-slate-900 dark:text-white group-hover:text-terra-600 dark:group-hover:text-terra-400 block transition-colors">Claustra Architectural Blocks &rarr;</strong>
+                                <span class="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-1">Mediterranean and European claustra lattice masonry for facades and terraces.</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Column 2: Architectural Project Applications --}}
+                <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 p-6 sm:p-8 flex flex-col justify-between shadow-soft-xs">
+                    <div>
+                        <div class="flex items-center gap-2.5 mb-4 text-emerald-600 dark:text-emerald-400">
+                            <span class="text-2xl">🏛️</span>
+                            <h3 class="text-lg font-black text-slate-900 dark:text-white">Project Applications</h3>
+                        </div>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mb-6">
+                            Tailored engineering specs, layout inspirations, and thermal efficiency for specific building types:
+                        </p>
+                        <div class="space-y-3">
+                            <a href="{{ url('/export/for-villas') }}" class="group block p-4 rounded-2xl bg-slate-50 dark:bg-slate-950/60 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 border border-slate-100 dark:border-slate-800/80 hover:border-emerald-300 dark:hover:border-emerald-800 transition">
+                                <strong class="text-xs font-bold text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 block transition-colors">Breeze Blocks for Luxury Villas &rarr;</strong>
+                                <span class="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2">Private pool enclosures, tropical outdoor bathrooms, courtyard dividers, and grand villa facade screens.</span>
+                            </a>
+                            <a href="{{ url('/export/for-hotels') }}" class="group block p-4 rounded-2xl bg-slate-50 dark:bg-slate-950/60 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 border border-slate-100 dark:border-slate-800/80 hover:border-emerald-300 dark:hover:border-emerald-800 transition">
+                                <strong class="text-xs font-bold text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 block transition-colors">Breeze Blocks for Hotels & Hospitality &rarr;</strong>
+                                <span class="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2">Boutique hotel lobbies, guestroom balcony partitions, open-air restaurant backdrops, and signature exterior skins.</span>
+                            </a>
+                            <a href="{{ url('/export/for-resorts') }}" class="group block p-4 rounded-2xl bg-slate-50 dark:bg-slate-950/60 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 border border-slate-100 dark:border-slate-800/80 hover:border-emerald-300 dark:hover:border-emerald-800 transition">
+                                <strong class="text-xs font-bold text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 block transition-colors">Screen Blocks for Tropical Resorts &rarr;</strong>
+                                <span class="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2">Salt-air resilient concrete blocks for island resorts, beachfront pavilions, and tropical spa sanctuaries.</span>
+                            </a>
+                            <a href="{{ url('/export/for-commercial') }}" class="group block p-4 rounded-2xl bg-slate-50 dark:bg-slate-950/60 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 border border-slate-100 dark:border-slate-800/80 hover:border-emerald-300 dark:hover:border-emerald-800 transition">
+                                <strong class="text-xs font-bold text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 block transition-colors">Commercial & Retail Facade Blocks &rarr;</strong>
+                                <span class="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2">High-visibility retail shopfronts, urban cafe pergolas, parking garage screening, and commercial office skins.</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Column 3: B2B Export Logistics & Purchasing --}}
+                <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 p-6 sm:p-8 flex flex-col justify-between shadow-soft-xs">
+                    <div>
+                        <div class="flex items-center gap-2.5 mb-4 text-blue-600 dark:text-blue-400">
+                            <span class="text-2xl">🚢</span>
+                            <h3 class="text-lg font-black text-slate-900 dark:text-white">Wholesale & Logistics</h3>
+                        </div>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mb-6">
+                            Export pricing frameworks, minimum order quantities, proforma invoices, and ocean freight logistics:
+                        </p>
+                        <div class="space-y-3">
+                            <a href="{{ url('/export/wholesale') }}" class="group block p-4 rounded-2xl bg-slate-50 dark:bg-slate-950/60 hover:bg-blue-50 dark:hover:bg-blue-950/30 border border-slate-100 dark:border-slate-800/80 hover:border-blue-300 dark:hover:border-blue-800 transition">
+                                <strong class="text-xs font-bold text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 block transition-colors">Wholesale Breeze Blocks Supply &rarr;</strong>
+                                <span class="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2">Direct factory tiered pricing for distributors, volume importers, and general contractors.</span>
+                            </a>
+                            <a href="{{ url('/export/request-quote') }}" class="group block p-4 rounded-2xl bg-slate-50 dark:bg-slate-950/60 hover:bg-blue-50 dark:hover:bg-blue-950/30 border border-slate-100 dark:border-slate-800/80 hover:border-blue-300 dark:hover:border-blue-800 transition">
+                                <strong class="text-xs font-bold text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 block transition-colors">Request Export Quotation (FOB/CIF) &rarr;</strong>
+                                <span class="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2">Submit your BOQ or block count for an official FOB Tanjung Priok Proforma Invoice within 24 hours.</span>
+                            </a>
+                            <a href="{{ url('/export/fob-shipping') }}" class="group block p-4 rounded-2xl bg-slate-50 dark:bg-slate-950/60 hover:bg-blue-50 dark:hover:bg-blue-950/30 border border-slate-100 dark:border-slate-800/80 hover:border-blue-300 dark:hover:border-blue-800 transition">
+                                <strong class="text-xs font-bold text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 block transition-colors">FOB Ocean Shipping Guide & Transit &rarr;</strong>
+                                <span class="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2">Container loading, wooden crate packaging, Certificate of Origin, and estimated sea transit times.</span>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="mt-6 pt-6 border-t border-slate-100 dark:border-slate-800">
+                        <a href="{{ route('export.gallery') }}" class="w-full py-3 px-4 rounded-xl bg-slate-900 hover:bg-terra-600 dark:bg-terra-500 dark:hover:bg-terra-400 text-white text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-md">
+                            <span>Browse 100+ Completed Project Photos</span>
+                            <span>&rarr;</span>
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        {{-- ══════════════════════════════════════════════════════════════
              SECTION 04 — SEA FREIGHT & CONTAINER LOADING SPECS
         ══════════════════════════════════════════════════════════════ --}}
         <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 p-8 sm:p-12 shadow-soft-xs space-y-8">
@@ -530,7 +661,13 @@
                 <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-4 flex flex-col justify-between hover:border-terra-400 dark:hover:border-terra-500/80 shadow-soft-xs hover:shadow-soft-lg transition group">
                     <div>
                         <div class="aspect-square bg-slate-50 dark:bg-slate-950 rounded-xl overflow-hidden p-2 flex items-center justify-center mb-3 relative border border-slate-100 dark:border-slate-800">
-                            <img src="{{ $imgUrl }}" alt="{{ $p->name }}" class="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-300" loading="lazy">
+                            <img src="{{ $imgUrl }}"
+                                 alt="{{ $p->name }} — 20×20×10 cm Modular Concrete Breeze Block IndoRoster Export"
+                                 title="{{ $p->name }} — Architectural Screen Block"
+                                 class="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-300"
+                                 loading="lazy"
+                                 width="300"
+                                 height="300">
                             <span class="absolute top-2 left-2 px-1.5 py-0.5 rounded bg-slate-900/90 text-white text-[9px] font-bold">
                                 20×20×10 cm
                             </span>
