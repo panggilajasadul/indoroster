@@ -5,6 +5,7 @@ namespace App\Filament\Pages;
 use App\Models\SiteSetting;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Radio;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -44,6 +45,7 @@ class OrderSettings extends Page implements HasForms
             'order_wa_number' => '081389709847',
             'order_wa_template_product' => "Halo Admin IndoRoster, saya ingin memesan:\n• Produk: {product_name}\n• Varian: {variant}\n• Harga Satuan: {unit_price}\n• Jumlah: {qty} pcs\n• Estimasi Total: {total_price}\n• Link: {product_url}\n\nMohon info ketersediaan stok & perkiraan ongkos kirim ke lokasi saya. Terima kasih.",
             'order_wa_template_cart' => "Halo Admin IndoRoster, saya ingin memesan daftar produk berikut:\n\n{items_list}\n\n• Total Jumlah: {total_qty} pcs\n• Subtotal: {subtotal}\n\nMohon info ketersediaan stok dan perkiraan ongkos kirim ke lokasi saya. Terima kasih.",
+            'bank_accounts' => SiteSetting::getBankAccounts(),
         ];
 
         $this->form->fill(array_merge($defaults, $settings));
@@ -105,6 +107,40 @@ class OrderSettings extends Page implements HasForms
                             ->helperText('Tag yang tersedia: {items_list}, {total_qty}, {subtotal}')
                             ->required(),
                     ]),
+
+                Section::make('Rekening Bank Resmi Pabrik (Pemesanan WhatsApp & Invoice)')
+                    ->description('Daftar nomor rekening resmi pabrik untuk menerima transfer pembayaran DP / Pelunasan pesanan WhatsApp. Rekening ini otomatis disertakan di pesan chat WA dan dokumen invoice.')
+                    ->schema([
+                        Repeater::make('bank_accounts')
+                            ->label('Daftar Rekening Bank')
+                            ->schema([
+                                TextInput::make('bank_name')
+                                    ->label('Nama Bank')
+                                    ->placeholder('Contoh: Bank BRI / BCA / Mandiri')
+                                    ->required()
+                                    ->columnSpan(2),
+                                TextInput::make('account_number')
+                                    ->label('Nomor Rekening')
+                                    ->placeholder('Contoh: 4356-01-009396-50-2')
+                                    ->required()
+                                    ->columnSpan(2),
+                                TextInput::make('account_name')
+                                    ->label('Atas Nama')
+                                    ->placeholder('Contoh: ABDUL HAMID')
+                                    ->required()
+                                    ->columnSpan(2),
+                                Toggle::make('is_active')
+                                    ->label('Aktif / Tampilkan')
+                                    ->default(true)
+                                    ->inline(false)
+                                    ->columnSpan(1),
+                            ])
+                            ->columns(7)
+                            ->maxItems(3)
+                            ->reorderable(true)
+                            ->collapsible()
+                            ->itemLabel(fn (array $state): ?string => ($state['bank_name'] ?? 'Bank').' - '.($state['account_number'] ?? 'No. Rekening')),
+                    ]),
             ])
             ->statePath('data');
     }
@@ -124,6 +160,20 @@ class OrderSettings extends Page implements HasForms
         $data = $this->form->getState();
 
         foreach ($data as $key => $value) {
+            if ($key === 'bank_accounts') {
+                SiteSetting::updateOrCreate(
+                    ['key' => 'bank_accounts'],
+                    [
+                        'value' => json_encode(array_values(is_array($value) ? $value : [])),
+                        'group' => 'payment',
+                        'type' => 'textarea',
+                        'description' => 'Daftar Rekening Bank Resmi Pabrik',
+                    ]
+                );
+
+                continue;
+            }
+
             SiteSetting::updateOrCreate(
                 ['key' => $key],
                 ['value' => $value, 'group' => 'order']
