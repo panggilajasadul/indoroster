@@ -9,6 +9,7 @@ use App\Models\ManualDocument;
 use App\Models\Order;
 use App\Models\OrderBatch;
 use App\Models\Payment;
+use App\Models\SiteSetting;
 use App\Models\User;
 use Filament\Actions;
 use Filament\Forms;
@@ -342,6 +343,7 @@ class ViewWaOrder extends ViewRecord
                     'show_shipping_warning' => $invoice->show_shipping_warning ?? ($record->shipping_type === 'unconfirmed'),
                     'show_payment_schedule' => $invoice->show_payment_schedule ?? true,
                     'show_bank_accounts' => $invoice->show_bank_accounts ?? true,
+                    'bank_accounts_override' => $invoice->bank_accounts_override ?: SiteSetting::getBankAccounts(),
                     'document_notes' => $invoice->document_notes ?: $record->notes,
                     'document_terms' => $invoice->document_terms ?: "1. Penurunan material dilakukan di titik bongkar yang dapat diakses armada truk.\n2. Klaim garansi pecah wajib disertakan bukti foto saat serah terima barang.\n3. Dokumen ini merupakan bukti transaksi sah yang diterbitkan otomatis oleh sistem.",
                 ]);
@@ -369,7 +371,8 @@ class ViewWaOrder extends ViewRecord
 
                     Forms\Components\Toggle::make('show_bank_accounts')
                         ->label('Tampilkan 3 Rekening Bank Resmi Pabrik')
-                        ->default(true),
+                        ->default(true)
+                        ->live(),
 
                     Forms\Components\Toggle::make('show_nego_note')
                         ->label('Tampilkan Catatan "Bisa Nego Pabrik"')
@@ -380,6 +383,41 @@ class ViewWaOrder extends ViewRecord
                         ->label('Tampilkan Peringatan Estimasi Ongkir Pabrik')
                         ->default(false),
                 ]),
+
+                Forms\Components\Section::make('Rekening Bank Resmi Pabrik (Dinamis)')
+                    ->description('Anda bisa mengubah nomor rekening, atas nama, atau menambah rekening secara langsung untuk dokumen ini.')
+                    ->schema([
+                        Forms\Components\Repeater::make('bank_accounts_override')
+                            ->label('Daftar Rekening Pembayaran')
+                            ->schema([
+                                Forms\Components\TextInput::make('bank_name')
+                                    ->label('Nama Bank')
+                                    ->placeholder('Contoh: Bank BRI / BCA')
+                                    ->required()
+                                    ->columnSpan(2),
+                                Forms\Components\TextInput::make('account_number')
+                                    ->label('Nomor Rekening')
+                                    ->placeholder('Contoh: 4356-01-009396-50-2')
+                                    ->required()
+                                    ->columnSpan(2),
+                                Forms\Components\TextInput::make('account_name')
+                                    ->label('Atas Nama')
+                                    ->placeholder('Contoh: ABDUL HAMID')
+                                    ->required()
+                                    ->columnSpan(2),
+                                Forms\Components\Toggle::make('is_active')
+                                    ->label('Aktif')
+                                    ->default(true)
+                                    ->inline(false)
+                                    ->columnSpan(1),
+                            ])
+                            ->columns(7)
+                            ->maxItems(3)
+                            ->reorderable(true)
+                            ->collapsible()
+                            ->itemLabel(fn (array $state): ?string => ($state['bank_name'] ?? 'Bank').' - '.($state['account_number'] ?? 'No. Rekening')),
+                    ])
+                    ->visible(fn (Forms\Get $get) => (bool) $get('show_bank_accounts')),
 
                 Forms\Components\Textarea::make('document_notes')
                     ->label('Catatan Dokumen untuk Pembeli (Dinamis)')
@@ -420,6 +458,7 @@ class ViewWaOrder extends ViewRecord
                     'show_shipping_warning' => (bool) ($data['show_shipping_warning'] ?? false),
                     'show_payment_schedule' => (bool) ($data['show_payment_schedule'] ?? true),
                     'show_bank_accounts' => (bool) ($data['show_bank_accounts'] ?? true),
+                    'bank_accounts_override' => isset($data['bank_accounts_override']) && is_array($data['bank_accounts_override']) ? array_values($data['bank_accounts_override']) : null,
                     'document_notes' => $data['document_notes'] ?? null,
                     'document_terms' => $data['document_terms'] ?? null,
                 ]);

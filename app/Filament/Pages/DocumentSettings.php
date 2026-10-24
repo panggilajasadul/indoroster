@@ -5,10 +5,12 @@ namespace App\Filament\Pages;
 use App\Models\SiteSetting;
 use Filament\Actions\Action;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
@@ -36,6 +38,7 @@ class DocumentSettings extends Page implements HasForms
     public function mount(): void
     {
         $settings = SiteSetting::where('group', 'document_settings')->pluck('value', 'key')->toArray();
+        $settings['bank_accounts'] = SiteSetting::getBankAccounts();
         $this->form->fill($settings);
     }
 
@@ -97,6 +100,40 @@ class DocumentSettings extends Page implements HasForms
                             ->fetchFileInformation(false),
                     ])->columns(2),
 
+                Section::make('Rekening Bank Resmi Pembayaran (Maksimal 3 Rekening)')
+                    ->description('Daftar nomor rekening resmi pabrik yang otomatis dicantumkan pada Invoice, SPK, dan Dokumen Tagihan.')
+                    ->schema([
+                        Repeater::make('bank_accounts')
+                            ->label('Daftar Rekening Bank')
+                            ->schema([
+                                TextInput::make('bank_name')
+                                    ->label('Nama Bank')
+                                    ->placeholder('Contoh: Bank BRI / BCA / Mandiri')
+                                    ->required()
+                                    ->columnSpan(2),
+                                TextInput::make('account_number')
+                                    ->label('Nomor Rekening')
+                                    ->placeholder('Contoh: 4356-01-009396-50-2')
+                                    ->required()
+                                    ->columnSpan(2),
+                                TextInput::make('account_name')
+                                    ->label('Atas Nama')
+                                    ->placeholder('Contoh: ABDUL HAMID')
+                                    ->required()
+                                    ->columnSpan(2),
+                                Toggle::make('is_active')
+                                    ->label('Aktif / Tampilkan')
+                                    ->default(true)
+                                    ->inline(false)
+                                    ->columnSpan(1),
+                            ])
+                            ->columns(7)
+                            ->maxItems(3)
+                            ->reorderable(true)
+                            ->collapsible()
+                            ->itemLabel(fn (array $state): ?string => ($state['bank_name'] ?? 'Bank').' - '.($state['account_number'] ?? 'No. Rekening')),
+                    ]),
+
                 Section::make('Tata Letak Default Halaman')
                     ->description('Pengaturan default ukuran kertas dan orientasi cetakan.')
                     ->schema([
@@ -136,6 +173,20 @@ class DocumentSettings extends Page implements HasForms
         $data = $this->form->getState();
 
         foreach ($data as $key => $value) {
+            if ($key === 'bank_accounts') {
+                SiteSetting::updateOrCreate(
+                    ['key' => 'bank_accounts'],
+                    [
+                        'value' => json_encode(array_values(is_array($value) ? $value : [])),
+                        'group' => 'payment',
+                        'type' => 'textarea',
+                        'description' => 'Daftar Rekening Bank Resmi Pabrik',
+                    ]
+                );
+
+                continue;
+            }
+
             if (is_array($value)) {
                 $value = reset($value);
             }

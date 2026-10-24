@@ -8,6 +8,7 @@ use App\Models\Order;
 use App\Models\Payment;
 use App\Models\Product;
 use App\Models\ProductVariant;
+use App\Models\SiteSetting;
 use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -1363,6 +1364,7 @@ class WaOrderResource extends Resource
                             'shipping_type' => $invoice->shipping_type ?: ($record->shipping_type ?: ($record->shipping_cost > 0 ? 'paid' : ($record->grand_total > 0 ? 'free' : 'unconfirmed'))),
                             'show_payment_schedule' => $invoice->show_payment_schedule ?? true,
                             'show_bank_accounts' => $invoice->show_bank_accounts ?? true,
+                            'bank_accounts_override' => $invoice->bank_accounts_override ?: SiteSetting::getBankAccounts(),
                             'show_nego_note' => $invoice->show_nego_note ?? ($record->payment_scheme === 'quotation'),
                             'show_shipping_warning' => $invoice->show_shipping_warning ?? false,
                             'document_notes' => $invoice->document_notes ?: $record->notes,
@@ -1404,7 +1406,8 @@ class WaOrderResource extends Resource
 
                                 Forms\Components\Toggle::make('show_bank_accounts')
                                     ->label('Tampilkan Instruksi 3 Rekening Bank Resmi Pabrik')
-                                    ->default(true),
+                                    ->default(true)
+                                    ->live(),
 
                                 Forms\Components\Toggle::make('show_nego_note')
                                     ->label('Tampilkan Kotak Hijau "Bisa Nego Pabrik Langsung"')
@@ -1414,6 +1417,41 @@ class WaOrderResource extends Resource
                                     ->label('Tampilkan Peringatan Kuning Ongkir Belum Terkonfirmasi')
                                     ->default(false),
                             ])->columns(2),
+
+                        Forms\Components\Section::make('Rekening Bank Resmi Pabrik (Dinamis)')
+                            ->description('Anda bisa mengubah nomor rekening, atas nama, atau menambah rekening secara langsung untuk dokumen ini.')
+                            ->schema([
+                                Forms\Components\Repeater::make('bank_accounts_override')
+                                    ->label('Daftar Rekening Pembayaran')
+                                    ->schema([
+                                        Forms\Components\TextInput::make('bank_name')
+                                            ->label('Nama Bank')
+                                            ->placeholder('Contoh: Bank BRI / BCA')
+                                            ->required()
+                                            ->columnSpan(2),
+                                        Forms\Components\TextInput::make('account_number')
+                                            ->label('Nomor Rekening')
+                                            ->placeholder('Contoh: 4356-01-009396-50-2')
+                                            ->required()
+                                            ->columnSpan(2),
+                                        Forms\Components\TextInput::make('account_name')
+                                            ->label('Atas Nama')
+                                            ->placeholder('Contoh: ABDUL HAMID')
+                                            ->required()
+                                            ->columnSpan(2),
+                                        Forms\Components\Toggle::make('is_active')
+                                            ->label('Aktif')
+                                            ->default(true)
+                                            ->inline(false)
+                                            ->columnSpan(1),
+                                    ])
+                                    ->columns(7)
+                                    ->maxItems(3)
+                                    ->reorderable(true)
+                                    ->collapsible()
+                                    ->itemLabel(fn (array $state): ?string => ($state['bank_name'] ?? 'Bank').' - '.($state['account_number'] ?? 'No. Rekening')),
+                            ])
+                            ->visible(fn (Get $get) => (bool) $get('show_bank_accounts')),
 
                         Forms\Components\Textarea::make('document_notes')
                             ->label('Catatan Khusus Dokumen (Opsional)')
@@ -1450,6 +1488,7 @@ class WaOrderResource extends Resource
                             'shipping_type' => $data['shipping_type'] ?? 'paid',
                             'show_payment_schedule' => (bool) ($data['show_payment_schedule'] ?? true),
                             'show_bank_accounts' => (bool) ($data['show_bank_accounts'] ?? true),
+                            'bank_accounts_override' => isset($data['bank_accounts_override']) && is_array($data['bank_accounts_override']) ? array_values($data['bank_accounts_override']) : null,
                             'show_nego_note' => (bool) ($data['show_nego_note'] ?? false),
                             'show_shipping_warning' => (bool) ($data['show_shipping_warning'] ?? false),
                             'document_notes' => $data['document_notes'] ?? null,
