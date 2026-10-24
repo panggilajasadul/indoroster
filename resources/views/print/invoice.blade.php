@@ -405,7 +405,7 @@
         <!-- Petunjuk Rekening Pembayaran Resmi Pabrik (Support 3 Rekening Sekaligus) -->
         <div class="bank-instruction-box avoid-break" style="margin-top: 10px; background: #fffdfa; border: 1.5px solid #fed7aa; border-left: 5px solid #ea580c; border-radius: 6px; padding: 8px 12px; font-size: 10px; page-break-inside: avoid !important; break-inside: avoid !important;">
             <div style="color: #9a3412; font-weight: 800; text-transform: uppercase; font-size: 10.5px; margin-bottom: 4px; letter-spacing: 0.03em;">
-                🏛️ Petunjuk Pembayaran & Rekening Bank Resmi Pabrik:
+                PETUNJUK PEMBAYARAN &amp; REKENING BANK RESMI PABRIK:
             </div>
             <div style="color: #475569; font-size: 9.5px; margin-bottom: 5px;">
                 @if($scheme === 'full')
