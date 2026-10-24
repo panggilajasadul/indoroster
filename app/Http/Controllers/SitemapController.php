@@ -6,6 +6,7 @@ use App\Models\Article;
 use App\Models\Category;
 use App\Models\ExportPage;
 use App\Models\Gallery;
+use App\Models\GalleryMedia;
 use App\Models\Page;
 use App\Models\Product;
 use App\Models\PromoPage;
