@@ -104,7 +104,16 @@
             @if(!empty($invoice->document_title))
                 {{ strtoupper($invoice->document_title) }}
             @elseif($paymentStage)
-                INVOICE {{ strtoupper($paymentStage->installment_title) }}
+                @php
+                    $rawTitle = $paymentStage->installment_title;
+                    // Bersihkan jika hanya berisi angka ID seperti "Pembayaran #86"
+                    if (preg_match('/^Pembayaran\s*#\d+$/i', trim($rawTitle))) {
+                        $cleanTitle = $isStageLunas ? 'FAKTUR PENJUALAN RESMI (LUNAS)' : 'TAGIHAN PEMBAYARAN TAHAP';
+                    } else {
+                        $cleanTitle = strtoupper($rawTitle);
+                    }
+                @endphp
+                {{ $cleanTitle }}
             @elseif($isStageLunas)
                 INVOICE FINAL / FAKTUR PENJUALAN RESMI (LUNAS)
             @elseif($allPayments->count() > 0 && $remaining > 0)
