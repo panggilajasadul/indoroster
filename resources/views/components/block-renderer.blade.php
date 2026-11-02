@@ -7,6 +7,11 @@
     @foreach($blocks as $block)
         @php
             $type = str_replace('_', '-', $block['type'] ?? '');
+
+            // Announcement bar sudah di-render di atas navbar (paling atas halaman)
+            if ($type === 'announcement-bar') {
+                continue;
+            }
             
             // Map legacy block names
             $aliasMap = [

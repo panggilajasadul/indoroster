@@ -232,7 +232,20 @@ class PrintController extends Controller
             $document = ManualDocument::findOrFail($documentId);
         }
 
-        $pdf = $pdfService->generatePdf($document);
+        // Routing template cetak dokumen manual resmi B2B
+        if ($document->type === 'spk' || $document->type === 'perjanjian') {
+            $pdf = Pdf::loadView('print.manual.spk', ['document' => $document])->setPaper('a4', 'portrait');
+        } elseif ($document->type === 'bast') {
+            $pdf = Pdf::loadView('print.manual.bast', ['document' => $document])->setPaper('a4', 'portrait');
+        } elseif ($document->type === 'sph') {
+            $pdf = Pdf::loadView('print.manual.sph', ['document' => $document])->setPaper('a4', 'portrait');
+        } elseif ($document->type === 'lab_test' || $document->type === 'uji_lab') {
+            $pdf = Pdf::loadView('print.manual.lab-test', ['document' => $document])->setPaper('a4', 'portrait');
+        } elseif (view()->exists('print.manual.'.$document->type)) {
+            $pdf = Pdf::loadView('print.manual.'.$document->type, ['document' => $document])->setPaper('a4', 'portrait');
+        } else {
+            $pdf = $pdfService->generatePdf($document);
+        }
 
         $filename = str_replace(['/', '\\', ' '], '-', $document->document_number);
 

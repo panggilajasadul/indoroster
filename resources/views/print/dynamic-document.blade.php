@@ -50,7 +50,7 @@
         .company-name {
             font-size: 14px;
             font-weight: bold;
-            color: #c2410c;
+            color: #ea580c;
             margin-bottom: 2px;
         }
         .company-details {
@@ -263,11 +263,16 @@
         <div class="page">
             @php
                 $watermark = $document['extra_data']['watermark'] ?? null;
-                // Fallback to old dynamic behavior if not explicitly set
+                // Fallback dinamis jika watermark tidak di-set eksplisit
                 if (empty($watermark)) {
-                    if (($document['status'] ?? 'draft') === 'final' && in_array($document['type'] ?? '', ['faktur', 'invoice', 'kwitansi', 'receipt'])) {
+                    $docStatus = $document['status'] ?? 'draft';
+                    $docType   = $document['type'] ?? '';
+                    if ($docStatus === 'final' && in_array($docType, ['faktur', 'invoice', 'kwitansi', 'receipt'])) {
                         $watermark = 'LUNAS';
-                    } elseif (($document['status'] ?? 'draft') === 'draft') {
+                    } elseif ($docStatus === 'final') {
+                        // Semua dokumen final selain invoice/faktur = tanpa watermark
+                        $watermark = 'none';
+                    } elseif ($docStatus === 'draft') {
                         $watermark = 'DRAFT';
                     } else {
                         $watermark = 'none';
@@ -296,7 +301,7 @@
                     <div class="company-name">{{ $template['company_name'] }}</div>
                     <div class="company-details">
                         {!! nl2br(e($template['company_address'])) !!}<br>
-                        Telp/WA: {{ $template['company_phone'] }} | Email: {{ $template['company_email'] }}
+                        Telp/WA: {{ $template['company_phone'] }} | Web: www.indoroster.com | Email: {{ $template['company_email'] }}
                     </div>
                 </div>
             @endif
@@ -314,7 +319,7 @@
                 $headerBottom = max($logoY + $logoH, $companyInfoY + $companyInfoH);
                 $lineTop = $headerBottom + 1;
             @endphp
-            <div style="position: absolute; left: {{ $template['margins']['left'] ?? 15 }}mm; right: {{ $template['margins']['right'] ?? 15 }}mm; top: {{ $lineTop }}mm; border-bottom: 2px solid #c2410c; z-index: 5;"></div>
+            <div style="position: absolute; left: {{ $template['margins']['left'] ?? 15 }}mm; right: {{ $template['margins']['right'] ?? 15 }}mm; top: {{ $lineTop }}mm; border-bottom: 2px solid #ea580c; z-index: 5;"></div>
 
             <!-- Document Title & Dynamic Spacing Coordinates -->
             @php
@@ -617,7 +622,7 @@
             @if(($page['elements']['footer']['visible'] ?? false))
                 <div class="element footer" style="left: {{ $page['elements']['footer']['x'] }}mm; top: {{ $page['elements']['footer']['y'] }}mm; width: {{ $page['elements']['footer']['width'] }}mm; height: {{ $page['elements']['footer']['height'] }}mm; z-index: 5;">
                     <div class="footer-text">
-                        {{ $isExport ? 'Thank you for your business. Page ' . $page['page_number'] . ' of ' . $page['total_pages'] : 'Terima kasih atas kerja sama dan kepercayaan Anda. Halaman ' . $page['page_number'] . ' dari ' . $page['total_pages'] }}
+                        {{ $isExport ? 'Thank you for your business. • www.indoroster.com • Page ' . $page['page_number'] . ' of ' . $page['total_pages'] : 'Terima kasih atas kerja sama dan kepercayaan Anda. • www.indoroster.com • Halaman ' . $page['page_number'] . ' dari ' . $page['total_pages'] }}
                     </div>
                 </div>
             @endif

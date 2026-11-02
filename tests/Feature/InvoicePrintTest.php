@@ -221,7 +221,7 @@ class InvoicePrintTest extends TestCase
         $this->assertStringContainsString('9.450.000', $html);
         $this->assertStringContainsString('Klausul khusus proyek custom.', $html);
         $this->assertStringContainsString('4356-01-009396-50-2', $html); // Rekening BRI
-        $this->assertStringContainsString('024-123-4567', $html); // Rekening BCA
+        $this->assertStringContainsString('231-324-2412', $html); // Rekening BCA
         $this->assertStringContainsString('131-00-1234567-8', $html); // Rekening Mandiri
 
         // Assert PDF generation endpoint works

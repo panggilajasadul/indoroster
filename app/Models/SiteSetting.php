@@ -77,20 +77,20 @@ class SiteSetting extends Model
         return [
             [
                 'bank_name' => 'Bank BRI (Bank Rakyat Indonesia)',
-                'account_number' => '4356-01-009396-50-2',
+                'account_number' => '4356-0100-9396-502',
                 'account_name' => 'ABDUL HAMID',
                 'is_active' => true,
             ],
             [
                 'bank_name' => 'Bank BCA (Bank Central Asia)',
-                'account_number' => '024-123-4567',
+                'account_number' => '231-324-2412',
                 'account_name' => 'ABDUL HAMID',
                 'is_active' => true,
             ],
             [
                 'bank_name' => 'Bank Mandiri',
-                'account_number' => '131-00-1234567-8',
-                'account_name' => 'INDOROSTER INDONESIA',
+                'account_number' => '1730-0197-04155',
+                'account_name' => 'ABDUL HAMID',
                 'is_active' => true,
             ],
         ];

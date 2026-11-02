@@ -37,6 +37,7 @@ class Home extends Component
             'faqs' => Faq::where('is_active', true)->orderBy('sort_order')->get(),
             'topLocations' => $topLocations,
         ])->layout('components.layouts.app', [
+            'page' => $page,
             'title' => $metaTitle,
             'description' => $metaDescription,
             'canonicalOverride' => route('home'),

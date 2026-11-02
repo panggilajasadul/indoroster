@@ -51,11 +51,12 @@
                 <table class="header">
                     <tr>
                         <td>
-                            <img src="{{ asset('assets/logo_indoroster-text.png') }}" style="max-height: 100px;">
+                            <img src="{{ asset('assets/logo_indoroster-text.png') }}" style="max-height: 85px;">
                         </td>
                         <td class="company-info">
-                            <strong style="color: #c2410c; font-size: 16px;">indoroster.com</strong><br>
-                            Purwakarta, Jawa Barat<br>
+                            <strong style="color: #ea580c; font-size: 15px;">INDOROSTER INDONESIA</strong><br>
+                            <span style="font-size: 10.5px; color: #64748b;">Pusat Roster Minimalis &amp; Bata Ekspos</span><br>
+                            Kp. Cicadas, RT 05 RW 03, Desa Cadasmekar, Purwakarta<br>
                             No. Pesanan: <strong>{{ $order->order_number }}</strong>
                         </td>
                     </tr>
@@ -122,14 +123,14 @@
             <table class="header">
                 <tr>
                     <td>
-                        <img src="{{ asset('assets/logo_indoroster-text.png') }}" style="max-height: 120px;">
+                        <img src="{{ asset('assets/logo_indoroster-text.png') }}" style="max-height: 85px;">
                     </td>
                     <td class="company-info">
-                        <strong style="color: #c2410c; font-size: 16px;">indoroster.com</strong><br>
-                        <span style="font-size: 11px;">Pabrik Roster & bata ekpose dan ornamen dinding Terlengkap</span><br>
+                        <strong style="color: #ea580c; font-size: 15px;">INDOROSTER INDONESIA</strong><br>
+                        <span style="font-size: 10.5px; color: #64748b;">Pusat Roster Minimalis &amp; Bata Ekspos</span><br>
                         Kp. Cicadas, RT 05 RW 03, Desa Cadasmekar,<br>
-                        Kec. Tegalwaru, Kab. Purwakarta, Jawa Barat, 41165<br>
-                        WhatsApp: {{ \App\Models\SiteSetting::getValue('whatsapp_number', '0813-8970-9847') }}
+                        Kec. Tegalwaru, Kab. Purwakarta, Jawa Barat - 41165<br>
+                        WhatsApp: {{ \App\Models\SiteSetting::getValue('whatsapp_number', '0813-8970-9847') }} | Web: www.indoroster.com
                     </td>
                 </tr>
             </table>
@@ -252,6 +253,17 @@
                 </div>
             </div>
         @endif
+
+        <div style="margin-top: 35px; border-top: 1px solid #e2e8f0; padding-top: 8px; font-size: 10px; color: #94a3b8; width: 100%; display: table;">
+            <div style="display: table-cell; text-align: left; vertical-align: middle;">
+                <strong style="color: #64748b;">INDOROSTER INDONESIA</strong> &bull; Pabrik Roster Beton &amp; Ventilasi Arsitektural<br>
+                Website: <span style="color: #ea580c; font-weight: 600;">www.indoroster.com</span> &bull; Email: indoroster.official@gmail.com
+            </div>
+            <div style="display: table-cell; text-align: right; vertical-align: middle;">
+                Dokumen Resmi Terverifikasi Sistem IndoRoster<br>
+                Dicetak pada: {{ now()->timezone('Asia/Jakarta')->format('d/m/Y H:i') }} WIB
+            </div>
+        </div>
     </div>
 </body>
 </html>

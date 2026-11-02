@@ -129,7 +129,7 @@ class ManualDocument extends Model
                     'company_name' => SiteSetting::getValue('doc_company_name') ?? SiteSetting::getValue('factory_name') ?? 'INDOROSTER INDONESIA',
                     'company_address' => SiteSetting::getValue('doc_company_address') ?? SiteSetting::getValue('factory_address') ?? 'Kp. Cicadas, RT 05 RW 03, Desa Cadasmekar, Kec. Tegalwaru, Kab. Purwakarta, Jawa Barat, 41165',
                     'company_phone' => SiteSetting::getValue('doc_company_phone') ?? SiteSetting::getValue('whatsapp_number') ?? '0813-8970-9847',
-                    'company_email' => SiteSetting::getValue('doc_company_email') ?? SiteSetting::getValue('contact_email') ?? 'abdulhamid66266@gmail.com',
+                    'company_email' => SiteSetting::getValue('doc_company_email') ?? SiteSetting::getValue('contact_email') ?? 'indoroster.official@gmail.com',
                     'logo_path' => SiteSetting::getValue('doc_logo_path'),
                     'logo_width' => 50, 'logo_height' => 25, 'logo_x' => 15, 'logo_y' => 15,
                     'signature_path' => $model->signature_path ?: SiteSetting::getValue('doc_signature_path'),
@@ -157,6 +157,7 @@ class ManualDocument extends Model
                     'document' => [
                         'document_number' => $model->document_number,
                         'type' => $model->type,
+                        'status' => $model->status, // ← Penting: disertakan agar watermark terbaca dengan benar
                         'client_name' => $model->client_name,
                         'client_address' => $model->client_address,
                         'client_phone' => $model->client_phone,
@@ -187,6 +188,7 @@ class ManualDocument extends Model
             'surat_jalan' => 'Surat Jalan Pengiriman',
             'receipt', 'kwitansi' => 'Kwitansi Pembayaran Sah',
             'quotation', 'penawaran' => 'Penawaran Harga (Quotation)',
+            'spk', 'perjanjian' => 'Surat Perjanjian Kerja Sama (SPK)',
             'bast' => 'Berita Acara Serah Terima (BAST)',
             'sph' => 'Surat Dukungan Tender & SPH',
             'lab_test', 'uji_lab' => 'Sertifikat Uji Kuat Tekan Lab SNI',

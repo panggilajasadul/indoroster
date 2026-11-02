@@ -8,7 +8,7 @@
     $theme = \App\Helpers\BlockTheme::resolve($data['bg_theme'] ?? 'white');
 
     $rawWa = \App\Models\SiteSetting::getValue('whatsapp_number', '0813-8970-9847');
-    $email = \App\Models\SiteSetting::getValue('contact_email', 'abdulhamid66266@gmail.com');
+    $email = \App\Models\SiteSetting::getValue('contact_email', 'indoroster.official@gmail.com');
     $address = \App\Models\SiteSetting::getValue('factory_address', 'Kp. Cicadas, RT 05 RW 03, Desa Cadasmekar, Kec. Tegalwaru, Kab. Purwakarta, Jawa Barat, 41165');
     
     $waFormatted = preg_replace('/[^0-9]/', '', $rawWa);

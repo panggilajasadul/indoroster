@@ -57,7 +57,7 @@ class OrderSuccess extends Component
                     // Send Invoice Email and Admin Notification
                     try {
                         Mail::to($this->order->shipping_email ?? $this->order->user->email)->send(new InvoiceMail($this->order));
-                        Mail::to('abdulhamid66266@gmail.com')->send(new AdminOrderNotification($this->order));
+                        Mail::to('indoroster.official@gmail.com')->send(new AdminOrderNotification($this->order));
                     } catch (\Exception $e) {
                         \Log::error('Gagal mengirim email invoice/notifikasi admin: '.$e->getMessage());
                     }

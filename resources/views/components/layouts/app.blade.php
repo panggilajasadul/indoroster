@@ -265,6 +265,15 @@
         $isPromoPage = (request()->routeIs('promo.*') || request()->is('promo*') || request()->is('penawaran-proyek*')) && ! $showNavbarLayout;
     @endphp
 
+    @php
+        $pageBlocks = isset($page) && is_array($page->content) ? $page->content : [];
+        $topAnnouncementBlock = collect($pageBlocks)->firstWhere('type', 'announcement_bar');
+    @endphp
+
+    @if($topAnnouncementBlock && isset($topAnnouncementBlock['data']))
+        <x-dynamic-component :component="'blocks.announcement-bar'" :data="$topAnnouncementBlock['data']" />
+    @endif
+
     <!-- Sticky Announcement / Trust Strip -->
     @php
         $topBarActive = filter_var(\App\Models\SiteSetting::getValue('top_bar_is_active', true), FILTER_VALIDATE_BOOLEAN);
@@ -762,11 +771,11 @@
                         <img src="{{ asset('assets/logo_indoroster_no_text.PNG') }}" alt="Indoroster Logo" class="h-10 w-auto">
                         <div>
                             <span class="text-2xl font-black tracking-widest text-white uppercase font-display">INDOROSTER</span>
-                            <p class="text-[10px] tracking-widest text-terra-400 font-bold uppercase">Pabrik Roster Beton Plered</p>
+                            <p class="text-[10px] tracking-widest text-terra-400 font-bold uppercase">Pabrik Roster Beton Tegalwaru</p>
                         </div>
                     </a>
                     <p class="text-slate-400 text-sm leading-relaxed max-w-md mb-6">
-                        Pabrik Roster Beton Premium langsung dari sentra produksi Plered, Purwakarta. Memproduksi roster presisi cetak tumbuk padat dengan alat khusus pengrajin berpengalaman, menghasilkan roster yang keras, rapi, dan kokoh untuk arsitektur tropis modern.
+                        Pabrik Roster Beton Premium dari Kp. Cicadas, Desa Cadasmekar, Kec. Tegalwaru, Purwakarta. Memproduksi roster presisi cetak tumbuk padat dengan alat khusus pengrajin berpengalaman, menghasilkan roster yang keras, rapi, dan kokoh untuk arsitektur tropis modern.
                     </p>
                     <div class="inline-flex items-center gap-3 bg-slate-900/90 border border-slate-800 px-4 py-2.5 rounded-xl text-xs text-slate-300">
                         <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
@@ -807,7 +816,7 @@
                     <ul class="space-y-3">
                         <li class="flex items-start gap-3 text-sm text-slate-400">
                             <svg class="w-5 h-5 text-terra-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                            <span>{{ \App\Models\SiteSetting::getValue('factory_address', 'Plered, Purwakarta, Jawa Barat') }}</span>
+                            <span>{{ \App\Models\SiteSetting::getValue('factory_address', 'Kp. Cicadas, RT 05 RW 03, Desa Cadasmekar, Kec. Tegalwaru, Kab. Purwakarta, Jawa Barat, 41165') }}</span>
                         </li>
                         <li class="flex items-center gap-3 text-sm text-slate-400">
                             <svg class="w-5 h-5 text-terra-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
@@ -815,7 +824,7 @@
                         </li>
                         <li class="flex items-center gap-3 text-sm text-slate-400">
                             <svg class="w-5 h-5 text-terra-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
-                            <span>{{ \App\Models\SiteSetting::getValue('contact_email', 'abdulhamid66266@gmail.com') }}</span>
+                            <span>{{ \App\Models\SiteSetting::getValue('contact_email', 'indoroster.official@gmail.com') }}</span>
                         </li>
                     </ul>
                 </div>

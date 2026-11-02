@@ -17,7 +17,7 @@ class ScrapedDataSeeder extends Seeder
         // 1. Site Settings
         $settings = [
             ['key' => 'whatsapp_number', 'value' => '0813-8970-9847', 'group' => 'contact', 'type' => 'text', 'description' => 'Nomor WA utama'],
-            ['key' => 'contact_email', 'value' => 'abdulhamid66266@gmail.com', 'group' => 'contact', 'type' => 'text', 'description' => 'Email kontak'],
+            ['key' => 'contact_email', 'value' => 'indoroster.official@gmail.com', 'group' => 'contact', 'type' => 'text', 'description' => 'Email kontak'],
             ['key' => 'factory_address', 'value' => 'Kp. Cicadas, RT 05 RW 03, Desa Cadasmekar, Kec. Tegalwaru, Kab. Purwakarta, Jawa Barat, 41165', 'group' => 'contact', 'type' => 'textarea', 'description' => 'Alamat pabrik'],
         ];
 
@@ -79,7 +79,7 @@ class ScrapedDataSeeder extends Seeder
                 <p>Kami siap membantu kebutuhan arsitektur dan material roster Anda. Silakan hubungi kami melalui kontak di bawah ini:</p>
                 <br>
                 <p><strong>WhatsApp (Respon Cepat):</strong> <a href="https://wa.me/6281389709847">+62 813-8970-9847</a></p>
-                <p><strong>Email:</strong> abdulhamid66266@gmail.com</p>
+                <p><strong>Email:</strong> indoroster.official@gmail.com</p>
                 <br>
                 <h3>Alamat Pabrik & Showroom</h3>
                 <p>Kp. Cicadas, RT 05 RW 03, Desa Cadasmekar,<br>Kec. Tegalwaru, Kab. Purwakarta, Jawa Barat, 41165</p>

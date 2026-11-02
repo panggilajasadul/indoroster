@@ -858,7 +858,7 @@ class WaOrderResource extends Resource
                         Forms\Components\Select::make('payment_status')
                             ->label('Status Pembayaran')
                             ->options([
-                                'unpaid' => '🔴 Belum Ada Pembayaran / Tahap Penawaran',
+                                'unpaid' => '🔴 Belum Ada Pembayaran (Menunggu Transfer)',
                                 'paid' => '🟢 Lunas (100%)',
                                 'refunded' => '⚪ Dikembalikan / Refund',
                             ])
@@ -1176,9 +1176,9 @@ class WaOrderResource extends Resource
                         Forms\Components\Select::make('payment_method')
                             ->label('Metode Pembayaran')
                             ->options([
-                                'BCA' => 'Transfer Bank BCA (IndoRoster)',
-                                'Mandiri' => 'Transfer Bank Mandiri (IndoRoster)',
-                                'BRI' => 'Transfer Bank BRI (IndoRoster)',
+                                'BCA' => 'Transfer Bank BCA - 231-324-2412 (a/n ABDUL HAMID)',
+                                'Mandiri' => 'Transfer Bank Mandiri - 1730-0197-04155 (a/n ABDUL HAMID)',
+                                'BRI' => 'Transfer Bank BRI - 4356-0100-9396-502 (a/n ABDUL HAMID)',
                                 'Cash' => 'Tunai / Cash di Proyek / Pabrik',
                                 'Other' => 'Metode Lainnya',
                             ])
@@ -1761,6 +1761,16 @@ class WaOrderResource extends Resource
                             ->columns(5)
                             ->columnSpanFull(),
                     ]),
+
+                Infolists\Components\Section::make('📑 Dokumen Tambahan Resmi (Telah Diterbitkan)')
+                    ->description('Daftar dokumen B2B, BAST, SPH, Faktur, atau Sertifikat Lab yang diterbitkan untuk pesanan ini. Anda dapat mencetak atau mengeditnya sewaktu-waktu.')
+                    ->schema([
+                        Infolists\Components\ViewEntry::make('manual_documents_list')
+                            ->label('')
+                            ->view('filament.order-manual-docs-panel')
+                            ->columnSpanFull(),
+                    ])
+                    ->collapsible(true),
             ]);
     }
 

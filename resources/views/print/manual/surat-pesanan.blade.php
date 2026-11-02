@@ -39,8 +39,8 @@
                     <img src="{{ public_path('assets/logo_indoroster-text.png') }}" alt="Indoroster Logo" style="max-height: 70px;">
                 </td>
                 <td class="company-info">
-                    <strong style="color: #c2410c; font-size: 14px;">{{ \App\Models\SiteSetting::getValue('factory_name', 'INDOROSTER INDONESIA') }}</strong><br>
-                    <span>{{ \App\Models\SiteSetting::getValue('factory_tagline', 'Pabrik Roster Beton & Ventilasi Arsitektural Terlengkap') }}</span><br>
+                    <strong style="color: #ea580c; font-size: 15px;">{{ \App\Models\SiteSetting::getValue('factory_name', 'INDOROSTER INDONESIA') }}</strong><br>
+                    <span>{{ \App\Models\SiteSetting::getValue('factory_tagline', 'Pusat Roster Minimalis & Bata Ekspos') }}</span><br>
                     @php
                         $factoryAddress = \App\Models\SiteSetting::getValue('factory_address', 'Kp. Cicadas, RT 05 RW 03, Desa Cadasmekar, Kec. Tegalwaru, Kab. Purwakarta, Jawa Barat, 41165');
                         if (str_contains($factoryAddress, 'Cicadas')) {
@@ -50,7 +50,7 @@
                         }
                     @endphp
                     {!! $formattedAddress !!}<br>
-                    WhatsApp: {{ \App\Models\SiteSetting::getValue('whatsapp_number', '0813-8970-9847') }} | Email: {{ \App\Models\SiteSetting::getValue('contact_email', 'abdulhamid66266@gmail.com') }}
+                    WhatsApp: {{ \App\Models\SiteSetting::getValue('whatsapp_number', '0813-8970-9847') }} | Web: www.indoroster.com<br>Email: {{ \App\Models\SiteSetting::getValue('contact_email', 'indoroster.official@gmail.com') }}
                 </td>
             </tr>
         </table>

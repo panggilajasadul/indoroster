@@ -109,7 +109,7 @@
                         <div>
                             <p class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Saluran Layanan Klaim Resmi</p>
                             <p class="text-base font-bold text-slate-900 dark:text-white mt-0.5">WhatsApp CS Pabrik: +62 813-8970-9847</p>
-                            <p class="text-xs text-slate-500 mt-0.5">Email: abdulhamid66266@gmail.com (Respon cepat &lt; 2 jam)</p>
+                            <p class="text-xs text-slate-500 mt-0.5">Email: indoroster.official@gmail.com (Respon cepat &lt; 2 jam)</p>
                         </div>
                         <a href="https://wa.me/6281389709847?text=Halo%20IndoRoster,%20saya%20ingin%20konsultasi%20mengenai%20garansi%20pengiriman." target="_blank" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-terra-600 hover:bg-terra-700 text-white font-bold text-xs transition shadow-md whitespace-nowrap">
                             Hubungi via WhatsApp &rarr;

@@ -29,6 +29,10 @@ class Invoice extends Model
         'show_payment_schedule',
         'show_bank_accounts',
         'bank_accounts_override',
+        'show_signature_stamp',
+        'signature_name',
+        'signature_title',
+        'signature_city',
         'status',
         'notes',
         'paid_at',
@@ -52,6 +56,7 @@ class Invoice extends Model
             'show_payment_schedule' => 'boolean',
             'show_bank_accounts' => 'boolean',
             'bank_accounts_override' => 'array',
+            'show_signature_stamp' => 'boolean',
         ];
     }
 

@@ -20,7 +20,7 @@ class MemberOrderHistoryTest extends TestCase
         SiteSetting::setValue('order_mode', 'whatsapp');
 
         $user = User::factory()->create([
-            'email' => 'abdulhamid66266@gmail.com',
+            'email' => 'indoroster.official@gmail.com',
             'phone' => '081389709847',
         ]);
 

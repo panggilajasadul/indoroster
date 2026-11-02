@@ -54,11 +54,11 @@
                     @endif
                 </td>
                 <td class="company-info">
-                    <strong style="color: #ea580c; font-size: 14px;">INDOROSTER INDONESIA</strong><br>
-                    <span style="font-size: 10px; color: #64748b;">Pabrik Roster Beton & Ventilasi Arsitektural</span><br>
+                    <strong style="color: #ea580c; font-size: 15px;">INDOROSTER INDONESIA</strong><br>
+                    <span style="font-size: 10.5px; color: #64748b;">Pusat Roster Minimalis &amp; Bata Ekspos</span><br>
                     Kp. Cicadas, RT 05 RW 03, Desa Cadasmekar,<br>
                     Kec. Tegalwaru, Kab. Purwakarta, Jawa Barat - 41165<br>
-                    WhatsApp: {{ \App\Models\SiteSetting::getValue('whatsapp_number', '0813-8970-9847') }}
+                    WhatsApp: {{ \App\Models\SiteSetting::getValue('whatsapp_number', '0813-8970-9847') }} | Web: www.indoroster.com
                 </td>
             </tr>
         </table>
@@ -277,7 +277,7 @@
             <div style="display: table-cell; text-align: center; width: 33%;">
                 Dibuat Oleh (Admin),<br><br><br><br>
                 <strong>( {{ auth()->check() ? auth()->user()->name : 'Admin Operasional' }} )</strong><br>
-                <small style="color: #64748b;">Tgl: {{ now()->format('d/m/Y') }}</small>
+                <small style="color: #64748b;">Tgl: {{ ($order->created_at ?: now())->format('d/m/Y') }}</small>
             </div>
             <div style="display: table-cell; text-align: center; width: 34%;">
                 Mengetahui (Kepala Produksi),<br><br><br><br>
@@ -288,6 +288,17 @@
                 Diterima Oleh (Mandor Pabrik),<br><br><br><br>
                 <strong>( {{ $factoryPicName }} )</strong><br>
                 <small style="color: #64748b;">{{ $factoryName }}</small>
+            </div>
+        </div>
+
+        <div style="margin-top: 35px; border-top: 1px solid #e2e8f0; padding-top: 8px; font-size: 10px; color: #94a3b8; width: 100%; display: table; page-break-inside: avoid !important; break-inside: avoid !important;">
+            <div style="display: table-cell; text-align: left; vertical-align: middle;">
+                <strong style="color: #64748b;">INDOROSTER INDONESIA</strong> &bull; Pabrik Roster Beton &amp; Ventilasi Arsitektural<br>
+                Website: <span style="color: #ea580c; font-weight: 600;">www.indoroster.com</span> &bull; Email: indoroster.official@gmail.com
+            </div>
+            <div style="display: table-cell; text-align: right; vertical-align: middle;">
+                Dokumen Resmi Terverifikasi Sistem IndoRoster<br>
+                Dicetak pada: {{ now()->timezone('Asia/Jakarta')->format('d/m/Y H:i') }} WIB
             </div>
         </div>
     </div>

@@ -35,6 +35,9 @@ class BlockTheme
 
         $obj->bgClasses = match ($theme) {
             'dark', 'pattern-dark' => 'bg-slate-950 text-white',
+            'light-glow' => 'bg-[#fcfaf7] dark:bg-slate-950 text-slate-900 dark:text-slate-100',
+            'light-clean' => 'bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100',
+            'warm' => 'bg-[#fcfaf7] dark:bg-slate-950 text-slate-900 dark:text-slate-100',
             'accent' => 'bg-gradient-to-br from-terra-600 via-terra-700 to-amber-900 text-white',
             'gradient' => 'bg-gradient-to-br from-slate-950 via-slate-900 to-terra-950 text-white',
             'gradient-terra' => 'bg-gradient-to-br from-terra-600 via-terra-700 to-slate-950 text-white',

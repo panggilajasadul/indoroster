@@ -9,7 +9,7 @@
     $latitude    = \App\Models\SiteSetting::getValue('factory_latitude', '-6.6689917');
     $longitude   = \App\Models\SiteSetting::getValue('factory_longitude', '107.3619295');
     $phone       = \App\Models\SiteSetting::getValue('whatsapp_number', '+62 813-8970-9847');
-    $email       = \App\Models\SiteSetting::getValue('contact_email', 'abdulhamid66266@gmail.com');
+    $email       = \App\Models\SiteSetting::getValue('contact_email', 'indoroster.official@gmail.com');
     $priceRange  = \App\Models\SiteSetting::getValue('schema_price_range', 'Rp12.000 - Rp15.000');
     $openTime    = \App\Models\SiteSetting::getValue('factory_opening_time', '08:00');
     $closeTime   = \App\Models\SiteSetting::getValue('factory_closing_time', '17:00');

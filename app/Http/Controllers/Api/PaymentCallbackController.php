@@ -160,7 +160,7 @@ class PaymentCallbackController extends Controller
                 Log::info('Invoice Email Sent Automatically to Customer', ['order_id' => $order->id]);
 
                 // Email ke Admin
-                Mail::to('abdulhamid66266@gmail.com')->send(new AdminOrderNotification($order));
+                Mail::to('indoroster.official@gmail.com')->send(new AdminOrderNotification($order));
                 Log::info('Admin Notification Email Sent', ['order_id' => $order->id]);
 
             } catch (\Exception $e) {

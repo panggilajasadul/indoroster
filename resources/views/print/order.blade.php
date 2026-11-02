@@ -40,8 +40,8 @@
         .header { width: 100%; display: table; margin-bottom: 15px; }
         .header td { vertical-align: top; }
         .header .logo { font-size: 26px; font-weight: bold; color: #2d3748; }
-        .header .company-info { text-align: right; color: #718096; font-size: 11px; max-width: 320px; }
-        .title { font-size: 18px; font-weight: bold; text-align: center; margin: 15px 0 20px 0; text-transform: uppercase; color: #c2410c; border-top: 2px solid #c2410c; border-bottom: 2px solid #c2410c; padding: 8px 0; }
+        .header .company-info { text-align: right; color: #718096; font-size: 11px; max-width: 340px; }
+        .title { font-size: 18px; font-weight: bold; text-align: center; margin: 15px 0 20px 0; text-transform: uppercase; color: #ea580c; border-top: 2px solid #ea580c; border-bottom: 2px solid #ea580c; padding: 8px 0; }
         .details { width: 100%; display: table; margin-bottom: 20px; }
         .details-col { display: table-cell; width: 50%; vertical-align: top; }
         .details-label { font-weight: bold; font-size: 11px; color: #718096; text-transform: uppercase; margin-bottom: 4px; }
@@ -51,7 +51,7 @@
         table.items td.right, table.items th.right { text-align: right; }
         
         .batch-box { background: #fff7ed; border: 1px solid #fdba74; border-radius: 6px; padding: 12px 15px; margin-bottom: 20px; font-size: 12px; }
-        .batch-box h4 { margin: 0 0 8px 0; color: #c2410c; font-size: 13px; text-transform: uppercase; }
+        .batch-box h4 { margin: 0 0 8px 0; color: #ea580c; font-size: 13px; text-transform: uppercase; }
         .batch-table { width: 100%; border-collapse: collapse; }
         .batch-table td { padding: 3px 0; }
         .batch-table td.val { text-align: right; font-weight: bold; }
@@ -72,17 +72,17 @@
             <tr>
                 <td class="logo-cell">
                     @if(file_exists(public_path('assets/logo_indoroster-text.png')))
-                        <img src="{{ public_path('assets/logo_indoroster-text.png') }}" style="max-height: 90px;">
+                        <img src="{{ public_path('assets/logo_indoroster-text.png') }}" alt="Indoroster Logo" style="max-height: 85px;">
                     @else
-                        <strong style="color: #c2410c; font-size: 22px; font-weight: bold;">INDOROSTER</strong>
+                        <strong style="color: #ea580c; font-size: 22px; font-weight: bold;">INDOROSTER</strong>
                     @endif
                 </td>
                 <td class="company-info">
-                    <strong style="color: #c2410c; font-size: 15px;">INDOROSTER INDONESIA</strong><br>
-                    <span style="font-size: 10px;">Pabrik Roster Beton & Ventilasi Arsitektural Terlengkap</span><br>
+                    <strong style="color: #ea580c; font-size: 15px;">INDOROSTER INDONESIA</strong><br>
+                    <span style="font-size: 10.5px; color: #64748b;">Pusat Roster Minimalis &amp; Bata Ekspos</span><br>
                     Kp. Cicadas, RT 05 RW 03, Desa Cadasmekar,<br>
                     Kec. Tegalwaru, Kab. Purwakarta, Jawa Barat - 41165<br>
-                    WhatsApp: {{ \App\Models\SiteSetting::getValue('whatsapp_number', '0813-8970-9847') }}
+                    WhatsApp: {{ \App\Models\SiteSetting::getValue('whatsapp_number', '0813-8970-9847') }} | Web: www.indoroster.com
                 </td>
             </tr>
         </table>
@@ -351,6 +351,17 @@
                 Hormat Kami,<br><br><br><br>
                 ( ................................... )<br>
                 <small style="color: #64748b;">Bagian Logistik</small>
+            </div>
+        </div>
+
+        <div style="margin-top: 35px; border-top: 1px solid #e2e8f0; padding-top: 8px; font-size: 10px; color: #94a3b8; width: 100%; display: table; page-break-inside: avoid !important; break-inside: avoid !important;">
+            <div style="display: table-cell; text-align: left; vertical-align: middle;">
+                <strong style="color: #64748b;">INDOROSTER INDONESIA</strong> &bull; Pabrik Roster Beton &amp; Ventilasi Arsitektural<br>
+                Website: <span style="color: #ea580c; font-weight: 600;">www.indoroster.com</span> &bull; Email: indoroster.official@gmail.com
+            </div>
+            <div style="display: table-cell; text-align: right; vertical-align: middle;">
+                Dokumen Resmi Terverifikasi Sistem IndoRoster<br>
+                Dicetak pada: {{ now()->timezone('Asia/Jakarta')->format('d/m/Y H:i') }} WIB
             </div>
         </div>
     </div>

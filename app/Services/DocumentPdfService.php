@@ -28,6 +28,7 @@ class DocumentPdfService
             $docData = [
                 'document_number' => $document->document_number,
                 'type' => $document->type,
+                'status' => $document->status, // ← disertakan agar watermark terbaca
                 'client_name' => $document->client_name,
                 'client_address' => $document->client_address,
                 'client_phone' => $document->client_phone,
@@ -65,7 +66,7 @@ class DocumentPdfService
                     'company_name' => SiteSetting::getValue('doc_company_name') ?? SiteSetting::getValue('factory_name') ?? 'INDOROSTER INDONESIA',
                     'company_address' => SiteSetting::getValue('doc_company_address') ?? SiteSetting::getValue('factory_address') ?? 'Kp. Cicadas, RT 05 RW 03, Desa Cadasmekar, Kec. Tegalwaru, Kab. Purwakarta, Jawa Barat, 41165',
                     'company_phone' => SiteSetting::getValue('doc_company_phone') ?? SiteSetting::getValue('whatsapp_number') ?? '0813-8970-9847',
-                    'company_email' => SiteSetting::getValue('doc_company_email') ?? SiteSetting::getValue('contact_email') ?? 'abdulhamid66266@gmail.com',
+                    'company_email' => SiteSetting::getValue('doc_company_email') ?? SiteSetting::getValue('contact_email') ?? 'indoroster.official@gmail.com',
                     'logo_path' => SiteSetting::getValue('doc_logo_path'),
                     'logo_width' => 50, 'logo_height' => 25, 'logo_x' => 15, 'logo_y' => 15,
                     'signature_path' => $document->signature_path ?: SiteSetting::getValue('doc_signature_path'),

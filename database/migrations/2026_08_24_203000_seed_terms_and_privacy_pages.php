@@ -43,7 +43,7 @@ return new class extends Migration
 
 <h3 class="text-xl font-bold text-slate-900 mt-8 mb-3">5. Komunikasi Elektronik (Electronic Communications)</h3>
 <p class="text-slate-600 leading-relaxed mb-4">
-    Dengan menggunakan layanan kami, Anda menyetujui bahwa kami dapat berkomunikasi dengan Anda secara elektronik melalui email (<strong>abdulhamid66266@gmail.com</strong>) dan/atau pesan WhatsApp resmi pabrik (<strong>0813-8970-9847</strong>) untuk keperluan konfirmasi pesanan, penerbitan invoice/faktur digital, status pelacakan pengiriman kargo, serta informasi penting seputar pesanan Anda.
+    Dengan menggunakan layanan kami, Anda menyetujui bahwa kami dapat berkomunikasi dengan Anda secara elektronik melalui email (<strong>indoroster.official@gmail.com</strong>) dan/atau pesan WhatsApp resmi pabrik (<strong>0813-8970-9847</strong>) untuk keperluan konfirmasi pesanan, penerbitan invoice/faktur digital, status pelacakan pengiriman kargo, serta informasi penting seputar pesanan Anda.
 </p>
 
 <h3 class="text-xl font-bold text-slate-900 mt-8 mb-3">6. Deskripsi &amp; Karakteristik Produk (Product Descriptions)</h3>
@@ -107,7 +107,7 @@ return new class extends Migration
         </li>
         <li class="flex items-center gap-2.5">
             <span class="text-terra-600 font-bold shrink-0">✉️ Email:</span>
-            <a href="mailto:abdulhamid66266@gmail.com" class="text-terra-600 font-bold hover:underline">abdulhamid66266@gmail.com</a>
+            <a href="mailto:indoroster.official@gmail.com" class="text-terra-600 font-bold hover:underline">indoroster.official@gmail.com</a>
         </li>
     </ul>
 </div>
@@ -177,7 +177,7 @@ HTML;
         </li>
         <li class="flex items-center gap-2.5">
             <span class="text-terra-600 font-bold shrink-0">✉️ Email Resmi:</span>
-            <a href="mailto:abdulhamid66266@gmail.com" class="text-terra-600 font-bold hover:underline">abdulhamid66266@gmail.com</a>
+            <a href="mailto:indoroster.official@gmail.com" class="text-terra-600 font-bold hover:underline">indoroster.official@gmail.com</a>
         </li>
     </ul>
 </div>

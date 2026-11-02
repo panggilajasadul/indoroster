@@ -138,7 +138,7 @@ return new class extends Migration
         </li>
         <li class="flex items-center gap-3">
             <span class="text-terra-600 dark:text-terra-400 font-bold shrink-0">✉️ Email Resmi:</span>
-            <a href="mailto:abdulhamid66266@gmail.com" class="text-terra-600 dark:text-terra-400 font-bold hover:underline">abdulhamid66266@gmail.com</a>
+            <a href="mailto:indoroster.official@gmail.com" class="text-terra-600 dark:text-terra-400 font-bold hover:underline">indoroster.official@gmail.com</a>
         </li>
         <li class="flex items-center gap-3">
             <span class="text-terra-600 dark:text-terra-400 font-bold shrink-0">🌐 Website Resmi:</span>

@@ -107,7 +107,7 @@ class ManualDocumentResource extends Resource
                                                                     $set('company_name', SiteSetting::getValue('doc_company_name') ?? SiteSetting::getValue('factory_name') ?? 'INDOROSTER INDONESIA');
                                                                     $set('company_address', SiteSetting::getValue('doc_company_address') ?? SiteSetting::getValue('factory_address') ?? 'Kp. Cicadas, RT 05 RW 03, Desa Cadasmekar, Kec. Tegalwaru, Kab. Purwakarta, Jawa Barat, 41165');
                                                                     $set('company_phone', SiteSetting::getValue('doc_company_phone') ?? SiteSetting::getValue('whatsapp_number') ?? '0813-8970-9847');
-                                                                    $set('company_email', SiteSetting::getValue('doc_company_email') ?? SiteSetting::getValue('contact_email') ?? 'abdulhamid66266@gmail.com');
+                                                                    $set('company_email', SiteSetting::getValue('doc_company_email') ?? SiteSetting::getValue('contact_email') ?? 'indoroster.official@gmail.com');
                                                                     $set('signer_name', SiteSetting::getValue('doc_signer_name') ?? 'Penanggung Jawab');
                                                                     $set('signer_position', SiteSetting::getValue('doc_signer_position') ?? 'Authorized Signatory');
                                                                     $set('logo_path', SiteSetting::getValue('doc_logo_path'));
@@ -149,7 +149,7 @@ class ManualDocumentResource extends Resource
                                                                 $set('company_name', SiteSetting::getValue('doc_company_name') ?? SiteSetting::getValue('factory_name') ?? 'INDOROSTER INDONESIA');
                                                                 $set('company_address', SiteSetting::getValue('doc_company_address') ?? SiteSetting::getValue('factory_address') ?? 'Kp. Cicadas, RT 05 RW 03, Desa Cadasmekar, Kec. Tegalwaru, Kab. Purwakarta, Jawa Barat, 41165');
                                                                 $set('company_phone', SiteSetting::getValue('doc_company_phone') ?? SiteSetting::getValue('whatsapp_number') ?? '0813-8970-9847');
-                                                                $set('company_email', SiteSetting::getValue('doc_company_email') ?? SiteSetting::getValue('contact_email') ?? 'abdulhamid66266@gmail.com');
+                                                                $set('company_email', SiteSetting::getValue('doc_company_email') ?? SiteSetting::getValue('contact_email') ?? 'indoroster.official@gmail.com');
                                                                 $set('signer_name', SiteSetting::getValue('doc_signer_name') ?? 'Penanggung Jawab');
                                                                 $set('signer_position', SiteSetting::getValue('doc_signer_position') ?? 'Authorized Signatory');
                                                                 $set('logo_path', SiteSetting::getValue('doc_logo_path'));
@@ -192,7 +192,7 @@ class ManualDocumentResource extends Resource
                                                                     $set('company_name', SiteSetting::getValue('doc_company_name') ?? SiteSetting::getValue('factory_name') ?? 'INDOROSTER INDONESIA');
                                                                     $set('company_address', SiteSetting::getValue('doc_company_address') ?? SiteSetting::getValue('factory_address') ?? 'Kp. Cicadas, RT 05 RW 03, Desa Cadasmekar, Kec. Tegalwaru, Kab. Purwakarta, Jawa Barat, 41165');
                                                                     $set('company_phone', SiteSetting::getValue('doc_company_phone') ?? SiteSetting::getValue('whatsapp_number') ?? '0813-8970-9847');
-                                                                    $set('company_email', SiteSetting::getValue('doc_company_email') ?? SiteSetting::getValue('contact_email') ?? 'abdulhamid66266@gmail.com');
+                                                                    $set('company_email', SiteSetting::getValue('doc_company_email') ?? SiteSetting::getValue('contact_email') ?? 'indoroster.official@gmail.com');
                                                                     $set('signer_name', SiteSetting::getValue('doc_signer_name') ?? 'Penanggung Jawab');
                                                                     $set('signer_position', SiteSetting::getValue('doc_signer_position') ?? 'Authorized Signatory');
                                                                     $set('logo_path', SiteSetting::getValue('doc_logo_path'));

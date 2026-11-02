@@ -1069,7 +1069,7 @@ class Checkout extends Component
 
             // Kirim notifikasi ke admin bahwa ada WA order baru dari website
             try {
-                $adminEmail = SiteSetting::getValue('admin_email', 'abdulhamid66266@gmail.com');
+                $adminEmail = SiteSetting::getValue('admin_email', 'indoroster.official@gmail.com');
                 Mail::to($adminEmail)->send(new AdminNewOrderMail($order));
             } catch (\Throwable $e) {
                 Log::error('WA Checkout admin notif email error: '.$e->getMessage());

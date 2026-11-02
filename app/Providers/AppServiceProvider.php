@@ -30,7 +30,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // Pastikan file helpers global (Cloudinary, dsb) selalu di-load
+        if (file_exists(app_path('Helpers/helpers.php'))) {
+            require_once app_path('Helpers/helpers.php');
+        }
     }
 
     /**

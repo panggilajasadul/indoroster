@@ -221,6 +221,9 @@
             text-align: center;
             vertical-align: top;
         }
+        @media print {
+            .no-print { display: none !important; }
+        }
     </style>
 </head>
 <body>
@@ -228,12 +231,24 @@
 <div class="container">
     <div class="header">
         <div class="header-left">
-            <div class="company-name">INDOROSTER</div>
-            <div class="company-tagline">Pabrik Roster & Bata Ekspose Terlengkap • indoroster.com</div>
-            <div style="font-size: 10.5px; color: #64748b; margin-top: 3px;">
-                Kp. Cicadas, RT 05 RW 03, Desa Cadasmekar, Kec. Tegalwaru, Kab. Purwakarta, Jawa Barat - 41165<br>
-                WhatsApp: 0813-8970-9847
-            </div>
+            <table style="border-collapse: collapse;">
+                <tr>
+                    @if(file_exists(public_path('assets/logo_indoroster-text.png')))
+                    <td style="vertical-align: middle; padding-right: 12px;">
+                        <img src="{{ public_path('assets/logo_indoroster-text.png') }}" alt="Indoroster Logo" style="max-height: 65px;">
+                    </td>
+                    @endif
+                    <td style="vertical-align: middle;">
+                        <div class="company-name" style="font-size: 15px; font-weight: 800; color: #ea580c;">INDOROSTER INDONESIA</div>
+                        <div class="company-tagline" style="font-size: 10.5px; color: #64748b; font-weight: 600; margin-top: 1px;">Pusat Roster Minimalis &amp; Bata Ekspos</div>
+                        <div style="font-size: 10px; color: #64748b; margin-top: 3px; line-height: 1.35;">
+                            Kp. Cicadas, RT 05 RW 03, Desa Cadasmekar,<br>
+                            Kec. Tegalwaru, Kab. Purwakarta, Jawa Barat - 41165<br>
+                            WhatsApp: {{ \App\Models\SiteSetting::getValue('whatsapp_number', '0813-8970-9847') }} | Web: www.indoroster.com
+                        </div>
+                    </td>
+                </tr>
+            </table>
         </div>
         <div class="header-right">
             <div class="title">KUITANSI PEMBAYARAN</div>
@@ -319,42 +334,83 @@
             • Harap simpan bukti kuitansi ini sebagai referensi administrasi proyek.
         </div>
         <div class="footer-sign">
+            @php
+                $sigDate = $payment->paid_at ?: ($payment->created_at ?: ($payment->order?->created_at ?: now()));
+                $invoice = $payment->order?->invoice;
+                $sigCity = $invoice?->signature_city ?: 'Purwakarta';
+                $sigName = $invoice?->signature_name ?: 'Abdul Hamid';
+                $sigTitle = $invoice?->signature_title ?: 'Bagian Keuangan Pabrik IndoRoster';
+                $showSigStamp = request()->has('stamp') ? (bool) request()->get('stamp') : ($invoice?->show_signature_stamp ?? true);
+            @endphp
             <div style="font-size: 11.5px; color: #475569; margin-bottom: 4px;">
-                Purwakarta, {{ $payment->paid_at ? $payment->paid_at->translatedFormat('d F Y') : date('d F Y') }}
+                {{ $sigCity }}, {{ $sigDate->translatedFormat('d F Y') }}
             </div>
-            <div style="font-size: 12.5px; font-weight: 700; color: #0f172a; margin-bottom: 2px;">
-                Pabrik IndoRoster
+            <div style="font-size: 12.5px; font-weight: 600; color: #334155; margin-bottom: 2px;">
+                Hormat Kami,
             </div>
 
             <div style="position: relative; height: 115px; width: 250px; margin: 0 auto;">
-                @if($combinedPath)
-                    <img src="{{ $combinedPath }}" alt="Stempel & TTD" style="max-height: 110px; max-width: 250px; object-fit: contain;">
-                @elseif($stampPath || $sigPath)
-                    @if($stampPath)
-                        <img src="{{ $stampPath }}" alt="Stempel" style="position: absolute; left: 10px; top: 5px; width: 100px; height: 100px; object-fit: contain; opacity: 0.95; transform: rotate(-6deg);">
-                    @endif
-                    @if($sigPath)
-                        <img src="{{ $sigPath }}" alt="TTD" style="position: absolute; left: 30px; top: 0px; width: 210px; height: 105px; object-fit: contain; z-index: 2;">
+                @if($showSigStamp)
+                    @if($combinedPath)
+                        <img src="{{ $combinedPath }}" alt="Stempel & TTD" style="max-height: 110px; max-width: 250px; object-fit: contain;">
+                    @elseif($stampPath || $sigPath)
+                        @if($stampPath)
+                            <img src="{{ $stampPath }}" alt="Stempel" style="position: absolute; left: 10px; top: 5px; width: 100px; height: 100px; object-fit: contain; opacity: 0.95; transform: rotate(-6deg);">
+                        @endif
+                        @if($sigPath)
+                            <img src="{{ $sigPath }}" alt="TTD" style="position: absolute; left: 30px; top: 0px; width: 210px; height: 105px; object-fit: contain; z-index: 2;">
+                        @endif
+                    @else
+                        <!-- Stempel & TTD Digital Resmi Pabrik IndoRoster -->
+                        <div style="position: absolute; left: 10px; top: 5px; width: 95px; height: 95px; border: 2.5px dashed #ea580c; border-radius: 50%; color: #ea580c; text-align: center; font-weight: 800; font-size: 9.5px; line-height: 1.15; padding-top: 15px; box-sizing: border-box; transform: rotate(-6deg); background: rgba(234,88,12,0.03);">
+                            INDOROSTER<br>
+                            <span style="display: block; border-top: 1px solid #ea580c; border-bottom: 1px solid #ea580c; color: #16a34a; font-size: 10px; margin: 3px 0;">★ SAH ★</span>
+                            PLERED PWK
+                        </div>
+                        <div style="position: absolute; left: 60px; top: 25px; font-family: 'Brush Script MT', cursive, sans-serif; font-size: 28px; color: #0284c7; font-weight: bold; transform: rotate(-5deg); z-index: 2;">
+                            IndoRoster
+                        </div>
                     @endif
                 @else
-                    <!-- Stempel & TTD Digital Resmi Pabrik IndoRoster -->
-                    <div style="position: absolute; left: 10px; top: 5px; width: 95px; height: 95px; border: 2.5px dashed #ea580c; border-radius: 50%; color: #ea580c; text-align: center; font-weight: 800; font-size: 9.5px; line-height: 1.15; padding-top: 15px; box-sizing: border-box; transform: rotate(-6deg); background: rgba(234,88,12,0.03);">
-                        INDOROSTER<br>
-                        <span style="display: block; border-top: 1px solid #ea580c; border-bottom: 1px solid #ea580c; color: #16a34a; font-size: 10px; margin: 3px 0;">★ SAH ★</span>
-                        PLERED PWK
-                    </div>
-                    <div style="position: absolute; left: 60px; top: 25px; font-family: 'Brush Script MT', cursive, sans-serif; font-size: 28px; color: #0284c7; font-weight: bold; transform: rotate(-5deg); z-index: 2;">
-                        IndoRoster
+                    {{-- Ruang Kosong Khusus Cetak Fisik: untuk Tanda Tangan Basah, Cap Stempel Asli & Meterai --}}
+                    <div style="height: 115px; position: relative; width: 100%;">
+                        @if($amount >= 5000000)
+                            {{-- Kotak Panduan Penempelan Meterai Rp 10.000 Sesuai UU Bea Meterai (> Rp 5 Juta) --}}
+                            <div style="position: absolute; left: 15px; top: 12px; width: 85px; height: 75px; border: 1.5px dashed #94a3b8; border-radius: 4px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; background: #f8fafc; color: #64748b; padding: 4px; box-sizing: border-box;">
+                                <span style="font-size: 8px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.5px;">TEMPAT</span>
+                                <span style="font-size: 9.5px; font-weight: 800; color: #0f172a; margin: 2px 0;">METERAI</span>
+                                <span style="font-size: 8.5px; font-weight: 700; color: #ea580c;">Rp 10.000</span>
+                                <span style="font-size: 7px; color: #94a3b8; line-height: 1; margin-top: 2px;">(TTD Menyilang)</span>
+                            </div>
+                            <div style="position: absolute; right: 15px; bottom: 8px; color: #94a3b8; font-size: 9px; letter-spacing: 0.3px;">
+                                <span class="no-print" style="border: 1px dashed #cbd5e1; padding: 2px 6px; border-radius: 3px;">(Area TTD &amp; Cap Basah)</span>
+                            </div>
+                        @else
+                            <div style="height: 100%; display: flex; align-items: flex-end; justify-content: center; color: #cbd5e1; font-size: 9.5px; letter-spacing: 0.5px;">
+                                <span class="no-print" style="border: 1px dashed #cbd5e1; padding: 3px 8px; border-radius: 4px;">(Area TTD &amp; Stempel Basah Asli)</span>
+                            </div>
+                        @endif
                     </div>
                 @endif
             </div>
 
             <div style="font-weight: 700; text-decoration: underline; color: #0f172a; font-size: 12.5px; margin-top: 2px;">
-                Abdul Hamid
+                {{ $sigName }}
             </div>
             <div style="font-size: 10.5px; color: #64748b; margin-top: 1px;">
-                Bagian Keuangan Pabrik IndoRoster
+                {{ $sigTitle }}
             </div>
+        </div>
+    </div>
+
+    <div style="margin-top: 25px; border-top: 1px dashed #cbd5e1; padding-top: 8px; font-size: 10px; color: #94a3b8; width: 100%; display: table;">
+        <div style="display: table-cell; text-align: left; vertical-align: middle;">
+            <strong style="color: #64748b;">INDOROSTER INDONESIA</strong> &bull; Pabrik Roster Beton &amp; Ventilasi Arsitektural<br>
+            Website: <span style="color: #ea580c; font-weight: 600;">www.indoroster.com</span> &bull; Email: indoroster.official@gmail.com
+        </div>
+        <div style="display: table-cell; text-align: right; vertical-align: middle;">
+            Kuitansi Sah Terverifikasi Sistem IndoRoster<br>
+            Dicetak pada: {{ now()->timezone('Asia/Jakarta')->format('d/m/Y H:i') }} WIB
         </div>
     </div>
 </div>

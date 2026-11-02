@@ -90,7 +90,7 @@ class DocumentTemplate extends Model
                 $template->company_phone = SiteSetting::getValue('whatsapp_number', '0813-8970-9847');
             }
             if (empty($template->company_email)) {
-                $template->company_email = SiteSetting::getValue('contact_email', 'abdulhamid66266@gmail.com');
+                $template->company_email = SiteSetting::getValue('contact_email', 'indoroster.official@gmail.com');
             }
 
             // Set default elements coordinates if empty

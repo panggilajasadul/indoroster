@@ -32,6 +32,9 @@
         .status { display: inline-block; padding: 3px 8px; border-radius: 4px; font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
         .status-paid { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
         .status-unpaid { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
+        @media print {
+            .no-print { display: none !important; }
+        }
     </style>
 </head>
 <body>
@@ -39,14 +42,14 @@
         <table class="header">
             <tr>
                 <td>
-                    <img src="{{ asset('assets/logo_indoroster-text.png') }}" style="max-height: 100px;">
+                    <img src="{{ asset('assets/logo_indoroster-text.png') }}" style="max-height: 85px;">
                 </td>
                 <td class="company-info">
-                    <strong style="color: #ea580c; font-size: 15px;">indoroster.com</strong><br>
-                    <span style="font-size: 11px;">Pabrik Roster & Bata Ekpose Terlengkap</span><br>
+                    <strong style="color: #ea580c; font-size: 15px;">INDOROSTER INDONESIA</strong><br>
+                    <span style="font-size: 10.5px; color: #64748b;">Pusat Roster Minimalis &amp; Bata Ekspos</span><br>
                     Kp. Cicadas, RT 05 RW 03, Desa Cadasmekar,<br>
-                    Kec. Tegalwaru, Kab. Purwakarta, Jawa Barat, 41165<br>
-                    WhatsApp: {{ \App\Models\SiteSetting::getValue('whatsapp_number', '0813-8970-9847') }}
+                    Kec. Tegalwaru, Kab. Purwakarta, Jawa Barat - 41165<br>
+                    WhatsApp: {{ \App\Models\SiteSetting::getValue('whatsapp_number', '0813-8970-9847') }} | Web: www.indoroster.com
                 </td>
             </tr>
         </table>
@@ -84,13 +87,15 @@
                         <td style="color: #64748b;">Status</td>
                         <td>: 
                             @if($invoice->status === 'paid' || $invoice->order->payment_status === 'paid')
-                                <span class="status status-paid">LUNAS</span>
-                            @elseif($invoice->order->status === 'draft')
-                                <span class="status" style="background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1;">DRAFT / PENAWARAN</span>
+                                <span class="status status-paid">LUNAS (100%)</span>
+                            @elseif($invoice->order->payment_scheme === 'quotation' || $invoice->order->status === 'draft')
+                                <span class="status" style="background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1;">ESTIMASI PENAWARAN (BELUM DEAL)</span>
                             @elseif(($invoice->down_payment_amount > 0 || ($invoice->order->down_payment_amount ?? 0) > 0) && ($invoice->remaining_balance > 0 || ($invoice->order->remaining_balance ?? 0) > 0))
                                 <span class="status" style="background: #fef3c7; color: #b45309; border: 1px solid #fde68a;">DP TERVERIFIKASI</span>
+                            @elseif(in_array($invoice->order->payment_scheme, ['dp_10_90', 'dp_30_70', 'dp_50_50', 'termin_3x', 'custom_dp']) && ($invoice->order->down_payment_amount ?? 0) > 0)
+                                <span class="status" style="background: #fef3c7; color: #b45309; border: 1px solid #fde68a;">MENUNGGU PEMBAYARAN DP</span>
                             @else
-                                <span class="status status-unpaid">MENUNGGU PEMBAYARAN</span>
+                                <span class="status status-unpaid">MENUNGGU PEMBAYARAN TRANSFER (100%)</span>
                             @endif
                         </td>
                     </tr>
@@ -261,67 +266,92 @@
                     </ul>
                 </td>
                 <td style="width: 45%; vertical-align: top; text-align: center;">
+                    @php
+                        $sigDate = $invoice->invoice_date ?: ($invoice->created_at ?: now());
+                        $sigCity = $invoice->signature_city ?: 'Purwakarta';
+                        $sigName = $invoice->signature_name ?: 'Abdul Hamid';
+                        $sigTitle = $invoice->signature_title ?: 'Divisi Keuangan & Distribusi Pabrik';
+                        $showSigStamp = request()->has('stamp') ? (bool) request()->get('stamp') : ($invoice->show_signature_stamp ?? true);
+                    @endphp
                     <div style="font-size: 12px; color: #475569; margin-bottom: 3px;">
-                        Purwakarta, {{ $invoice->created_at ? $invoice->created_at->translatedFormat('d F Y') : date('d F Y') }}
+                        {{ $sigCity }}, {{ $sigDate->translatedFormat('d F Y') }}
                     </div>
-                    <div style="font-size: 13px; font-weight: 700; color: #0f172a; margin-bottom: 4px;">
-                        Pabrik IndoRoster
+                    <div style="font-size: 13px; font-weight: 600; color: #334155; margin-bottom: 4px;">
+                        Hormat Kami,
                     </div>
 
                     <div style="position: relative; height: 135px; width: 290px; margin: 0 auto;">
-                        @php
-                            $stampUrl = null;
-                            $sigUrl = null;
-                            $combinedUrl = null;
+                        @if($showSigStamp)
+                            @php
+                                $stampUrl = null;
+                                $sigUrl = null;
+                                $combinedUrl = null;
 
-                            $combinedCandidates = ['stamp_signature.png', 'stempel_ttd.png', 'ttd_stempel.png', 'stamp_ttd.png', 'signature_stamp.png', 'stempel_dan_ttd.png', 'stempel_ttd.PNG', 'stamp_signature.PNG', 'stempel_ttd.jpg'];
-                            $stampCandidates = ['stamp.png', 'stempel.png', 'company_stamp.png', 'stempel_indoroster.png', 'stamp.PNG', 'stempel.PNG', 'stamp.jpg', 'stempel.jpg', 'stempel_pabrik.png'];
-                            $sigCandidates = ['signature.png', 'ttd.png', 'tanda_tangan.png', 'signature.PNG', 'ttd.PNG', 'signature.jpg', 'ttd.jpg'];
+                                $combinedCandidates = ['stamp_signature.png', 'stempel_ttd.png', 'ttd_stempel.png', 'stamp_ttd.png', 'signature_stamp.png', 'stempel_dan_ttd.png', 'stempel_ttd.PNG', 'stamp_signature.PNG', 'stempel_ttd.jpg'];
+                                $stampCandidates = ['stamp.png', 'stempel.png', 'company_stamp.png', 'stempel_indoroster.png', 'stamp.PNG', 'stempel.PNG', 'stamp.jpg', 'stempel.jpg', 'stempel_pabrik.png'];
+                                $sigCandidates = ['signature.png', 'ttd.png', 'tanda_tangan.png', 'signature.PNG', 'ttd.PNG', 'signature.jpg', 'ttd.jpg'];
 
-                            foreach ($combinedCandidates as $f) {
-                                if (file_exists(public_path('assets/' . $f))) { $combinedUrl = asset('assets/' . $f); break; }
-                            }
-                            if (!$combinedUrl) {
-                                foreach ($stampCandidates as $f) {
-                                    if (file_exists(public_path('assets/' . $f))) { $stampUrl = asset('assets/' . $f); break; }
+                                foreach ($combinedCandidates as $f) {
+                                    if (file_exists(public_path('assets/' . $f))) { $combinedUrl = asset('assets/' . $f); break; }
                                 }
-                                foreach ($sigCandidates as $f) {
-                                    if (file_exists(public_path('assets/' . $f))) { $sigUrl = asset('assets/' . $f); break; }
+                                if (!$combinedUrl) {
+                                    foreach ($stampCandidates as $f) {
+                                        if (file_exists(public_path('assets/' . $f))) { $stampUrl = asset('assets/' . $f); break; }
+                                    }
+                                    foreach ($sigCandidates as $f) {
+                                        if (file_exists(public_path('assets/' . $f))) { $sigUrl = asset('assets/' . $f); break; }
+                                    }
                                 }
-                            }
-                        @endphp
+                            @endphp
 
-                        @if($combinedUrl)
-                            <img src="{{ $combinedUrl }}" alt="Stempel & TTD" style="max-height: 130px; max-width: 290px; object-fit: contain;">
-                        @elseif($stampUrl || $sigUrl)
-                            @if($stampUrl)
-                                <img src="{{ $stampUrl }}" alt="Stempel" style="position: absolute; left: 0px; top: 10px; width: 120px; height: 120px; object-fit: contain; opacity: 0.95; transform: rotate(-6deg);">
-                            @endif
-                            @if($sigUrl)
-                                <img src="{{ $sigUrl }}" alt="TTD" style="position: absolute; left: 40px; top: 5px; width: 260px; height: 125px; object-fit: contain; z-index: 2;">
+                            @if($combinedUrl)
+                                <img src="{{ $combinedUrl }}" alt="Stempel & TTD" style="max-height: 130px; max-width: 290px; object-fit: contain;">
+                            @elseif($stampUrl || $sigUrl)
+                                @if($stampUrl)
+                                    <img src="{{ $stampUrl }}" alt="Stempel" style="position: absolute; left: 0px; top: 10px; width: 120px; height: 120px; object-fit: contain; opacity: 0.95; transform: rotate(-6deg);">
+                                @endif
+                                @if($sigUrl)
+                                    <img src="{{ $sigUrl }}" alt="TTD" style="position: absolute; left: 40px; top: 5px; width: 260px; height: 125px; object-fit: contain; z-index: 2;">
+                                @endif
+                            @else
+                                <!-- Stempel Digital Otomatis Resmi IndoRoster -->
+                                <div style="position: absolute; left: 15px; top: 10px; width: 105px; height: 105px; border: 2.5px dashed #ea580c; border-radius: 50%; color: #ea580c; text-align: center; font-weight: 800; font-size: 10px; line-height: 1.15; padding-top: 18px; box-sizing: border-box; transform: rotate(-6deg); background: rgba(234,88,12,0.03);">
+                                    INDOROSTER<br>
+                                    <span style="display: block; border-top: 1px solid #ea580c; border-bottom: 1px solid #ea580c; color: #16a34a; font-size: 11px; margin: 3px 0;">★ LUNAS ★</span>
+                                    PLERED PWK
+                                </div>
+                                <div style="position: absolute; left: 75px; top: 35px; font-family: 'Brush Script MT', cursive, sans-serif; font-size: 32px; color: #0284c7; font-weight: bold; transform: rotate(-5deg); z-index: 2;">
+                                    IndoRoster
+                                </div>
                             @endif
                         @else
-                            <!-- Stempel Digital Otomatis Resmi IndoRoster -->
-                            <div style="position: absolute; left: 15px; top: 10px; width: 105px; height: 105px; border: 2.5px dashed #ea580c; border-radius: 50%; color: #ea580c; text-align: center; font-weight: 800; font-size: 10px; line-height: 1.15; padding-top: 18px; box-sizing: border-box; transform: rotate(-6deg); background: rgba(234,88,12,0.03);">
-                                INDOROSTER<br>
-                                <span style="display: block; border-top: 1px solid #ea580c; border-bottom: 1px solid #ea580c; color: #16a34a; font-size: 11px; margin: 3px 0;">★ LUNAS ★</span>
-                                PLERED PWK
-                            </div>
-                            <div style="position: absolute; left: 75px; top: 35px; font-family: 'Brush Script MT', cursive, sans-serif; font-size: 32px; color: #0284c7; font-weight: bold; transform: rotate(-5deg); z-index: 2;">
-                                IndoRoster
+                            {{-- Ruang Kosong Khusus Cetak Fisik: untuk Tanda Tangan Basah & Cap Stempel Asli --}}
+                            <div style="height: 135px; display: flex; align-items: flex-end; justify-content: center; color: #cbd5e1; font-size: 10px; letter-spacing: 0.5px;">
+                                <span class="no-print" style="border: 1px dashed #cbd5e1; padding: 4px 10px; border-radius: 4px;">(Area TTD & Stempel Basah Asli)</span>
                             </div>
                         @endif
                     </div>
 
                     <div style="font-weight: 700; text-decoration: underline; color: #0f172a; font-size: 13px; margin-top: 4px;">
-                        Abdul Hamid
+                        {{ $sigName }}
                     </div>
                     <div style="font-size: 10.5px; color: #64748b; margin-top: 2px;">
-                        Divisi Keuangan & Distribusi Pabrik
+                        {{ $sigTitle }}
                     </div>
                 </td>
             </tr>
         </table>
+
+        <div style="margin-top: 35px; border-top: 1px solid #e2e8f0; padding-top: 8px; font-size: 10px; color: #94a3b8; width: 100%; display: table;">
+            <div style="display: table-cell; text-align: left; vertical-align: middle;">
+                <strong style="color: #64748b;">INDOROSTER INDONESIA</strong> &bull; Pabrik Roster Beton &amp; Ventilasi Arsitektural<br>
+                Website: <span style="color: #ea580c; font-weight: 600;">www.indoroster.com</span> &bull; Email: indoroster.official@gmail.com
+            </div>
+            <div style="display: table-cell; text-align: right; vertical-align: middle;">
+                Dokumen Resmi Terverifikasi Sistem IndoRoster<br>
+                Dicetak pada: {{ now()->timezone('Asia/Jakarta')->format('d/m/Y H:i') }} WIB
+            </div>
+        </div>
     </div>
 </body>
 </html>

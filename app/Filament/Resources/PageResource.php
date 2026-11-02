@@ -266,8 +266,389 @@ class PageResource extends Resource
                                         ->itemLabel(fn (array $state): ?string => $state['title'] ?? 'Item Perbandingan Detail'),
                                 ]),
 
+                            Forms\Components\Builder\Block::make('hero_split')
+                                ->label('[1. Hero] 🎯 Hero Split Card & Badges (Desain Baru / Modern CRO)')
+                                ->icon('heroicon-o-sparkles')
+                                ->schema([
+                                    Forms\Components\Grid::make(3)->schema([
+                                        static::bgThemeSelect('light-glow'),
+                                        Forms\Components\Select::make('font_family')
+                                            ->label('Font Judul')
+                                            ->options([
+                                                'font-poppins' => 'Poppins (Modern & Bersih)',
+                                                'font-jost' => 'Jost (Geometris Elegan)',
+                                                'font-outfit' => 'Outfit (Display Bold)',
+                                                'font-urbanist' => 'Urbanist (Minimalis)',
+                                                'font-plus-jakarta' => 'Plus Jakarta Sans (Harmonis)',
+                                            ])
+                                            ->default('font-poppins'),
+                                        Forms\Components\Toggle::make('reverse_mobile')
+                                            ->label('Posisi Foto di Atas saat Layar Mobile')
+                                            ->default(false)
+                                            ->helperText('Jika diaktifkan, di layar HP foto akan muncul di atas teks.'),
+                                    ]),
+                                    Forms\Components\Section::make('Konten Teks & Headline')
+                                        ->schema([
+                                            Forms\Components\TextInput::make('badge')
+                                                ->label('Teks Badge Lokasi / Brand Atas')
+                                                ->default('Produsen Roster Sejak 2019 · Purwakarta')
+                                                ->placeholder('Contoh: Produsen Roster Sejak 2019 · Purwakarta'),
+                                            Forms\Components\TextInput::make('title')
+                                                ->label('Headline Judul Utama')
+                                                ->default('Roster Beton Kualitas Mantap, Rumah Makin Sejuk & Cantik')
+                                                ->required(),
+                                            Forms\Components\TextInput::make('highlight_text')
+                                                ->label('Kata Kunci untuk Di-highlight (Aksen Warna & Garis Lengkung)')
+                                                ->default('Sejuk & Cantik')
+                                                ->helperText('Ketik sebagian kata persis dari judul di atas untuk diberi efek lengkung aksen orange/emas.'),
+                                            Forms\Components\Textarea::make('subtitle')
+                                                ->label('Deskripsi / Paragraf Singkat')
+                                                ->rows(3)
+                                                ->default('Produsen roster beton sejak 2019 di Citeko, Plered — 90+ motif roster, genteng, bata ekspose, bata tempel, dan ornamen dinding 3D. Gratis ongkir Jabodetabek (min. 50 pcs), harga langsung pabrik, konsultasi gratis.'),
+                                        ]),
+                                    Forms\Components\Section::make('Tombol Aksi (Call To Action)')
+                                        ->columns(2)
+                                        ->schema([
+                                            Forms\Components\TextInput::make('button_1_text')->label('Teks Tombol 1 (Utama WhatsApp/Pesan)')->default('Chat WhatsApp Sekarang'),
+                                            Forms\Components\TextInput::make('button_1_url')->label('Link Tombol 1')->default('https://wa.me/6281234567890?text=Halo%20IndoRoster,%20saya%20tertarik%20dengan%20koleksi%20roster'),
+                                            Forms\Components\TextInput::make('button_2_text')->label('Teks Tombol 2 (Katalog / Sekunder)')->default('Lihat Katalog Produk'),
+                                            Forms\Components\TextInput::make('button_2_url')->label('Link Tombol 2')->default('/katalog'),
+                                        ]),
+                                    Forms\Components\Section::make('Foto Hero & Floating Badge Melayang')
+                                        ->schema([
+                                            Forms\Components\FileUpload::make('image_upload')
+                                                ->label('Upload Foto Utama Hero')
+                                                ->image()
+                                                ->directory('pages/hero-split')
+                                                ->live(),
+                                            Forms\Components\TextInput::make('image_url')
+                                                ->label('Atau Masukkan URL Gambar Eksternal')
+                                                ->placeholder('https://...')
+                                                ->live(),
+                                            static::mediaPreview('image_upload', 'image_url'),
+                                            Forms\Components\TextInput::make('image_alt')
+                                                ->label('Alt Text Gambar (SEO Ramah Gambar)')
+                                                ->placeholder('Roster beton minimalis modern aplikasi fasad rumah'),
+                                            Forms\Components\Grid::make(2)->schema([
+                                                Forms\Components\Fieldset::make('Floating Badge 1 (Kiri Atas Foto)')
+                                                    ->schema([
+                                                        Forms\Components\Toggle::make('show_top_badge')->label('Tampilkan Badge Kiri Atas')->default(true),
+                                                        Forms\Components\Textarea::make('top_badge_text')
+                                                            ->label('Teks Badge (Baris 1 Judul, Baris 2 Sub)')
+                                                            ->default("GRATIS ONGKIR\nArea Jabodetabek min. 50 pcs")
+                                                            ->rows(2),
+                                                    ]),
+                                                Forms\Components\Fieldset::make('Floating Badge 2 (Kanan Bawah Foto)')
+                                                    ->schema([
+                                                        Forms\Components\Toggle::make('show_bottom_badge')->label('Tampilkan Badge Kanan Bawah')->default(true),
+                                                        Forms\Components\TextInput::make('bottom_badge_rating')->label('Rating Bintang')->default('4.9/5'),
+                                                        Forms\Components\TextInput::make('bottom_badge_text')->label('Teks Keterangan Puas')->default('120+ pelanggan puas'),
+                                                    ]),
+                                            ]),
+                                        ]),
+                                    Forms\Components\Section::make('Poin Keunggulan / Trust Badges (Di Bawah Tombol)')
+                                        ->schema([
+                                            Forms\Components\Repeater::make('trust_points')
+                                                ->label('Daftar Poin Kepercayaan')
+                                                ->schema([
+                                                    Forms\Components\Select::make('icon')
+                                                        ->label('Icon')
+                                                        ->options([
+                                                            'factory' => '🏭 Pabrik / Produsen Langsung',
+                                                            'palette' => '🎨 Motif & Varian Lengkap',
+                                                            'truck' => '🚚 Truk Pengiriman / Gratis Ongkir',
+                                                            'shield' => '🛡️ Garansi / Anti Retak',
+                                                            'check' => '✅ Centang Standar',
+                                                        ])
+                                                        ->default('check')
+                                                        ->required(),
+                                                    Forms\Components\TextInput::make('text')->label('Teks Keunggulan')->required(),
+                                                ])
+                                                ->defaultItems(4)
+                                                ->default([
+                                                    ['icon' => 'factory', 'text' => 'Produsen langsung sejak 2019'],
+                                                    ['icon' => 'palette', 'text' => '90+ motif roster & custom'],
+                                                    ['icon' => 'truck', 'text' => 'Gratis ongkir Jabodetabek (min. 50 pcs)'],
+                                                    ['icon' => 'shield', 'text' => 'Retak saat kirim? Ganti baru'],
+                                                ])
+                                                ->columns(2)
+                                                ->collapsible(),
+                                        ]),
+                                ]),
+
+                            Forms\Components\Builder\Block::make('announcement_bar')
+                                ->label('[0. Baris Info] 📢 Announcement Bar (Baris Pengumuman di Paling Atas Halaman)')
+                                ->icon('heroicon-o-megaphone')
+                                ->schema([
+                                    Forms\Components\TextInput::make('text')
+                                        ->label('Teks Pengumuman')
+                                        ->default('GRATIS ONGKIR area Jabodetabek untuk pembelian minimal 50 pcs — harga langsung dari pabrik!')
+                                        ->required(),
+                                    Forms\Components\Grid::make(3)->schema([
+                                        Forms\Components\Select::make('bg_theme')
+                                            ->label('Warna Latar Baris')
+                                            ->options([
+                                                'emerald' => '🟢 Hijau Gelap Elegan (Rekomendasi)',
+                                                'amber' => '🟡 Amber / Oranye Hangat',
+                                                'dark' => '⚫ Gelap / Dark Mode',
+                                                'slate' => '🔵 Abu-abu Slate',
+                                            ])
+                                            ->default('emerald'),
+                                        Forms\Components\Select::make('icon')
+                                            ->label('Ikon di Depan Teks')
+                                            ->options([
+                                                'truck' => '🚚 Truk / Gratis Ongkir',
+                                                'sparkles' => '✨ Sparkles / Promo',
+                                                'none' => 'Tanpa ikon',
+                                            ])
+                                            ->default('truck'),
+                                        Forms\Components\Toggle::make('is_dismissible')
+                                            ->label('Bisa Ditutup Pengunjung (×)')
+                                            ->default(false),
+                                    ]),
+                                    Forms\Components\TextInput::make('link')
+                                        ->label('Link jika diklik (Opsional)')
+                                        ->placeholder('https://...'),
+                                ]),
+
+                            Forms\Components\Builder\Block::make('trust_advantages')
+                                ->label('[2. Keunggulan] ✅ Kenapa Kami? — 6 Kartu Keunggulan Produk')
+                                ->icon('heroicon-o-check-badge')
+                                ->schema([
+                                    Forms\Components\Grid::make(2)->schema([
+                                        Forms\Components\TextInput::make('badge')->label('Label Kecil Atas')->default('Kenapa IndoRoster?'),
+                                        static::bgThemeSelect('warm'),
+                                    ]),
+                                    Forms\Components\TextInput::make('title')->label('Judul Seksi')->default('Dibuat dengan Hati, Dikirim dengan Tanggung Jawab'),
+                                    Forms\Components\Textarea::make('subtitle')->label('Sub-judul')->rows(2)->default('Kami bukan sekadar jualan roster — kami bantu rumahmu jadi lebih sejuk, cantik, dan bernilai.'),
+                                    Forms\Components\Repeater::make('features')
+                                        ->label('Daftar Keunggulan (6 Kartu)')
+                                        ->schema([
+                                            Forms\Components\Select::make('icon')
+                                                ->label('Ikon')
+                                                ->options([
+                                                    'percent' => '💰 Harga / Persen / Hemat',
+                                                    'shield' => '🛡️ Garansi / Kualitas',
+                                                    'palette' => '🎨 Motif / Desain',
+                                                    'truck' => '🚚 Pengiriman / Ongkir',
+                                                    'chat' => '💬 Konsultasi / Chat',
+                                                    'handshake' => '🤝 Pelayanan / Kepercayaan',
+                                                    'check' => '✅ Centang Umum',
+                                                ])
+                                                ->required(),
+                                            Forms\Components\TextInput::make('title')->label('Judul Keunggulan')->required(),
+                                            Forms\Components\Textarea::make('text')->label('Deskripsi Singkat')->rows(2)->required(),
+                                        ])
+                                        ->columns(2)
+                                        ->defaultItems(6)
+                                        ->default([
+                                            ['icon' => 'percent', 'title' => 'Harga Langsung dari Produksi', 'text' => 'Tidak lewat perantara. Kamu dapat harga pabrik untuk kualitas yang sama — hemat buat kebutuhan bangunan lain.'],
+                                            ['icon' => 'shield', 'title' => 'Beton Padat & Awet Bertahun', 'text' => 'Campuran dan proses pencetakan kami jaga ketat. Roster tidak mudah retak atau rapuh saat dipasang.'],
+                                            ['icon' => 'palette', 'title' => '90+ Motif Lengkap, Bisa Custom', 'text' => 'Dari motif kembang klasik sampai geometris modern. Tidak ada motifnya? Kirim foto referensi — kami buatkan.'],
+                                            ['icon' => 'truck', 'title' => 'Gratis Ongkir Jabodetabek', 'text' => 'Pembelian minimal 50 pcs, ongkir kami tanggung untuk area Jakarta, Bogor, Depok, Tangerang, Bekasi.'],
+                                            ['icon' => 'chat', 'title' => 'Bisa Konsultasi Dulu', 'text' => 'Bingung pilih motif yang cocok? Ceritakan konsep rumahmu, kami bantu rekomendasikan gratis.'],
+                                            ['icon' => 'handshake', 'title' => 'Pelayanan Ramah & Jujur', 'text' => 'Sejak 2019 kami membangun kepercayaan pelanggan — banyak yang pesan kembali untuk proyek-proyek berikutnya.'],
+                                        ])
+                                        ->collapsible(),
+                                ]),
+
+                            Forms\Components\Builder\Block::make('about_producer')
+                                ->label('[3. Tentang] 🏭 Tentang Kami — Profil Produsen & Statistik Pabrik')
+                                ->icon('heroicon-o-building-office-2')
+                                ->schema([
+                                    Forms\Components\Grid::make(2)->schema([
+                                        Forms\Components\TextInput::make('badge')->label('Label Kecil')->default('Tentang Kami'),
+                                        static::bgThemeSelect('warm'),
+                                    ]),
+                                    Forms\Components\Grid::make(2)->schema([
+                                        Forms\Components\TextInput::make('location_label')->label('Label Lokasi')->default('Produksi sendiri di'),
+                                        Forms\Components\TextInput::make('location_text')->label('Nama Lokasi Produksi')->default('Citeko, Plered, Purwakarta'),
+                                    ]),
+                                    Forms\Components\TextInput::make('title')->label('Judul Utama')->default('Produsen Roster Beton Terpercaya Sejak 2019'),
+                                    Forms\Components\Textarea::make('description')->label('Paragraf 1')->rows(3)->default('Karya Jaya Roster adalah produsen roster beton yang berdiri sejak 2019 di Citeko, Plered, Purwakarta. Kami memproduksi sendiri semua produk — dari roster ventilasi udara, genteng, bata ekspose, bata tempel, hingga ornamen dinding 3D — sehingga kualitas dan harganya bisa kami jaga tetap terbaik untukmu.'),
+                                    Forms\Components\Textarea::make('description2')->label('Paragraf 2 (Opsional)')->rows(2)->default('Kekuatan produksi kami sampai 6.000 pcs dalam 6 hari (tergantung motif), jadi pesanan proyek sekalipun kami sanggup layani tepat waktu.'),
+                                    Forms\Components\Section::make('Foto Profil Pabrik / Produksi (Opsional)')->schema([
+                                        Forms\Components\FileUpload::make('image_upload')->label('Upload Foto')->image()->directory('pages/about')->live(),
+                                        Forms\Components\TextInput::make('image_url')->label('Atau URL Foto Eksternal')->placeholder('https://...')->live(),
+                                        static::mediaPreview('image_upload', 'image_url'),
+                                    ]),
+                                    Forms\Components\Repeater::make('stats')
+                                        ->label('Kartu Statistik (4 Kotak)')
+                                        ->schema([
+                                            Forms\Components\TextInput::make('number')->label('Angka / Teks Besar')->required(),
+                                            Forms\Components\TextInput::make('label')->label('Judul Statistik')->required(),
+                                            Forms\Components\TextInput::make('sub')->label('Keterangan Kecil'),
+                                        ])
+                                        ->columns(3)
+                                        ->defaultItems(4)
+                                        ->default([
+                                            ['number' => '2019', 'label' => 'Produsen Berpengalaman', 'sub' => 'Berdiri & produksi sendiri hingga kini'],
+                                            ['number' => '90+', 'label' => 'Motif Roster', 'sub' => 'Terus bertambah tiap periode'],
+                                            ['number' => '6.000 pcs', 'label' => 'Dalam 6 Hari', 'sub' => 'Kapasitas produksi (tergantung motif)'],
+                                            ['number' => '5', 'label' => 'Kategori Produk', 'sub' => 'Roster, genteng, bata, ornamen 3D'],
+                                        ])
+                                        ->collapsible(),
+                                    Forms\Components\Textarea::make('bottom_badge')->label('Pesan Info Brosur (di atas tombol)')->rows(2)->default('Motif yang kamu cari tidak ada di halaman ini? Tenang — brosur motif lengkap kami GRATIS. Tinggal minta via WhatsApp.'),
+                                    Forms\Components\Grid::make(2)->schema([
+                                        Forms\Components\TextInput::make('btn1_text')->label('Teks Tombol Utama')->default('Minta Brosur Gratis'),
+                                        Forms\Components\TextInput::make('btn1_url')->label('Link Tombol Utama')->default('https://wa.me/6281234567890'),
+                                        Forms\Components\TextInput::make('btn2_text')->label('Teks Tombol Kedua')->default('Lihat Kategori Produk'),
+                                        Forms\Components\TextInput::make('btn2_url')->label('Link Tombol Kedua')->default('/katalog'),
+                                    ]),
+                                ]),
+
+                            Forms\Components\Builder\Block::make('wholesale_pricing')
+                                ->label('[4. Harga] 💰 Harga Grosir & Perbandingan Harga 3 Tingkat')
+                                ->icon('heroicon-o-currency-dollar')
+                                ->schema([
+                                    Forms\Components\Grid::make(2)->schema([
+                                        Forms\Components\TextInput::make('badge')->label('Label Kecil Atas')->default('Harga Langsung Pabrik · Kontraktor · Distributor'),
+                                        static::bgThemeSelect('white'),
+                                    ]),
+                                    Forms\Components\TextInput::make('title')->label('Judul Seksi')->default('Makin Banyak Makin Murah — Harga Langsung Pabrik'),
+                                    Forms\Components\Textarea::make('subtitle')->label('Sub-judul')->rows(2)->default('Kontraktor, tukang, distributor, dan pengembang — kapasitas produksi kami 6.000 pcs dalam 6 hari (tergantung motif). Pesan 1.000 pcs ke atas dan dapatkan harga spesial.'),
+                                    Forms\Components\Grid::make(4)->schema([
+                                        Forms\Components\TextInput::make('wholesale_price')->label('Harga Grosir (1.000+ pcs)')->default('9.500')->helperText('Tulis angkanya saja, misal: 9.500'),
+                                        Forms\Components\TextInput::make('normal_price')->label('Harga Normal Eceran Pabrik')->default('12.000'),
+                                        Forms\Components\TextInput::make('store_price')->label('Harga di Toko Material')->default('15.000'),
+                                        Forms\Components\TextInput::make('min_free_ongkir')->label('Min. Pcs Gratis Ongkir')->default('50'),
+                                    ]),
+                                    Forms\Components\Grid::make(2)->schema([
+                                        Forms\Components\TextInput::make('cta_text')->label('Teks Tombol WhatsApp')->default('Tanya Harga Grosir via WhatsApp'),
+                                        Forms\Components\TextInput::make('cta_url')->label('Link WhatsApp')->default('https://wa.me/6281234567890'),
+                                    ]),
+                                ]),
+
+                            Forms\Components\Builder\Block::make('katalog_categories')
+                                ->label('[4. Katalog] 🏷️ Katalog 5 Kategori & Box Brosur WhatsApp')
+                                ->icon('heroicon-o-squares-2x2')
+                                ->schema([
+                                    Forms\Components\Grid::make(2)->schema([
+                                        Forms\Components\TextInput::make('badge')->label('Label Kecil')->default('Katalog Produk · 5 Kategori'),
+                                        static::bgThemeSelect('white'),
+                                    ]),
+                                    Forms\Components\TextInput::make('title')->label('Judul Seksi')->default('Roster, Genteng, Bata Ekspose, Bata Tempel & Ornamen 3D'),
+                                    Forms\Components\Textarea::make('subtitle')->label('Sub-judul')->rows(2)->default('Tiap kategori kami tampilkan satu foto unggulan. Motif lengkapnya banyak banget — minta brosur GRATIS via WhatsApp untuk lihat semuanya.'),
+                                    Forms\Components\Repeater::make('categories')
+                                        ->label('Koleksi Kategori Produk')
+                                        ->schema([
+                                            Forms\Components\TextInput::make('category_badge')->label('Label Kategori Kecil (Atas)')->required()->default('Roster (Ventilasi Udara)'),
+                                            Forms\Components\TextInput::make('name')->label('Nama Produk')->required()->default('Roster Ventilasi Udara'),
+                                            Forms\Components\TextInput::make('size')->label('Ukuran / Spek')->default('Ukuran: 30 x 30 cm (beragam ukuran)'),
+                                            Forms\Components\Textarea::make('desc')->label('Deskripsi Singkat')->rows(2)->default('90+ motif roster lebih — kembang, lilit, tulip, batu, kotak, dan banyak lagi.'),
+                                            Forms\Components\FileUpload::make('image_upload')->label('Upload Foto Produk')->image()->directory('pages/katalog-categories')->live(),
+                                            Forms\Components\TextInput::make('image')->label('Atau URL Gambar')->placeholder('https://...'),
+                                            Forms\Components\Toggle::make('is_bestseller')->label('Tandai Sebagai "Terlaris"?')->default(false),
+                                        ])
+                                        ->columns(2)
+                                        ->collapsible()
+                                        ->itemLabel(fn (array $state): ?string => $state['name'] ?? 'Kategori Produk'),
+                                    Forms\Components\Section::make('Kotak Download Brosur Dashed (Garis Putus-putus)')
+                                        ->schema([
+                                            Forms\Components\Toggle::make('show_brosur_box')->label('Tampilkan Kotak Download Brosur')->default(true),
+                                            Forms\Components\TextInput::make('brosur_title')->label('Judul Kotak')->default('Ada 90+ Motif Roster Lainnya di Brosur — dan Brosurnya GRATIS'),
+                                            Forms\Components\Textarea::make('brosur_desc')->label('Keterangan Kotak')->rows(2)->default('Halaman ini cuma menampilkan satu foto per kategori. Motif lengkap ada di brosur — tinggal minta via WhatsApp, langsung kami kirim.'),
+                                            Forms\Components\TextInput::make('brosur_btn_text')->label('Teks Tombol WA')->default('Download Brosur Gratis via WhatsApp'),
+                                        ]),
+                                ]),
+
+                            Forms\Components\Builder\Block::make('calculator_form')
+                                ->label('[7. Form Hitung] 🧮 Form Estimasi Kebutuhan & Penawaran WA')
+                                ->icon('heroicon-o-calculator')
+                                ->schema([
+                                    Forms\Components\Grid::make(2)->schema([
+                                        Forms\Components\TextInput::make('badge')->label('Label Kecil')->default('GRATIS · TANPA KOMITMEN'),
+                                        static::bgThemeSelect('white'),
+                                    ]),
+                                    Forms\Components\TextInput::make('title')->label('Judul Seksi')->default('Hitung Kebutuhanmu, Penawaran Datang Cepat'),
+                                    Forms\Components\Textarea::make('subtitle')->label('Sub-judul')->rows(2)->default('Isi form singkat ini — tim kami akan menghitung kebutuhan, estimasi biaya, dan ongkir ke lokasimu. Balasan cepat di jam kerja.'),
+                                ]),
+
+                            Forms\Components\Builder\Block::make('contact_location')
+                                ->label('[9. Kontak] 📍 Kunjungi Pabrik & Peta Google Maps')
+                                ->icon('heroicon-o-map-pin')
+                                ->schema([
+                                    Forms\Components\Grid::make(2)->schema([
+                                        Forms\Components\TextInput::make('badge')->label('Label Kecil')->default('KUNJUNGI KAMI'),
+                                        static::bgThemeSelect('white'),
+                                    ]),
+                                    Forms\Components\TextInput::make('title')->label('Judul Seksi')->default('Mampir ke Produksi, atau Chat Aja Lebih Cepat'),
+                                    Forms\Components\Textarea::make('subtitle')->label('Sub-judul')->rows(2)->default('Silakan lihat langsung kualitas roster kami di lokasi — atau kalau sibuk, WhatsApp juga bisa banget.'),
+                                    Forms\Components\Textarea::make('address')->label('Alamat Pabrik')->rows(2)->default('Kp. Cicadas, RT 05 RW 03, Desa Cadasmekar, Kec. Tegalwaru, Kab. Purwakarta, Jawa Barat, 41165'),
+                                    Forms\Components\TextInput::make('maps_url')->label('Link Google Maps')->default('https://maps.google.com/?q=Kp.+Cicadas,+Cadasmekar,+Tegalwaru,+Purwakarta'),
+                                    Forms\Components\TextInput::make('hours')->label('Jam Operasional')->default('Senin – Sabtu: 07.00 – 17.00 WIB · Minggu: 08.00 – 14.00 WIB'),
+                                ]),
+
+                            Forms\Components\Builder\Block::make('gallery_instalasi')
+                                ->label('[5. Galeri] 🖼️ Galeri Instalasi — Foto Nyata di Lapangan')
+                                ->icon('heroicon-o-photo')
+                                ->schema([
+                                    Forms\Components\Grid::make(2)->schema([
+                                        Forms\Components\TextInput::make('badge')->label('Label Kecil')->default('Galeri Instalasi'),
+                                        static::bgThemeSelect('white'),
+                                    ]),
+                                    Forms\Components\TextInput::make('title')->label('Judul Seksi')->default('Hasil Nyata di Lapangan, Bukan Sekadar Katalog'),
+                                    Forms\Components\Textarea::make('subtitle')->label('Sub-judul')->rows(2)->default('Foto instalasi asli: pager & fasad dengan roster, interior roster, bata ekspose, hingga ornamen dinding 3D.'),
+                                    Forms\Components\Repeater::make('items')
+                                        ->label('Item Galeri (Foto + Caption)')
+                                        ->schema([
+                                            Forms\Components\Toggle::make('is_large')->label('Foto Besar (Span 2 Kolom × 2 Baris)?')->default(false),
+                                            Forms\Components\FileUpload::make('image_upload')->label('Upload Foto')->image()->directory('pages/gallery-instalasi')->live(),
+                                            Forms\Components\TextInput::make('image_url')->label('Atau URL Foto Eksternal')->placeholder('https://...'),
+                                            Forms\Components\TextInput::make('title')->label('Judul Caption')->required(),
+                                            Forms\Components\TextInput::make('text')->label('Deskripsi Caption (Opsional)'),
+                                        ])
+                                        ->columns(2)
+                                        ->defaultItems(5)
+                                        ->default([
+                                            ['title' => 'Pager Rumah dengan Roster', 'text' => 'Roster bikin pager makin estetik sekaligus tetap memberikan sirkulasi udara.', 'is_large' => true],
+                                            ['title' => 'Fasad Rumah dengan Roster', 'text' => 'Tampilan depan rumah jadi mewah dan beda dari tetangga.', 'is_large' => false],
+                                            ['title' => 'Interior dengan Roster', 'text' => 'Sekat ruang yang sejuk, cahaya lembut menembus motif roster.', 'is_large' => false],
+                                            ['title' => 'Instalasi Bata Ekspose', 'text' => 'Tekstur bata alami tanpa plester — hangat dan berkarakter.', 'is_large' => false],
+                                            ['title' => 'Ornamen Dinding 3D', 'text' => 'Aksen dinding 3D yang bikin ruangan terasa premium.', 'is_large' => false],
+                                        ])
+                                        ->collapsible(),
+                                    Forms\Components\Grid::make(2)->schema([
+                                        Forms\Components\TextInput::make('cta_text')->label('Teks Tombol CTA')->default('Minta Foto Instalasi via WhatsApp'),
+                                        Forms\Components\TextInput::make('cta_url')->label('Link WhatsApp')->default('https://wa.me/6281234567890'),
+                                    ]),
+                                    Forms\Components\Textarea::make('cta_note')->label('Catatan di atas Tombol CTA')->rows(2)->default('Kami punya ratusan foto instalasi & portofolio lengkap — tinggal minta gratis via WhatsApp.'),
+                                ]),
+
+                            Forms\Components\Builder\Block::make('order_steps')
+                                ->label('[6. Cara Pesan] 📦 Cara Pesannya — 4 Langkah Mudah')
+                                ->icon('heroicon-o-numbered-list')
+                                ->schema([
+                                    Forms\Components\Grid::make(2)->schema([
+                                        Forms\Components\TextInput::make('badge')->label('Label Kecil')->default('Semudah Chat'),
+                                        static::bgThemeSelect('warm'),
+                                    ]),
+                                    Forms\Components\TextInput::make('title')->label('Judul Seksi')->default('Cara Pesannya Gampang Banget'),
+                                    Forms\Components\Textarea::make('subtitle')->label('Sub-judul')->rows(2)->default('Tanpa formulir panjang dan tanpa drama — seperti chat dengan tetangga sendiri.'),
+                                    Forms\Components\Repeater::make('steps')
+                                        ->label('Langkah-langkah')
+                                        ->schema([
+                                            Forms\Components\TextInput::make('number')->label('Nomor Langkah')->default('1'),
+                                            Forms\Components\TextInput::make('title')->label('Judul Langkah')->required(),
+                                            Forms\Components\Textarea::make('text')->label('Deskripsi Langkah')->rows(2)->required(),
+                                        ])
+                                        ->columns(3)
+                                        ->defaultItems(4)
+                                        ->default([
+                                            ['number' => '1', 'title' => 'Lihat Kategori & Minta Brosur', 'text' => 'Lihat koleksi produk di halaman ini, lalu minta brosur motif lengkap gratis via WhatsApp.'],
+                                            ['number' => '2', 'title' => 'Pilih Motif Favorit', 'text' => 'Dari brosur, tentukan motifnya. Bisa juga kirim foto referensi kalau punya contoh sendiri.'],
+                                            ['number' => '3', 'title' => 'Deal & Konfirmasi', 'text' => 'Sepakati jumlah & jadwal. Pembayaran bisa transfer atau COD untuk area tertentu.'],
+                                            ['number' => '4', 'title' => 'Kirim & Pasang', 'text' => 'Pesanan dijemput atau kami antar rapi — gratis ongkir Jabodetabek min. 50 pcs.'],
+                                        ])
+                                        ->collapsible(),
+                                    Forms\Components\Grid::make(2)->schema([
+                                        Forms\Components\TextInput::make('cta_text')->label('Teks Tombol CTA')->default('Mulai Chat WhatsApp Sekarang'),
+                                        Forms\Components\TextInput::make('cta_url')->label('Link WhatsApp')->default('https://wa.me/6281234567890'),
+                                    ]),
+                                ]),
+
                             Forms\Components\Builder\Block::make('hero')
-                                ->label('[1. Hero] 🌟 Hero Banner Slider Modern')
+                                ->label('[1. Hero] 🌟 Hero Banner Slider Modern (Full Background)')
                                 ->icon('heroicon-o-presentation-chart-bar')
                                 ->schema([
                                     Forms\Components\Repeater::make('banners')
@@ -1691,7 +2072,9 @@ class PageResource extends Resource
         return Forms\Components\Select::make('bg_theme')
             ->label('Tema Latar & Motif Seksi')
             ->options([
-                'white' => '🌓 Otomatis Adaptif (Terang di Light Mode, Gelap di Dark Mode)',
+                'white' => '🌓 Otomatis Adaptif (Dual Mode: Terang di Light, Gelap di Dark)',
+                'light-glow' => '🟡 Light Warm Glow (Dual Mode: Hangat di Light, Slate di Dark)',
+                'light-clean' => '⚪ Light Clean (Dual Mode: Putih Bersih di Light, Slate di Dark)',
                 'slate' => '🔲 Abu-abu Beton Arsitektural (Soft Concrete Slate)',
                 'pattern-light' => '🧱 Motif Grid Roster Terang (Architectural Motif Light)',
                 'pattern-dark' => '🏛️ Motif Grid Roster Gelap (Luxury Pattern Dark)',
@@ -1701,7 +2084,7 @@ class PageResource extends Resource
                 'gradient-terra' => '🔥 Gradien Terakota Dinamis (Terracotta Glow)',
             ])
             ->default($default)
-            ->helperText('Pilih nuansa visual untuk seksi ini. Mode Otomatis Adaptif akan mengikuti tema website.');
+            ->helperText('Pilih nuansa visual untuk seksi ini. Opsi Dual Mode otomatis mengikuti toggle Dark/Light website.');
     }
 
     /**

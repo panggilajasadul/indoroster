@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\WaOrderResource\Pages;
 
+use App\Filament\Resources\ManualDocumentResource;
 use App\Filament\Resources\WaOrderResource;
 use App\Mail\OrderStatusMail;
 use App\Models\Invoice;
@@ -11,6 +12,7 @@ use App\Models\OrderBatch;
 use App\Models\Payment;
 use App\Models\SiteSetting;
 use App\Models\User;
+use Carbon\Carbon;
 use Filament\Actions;
 use Filament\Forms;
 use Filament\Notifications\Actions\Action;
@@ -19,6 +21,7 @@ use Filament\Resources\Pages\ViewRecord;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\HtmlString;
 
 class ViewWaOrder extends ViewRecord
 {
@@ -82,6 +85,7 @@ class ViewWaOrder extends ViewRecord
                             'Cicilan Tambahan',
                         ])
                         ->required()
+                        ->live(debounce: 600)
                         ->helperText('Bisa ketik bebas sesuai transaksi (misal: Pembayaran #1, Pembayaran #2, dst).'),
 
                     Forms\Components\TextInput::make('payment_amount')
@@ -90,27 +94,89 @@ class ViewWaOrder extends ViewRecord
                         ->numeric()
                         ->default(fn () => $record->payments()->count() === 0 ? ($record->down_payment_amount ?: round($record->grand_total * 0.5)) : ($record->remaining_balance ?: max(0, $record->grand_total - $record->total_paid_amount)))
                         ->required()
+                        ->live(debounce: 600)
                         ->helperText('Masukkan nominal rupiah yang ditransfer oleh pembeli pada transaksi ini.'),
 
                     Forms\Components\Select::make('payment_method')
                         ->label('Metode Pembayaran')
                         ->options([
-                            'BCA' => 'Transfer Bank BCA (IndoRoster)',
-                            'Mandiri' => 'Transfer Bank Mandiri (IndoRoster)',
-                            'BRI' => 'Transfer Bank BRI (IndoRoster)',
+                            'BCA' => 'Transfer Bank BCA - 231-324-2412 (a/n ABDUL HAMID)',
+                            'Mandiri' => 'Transfer Bank Mandiri - 1730-0197-04155 (a/n ABDUL HAMID)',
+                            'BRI' => 'Transfer Bank BRI - 4356-0100-9396-502 (a/n ABDUL HAMID)',
                             'Cash' => 'Tunai / Cash di Proyek / Pabrik',
                             'Other' => 'Metode Lainnya',
                         ])
                         ->default('BCA')
-                        ->required(),
+                        ->required()
+                        ->live(),
 
                     Forms\Components\Textarea::make('notes')
                         ->label('Catatan Bukti Transfer / No. Rekening Pengirim')
                         ->placeholder('Contoh: Transfer DP 10 Juta via M-Banking BCA an. Ahmad Zainal tgl 28/08')
                         ->columnSpanFull(),
+
+                    // ── Kotak konfirmasi ringkasan (live preview sebelum simpan) ─
+                    Forms\Components\Placeholder::make('konfirmasi_ringkasan')
+                        ->label('')
+                        ->content(function (Forms\Get $get) use ($record): HtmlString {
+                            $judul = $get('installment_title') ?: '—';
+                            $nominal = (float) ($get('payment_amount') ?: 0);
+                            $metode = match ($get('payment_method')) {
+                                'BCA' => 'Transfer Bank BCA - 231-324-2412 (a/n ABDUL HAMID)',
+                                'Mandiri' => 'Transfer Bank Mandiri - 1730-0197-04155 (a/n ABDUL HAMID)',
+                                'BRI' => 'Transfer Bank BRI - 4356-0100-9396-502 (a/n ABDUL HAMID)',
+                                'Cash' => 'Tunai / Cash di Proyek / Pabrik',
+                                default => 'Metode Lainnya',
+                            };
+                            $prevSum = (float) $record->payments()
+                                ->whereIn('status', ['settlement', 'capture', 'paid', 'success'])
+                                ->sum('gross_amount');
+                            $newTotal = $prevSum + $nominal;
+                            $sisa = max(0, (float) $record->grand_total - $newTotal);
+                            $lunas = ($sisa <= 0 && $record->grand_total > 0);
+
+                            $namaFmt = 'Rp '.number_format($nominal, 0, ',', '.');
+                            $totalFmt = 'Rp '.number_format($newTotal, 0, ',', '.');
+                            $sisaFmt = 'Rp '.number_format($sisa, 0, ',', '.');
+                            $statusBadge = $lunas
+                                ? '<span style="background:#22c55e;color:#fff;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:700;">✅ LUNAS</span>'
+                                : '<span style="background:#f59e0b;color:#fff;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:700;">⏳ Belum Lunas</span>';
+
+                            return new HtmlString(
+                                '<div style="background:#fefce8;border:2px solid #fbbf24;border-radius:8px;padding:14px 16px;margin-top:4px;">'
+                                .'<div style="font-weight:700;font-size:13px;color:#92400e;margin-bottom:8px;">⚠️ Pastikan data berikut sudah benar sebelum menekan simpan:</div>'
+                                .'<table style="width:100%;font-size:13px;border-collapse:collapse;">'
+                                .'<tr><td style="padding:3px 0;color:#78350f;width:52%;">📋 Judul Transaksi</td><td style="font-weight:600;">'.$judul.'</td></tr>'
+                                .'<tr><td style="padding:3px 0;color:#78350f;">💵 Uang Masuk Kali Ini</td><td style="font-weight:700;color:#15803d;">'.$namaFmt.'</td></tr>'
+                                .'<tr><td style="padding:3px 0;color:#78350f;">🏦 Metode Pembayaran</td><td style="font-weight:600;">'.$metode.'</td></tr>'
+                                .'<tr><td style="padding:3px 0;color:#78350f;">📊 Total Terbayar (Setelah Ini)</td><td style="font-weight:600;">'.$totalFmt.'</td></tr>'
+                                .'<tr><td style="padding:3px 0;color:#78350f;">📉 Sisa Tagihan Setelah Ini</td><td style="font-weight:700;color:'.($lunas ? '#15803d' : '#b91c1c').'">'.$sisaFmt.' '.$statusBadge.'</td></tr>'
+                                .'</table>'
+                                .'<div style="margin-top:10px;font-size:11px;color:#92400e;">⚡ Klik <strong>Simpan</strong> hanya sekali. Tombol akan nonaktif otomatis saat proses berjalan.</div>'
+                                .'</div>'
+                            );
+                        })
+                        ->live()
+                        ->columnSpanFull(),
                 ])
-                ->modalSubmitActionLabel('Simpan Transaksi & Terbitkan Kuitansi')
+                ->modalSubmitActionLabel('✅ Simpan Transaksi & Terbitkan Kuitansi')
                 ->action(function (array $data) use ($record) {
+                    // ── Cegah duplikasi: tolak jika pembayaran nominal sama sudah tercatat dalam 15 detik terakhir
+                    $amountCheck = (float) ($data['payment_amount'] ?? 0);
+                    $recentDuplicate = Payment::where('order_id', $record->id)
+                        ->where('gross_amount', $amountCheck)
+                        ->where('created_at', '>=', now()->subSeconds(15))
+                        ->exists();
+                    if ($recentDuplicate) {
+                        Notification::make()
+                            ->title('⚠️ Pembayaran Sudah Tercatat!')
+                            ->body('Pembayaran dengan nominal yang sama baru saja disimpan. Jangan klik ganda — silakan cek riwayat pembayaran.')
+                            ->warning()
+                            ->persistent()
+                            ->send();
+
+                        return;
+                    }
                     $grandTotal = (float) $record->grand_total;
                     $amountThisTime = (float) ($data['payment_amount'] ?? 0);
                     $prevSum = (float) $record->payments()->whereIn('status', ['settlement', 'capture', 'paid', 'success'])->sum('gross_amount');
@@ -344,6 +410,10 @@ class ViewWaOrder extends ViewRecord
                     'show_payment_schedule' => $invoice->show_payment_schedule ?? true,
                     'show_bank_accounts' => $invoice->show_bank_accounts ?? true,
                     'bank_accounts_override' => $invoice->bank_accounts_override ?: SiteSetting::getBankAccounts(),
+                    'show_signature_stamp' => $invoice->show_signature_stamp ?? true,
+                    'signature_name' => $invoice->signature_name ?: 'Abdul Hamid',
+                    'signature_title' => $invoice->signature_title ?: 'Divisi Keuangan & Distribusi Pabrik',
+                    'signature_city' => $invoice->signature_city ?: 'Purwakarta',
                     'document_notes' => $invoice->document_notes ?: $record->notes,
                     'document_terms' => $invoice->document_terms ?: "1. Penurunan material dilakukan di titik bongkar yang dapat diakses armada truk.\n2. Klaim garansi pecah wajib disertakan bukti foto saat serah terima barang.\n3. Dokumen ini merupakan bukti transaksi sah yang diterbitkan otomatis oleh sistem.",
                 ]);
@@ -419,6 +489,38 @@ class ViewWaOrder extends ViewRecord
                     ])
                     ->visible(fn (Forms\Get $get) => (bool) $get('show_bank_accounts')),
 
+                Forms\Components\Section::make('Tanda Tangan & Stempel Resmi')
+                    ->description('Atur apakah dokumen menyertakan tanda tangan & stempel digital atau dikosongkan untuk tanda tangan & cap fisik basah.')
+                    ->schema([
+                        Forms\Components\Toggle::make('show_signature_stamp')
+                            ->label('Sertakan Tanda Tangan & Stempel Digital')
+                            ->helperText('Nyalakan untuk cetak PDF/kirim online WA. Matikan jika dokumen akan dicetak fisik untuk tanda tangan pena & stempel basah asli.')
+                            ->default(true)
+                            ->columnSpanFull(),
+
+                        Forms\Components\TextInput::make('signature_name')
+                            ->label('Nama Penandatangan')
+                            ->placeholder('Contoh: Abdul Hamid / H. Ahmad')
+                            ->default('Abdul Hamid')
+                            ->required()
+                            ->columnSpan(2),
+
+                        Forms\Components\TextInput::make('signature_title')
+                            ->label('Jabatan / Bagian')
+                            ->placeholder('Contoh: Divisi Keuangan & Distribusi Pabrik')
+                            ->default('Divisi Keuangan & Distribusi Pabrik')
+                            ->required()
+                            ->columnSpan(2),
+
+                        Forms\Components\TextInput::make('signature_city')
+                            ->label('Kota Penerbitan Dokumen')
+                            ->placeholder('Purwakarta')
+                            ->default('Purwakarta')
+                            ->required()
+                            ->columnSpan(1),
+                    ])
+                    ->columns(5),
+
                 Forms\Components\Textarea::make('document_notes')
                     ->label('Catatan Dokumen untuk Pembeli (Dinamis)')
                     ->placeholder('Hapus atau edit catatan bila tidak diperlukan...')
@@ -459,6 +561,10 @@ class ViewWaOrder extends ViewRecord
                     'show_payment_schedule' => (bool) ($data['show_payment_schedule'] ?? true),
                     'show_bank_accounts' => (bool) ($data['show_bank_accounts'] ?? true),
                     'bank_accounts_override' => isset($data['bank_accounts_override']) && is_array($data['bank_accounts_override']) ? array_values($data['bank_accounts_override']) : null,
+                    'show_signature_stamp' => (bool) ($data['show_signature_stamp'] ?? true),
+                    'signature_name' => $data['signature_name'] ?? 'Abdul Hamid',
+                    'signature_title' => $data['signature_title'] ?? 'Divisi Keuangan & Distribusi Pabrik',
+                    'signature_city' => $data['signature_city'] ?? 'Purwakarta',
                     'document_notes' => $data['document_notes'] ?? null,
                     'document_terms' => $data['document_terms'] ?? null,
                 ]);
@@ -668,7 +774,8 @@ class ViewWaOrder extends ViewRecord
                                 ];
                             } else {
                                 return [
-                                    'bast' => '📋 Berita Acara Serah Terima (BAST Lapangan)',
+                                    'spk' => '📜 Surat Perjanjian Kerja Sama (SPK / Kontrak Jual Beli B2B)',
+                                    'bast' => '📋 Berita Acara Serah Terima (BAST Lapangan Proyek)',
                                     'sph' => '📝 SPH Resmi Tender / Surat Dukungan',
                                     'lab_test' => '🔬 Sertifikat Uji Kuat Tekan Lab SNI',
                                     'kwitansi' => '💰 Kwitansi Bermaterai (Rp 10.000)',
@@ -683,16 +790,26 @@ class ViewWaOrder extends ViewRecord
                 ]),
 
                 Forms\Components\Grid::make(2)->schema([
-                    Forms\Components\TextInput::make('document_number')
-                        ->label('Nomor Dokumen Resmi')
-                        ->default(function (Forms\Get $get) use ($record) {
-                            $type = $get('type') ?: 'DOC';
+                    Forms\Components\Placeholder::make('document_number_preview')
+                        ->label('Nomor Dokumen (otomatis)')
+                        ->content(function (Forms\Get $get) use ($record) {
+                            $type = $get('type') ?: 'bast';
                             $prefix = strtoupper(str_replace('_', '-', $type));
+                            $year = date('Y');
                             $cleanNo = preg_replace('/[^0-9]/', '', $record->order_number);
+                            $candidate = "{$prefix}/IR-PWK/{$year}/".substr($cleanNo, -4);
 
-                            return "{$prefix}/IR-PWK/".date('Y').'/'.substr($cleanNo, -4);
-                        })
-                        ->required(),
+                            if (ManualDocument::where('document_number', $candidate)->exists()) {
+                                $count = ManualDocument::where('document_number', 'like', "{$prefix}/IR-PWK/{$year}/%")->count() + 1;
+                                $candidate = sprintf('%s/IR-PWK/%s/%04d', $prefix, $year, $count);
+                                while (ManualDocument::where('document_number', $candidate)->exists()) {
+                                    $count++;
+                                    $candidate = sprintf('%s/IR-PWK/%s/%04d', $prefix, $year, $count);
+                                }
+                            }
+
+                            return $candidate;
+                        }),
 
                     Forms\Components\DatePicker::make('document_date')
                         ->label('Tanggal Terbit Dokumen')
@@ -785,19 +902,173 @@ class ViewWaOrder extends ViewRecord
                         ]),
                     ]),
 
+                Forms\Components\Fieldset::make('Penandatangan Dokumen')
+                    ->schema([
+                        Forms\Components\TextInput::make('issued_by')
+                            ->label('Nama Penandatangan (Pabrik)')
+                            ->default(fn () => auth()->user()?->name ?? 'Abdul Hamid')
+                            ->required()
+                            ->columnSpan(1),
+
+                        Forms\Components\TextInput::make('signer_role')
+                            ->label('Jabatan Penandatangan')
+                            ->default(function (Forms\Get $get) {
+                                $type = $get('type') ?: 'bast';
+
+                                return match ($type) {
+                                    'bast' => 'Petugas Logistik / Pengiriman',
+                                    'surat_jalan' => 'Bagian Logistik & Armada',
+                                    'lab_test' => 'Quality Control Pabrik',
+                                    'sph', 'penawaran' => 'Bagian Penjualan / Marketing',
+                                    'spk' => 'Pimpinan Pabrik / Manajemen',
+                                    'faktur', 'kwitansi' => 'Bagian Keuangan & Kasir',
+                                    default => 'Authorized Signatory',
+                                };
+                            })
+                            ->required()
+                            ->columnSpan(1),
+                    ])->columns(2),
+
                 Forms\Components\Textarea::make('notes')
                     ->label('Catatan Khusus / Keterangan Legalitas')
                     ->placeholder('Contoh: Dokumen ini diterbitkan sebagai Berita Acara Serah Terima Resmi Proyek Cluster...')
                     ->rows(2)
                     ->columnSpanFull(),
+
+                Forms\Components\Textarea::make('custom_terms_and_conditions')
+                    ->label('Klausul Syarat & Ketentuan (Bisa Disesuaikan)')
+                    ->helperText('Anda dapat mengedit, menambah, atau menghapus poin klausul di bawah ini sesuai kesepakatan.')
+                    ->default(function (Forms\Get $get) {
+                        $type = $get('type') ?: 'bast';
+                        if ($type === 'sph') {
+                            return "1. Penawaran harga ini berlaku selama 30 (tiga puluh) hari kalender sejak tanggal diterbitkan.\n".
+                                "2. Pembayaran DP (uang muka) minimal 50% wajib dilunasi untuk mengkonfirmasi antrean produksi.\n".
+                                "3. Pelunasan sisa pembayaran dilakukan sebelum barang dikirimkan dari fasilitas produksi kami.\n".
+                                "4. Gratis ongkir untuk area Jabodetabek dengan pembelian minimal 100 pcs per pengiriman.\n".
+                                "5. Retak atau kerusakan yang terjadi saat pengiriman akan diganti baru tanpa biaya tambahan.\n".
+                                '6. Estimasi waktu produksi 3–7 hari kerja, tergantung volume dan jenis motif yang dipesan.';
+                        } elseif ($type === 'bast') {
+                            return "1. Pemeriksaan fisik kuantitas dan mutu dilaksanakan bersama di lokasi bongkar proyek.\n".
+                                "2. Laporan kerusakan akibat pengiriman dilakukan dalam 1x24 jam setelah penerimaan barang.\n".
+                                '3. Kerusakan saat pengiriman oleh armada pabrik diganti 100% baru.';
+                        } elseif ($type === 'lab_test') {
+                            return "1. Sertifikat mutu produksi internal mengacu pada standar SNI 03-0349-1989.\n".
+                                "2. Bahan baku pasir abu batu murni pilihan dengan kepadatan optimal.\n".
+                                '3. Siap koordinasi uji laboratorium independen terakreditasi KAN atas permintaan proyek.';
+                        }
+
+                        return null;
+                    })
+                    ->rows(4)
+                    ->columnSpanFull(),
             ])
             ->modalSubmitActionLabel('📄 Terbitkan & Buat Dokumen')
             ->action(function (array $data) use ($record) {
+                // Selalu hitung ulang nomor dokumen yang aman saat action dijalankan
+                // (tidak bergantung pada nilai form yang mungkin sudah stale / tidak terupdate)
+                $type = $data['type'] ?? 'bast';
+                $prefix = strtoupper(str_replace('_', '-', $type));
+                $year = date('Y');
+                $cleanNo = preg_replace('/[^0-9]/', '', $record->order_number);
+                $candidate = "{$prefix}/IR-PWK/{$year}/".substr($cleanNo, -4);
+
+                // Jika kandidat sudah ada, cari nomor berikutnya yang masih bebas
+                if (ManualDocument::where('document_number', $candidate)->exists()) {
+                    $count = ManualDocument::where('document_number', 'like', "{$prefix}/IR-PWK/{$year}/%")->count() + 1;
+                    $candidate = sprintf('%s/IR-PWK/%s/%04d', $prefix, $year, $count);
+                    while (ManualDocument::where('document_number', $candidate)->exists()) {
+                        $count++;
+                        $candidate = sprintf('%s/IR-PWK/%s/%04d', $prefix, $year, $count);
+                    }
+                }
+
+                $docNumber = $candidate;
+
+                // Susun extra_data dengan konten teks resmi per tipe dokumen B2B
+                $docType = $data['type'];
+                $clientName = $data['client_name'];
+                $projectAddress = $data['client_address'] ?? '-';
+                $docDate = isset($data['document_date'])
+                    ? Carbon::parse($data['document_date'])->translatedFormat('d F Y')
+                    : now()->translatedFormat('d F Y');
+
+                $extraData = [
+                    'order_id' => $record->id,
+                    'order_number' => $record->order_number,
+                    'category' => $data['category'] ?? 'b2b',
+                    'notes' => $data['notes'] ?? null,
+                    'watermark' => 'none', // ← dokumen final, tanpa watermark
+                ];
+
+                // Inject teks konten resmi berdasarkan tipe dokumen (atau dari input form jika user mengubahnya)
+                if (! empty($data['custom_terms_and_conditions'])) {
+                    $extraData['terms_and_conditions'] = $data['custom_terms_and_conditions'];
+                } elseif ($docType === 'sph') {
+                    $extraData['terms_title'] = 'Syarat & Ketentuan Penawaran';
+                    $extraData['terms_and_conditions'] =
+                        "1. Penawaran harga ini berlaku selama 30 (tiga puluh) hari kalender sejak tanggal diterbitkan.\n".
+                        "2. Pembayaran DP (uang muka) minimal 50% wajib dilunasi untuk mengkonfirmasi antrean produksi.\n".
+                        "3. Pelunasan sisa pembayaran dilakukan sebelum barang dikirimkan dari fasilitas produksi kami.\n".
+                        "4. Gratis ongkir untuk area Jabodetabek dengan pembelian minimal 100 pcs per pengiriman.\n".
+                        "5. Retak atau kerusakan yang terjadi saat pengiriman akan diganti baru tanpa biaya tambahan.\n".
+                        "6. Estimasi waktu produksi 3–7 hari kerja, tergantung volume dan jenis motif yang dipesan.\n".
+                        "7. Harga dapat berubah apabila terjadi perubahan volume atau spesifikasi dari permintaan awal.\n".
+                        '8. Untuk kebutuhan sertifikasi uji lab resmi SNI, IndoRoster siap berkoordinasi dengan lembaga terakreditasi KAN atas permintaan owner proyek.';
+                } elseif ($docType === 'lab_test') {
+                    $extraData['terms_title'] = 'Keterangan Mutu Produksi & Standar Acuan';
+                    $extraData['terms_and_conditions'] =
+                        "KETERANGAN MUTU PRODUKSI INDOROSTER INDONESIA:\n\n".
+                        "• Bahan Baku: Pasir abu batu murni pilihan dari sumber terpilih, bukan pasir silika.\n".
+                        "• Proses Produksi: Cetak tumbuk padat menggunakan plat baja presisi — bukan proses cor tuang biasa.\n".
+                        "• Keunggulan: Kepadatan tinggi, permukaan halus merata, dimensi presisi, tahan cuaca dan UV.\n".
+                        "• Standar Acuan Internal: SNI 03-0349-1989 (Bata Beton untuk Dinding) sebagai referensi terdekat.\n".
+                        "• Masa Garansi: 30 hari sejak tanggal terima di lokasi. Kerusakan akibat pengiriman diganti baru.\n\n".
+                        "CATATAN PENTING:\n".
+                        'Dokumen ini merupakan Sertifikat Mutu Produksi Internal dari INDOROSTER INDONESIA. Untuk kebutuhan sertifikasi uji laboratorium resmi oleh lembaga terakreditasi KAN (Komite Akreditasi Nasional) sesuai SNI 1974:2011, IndoRoster siap berkoordinasi atas permintaan resmi dari pihak owner proyek.';
+                } elseif ($docType === 'bast') {
+                    $extraData['terms_title'] = 'Ketentuan Serah Terima & Klausul Garansi';
+                    $extraData['terms_and_conditions'] =
+                        "PERNYATAAN SERAH TERIMA:\n".
+                        "Pada hari dan tanggal tersebut di atas, bertempat di {$projectAddress}, kami yang bertanda tangan di bawah ini:\n".
+                        "1. PIHAK PERTAMA: INDOROSTER INDONESIA, Kp. Cicadas RT 05 RW 03, Desa Cadasmekar, Kec. Tegalwaru, Kab. Purwakarta, Jawa Barat.\n".
+                        "2. PIHAK KEDUA: {$clientName} (selaku Penerima Material).\n\n".
+                        "Dengan ini menyatakan bahwa PIHAK PERTAMA telah menyerahkan dan PIHAK KEDUA telah menerima material tersebut di atas dalam kondisi:\n".
+                        "☐  Baik dan sesuai pesanan\n".
+                        "☐  Terdapat catatan (lihat keterangan)\n\n".
+                        "KLAUSUL GARANSI:\n".
+                        "• Laporan kerusakan akibat pengiriman wajib dilakukan dalam 1×24 jam setelah penerimaan.\n".
+                        "• Material yang retak/rusak akibat pengiriman akan diganti baru oleh PIHAK PERTAMA.\n".
+                        '• Kerusakan yang disebabkan oleh kesalahan pemasangan di luar tanggung jawab PIHAK PERTAMA.';
+                } elseif (in_array($docType, ['faktur', 'invoice'])) {
+                    $extraData['payment_instructions_title'] = 'Petunjuk Pembayaran';
+                    $extraData['payment_instructions'] =
+                        "Transfer Bank BCA No. Rek: (hubungi admin untuk detil rekening) a/n INDOROSTER INDONESIA\n".
+                        "Bayar DP minimal 50% untuk konfirmasi pesanan.\n".
+                        'Pelunasan dilakukan sebelum barang dikirim dari fasilitas produksi kami.';
+                } elseif ($docType === 'kwitansi') {
+                    $extraData['receipt_notes_title'] = 'Keterangan';
+                    $extraData['receipt_notes'] =
+                        "Kwitansi ini merupakan bukti penerimaan pembayaran yang sah dari INDOROSTER INDONESIA.\n".
+                        'Harap disimpan sebagai arsip transaksi Anda.';
+                } elseif (in_array($docType, ['spk', 'perjanjian'])) {
+                    $extraData['terms_title'] = 'Ketentuan Umum Perjanjian';
+                    $extraData['terms_and_conditions'] =
+                        "1. Perjanjian ini berlaku sejak ditandatangani oleh kedua belah pihak.\n".
+                        "2. Pembayaran DP 50% wajib dilunasi dalam 3 hari kerja setelah penandatanganan.\n".
+                        "3. Pelunasan sisa 50% dilakukan sebelum barang dikirim dari fasilitas produksi.\n".
+                        "4. Perubahan spesifikasi atau volume wajib dikomunikasikan paling lambat 2 hari sebelum produksi dimulai.\n".
+                        '5. Sengketa diselesaikan secara musyawarah, dan jika tidak tercapai, melalui jalur hukum yang berlaku.';
+                }
+
+                if (! empty($data['signer_role'])) {
+                    $extraData['signer_role'] = $data['signer_role'];
+                }
+
                 $doc = ManualDocument::create([
-                    'document_number' => $data['document_number'],
-                    'type' => $data['type'],
-                    'client_name' => $data['client_name'],
-                    'client_address' => $data['client_address'] ?? null,
+                    'document_number' => $docNumber,
+                    'type' => $docType,
+                    'client_name' => $clientName,
+                    'client_address' => $projectAddress,
                     'client_phone' => $data['client_phone'] ?? null,
                     'client_email' => $data['client_email'] ?? null,
                     'items' => $data['items'] ?? [],
@@ -807,15 +1078,10 @@ class ViewWaOrder extends ViewRecord
                     'tax_amount' => 0,
                     'grand_total' => (float) ($data['grand_total'] ?? 0),
                     'document_date' => $data['document_date'] ?? now(),
-                    'issued_by' => auth()->user()?->name ?? 'Admin Pabrik',
+                    'issued_by' => $data['issued_by'] ?? (auth()->user()?->name ?? 'Abdul Hamid'),
                     'status' => 'final',
                     'notes' => $data['notes'] ?? null,
-                    'extra_data' => [
-                        'order_id' => $record->id,
-                        'order_number' => $record->order_number,
-                        'category' => $data['category'] ?? 'b2b',
-                        'notes' => $data['notes'] ?? null,
-                    ],
+                    'extra_data' => $extraData,
                 ]);
 
                 $docUrl = route('print.manual-document', $doc->id);
@@ -826,9 +1092,11 @@ class ViewWaOrder extends ViewRecord
                 $waMsg = rawurlencode("Halo {$record->shipping_name}, berikut kami lampirkan dokumen resmi {$doc->getTypeLabel()} untuk pesanan #{$record->order_number}:\n\n🔗 Link Dokumen PDF: {$docUrl}\n\nTerima kasih.");
                 $waLink = "https://wa.me/{$phone}?text={$waMsg}";
 
+                $editUrl = ManualDocumentResource::getUrl('edit', ['record' => $doc]);
+
                 Notification::make()
                     ->title("Dokumen {$doc->getTypeLabel()} Berhasil Diterbitkan! 📄")
-                    ->body("No. Dokumen: {$doc->document_number}. Siap dicetak atau dikirimkan ke pembeli.")
+                    ->body("No. Dokumen: {$doc->document_number}. Siap dicetak, diedit ulang, atau dikirimkan ke pembeli.")
                     ->success()
                     ->persistent()
                     ->actions([
@@ -838,6 +1106,12 @@ class ViewWaOrder extends ViewRecord
                             ->button()
                             ->color('success')
                             ->icon('heroicon-o-printer'),
+                        Action::make('edit_doc_'.$doc->id)
+                            ->label('✏️ Edit Dokumen Ini')
+                            ->url($editUrl, shouldOpenInNewTab: true)
+                            ->button()
+                            ->color('warning')
+                            ->icon('heroicon-o-pencil-square'),
                         Action::make('wa_doc_'.$doc->id)
                             ->label('💬 Kirim via WhatsApp')
                             ->url($waLink, shouldOpenInNewTab: true)

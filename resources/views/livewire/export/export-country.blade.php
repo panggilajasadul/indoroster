@@ -530,9 +530,42 @@
                     </div>
 
                     @if($products->hasMorePages())
-                    <div class="w-full flex flex-col items-center justify-center py-6">
-                        <button wire:click="loadMore" class="px-8 py-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-800 dark:text-slate-200 shadow-soft-xs hover:border-terra-500 transition">
-                            Load More Patterns...
+                    <div 
+                        x-data="{
+                            observer: null,
+                            isLoading: false,
+                            init() {
+                                this.observer = new IntersectionObserver((entries) => {
+                                    entries.forEach(entry => {
+                                        if (entry.isIntersecting && !this.isLoading) {
+                                            this.isLoading = true;
+                                            $wire.loadMore().then(() => {
+                                                this.isLoading = false;
+                                            });
+                                        }
+                                    });
+                                }, { rootMargin: '350px' });
+                                this.observer.observe(this.$el);
+                            },
+                            destroy() {
+                                if (this.observer) this.observer.disconnect();
+                            }
+                        }"
+                        class="w-full flex flex-col items-center justify-center py-8"
+                    >
+                        <button 
+                            wire:click="loadMore" 
+                            :disabled="isLoading"
+                            class="inline-flex items-center gap-2.5 px-8 py-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-800 dark:text-slate-200 shadow-soft-xs hover:border-terra-500 transition cursor-pointer"
+                        >
+                            <svg x-show="isLoading" class="animate-spin h-4 w-4 text-terra-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                            </svg>
+                            <svg x-show="!isLoading" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-terra-500 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                            </svg>
+                            <span x-text="isLoading ? 'Loading More Patterns...' : 'Load More Patterns...'">Load More Patterns...</span>
                         </button>
                     </div>
                     @endif
