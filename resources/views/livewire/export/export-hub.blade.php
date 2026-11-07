@@ -79,10 +79,13 @@
                         <span>WhatsApp Export Desk (+62 813-8970-9847)</span>
                     </a>
                     <a href="{{ route('export.gallery') }}" class="inline-flex items-center justify-center gap-2 px-6 py-4 rounded-xl bg-slate-800/90 hover:bg-slate-750 text-slate-200 font-bold text-sm border border-slate-700 transition">
-                        <span>📸 Architectural Projects (100+ Photos)</span>
+                        <span>📸 Project Gallery</span>
                     </a>
-                    <a href="https://drive.google.com/file/d/1wcBxdEv7yiytPlLSVE1ldl1rYpe0MHZZ/view?usp=drive_link" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center gap-2 px-6 py-4 rounded-xl bg-slate-900/60 hover:bg-slate-800 text-slate-300 font-semibold text-sm border border-slate-700/80 transition">
-                        <span>📥 PDF Catalog</span>
+                    <a href="{{ route('export.video') }}" class="inline-flex items-center justify-center gap-2 px-6 py-4 rounded-xl bg-slate-800/90 hover:bg-slate-750 text-slate-200 font-bold text-sm border border-slate-700 transition">
+                        <span>🎥 Production Videos</span>
+                    </a>
+                    <a href="{{ asset('downloads/indoroster-export-breeze-blocks-catalog.pdf') }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center gap-2 px-6 py-4 rounded-xl bg-slate-900/60 hover:bg-slate-800 text-slate-300 font-semibold text-sm border border-slate-700/80 transition">
+                        <span>📥 Download Official Export PDF</span>
                     </a>
                 </div>
             </div>
@@ -487,18 +490,18 @@
                     <div class="p-6 rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800 flex flex-col justify-between">
                         <div>
                             <div class="flex items-center justify-between mb-3">
-                                <span class="px-2.5 py-1 rounded-md bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-[10px] font-black uppercase tracking-wider">Raw Grey</span>
+                                <span class="px-2.5 py-1 rounded-md bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-[10px] font-black uppercase tracking-wider">Natural Grey</span>
                                 <span class="text-xs text-slate-500 font-semibold">20×20×10 cm</span>
                             </div>
                             <h4 class="text-base font-black text-slate-900 dark:text-white mb-2">
-                                Natural Mountain Stone Ash (Raw Grey)
+                                Fine Crushed Rock Stone Ash (Abu Batu Halus)
                             </h4>
                             <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed mb-4">
-                                Formulated from pure mountain stone aggregate and dense hydraulic cement. Features a bold, timeless industrial concrete hue favored for Brutalist architecture, urban lofts, and modern tropical minimalist facades.
+                                Formulated from 100% fine crushed rock stone ash (abu batu murni dari batu besar yang dihaluskan) bound with high-grade Portland cement. Features a bold industrial concrete matte texture, high density, and superior weather resistance for modern tropical facades.
                             </p>
                         </div>
                         <div class="pt-3 border-t border-slate-200/80 dark:border-slate-800 text-[11px] text-slate-500 dark:text-slate-400">
-                            <strong>Best For:</strong> Industrial cafes, brutalist walls, modern tropical carports.
+                            <strong>Formula:</strong> Pure Stone Ash + Portland Cement (Zero Sand Shortcuts).
                         </div>
                     </div>
 
@@ -506,38 +509,39 @@
                     <div class="p-6 rounded-2xl bg-amber-50/50 dark:bg-amber-950/20 border border-amber-200/70 dark:border-amber-900/40 flex flex-col justify-between">
                         <div>
                             <div class="flex items-center justify-between mb-3">
-                                <span class="px-2.5 py-1 rounded-md bg-amber-100 dark:bg-amber-900/60 text-amber-900 dark:text-amber-200 text-[10px] font-black uppercase tracking-wider">Milky White / Cream</span>
-                                <span class="text-xs text-amber-700 dark:text-amber-400 font-semibold">Anti-Algae Formula</span>
+                                <span class="px-2.5 py-1 rounded-md bg-amber-100 dark:bg-amber-900/60 text-amber-900 dark:text-amber-200 text-[10px] font-black uppercase tracking-wider">Pure White</span>
+                                <span class="text-xs text-amber-700 dark:text-amber-400 font-semibold">Natural Mineral</span>
                             </div>
                             <h4 class="text-base font-black text-slate-900 dark:text-white mb-2">
-                                Natural Milky White / Cream Dolomite Stone
+                                Pure Crushed Dolomite Powder (Dolomit Alami)
                             </h4>
                             <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed mb-4">
-                                Crafted from pure natural white dolomite mountain stone. Yields an elegant soft milky white to warm cream mineral tone depending on geological extraction. Highly resistant to coastal black algae, reflects solar heat, and ages with a pristine natural patina.
+                                Formulated from natural crushed white dolomite mineral powder bound with high-grade cement. Yields an authentic, clean architectural off-white tone that is naturally algae-resistant and non-fading without artificial paint coatings.
                             </p>
                         </div>
                         <div class="pt-3 border-t border-amber-200/60 dark:border-amber-900/40 text-[11px] text-slate-500 dark:text-slate-400">
-                            <strong>Best For:</strong> Mediterranean villas, Palm Springs pool screens, luxury resorts.
+                            <strong>Formula:</strong> Crushed Dolomite Mineral + Cement (100% Non-Fading).
                         </div>
                     </div>
 
-                    {{-- 3. Plered Terracotta Red Clay --}}
+                    {{-- 3. Plered Terracotta Red Gravel Powder --}}
                     <div class="p-6 rounded-2xl bg-orange-50/50 dark:bg-orange-950/20 border border-orange-200/70 dark:border-orange-900/40 flex flex-col justify-between">
                         <div>
                             <div class="flex items-center justify-between mb-3">
-                                <span class="px-2.5 py-1 rounded-md bg-orange-100 dark:bg-orange-900/60 text-orange-900 dark:text-orange-200 text-[10px] font-black uppercase tracking-wider">Terracotta Red</span>
-                                <span class="text-xs text-orange-700 dark:text-orange-400 font-semibold">High-Fire Kiln</span>
+                                <span class="px-2.5 py-1 rounded-md bg-orange-100 dark:bg-orange-900/60 text-orange-900 dark:text-orange-200 text-[10px] font-black uppercase tracking-wider">Warm Terracotta</span>
+                                <span class="text-xs text-orange-700 dark:text-orange-400 font-semibold">Red Gravel Powder</span>
                             </div>
                             <h4 class="text-base font-black text-slate-900 dark:text-white mb-2">
-                                Authentic Plered High-Fire Terracotta
+                                Natural Red Gravel Powder (Serbuk Gravel Merah)
                             </h4>
                             <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed mb-4">
-                                Made from selected Plered red clay and kiln-fired at high temperatures for optimal strength and porous breathability. Brings a warm, earthy terracotta charm reminiscent of Balearic summer houses, Bali resorts, and Spanish haciendas.
+                                Formulated from natural red gravel powder (serbuk batu gravel merah) bound with high-grade cement. Delivers an authentic warm earthen terracotta color with the solid durability and high compressive strength of concrete stone masonry.
                             </p>
                         </div>
                         <div class="pt-3 border-t border-orange-200/60 dark:border-orange-900/40 text-[11px] text-slate-500 dark:text-slate-400">
-                            <strong>Best For:</strong> Tropical resorts, rustic cafes, Spanish hacienda garden walls.
+                            <strong>Formula:</strong> Natural Red Gravel Powder + Cement (Solid Earthen Stone).
                         </div>
+                    </div>
                     </div>
                 </div>
             </div>
@@ -635,8 +639,96 @@
         </div>
 
         {{-- ══════════════════════════════════════════════════════════════
-             SECTION 08 — CURATED POPULAR EXPORT PRODUCTS PREVIEW
+             SECTION 08B — BESPOKE & CUSTOM ARCHITECTURAL MOULDS (CAD / 3D)
         ══════════════════════════════════════════════════════════════ --}}
+        <div class="rounded-3xl bg-slate-900 border border-terra-500/30 p-8 sm:p-12 text-white relative overflow-hidden shadow-2xl">
+            <div class="absolute right-0 top-0 w-80 h-80 bg-terra-500/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="max-w-4xl relative z-10">
+                <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-terra-500/20 text-terra-400 text-xs font-bold uppercase tracking-wider mb-4 border border-terra-500/30">
+                    📐 Architectural Bespoke Engineering
+                </span>
+                <h2 class="text-2xl sm:text-4xl font-black text-white tracking-tight mb-4">
+                    Custom Breeze Block Moulds for Architects & Developers
+                </h2>
+                <p class="text-xs sm:text-base text-slate-300 leading-relaxed mb-8">
+                    Have an exclusive signature pattern for your luxury resort, commercial tower, or villa development? Our master machinists in Plered engineer precision laser-cut steel moulds tailored precisely to your architectural drawings.
+                </p>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 text-xs">
+                    <div class="p-5 rounded-2xl bg-slate-950/80 border border-slate-800">
+                        <div class="text-2xl mb-2">📏</div>
+                        <strong class="text-white block text-sm font-bold mb-1">1. Dimensional Specs</strong>
+                        <p class="text-slate-400 leading-relaxed">Provide exact length × width × depth in millimeters, including perimeter bevels and rebar groove channel specifications.</p>
+                    </div>
+                    <div class="p-5 rounded-2xl bg-slate-950/80 border border-slate-800">
+                        <div class="text-2xl mb-2">📸</div>
+                        <strong class="text-white block text-sm font-bold mb-1">2. Sample Photo / Render</strong>
+                        <p class="text-slate-400 leading-relaxed">Submit reference photographs, architectural elevation drawings, or elevation sketches clearly showing void and solid mass ratios.</p>
+                    </div>
+                    <div class="p-5 rounded-2xl bg-slate-950/80 border border-slate-800">
+                        <div class="text-2xl mb-2">💻</div>
+                        <strong class="text-white block text-sm font-bold mb-1">3. 2D / 3D CAD Files</strong>
+                        <p class="text-slate-400 leading-relaxed">Send your digital vectors: AutoCAD (<code class="text-terra-400 font-mono">.dwg / .dxf</code>), SketchUp (<code class="text-terra-400 font-mono">.skp</code>), or 3D Object (<code class="text-terra-400 font-mono">.obj / .step</code>) files.</p>
+                    </div>
+                </div>
+
+                <div class="p-5 rounded-2xl bg-terra-500/10 border border-terra-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <span class="text-xs font-bold uppercase tracking-wider text-terra-400 block mb-0.5">MOQ & Tooling Lead Time</span>
+                        <p class="text-xs sm:text-sm text-slate-200">
+                            Minimum Order Quantity (MOQ): <strong>1,000 units per custom mould</strong>. Tooling fabrication: <strong>10–14 working days</strong> before container mass production kickoff.
+                        </p>
+                    </div>
+                    <a href="https://wa.me/{{ $waNumber }}?text={{ urlencode('Hello IndoRoster Technical Desk, I would like to consult on a Bespoke Custom Breeze Block Mould. I have CAD drawings and project specifications ready.') }}" target="_blank" rel="noopener noreferrer" class="px-6 py-3.5 rounded-xl bg-terra-500 hover:bg-terra-400 text-white font-bold text-xs sm:text-sm whitespace-nowrap shadow-lg shadow-terra-500/30 transition">
+                        <span>Consult Custom CAD (WhatsApp)</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        {{-- ══════════════════════════════════════════════════════════════
+             SECTION 08C — EXW OCEAN CONTAINER LOGISTICS GUIDE
+        ══════════════════════════════════════════════════════════════ --}}
+        <div class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-8 sm:p-12 shadow-soft-xs">
+            <div class="max-w-4xl">
+                <span class="text-xs font-bold uppercase tracking-wider text-terra-600 dark:text-terra-400">
+                    Transparent Workshop Logistics (EXW Terms)
+                </span>
+                <h2 class="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white mt-1 mb-3">
+                    Ocean Container Stuffing & Freight Forwarder Pick-Up
+                </h2>
+                <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-6">
+                    IndoRoster supplies bulk wholesale orders on an <strong>EXW (Ex Works — Workshop Gate, Citeko, Plered, Purwakarta)</strong> basis. Your designated ocean freight forwarder or logistics agent arranges container trucking directly from our workshop gate to the Port of Tanjung Priok, Jakarta (approx. 2.5 hours inland transit).
+                </p>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs border-collapse">
+                        <thead>
+                            <tr class="border-b border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 font-bold">
+                                <th class="py-3 px-4">Container Specification</th>
+                                <th class="py-3 px-4">Estimated Capacity</th>
+                                <th class="py-3 px-4">Packaging & Protection</th>
+                                <th class="py-3 px-4">Inland Haul Reference</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
+                            <tr>
+                                <td class="py-3.5 px-4 font-bold text-slate-900 dark:text-white">1×20' GP Container</td>
+                                <td class="py-3.5 px-4 font-semibold text-terra-600 dark:text-terra-400">2,400 – 2,800 units<br><span class="text-[10px] text-slate-400 font-normal">Approx. 96–112 m² wall area</span></td>
+                                <td class="py-3.5 px-4">10–12 heavy-duty timber pallets, corner edge protectors & PET strapping</td>
+                                <td class="py-3.5 px-4">Port of Tanjung Priok (IDJKT)<br><span class="text-[10px] text-slate-400">85 km / 2.5 hours domestic haul</span></td>
+                            </tr>
+                            <tr>
+                                <td class="py-3.5 px-4 font-bold text-slate-900 dark:text-white">LCL / Pallet Consolidation</td>
+                                <td class="py-3.5 px-4 font-semibold text-terra-600 dark:text-terra-400">240 – 480 units<br><span class="text-[10px] text-slate-400 font-normal">1 to 2 pallets minimum</span></td>
+                                <td class="py-3.5 px-4">Reinforced wooden crating with weatherproof UV wrap</td>
+                                <td class="py-3.5 px-4">Forwarder CFS Warehouse (Jakarta)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
         <div class="space-y-8">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>

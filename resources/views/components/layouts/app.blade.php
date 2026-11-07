@@ -830,6 +830,11 @@
                 </div>
             </div>
 
+            {{-- Widget Statistik Pengunjung Realtime (Di Bawah 4 Kolom Footer) --}}
+            <div class="mb-12">
+                <livewire:visitor-counter-realtime />
+            </div>
+
             <div class="border-t border-slate-900 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
                 <div class="flex flex-col sm:flex-row items-center gap-2 sm:gap-6 text-xs text-slate-500 text-center sm:text-left">
                     <p>&copy; {{ date('Y') }} INDOROSTER Indonesia. Hak Cipta Dilindungi.</p>

@@ -220,9 +220,9 @@ class InvoicePrintTest extends TestCase
         $this->assertStringContainsString('1.050.000', $html);
         $this->assertStringContainsString('9.450.000', $html);
         $this->assertStringContainsString('Klausul khusus proyek custom.', $html);
-        $this->assertStringContainsString('4356-01-009396-50-2', $html); // Rekening BRI
+        $this->assertStringContainsString('4356-0100-9396-502', $html); // Rekening BRI
         $this->assertStringContainsString('231-324-2412', $html); // Rekening BCA
-        $this->assertStringContainsString('131-00-1234567-8', $html); // Rekening Mandiri
+        $this->assertStringContainsString('1730-0197-04155', $html); // Rekening Mandiri
 
         // Assert PDF generation endpoint works
         $url = URL::signedRoute('print.invoice', ['invoice' => $invoice->id]);

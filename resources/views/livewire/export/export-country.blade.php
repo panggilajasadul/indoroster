@@ -249,8 +249,8 @@
                             @endif
 
                             @if($data['show_pdf_btn'] ?? true)
-                            <a href="https://drive.google.com/file/d/1wcBxdEv7yiytPlLSVE1ldl1rYpe0MHZZ/view?usp=drive_link" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center gap-2 px-6 py-4 rounded-xl bg-slate-900/60 hover:bg-slate-800 text-slate-300 font-semibold text-sm border border-slate-700/80 transition">
-                                <span>📥 PDF Catalog</span>
+                            <a href="{{ asset('downloads/indoroster-export-breeze-blocks-catalog.pdf') }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center gap-2 px-6 py-4 rounded-xl bg-slate-900/60 hover:bg-slate-800 text-slate-300 font-semibold text-sm border border-slate-700/80 transition">
+                                <span>📥 Download Official Export PDF</span>
                             </a>
                             @endif
                         </div>
@@ -1114,8 +1114,8 @@
                             <h3 class="text-2xl sm:text-3xl font-black text-white mb-2">{{ $data['lead_magnet_title'] ?? 'Mencari Inspirasi Produk & Spesifikasi Penuh?' }}</h3>
                             <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">{{ $data['lead_magnet_desc'] ?? 'Dapatkan katalog arsitektural lengkap berisi 45+ motif roster presisi, detail dimensi, dan panduan instalasi fasad dalam format PDF.' }}</p>
                         </div>
-                        <a href="https://drive.google.com/file/d/1wcBxdEv7yiytPlLSVE1ldl1rYpe0MHZZ/view?usp=drive_link" target="_blank" rel="noopener noreferrer" class="relative z-10 px-6 py-3.5 rounded-xl bg-terra-500 hover:bg-terra-400 text-white font-bold text-xs sm:text-sm shadow-lg shadow-terra-500/25 transition flex-shrink-0">
-                            <span>📥 Download PDF Catalog</span>
+                        <a href="{{ asset('downloads/indoroster-export-breeze-blocks-catalog.pdf') }}" target="_blank" rel="noopener noreferrer" class="relative z-10 px-6 py-3.5 rounded-xl bg-terra-500 hover:bg-terra-400 text-white font-bold text-xs sm:text-sm shadow-lg shadow-terra-500/25 transition flex-shrink-0">
+                            <span>📥 Download Official Export PDF</span>
                         </a>
                     </div>
 

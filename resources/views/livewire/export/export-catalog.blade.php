@@ -107,8 +107,8 @@
                     <a href="{{ route('export.gallery') }}" class="inline-flex items-center gap-1.5 px-5 py-3 rounded-xl bg-slate-800/90 hover:bg-slate-750 text-slate-200 font-bold text-xs border border-slate-700 transition">
                         <span>📸 View Project Gallery</span>
                     </a>
-                    <a href="https://drive.google.com/file/d/1wcBxdEv7yiytPlLSVE1ldl1rYpe0MHZZ/view?usp=drive_link" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-5 py-3 rounded-xl bg-slate-900/60 hover:bg-slate-800 text-slate-300 font-semibold text-xs border border-slate-700/80 transition">
-                        <span>📥 Download PDF Catalog</span>
+                    <a href="{{ asset('downloads/indoroster-export-breeze-blocks-catalog.pdf') }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-5 py-3 rounded-xl bg-slate-900/60 hover:bg-slate-800 text-slate-300 font-semibold text-xs border border-slate-700/80 transition">
+                        <span>📥 Download Official Export PDF</span>
                     </a>
                 </div>
             </div>

@@ -27,6 +27,7 @@ use App\Livewire\Export\ExportContent;
 use App\Livewire\Export\ExportCountry;
 use App\Livewire\Export\ExportGallery;
 use App\Livewire\Export\ExportHub;
+use App\Livewire\Export\ExportVideo;
 use App\Livewire\Gallery;
 use App\Livewire\Home;
 use App\Livewire\Location\LocationDetail;
@@ -166,9 +167,53 @@ Route::get('/aplikasi/{slug}', ApplicationDetail::class)->name('application.deta
 Route::get('/lokasi', LocationHub::class)->name('location.index');
 Route::get('/lokasi/{slug}', LocationDetail::class)->name('location.detail');
 
-// International Export Gateway — Portal & 110 Negara
+// ══════════════════════════════════════════════════════════════
+// SUBDOMAIN KHUSUS EKSPOR TERPISAH (export.indoroster.com & export.localhost)
+// ══════════════════════════════════════════════════════════════
+$exportDomains = [
+    'export.indoroster.com',
+    'export.localhost',
+    'export.indoroster.test',
+    'export.127.0.0.1.nip.io',
+];
+
+foreach ($exportDomains as $expDomain) {
+    Route::domain($expDomain)->group(function () {
+        Route::get('/', ExportHub::class)->name('export.subdomain.home');
+        Route::get('/gallery', ExportGallery::class)->name('export.subdomain.gallery');
+        Route::get('/video', ExportVideo::class)->name('export.subdomain.video');
+        Route::get('/catalog', ExportCatalog::class)->name('export.subdomain.catalog');
+
+        // Keyword Clusters
+        Route::get('/breeze-blocks', ExportContent::class)->name('export.subdomain.breeze-blocks');
+        Route::get('/concrete-screen-blocks', ExportContent::class)->name('export.subdomain.concrete-screen-blocks');
+        Route::get('/ventilation-blocks', ExportContent::class)->name('export.subdomain.ventilation-blocks');
+        Route::get('/mashrabiya', ExportContent::class)->name('export.subdomain.mashrabiya');
+        Route::get('/decorative-blocks', ExportContent::class)->name('export.subdomain.decorative-blocks');
+        Route::get('/screen-walls', ExportContent::class)->name('export.subdomain.screen-walls');
+        Route::get('/cobogo-blocks', ExportContent::class)->name('export.subdomain.cobogo-blocks');
+        Route::get('/claustra-blocks', ExportContent::class)->name('export.subdomain.claustra-blocks');
+
+        // Applications
+        Route::get('/for-villas', ExportContent::class)->name('export.subdomain.for-villas');
+        Route::get('/for-hotels', ExportContent::class)->name('export.subdomain.for-hotels');
+        Route::get('/for-resorts', ExportContent::class)->name('export.subdomain.for-resorts');
+        Route::get('/for-commercial', ExportContent::class)->name('export.subdomain.for-commercial');
+
+        // B2B Procurement
+        Route::get('/wholesale', ExportContent::class)->name('export.subdomain.wholesale');
+        Route::get('/request-quote', ExportContent::class)->name('export.subdomain.request-quote');
+        Route::get('/fob-shipping', ExportContent::class)->name('export.subdomain.fob-shipping');
+
+        // Country Specific Page
+        Route::get('/{countrySlug}', ExportCountry::class)->name('export.subdomain.country');
+    });
+}
+
+// International Export Gateway — Jalur URL Path (Fallback/Dual Access)
 Route::get('/export', ExportHub::class)->name('export.hub');
 Route::get('/export/gallery', ExportGallery::class)->name('export.gallery');
+Route::get('/export/video', ExportVideo::class)->name('export.video');
 Route::get('/export/catalog', ExportCatalog::class)->name('export.catalog');
 
 // Halaman Konten Export — Keyword Clusters (SEO/AEO/GEO)

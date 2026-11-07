@@ -63,6 +63,217 @@ class PageResource extends Resource
                         ->collapsed()
                         ->cloneable()
                         ->blocks([
+                            // ==================== [NEW ✨] BLOK REKOMENDASI TERBARU ====================
+                            Forms\Components\Builder\Block::make('kemudahan_layanan')
+                                ->label('✨ [BARU] Kemudahan Layanan (3 Kolom Checklist Checklist)')
+                                ->icon('heroicon-o-check-badge')
+                                ->schema([
+                                    Forms\Components\TextInput::make('title')
+                                        ->label('Judul Seksi')
+                                        ->default('Kemudahan Layanan')
+                                        ->required(),
+                                    Forms\Components\Textarea::make('subtitle')
+                                        ->label('Sub-judul / Penjelasan Singkat (Opsional)')
+                                        ->rows(2),
+                                    static::bgThemeSelect('white'),
+                                    Forms\Components\Repeater::make('columns')
+                                        ->label('Daftar Kolom Layanan (Default 3 Kolom)')
+                                        ->schema([
+                                            Forms\Components\TextInput::make('title')
+                                                ->label('Judul Kolom')
+                                                ->required(),
+                                            Forms\Components\Repeater::make('items')
+                                                ->label('Poin Checklist')
+                                                ->schema([
+                                                    Forms\Components\TextInput::make('text')
+                                                        ->label('Teks Poin Checklist')
+                                                        ->required(),
+                                                ])
+                                                ->default([
+                                                    ['text' => 'Poin layanan atau keunggulan'],
+                                                ]),
+                                        ])
+                                        ->default([
+                                            [
+                                                'title' => 'Layanan Konsultasi Produk',
+                                                'items' => [
+                                                    ['text' => 'Konsultasi pemilihan model roster'],
+                                                    ['text' => 'Rekomendasi ukuran sesuai kebutuhan bangunan'],
+                                                    ['text' => 'Panduan penggunaan roster untuk ventilasi dan fasad'],
+                                                    ['text' => 'Saran kombinasi roster dengan desain rumah'],
+                                                    ['text' => 'Konsultasi kebutuhan roster untuk proyek pembangunan'],
+                                                ],
+                                            ],
+                                            [
+                                                'title' => 'Ketersediaan Produk dan Pemesanan',
+                                                'items' => [
+                                                    ['text' => 'Pilihan motif roster lengkap'],
+                                                    ['text' => 'Melayani pembelian satuan dan partai'],
+                                                    ['text' => 'Stok tersedia langsung dari sentra produksi'],
+                                                    ['text' => 'Pemesanan mudah dan responsif'],
+                                                    ['text' => 'Siap melayani kebutuhan rumah dan proyek'],
+                                                ],
+                                            ],
+                                            [
+                                                'title' => 'Layanan Pengiriman dan Dukungan Teknis',
+                                                'items' => [
+                                                    ['text' => 'Pengiriman area Purwakarta dan sekitarnya'],
+                                                    ['text' => 'Melayani pengiriman luar kota'],
+                                                    ['text' => 'Pengemasan aman dan rapi'],
+                                                    ['text' => 'Koordinasi pengiriman sesuai jadwal pelanggan'],
+                                                    ['text' => 'Dukungan informasi pemasangan roster'],
+                                                ],
+                                            ],
+                                        ])
+                                        ->collapsible(),
+                                ]),
+
+                            Forms\Components\Builder\Block::make('mengapa_memilih_kami_v2')
+                                ->label('✨ [BARU] Mengapa Memilih Kami (Grid 6 Kartu Ikon Modern)')
+                                ->icon('heroicon-o-squares-2x2')
+                                ->schema([
+                                    Forms\Components\TextInput::make('title')
+                                        ->label('Judul Seksi')
+                                        ->default('Mengapa Memilih Kami?')
+                                        ->required(),
+                                    Forms\Components\Textarea::make('subtitle')
+                                        ->label('Sub-judul / Penjelasan Singkat (Opsional)')
+                                        ->rows(2),
+                                    static::bgThemeSelect('light'),
+                                    Forms\Components\Repeater::make('cards')
+                                        ->label('Kartu Keunggulan')
+                                        ->schema([
+                                            Forms\Components\Select::make('icon')
+                                                ->label('Pilihan Ikon')
+                                                ->options([
+                                                    'cube' => '🧊 Model / Motif Roster Geometris',
+                                                    'thumb' => '👍 Material Kuat & Berkualitas',
+                                                    'grid' => '📐 Pembelian Satuan & Skala Proyek',
+                                                    'price' => '🏷️ Harga Kompetitif Produsen',
+                                                    'truck' => '🚚 Pengiriman Mudah & Responsif',
+                                                    'home' => '🏡 Cocok untuk Berbagai Bangunan',
+                                                ])
+                                                ->default('cube')
+                                                ->required(),
+                                            Forms\Components\TextInput::make('title')
+                                                ->label('Judul Kartu')
+                                                ->required(),
+                                            Forms\Components\Textarea::make('description')
+                                                ->label('Deskripsi Kartu')
+                                                ->rows(3)
+                                                ->required(),
+                                        ])
+                                        ->columns(3)
+                                        ->default([
+                                            [
+                                                'icon' => 'cube',
+                                                'title' => 'Pilihan Model Roster Lengkap',
+                                                'description' => 'Tersedia berbagai motif roster ventilasi dan dekoratif yang cocok digunakan untuk fasad rumah, pagar, sekat ruangan, hingga kebutuhan proyek bangunan.',
+                                            ],
+                                            [
+                                                'icon' => 'thumb',
+                                                'title' => 'Material Kuat dan Tahan Lama',
+                                                'description' => 'Produk roster dibuat dari material pilihan yang kokoh dan tahan terhadap perubahan cuaca sehingga aman digunakan untuk interior maupun eksterior bangunan.',
+                                            ],
+                                            [
+                                                'icon' => 'grid',
+                                                'title' => 'Melayani Pembelian Satuan dan Proyek',
+                                                'description' => 'Rumah Roster melayani kebutuhan pembelian dalam jumlah kecil hingga skala besar untuk rumah pribadi, kontraktor, maupun proyek pembangunan.',
+                                            ],
+                                            [
+                                                'icon' => 'price',
+                                                'title' => 'Harga Kompetitif Langsung dari Produsen',
+                                                'description' => 'Sebagai supplier yang berada di sentra produksi roster Purwakarta, Rumah Roster menghadirkan harga yang lebih bersaing dengan kualitas produk yang tetap terjaga.',
+                                            ],
+                                            [
+                                                'icon' => 'truck',
+                                                'title' => 'Pengiriman Mudah dan Responsif',
+                                                'description' => 'Melayani pengiriman area Purwakarta dan sekitarnya hingga luar kota dengan proses pemesanan yang cepat dan koordinasi pengiriman yang rapi.',
+                                            ],
+                                            [
+                                                'icon' => 'home',
+                                                'title' => 'Cocok untuk Berbagai Kebutuhan Bangunan',
+                                                'description' => 'Roster dapat digunakan untuk ventilasi dinding, pagar rumah, sekat ruangan, fasad bangunan, hingga area taman sehingga menjadi solusi material yang fleksibel dan fungsional.',
+                                            ],
+                                        ])
+                                        ->collapsible(),
+                                ]),
+
+                            Forms\Components\Builder\Block::make('statistik_pencapaian_v2')
+                                ->label('✨ [BARU] Statistik Pencapaian (4 Kartu Angka & Ikon Warna)')
+                                ->icon('heroicon-o-presentation-chart-line')
+                                ->schema([
+                                    Forms\Components\TextInput::make('title')
+                                        ->label('Judul Seksi')
+                                        ->default('Statistik')
+                                        ->required(),
+                                    Forms\Components\Textarea::make('subtitle')
+                                        ->label('Sub-judul / Penjelasan Singkat (Opsional)')
+                                        ->rows(2),
+                                    static::bgThemeSelect('light'),
+                                    Forms\Components\Repeater::make('stats')
+                                        ->label('Daftar Angka Statistik')
+                                        ->schema([
+                                            Forms\Components\Select::make('icon')
+                                                ->label('Pilihan Ikon')
+                                                ->options([
+                                                    'arch' => '🏛️ Gapura / Model Roster (Oranye)',
+                                                    'users' => '👥 Pelanggan / Gear (Hijau)',
+                                                    'truck' => '🚚 Truk Pickup / Pengiriman (Biru)',
+                                                    'satisfaction' => '💖 Kepuasan Pelanggan / Komunitas (Pink)',
+                                                ])
+                                                ->default('arch')
+                                                ->required(),
+                                            Forms\Components\Select::make('color')
+                                                ->label('Aksen Warna Ikon')
+                                                ->options([
+                                                    'orange' => 'Oranye (Model Roster)',
+                                                    'green' => 'Hijau (Pelanggan)',
+                                                    'blue' => 'Biru (Wilayah Pengiriman)',
+                                                    'pink' => 'Pink / Magenta (Kepuasan)',
+                                                ])
+                                                ->default('green')
+                                                ->required(),
+                                            Forms\Components\TextInput::make('number')
+                                                ->label('Angka / Nilai')
+                                                ->placeholder('20+, 120+, 95%')
+                                                ->required(),
+                                            Forms\Components\TextInput::make('label')
+                                                ->label('Label Keterangan')
+                                                ->placeholder('Model Roster')
+                                                ->required(),
+                                        ])
+                                        ->columns(4)
+                                        ->default([
+                                            [
+                                                'icon' => 'arch',
+                                                'color' => 'orange',
+                                                'number' => '20+',
+                                                'label' => 'Model Roster',
+                                            ],
+                                            [
+                                                'icon' => 'users',
+                                                'color' => 'green',
+                                                'number' => '120+',
+                                                'label' => 'Pelanggan Terlayani',
+                                            ],
+                                            [
+                                                'icon' => 'truck',
+                                                'color' => 'blue',
+                                                'number' => '15+',
+                                                'label' => 'Wilayah Pengiriman',
+                                            ],
+                                            [
+                                                'icon' => 'satisfaction',
+                                                'color' => 'pink',
+                                                'number' => '95%',
+                                                'label' => 'Kepuasan Pelanggan',
+                                            ],
+                                        ])
+                                        ->collapsible(),
+                                ]),
+
+                            // ==================== BLOK LAMA ====================
                             Forms\Components\Builder\Block::make('horizon_banner_slider')
                                 ->label('[1. Hero] 🎠 Horizon Multi-Card Banner Slider (Galeri / Video / Promo)')
                                 ->icon('heroicon-o-view-columns')
@@ -501,22 +712,98 @@ class PageResource extends Resource
                                 ->label('[4. Harga] 💰 Harga Grosir & Perbandingan Harga 3 Tingkat')
                                 ->icon('heroicon-o-currency-dollar')
                                 ->schema([
-                                    Forms\Components\Grid::make(2)->schema([
-                                        Forms\Components\TextInput::make('badge')->label('Label Kecil Atas')->default('Harga Langsung Pabrik · Kontraktor · Distributor'),
-                                        static::bgThemeSelect('white'),
-                                    ]),
-                                    Forms\Components\TextInput::make('title')->label('Judul Seksi')->default('Makin Banyak Makin Murah — Harga Langsung Pabrik'),
-                                    Forms\Components\Textarea::make('subtitle')->label('Sub-judul')->rows(2)->default('Kontraktor, tukang, distributor, dan pengembang — kapasitas produksi kami 6.000 pcs dalam 6 hari (tergantung motif). Pesan 1.000 pcs ke atas dan dapatkan harga spesial.'),
-                                    Forms\Components\Grid::make(4)->schema([
-                                        Forms\Components\TextInput::make('wholesale_price')->label('Harga Grosir (1.000+ pcs)')->default('9.500')->helperText('Tulis angkanya saja, misal: 9.500'),
-                                        Forms\Components\TextInput::make('normal_price')->label('Harga Normal Eceran Pabrik')->default('12.000'),
-                                        Forms\Components\TextInput::make('store_price')->label('Harga di Toko Material')->default('15.000'),
-                                        Forms\Components\TextInput::make('min_free_ongkir')->label('Min. Pcs Gratis Ongkir')->default('50'),
-                                    ]),
-                                    Forms\Components\Grid::make(2)->schema([
-                                        Forms\Components\TextInput::make('cta_text')->label('Teks Tombol WhatsApp')->default('Tanya Harga Grosir via WhatsApp'),
-                                        Forms\Components\TextInput::make('cta_url')->label('Link WhatsApp')->default('https://wa.me/6281234567890'),
-                                    ]),
+                                    Forms\Components\Tabs::make('WholesalePricingTabs')
+                                        ->tabs([
+                                            Forms\Components\Tabs\Tab::make('Header & Banner')
+                                                ->schema([
+                                                    Forms\Components\Grid::make(2)->schema([
+                                                        Forms\Components\TextInput::make('badge')->label('Label Kecil Atas')->default('Harga Langsung Pabrik · Kontraktor · Distributor'),
+                                                        static::bgThemeSelect('white'),
+                                                    ]),
+                                                    Forms\Components\TextInput::make('title')->label('Judul Seksi')->default('Makin Banyak Makin Murah — Harga Langsung Pabrik')->required(),
+                                                    Forms\Components\Textarea::make('subtitle')->label('Sub-judul / Deskripsi Seksi')->rows(2)->default('Kontraktor, tukang, distributor, dan pengembang — kapasitas produksi kami 6.000 pcs dalam 6 hari (tergantung motif). Pesan 1.000 pcs ke atas dan dapatkan harga spesial, plus gratis ongkir area Jabodetabek.'),
+                                                    Forms\Components\Section::make('Banner Gratis Ongkir (Highlight Atas)')
+                                                        ->schema([
+                                                            Forms\Components\TextInput::make('banner_title')->label('Judul Banner')->default('GRATIS ONGKIR area Jabodetabek 🎉'),
+                                                            Forms\Components\TextInput::make('banner_subtitle')->label('Keterangan Banner')->default('Khusus pembelian minimal 50 pcs — Jakarta, Bogor, Depok, Tangerang, Bekasi.'),
+                                                            Forms\Components\Grid::make(2)->schema([
+                                                                Forms\Components\TextInput::make('cta_text')->label('Teks Tombol WhatsApp')->default('Tanya Harga Grosir via WhatsApp'),
+                                                                Forms\Components\TextInput::make('cta_url')->label('Link WhatsApp Tombol')->default('https://wa.me/6281389709847?text=Halo%20IndoRoster,%20saya%20mau%20tanya%20penawaran%20harga%20grosir%20proyek'),
+                                                            ]),
+                                                        ])->collapsible(),
+                                                ]),
+
+                                            Forms\Components\Tabs\Tab::make('Kartu 1: Pesanan Proyek (Tengah / Rekomendasi)')
+                                                ->schema([
+                                                    Forms\Components\TextInput::make('card1_badge')->label('Badge Atas Kartu')->default('⭐ PALING HEMAT'),
+                                                    Forms\Components\TextInput::make('card1_label')->label('Label Tipe Pesanan')->default('PESANAN PROYEK / 1.000+ PCS'),
+                                                    Forms\Components\Grid::make(3)->schema([
+                                                        Forms\Components\TextInput::make('wholesale_price')->label('Harga Grosir')->default('9.500')->helperText('Contoh: 9.500'),
+                                                        Forms\Components\TextInput::make('card1_unit')->label('Satuan')->default('/pcs'),
+                                                        Forms\Components\TextInput::make('card1_strike_price')->label('Harga Coret (Perbandingan)')->default('Rp 12.000'),
+                                                    ]),
+                                                    Forms\Components\Textarea::make('card1_desc')->label('Deskripsi Kartu')->rows(2)->default('Hemat langsung dari produksi pengrajin. Kapasitas suplai terjaga hingga 6.000 pcs dalam 6 hari.'),
+                                                    Forms\Components\Repeater::make('card1_features')
+                                                        ->label('Poin Keunggulan (Checklist)')
+                                                        ->schema([
+                                                            Forms\Components\TextInput::make('text')->label('Teks Poin Keunggulan')->required(),
+                                                        ])
+                                                        ->default([
+                                                            ['text' => 'Stok prioritas & jadwal kirim terjadwal'],
+                                                            ['text' => 'Faktur / Kwitansi resmi proyek'],
+                                                            ['text' => 'Bantuan hitung m² & rincian pcs'],
+                                                        ]),
+                                                    Forms\Components\Grid::make(2)->schema([
+                                                        Forms\Components\TextInput::make('card1_btn_text')->label('Teks Tombol')->default('Klaim Harga Grosir'),
+                                                        Forms\Components\TextInput::make('card1_btn_url')->label('Link Tombol')->default('https://wa.me/6281389709847?text=Halo%20IndoRoster,%20saya%20mau%20klaim%20harga%20grosir%20proyek'),
+                                                    ]),
+                                                ]),
+
+                                            Forms\Components\Tabs\Tab::make('Kartu 2: Harga Pabrik Normal (Kiri)')
+                                                ->schema([
+                                                    Forms\Components\TextInput::make('card2_label')->label('Label Tipe Pesanan')->default('HARGA PABRIK NORMAL'),
+                                                    Forms\Components\Grid::make(2)->schema([
+                                                        Forms\Components\TextInput::make('normal_price')->label('Harga Eceran Pabrik')->default('12.000'),
+                                                        Forms\Components\TextInput::make('card2_unit')->label('Satuan')->default('/pcs'),
+                                                    ]),
+                                                    Forms\Components\Textarea::make('card2_desc')->label('Deskripsi Kartu')->rows(2)->default('Cocok untuk renovasi rumah tinggal, pagar, atau fasad pribadi dengan kualitas cetak tumbuk padat presisi.'),
+                                                    Forms\Components\Repeater::make('card2_features')
+                                                        ->label('Poin Keunggulan (Checklist)')
+                                                        ->schema([
+                                                            Forms\Components\TextInput::make('text')->label('Teks Poin Keunggulan')->required(),
+                                                        ])
+                                                        ->default([
+                                                            ['text' => 'Gratis ongkir Jabodetabek min. 50 pcs'],
+                                                            ['text' => 'Bebas pilih 90+ variasi motif'],
+                                                            ['text' => 'Garansi ganti baru jika retak'],
+                                                        ]),
+                                                    Forms\Components\Grid::make(2)->schema([
+                                                        Forms\Components\TextInput::make('card2_btn_text')->label('Teks Tombol')->default('Pesan Eceran'),
+                                                        Forms\Components\TextInput::make('card2_btn_url')->label('Link Tombol')->default('/katalog'),
+                                                    ]),
+                                                ]),
+
+                                            Forms\Components\Tabs\Tab::make('Kartu 3: Toko Material Bangunan (Kanan)')
+                                                ->schema([
+                                                    Forms\Components\TextInput::make('card3_label')->label('Label Pembanding')->default('TOKO MATERIAL BANGUNAN'),
+                                                    Forms\Components\Grid::make(2)->schema([
+                                                        Forms\Components\TextInput::make('store_price')->label('Harga di Toko Retail')->default('15.000'),
+                                                        Forms\Components\TextInput::make('card3_unit')->label('Satuan')->default('/pcs'),
+                                                    ]),
+                                                    Forms\Components\Textarea::make('card3_desc')->label('Deskripsi Kartu')->rows(2)->default('Harga di pasaran umum/toko retail bisa jauh lebih tinggi karena jalur distribusi perantara berantai.'),
+                                                    Forms\Components\Repeater::make('card3_features')
+                                                        ->label('Poin Kekurangan Toko Lain (Tanda Silang)')
+                                                        ->schema([
+                                                            Forms\Components\TextInput::make('text')->label('Teks Poin')->required(),
+                                                        ])
+                                                        ->default([
+                                                            ['text' => 'Harga lewat tangan perantara'],
+                                                            ['text' => 'Pilihan motif seringkali terbatas'],
+                                                            ['text' => 'Ongkir tambahan seringkali mahal'],
+                                                        ]),
+                                                    Forms\Components\TextInput::make('card3_badge_bottom')->label('Kotak Highlight Bawah')->default('💡 Anda hemat hingga Rp 5.500/pcs bila beli langsung dari pabrik kami!'),
+                                                ]),
+                                        ]),
                                 ]),
 
                             Forms\Components\Builder\Block::make('katalog_categories')
