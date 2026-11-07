@@ -170,45 +170,43 @@ Route::get('/lokasi/{slug}', LocationDetail::class)->name('location.detail');
 // ══════════════════════════════════════════════════════════════
 // SUBDOMAIN KHUSUS EKSPOR TERPISAH (export.indoroster.com & export.localhost)
 // ══════════════════════════════════════════════════════════════
-$exportDomains = [
-    'export.indoroster.com',
-    'export.localhost',
-    'export.indoroster.test',
-    'export.127.0.0.1.nip.io',
-];
+$appHost = parse_url(config('app.url', 'http://localhost'), PHP_URL_HOST);
+$exportDomain = env('EXPORT_DOMAIN', (
+    ($appHost && ! in_array($appHost, ['localhost', '127.0.0.1']))
+        ? 'export.' . preg_replace('/^www\./', '', $appHost)
+        : 'export.localhost'
+));
 
-foreach ($exportDomains as $expDomain) {
-    Route::domain($expDomain)->group(function () {
-        Route::get('/', ExportHub::class)->name('export.subdomain.home');
-        Route::get('/gallery', ExportGallery::class)->name('export.subdomain.gallery');
-        Route::get('/video', ExportVideo::class)->name('export.subdomain.video');
-        Route::get('/catalog', ExportCatalog::class)->name('export.subdomain.catalog');
+Route::domain($exportDomain)->group(function () {
+    Route::get('/', ExportHub::class)->name('export.subdomain.home');
+    Route::get('/gallery', ExportGallery::class)->name('export.subdomain.gallery');
+    Route::get('/video', ExportVideo::class)->name('export.subdomain.video');
+    Route::get('/catalog', ExportCatalog::class)->name('export.subdomain.catalog');
 
-        // Keyword Clusters
-        Route::get('/breeze-blocks', ExportContent::class)->name('export.subdomain.breeze-blocks');
-        Route::get('/concrete-screen-blocks', ExportContent::class)->name('export.subdomain.concrete-screen-blocks');
-        Route::get('/ventilation-blocks', ExportContent::class)->name('export.subdomain.ventilation-blocks');
-        Route::get('/mashrabiya', ExportContent::class)->name('export.subdomain.mashrabiya');
-        Route::get('/decorative-blocks', ExportContent::class)->name('export.subdomain.decorative-blocks');
-        Route::get('/screen-walls', ExportContent::class)->name('export.subdomain.screen-walls');
-        Route::get('/cobogo-blocks', ExportContent::class)->name('export.subdomain.cobogo-blocks');
-        Route::get('/claustra-blocks', ExportContent::class)->name('export.subdomain.claustra-blocks');
+    // Keyword Clusters
+    Route::get('/breeze-blocks', ExportContent::class)->name('export.subdomain.breeze-blocks');
+    Route::get('/concrete-screen-blocks', ExportContent::class)->name('export.subdomain.concrete-screen-blocks');
+    Route::get('/ventilation-blocks', ExportContent::class)->name('export.subdomain.ventilation-blocks');
+    Route::get('/mashrabiya', ExportContent::class)->name('export.subdomain.mashrabiya');
+    Route::get('/decorative-blocks', ExportContent::class)->name('export.subdomain.decorative-blocks');
+    Route::get('/screen-walls', ExportContent::class)->name('export.subdomain.screen-walls');
+    Route::get('/cobogo-blocks', ExportContent::class)->name('export.subdomain.cobogo-blocks');
+    Route::get('/claustra-blocks', ExportContent::class)->name('export.subdomain.claustra-blocks');
 
-        // Applications
-        Route::get('/for-villas', ExportContent::class)->name('export.subdomain.for-villas');
-        Route::get('/for-hotels', ExportContent::class)->name('export.subdomain.for-hotels');
-        Route::get('/for-resorts', ExportContent::class)->name('export.subdomain.for-resorts');
-        Route::get('/for-commercial', ExportContent::class)->name('export.subdomain.for-commercial');
+    // Applications
+    Route::get('/for-villas', ExportContent::class)->name('export.subdomain.for-villas');
+    Route::get('/for-hotels', ExportContent::class)->name('export.subdomain.for-hotels');
+    Route::get('/for-resorts', ExportContent::class)->name('export.subdomain.for-resorts');
+    Route::get('/for-commercial', ExportContent::class)->name('export.subdomain.for-commercial');
 
-        // B2B Procurement
-        Route::get('/wholesale', ExportContent::class)->name('export.subdomain.wholesale');
-        Route::get('/request-quote', ExportContent::class)->name('export.subdomain.request-quote');
-        Route::get('/fob-shipping', ExportContent::class)->name('export.subdomain.fob-shipping');
+    // B2B Procurement
+    Route::get('/wholesale', ExportContent::class)->name('export.subdomain.wholesale');
+    Route::get('/request-quote', ExportContent::class)->name('export.subdomain.request-quote');
+    Route::get('/fob-shipping', ExportContent::class)->name('export.subdomain.fob-shipping');
 
-        // Country Specific Page
-        Route::get('/{countrySlug}', ExportCountry::class)->name('export.subdomain.country');
-    });
-}
+    // Country Specific Page
+    Route::get('/{countrySlug}', ExportCountry::class)->name('export.subdomain.country');
+});
 
 // International Export Gateway — Jalur URL Path (Fallback/Dual Access)
 Route::get('/export', ExportHub::class)->name('export.hub');
